@@ -16,7 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * restoreremote module admin settings and defaults
+ * Course Transfer plugin admin settings and defaults
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
@@ -24,3 +24,12 @@
  */
 
 defined('MOODLE_INTERNAL') || die;
+
+if ($hassiteconfig) {
+    $settings = new admin_settingpage('local_coursetransfer',
+        get_string('pluginname', 'local_coursetransfer'));
+    $ADMIN->add('localplugins', $settings);
+    $settings->add(new admin_setting_heading('local_coursetransfer/pluginname', 'Main header',
+        new lang_string('local_coursetransferdescription', 'local_coursetransfer')));
+
+}

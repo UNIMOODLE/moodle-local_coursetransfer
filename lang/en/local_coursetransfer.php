@@ -23,3 +23,4 @@
  */
 
 $string['pluginname'] = 'Course Transfer';
+$string['local_coursetransferdescription'] = "Description";
