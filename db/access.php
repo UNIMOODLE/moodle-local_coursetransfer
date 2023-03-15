@@ -48,6 +48,45 @@ $capabilities = array(
         'archetypes' => array(
             'admin' => CAP_ALLOW,
         )
+    ),
+
+    'local/coursetransfer:destiny_restore_content_remove' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'admin' => CAP_ALLOW,
+        )
+    ),
+
+    'local/coursetransfer:destiny_restore_merge' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'admin' => CAP_ALLOW,
+        )
+    ),
+
+    'local/coursetransfer:destiny_restore_enrol_remove' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'admin' => CAP_ALLOW,
+        )
+    ),
+
+    'local/coursetransfer:destiny_restore_groups_remove' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'admin' => CAP_ALLOW,
+        )
+    ),
+
+    'local/coursetransfer:origin_remove_course' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'admin' => CAP_ALLOW,
+        )
     )
 );
-
