@@ -41,44 +41,27 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
-class coursetransfer_external extends external_api {
+class coursetransfer_external extends external_api
+{
 
     /**
-     * @return external_function_parameters
-     */
-    public static function remote_has_user_parameters(): external_function_parameters {
-        return new external_function_parameters(
-            array(
-                'username' => new external_value(PARAM_TEXT, 'Username'),
-            )
-        );
-    }
-
-    /**
-     * Check if user exists (remote)
-     *
-     * @param string $username
+     * Get list of origin sites configured
      *
      * @return array
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
      */
-    public static function remote_has_user(string $username): array {
-
-        self::validate_parameters(
-            self::remote_has_user_parameters(), [
-                'username' => $username,
-            ]
-        );
+    public static function origin_sites(): array
+    {
 
         $success = true;
+        $message = '';
         $errors = [];
         $data = new stdClass();
 
         try {
-            // TODO. remote_has_user logic
+            // TODO. origin_sites logic
         } catch (moodle_exception $e) {
             $success = false;
+            $message = $e->getMessage();
             $errors[] =
                 [
                     'param' => 'no_params',
@@ -88,6 +71,7 @@ class coursetransfer_external extends external_api {
 
         return [
             'success' => $success,
+            'message' => $message,
             'errors' => $errors,
             'data' => $data
         ];
@@ -96,52 +80,62 @@ class coursetransfer_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function remote_has_user_returns(): external_single_structure {
+    public static function origin_sites_returns(): external_single_structure
+    {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'errors' => new external_multiple_structure( new external_single_structure(
+                'message' => new external_value(PARAM_TEXT, 'Message'),
+                'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'param' => new external_value(PARAM_TEXT, 'Param'),
                         'string' => new external_value(PARAM_TEXT, 'String')
-                    ),PARAM_TEXT, 'Parameters errors')),
-                'data' => new external_single_structure(
+                    ), PARAM_TEXT, 'Parameters errors'
+                )),
+                'data' => new external_multiple_structure(new external_single_structure(
                     array(
-                        'userid' => new external_value(PARAM_INT, 'User ID'),
-                    )
-                    ,PARAM_TEXT, 'Data'))
+                        'host' => new external_value(PARAM_TEXT, 'Host')
+                    ), PARAM_TEXT, 'Sites List'
+                ))
+            )
         );
     }
 
     /**
      * @return external_function_parameters
      */
-    public static function origin_has_user_parameters(): external_function_parameters {
+    public static function origin_has_user_parameters(): external_function_parameters
+    {
         return new external_function_parameters(
             array(
-                'username' => new external_value(PARAM_TEXT, 'Username'),
+                'field' => new external_value(PARAM_TEXT, 'Field'),
+                'value' => new external_value(PARAM_TEXT, 'Value')
             )
         );
     }
 
     /**
-     * Check if user exists (origin)
+     * Check if user exists
      *
-     * @param string $username
+     * @param string $field
+     * @param string $value
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_has_user(string $username): array {
+    public static function origin_has_user(string $field, string $value): array
+    {
 
         self::validate_parameters(
             self::origin_has_user_parameters(), [
-                'username' => $username,
+                'field' => $field,
+                'value' => $value
             ]
         );
 
         $success = true;
+        $message = '';
         $errors = [];
         $data = new stdClass();
 
@@ -149,6 +143,7 @@ class coursetransfer_external extends external_api {
             // TODO. origin_has_user logic
         } catch (moodle_exception $e) {
             $success = false;
+            $message = $e->getMessage();
             $errors[] =
                 [
                     'param' => 'no_params',
@@ -158,6 +153,7 @@ class coursetransfer_external extends external_api {
 
         return [
             'success' => $success,
+            'message' => $message,
             'errors' => $errors,
             'data' => $data
         ];
@@ -166,127 +162,66 @@ class coursetransfer_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_has_user_returns(): external_single_structure {
+    public static function origin_has_user_returns(): external_single_structure
+    {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'errors' => new external_multiple_structure( new external_single_structure(
+                'message' => new external_value(PARAM_TEXT, 'Message'),
+                'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'param' => new external_value(PARAM_TEXT, 'Param'),
                         'string' => new external_value(PARAM_TEXT, 'String')
-                    ),PARAM_TEXT, 'Parameters errors')),
+                    ), PARAM_TEXT, 'Parameters errors'
+                )),
                 'data' => new external_single_structure(
                     array(
                         'userid' => new external_value(PARAM_INT, 'User ID'),
-                    )
-                    ,PARAM_TEXT, 'User'))
+                        'username' => new external_value(PARAM_TEXT, 'Username'),
+                        'firstname' => new external_value(PARAM_TEXT, 'Firstname'),
+                        'lastname' => new external_value(PARAM_TEXT, 'Lastname'),
+                        'email' => new external_value(PARAM_TEXT, 'Email')
+                    ), PARAM_TEXT, 'User information'
+                )
+            )
         );
     }
 
     /**
      * @return external_function_parameters
      */
-    public static function remote_get_courses_parameters(): external_function_parameters {
+    public static function origin_get_courses_parameters(): external_function_parameters
+    {
         return new external_function_parameters(
             array(
-                'username' => new external_value(PARAM_TEXT, 'Username'),
+                'field' => new external_value(PARAM_TEXT, 'Field'),
+                'value' => new external_value(PARAM_TEXT, 'Value')
             )
         );
     }
 
     /**
-     * Get courses from user (remote)
+     * Get list of courses
      *
-     * @param string $username
-     *
-     * @return array
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
-     */
-    public static function remote_get_courses(string $username): array {
-
-        self::validate_parameters(
-            self::remote_get_courses_parameters(), [
-                'username' => $username,
-            ]
-        );
-
-        $success = true;
-        $errors = [];
-        $data = new stdClass();
-
-        try {
-            // TODO. origin_has_user logic
-        } catch (moodle_exception $e) {
-            $success = false;
-            $errors[] =
-                [
-                    'param' => 'no_params',
-                    'string' => $e->getMessage()
-                ];
-        }
-
-        return [
-            'success' => $success,
-            'errors' => $errors,
-            'data' => $data
-        ];
-    }
-
-    /**
-     * @return external_single_structure
-     */
-    public static function remote_get_courses_returns(): external_single_structure {
-        return new external_single_structure(
-            array(
-                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'errors' => new external_multiple_structure( new external_single_structure(
-                    array(
-                        'param' => new external_value(PARAM_TEXT, 'Param'),
-                        'string' => new external_value(PARAM_TEXT, 'String')
-                    ),PARAM_TEXT, 'Parameters errors')),
-                'data' => new external_multiple_structure( new external_single_structure(
-                    array(
-                        'id' => new external_value(PARAM_INT, 'Course ID'),
-                        'fullname' => new external_value(PARAM_TEXT, 'Fullname'),
-                        'shortname' => new external_value(PARAM_TEXT, 'Shortname'),
-                        'idnumber' => new external_value(PARAM_INT, 'idNumber'),
-                        'categoryid' => new external_value(PARAM_INT, 'Category ID'),
-                        'categoryname' => new external_value(PARAM_TEXT, 'Category Name')
-                    )
-                ),PARAM_TEXT, 'Course Info'))
-        );
-    }
-
-    /**
-     * @return external_function_parameters
-     */
-    public static function origin_get_courses_parameters(): external_function_parameters {
-        return new external_function_parameters(
-            array(
-                'username' => new external_value(PARAM_TEXT, 'Username'),
-            )
-        );
-    }
-
-    /**
-     * Get course (origin)
-     *
-     * @param string $username
+     * @param string $field
+     * @param string $value
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_get_courses(string $username): array {
+    public static function origin_get_courses(string $field, string $value): array
+    {
 
         self::validate_parameters(
             self::origin_get_courses_parameters(), [
-                'username' => $username,
+                'field' => $field,
+                'value' => $value
             ]
         );
 
         $success = true;
+        $message = '';
         $errors = [];
         $data = new stdClass();
 
@@ -294,6 +229,7 @@ class coursetransfer_external extends external_api {
             // TODO. origin_get_courses logic
         } catch (moodle_exception $e) {
             $success = false;
+            $message = $e->getMessage();
             $errors[] =
                 [
                     'param' => 'no_params',
@@ -303,6 +239,7 @@ class coursetransfer_external extends external_api {
 
         return [
             'success' => $success,
+            'message' => $message,
             'errors' => $errors,
             'data' => $data
         ];
@@ -311,16 +248,19 @@ class coursetransfer_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_get_courses_returns(): external_single_structure {
+    public static function origin_get_courses_returns(): external_single_structure
+    {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'errors' => new external_multiple_structure( new external_single_structure(
+                'message' => new external_value(PARAM_TEXT, 'Message'),
+                'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'param' => new external_value(PARAM_TEXT, 'Param'),
                         'string' => new external_value(PARAM_TEXT, 'String')
-                    ),PARAM_TEXT, 'Parameters errors')),
-                'data' => new external_multiple_structure( new external_single_structure(
+                    ), PARAM_TEXT, 'Parameters errors'
+                )),
+                'data' => new external_multiple_structure(new external_single_structure(
                     array(
                         'id' => new external_value(PARAM_INT, 'Course ID'),
                         'fullname' => new external_value(PARAM_TEXT, 'Fullname'),
@@ -328,50 +268,59 @@ class coursetransfer_external extends external_api {
                         'idnumber' => new external_value(PARAM_INT, 'idNumber'),
                         'categoryid' => new external_value(PARAM_INT, 'Category ID'),
                         'categoryname' => new external_value(PARAM_TEXT, 'Category Name')
-                    )
-                ),PARAM_TEXT, 'Course Info'))
+                    ), PARAM_TEXT, 'Courses information'
+                ))
+            )
         );
     }
+
 
     /**
      * @return external_function_parameters
      */
-    public static function remote_get_course_detail_parameters(): external_function_parameters {
+    public static function origin_get_course_detail_parameters(): external_function_parameters
+    {
         return new external_function_parameters(
             array(
-                'username' => new external_value(PARAM_TEXT, 'Username'),
+                'field' => new external_value(PARAM_TEXT, 'Field'),
+                'value' => new external_value(PARAM_TEXT, 'Value'),
                 'courseid' => new external_value(PARAM_INT, 'Course ID')
             )
         );
     }
 
     /**
-     * Get courses from user (origin)
+     * Get course detail
      *
-     * @param string $username
+     * @param string $field
+     * @param string $value
      * @param int $courseid
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function remote_get_course_detail(string $username, int $courseid): array {
+    public static function origin_get_course_detail(string $field, string $value, int $courseid): array
+    {
 
         self::validate_parameters(
-            self::remote_get_course_detail_parameters(), [
-                'username' => $username,
+            self::origin_get_course_detail_parameters(), [
+                'field' => $field,
+                'value' => $value,
                 'courseid' => $courseid
             ]
         );
 
         $success = true;
+        $message = '';
         $errors = [];
         $data = new stdClass();
 
         try {
-            // TODO. remote_get_course_detail logic
+            // TODO. origin_get_course_detail logic
         } catch (moodle_exception $e) {
             $success = false;
+            $message = $e->getMessage();
             $errors[] =
                 [
                     'param' => 'no_params',
@@ -381,6 +330,7 @@ class coursetransfer_external extends external_api {
 
         return [
             'success' => $success,
+            'message' => $success,
             'errors' => $errors,
             'data' => $data
         ];
@@ -389,15 +339,18 @@ class coursetransfer_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function remote_get_course_detail_returns(): external_single_structure {
+    public static function origin_get_course_detail_returns(): external_single_structure
+    {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'errors' => new external_multiple_structure( new external_single_structure(
+                'message' => new external_value(PARAM_TEXT, 'Message'),
+                'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'param' => new external_value(PARAM_TEXT, 'Param'),
                         'string' => new external_value(PARAM_TEXT, 'String')
-                    ),PARAM_TEXT, 'Parameters errors')),
+                    ), PARAM_TEXT, 'Parameters errors'
+                )),
                 'data' => new external_single_structure(
                     array(
                         'id' => new external_value(PARAM_INT, 'Course ID'),
@@ -406,23 +359,23 @@ class coursetransfer_external extends external_api {
                         'idnumber' => new external_value(PARAM_INT, 'idNumber'),
                         'categoryid' => new external_value(PARAM_INT, 'Category ID'),
                         'categoryname' => new external_value(PARAM_TEXT, 'Category Name'),
-                        'sections' => new external_multiple_structure( new external_single_structure(
+                        'backupsizeestimated' => new external_value(PARAM_TEXT, 'Backup Size Estimated'),
+                        'sections' => new external_multiple_structure(new external_single_structure(
                             array(
                                 'sectionnum' => new external_value(PARAM_INT, 'Section Number'),
+                                'sectionid' => new external_value(PARAM_INT, 'Section ID'),
                                 'sectionname' => new external_value(PARAM_TEXT, 'Section Name'),
-                                'modules' => new external_multiple_structure( new external_single_structure(
+                                'activities' => new external_multiple_structure(new external_single_structure(
                                     array(
                                         'cmid' => new external_value(PARAM_INT, 'CMID'),
                                         'name' => new external_value(PARAM_TEXT, 'Name'),
-                                        'instance' => new external_value(PARAM_TEXT, 'Instance'),
+                                        'instanceid' => new external_value(PARAM_INT, 'Instance ID'),
                                         'modulename' => new external_value(PARAM_TEXT, 'Module Name')
-
                                     )
                                 ))
                             )
                         ))
-                    )
-                    ,PARAM_TEXT, 'Course Info'
+                    ), PARAM_TEXT, 'Course information'
                 )
             )
         );
@@ -431,276 +384,73 @@ class coursetransfer_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function remote_get_course_size_parameters(): external_function_parameters {
+    public static function origin_backup_course_parameters(): external_function_parameters
+    {
         return new external_function_parameters(
             array(
-                'username' => new external_value(PARAM_TEXT, 'Username'),
-                'courseid' => new external_value(PARAM_INT, 'Course ID')
-            )
-        );
-    }
-
-    /**
-     * Get course size (MB)
-     *
-     * @param string $username
-     * @param int $courseid
-     *
-     * @return array
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
-     */
-    public static function remote_get_course_size(string $username, int $courseid): array {
-
-        self::validate_parameters(
-            self::remote_get_course_size_parameters(), [
-                'username' => $username,
-                'courseid' => $courseid
-            ]
-        );
-
-        $success = true;
-        $errors = [];
-        $data = new stdClass();
-
-        try {
-            // TODO. remote_get_course_size logic
-        } catch (moodle_exception $e) {
-            $success = false;
-            $errors[] =
-                [
-                    'param' => 'no_params',
-                    'string' => $e->getMessage()
-                ];
-        }
-
-        return [
-            'success' => $success,
-            'errors' => $errors,
-            'data' => $data
-        ];
-    }
-
-    /**
-     * @return external_single_structure
-     */
-    public static function remote_get_course_size_returns(): external_single_structure {
-        return new external_single_structure(
-            array(
-                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'errors' => new external_multiple_structure( new external_single_structure(
-                    array(
-                        'param' => new external_value(PARAM_TEXT, 'Param'),
-                        'string' => new external_value(PARAM_TEXT, 'String')
-                    ),PARAM_TEXT, 'Parameters errors')),
-                'data' => new external_single_structure(
-                    array(
-                        'size' => new external_value(PARAM_INT, 'Size MB'),
-                    )
-                    ,PARAM_TEXT, 'Data'
-                )
-            )
-        );
-    }
-
-    /**
-     * @return external_function_parameters
-     */
-    public static function remote_get_site_space_available_parameters(): external_function_parameters {
-        return new external_function_parameters(
-            array(
-                'username' => new external_value(PARAM_TEXT, 'Username')
-            )
-        );
-    }
-
-    /**
-     * Get site space available (MB)
-     *
-     * @param string $username
-     *
-     * @return array
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
-     */
-    public static function remote_get_site_space_available(string $username): array {
-
-        self::validate_parameters(
-            self::remote_get_site_space_available_parameters(), [
-                'username' => $username
-            ]
-        );
-
-        $success = true;
-        $errors = [];
-        $data = new stdClass();
-
-        try {
-            // TODO. remote_get_site_space_available logic
-        } catch (moodle_exception $e) {
-            $success = false;
-            $errors[] =
-                [
-                    'param' => 'no_params',
-                    'string' => $e->getMessage()
-                ];
-        }
-
-        return [
-            'success' => $success,
-            'errors' => $errors,
-            'data' => $data
-        ];
-    }
-
-    /**
-     * @return external_single_structure
-     */
-    public static function remote_get_site_space_available_returns(): external_single_structure {
-        return new external_single_structure(
-            array(
-                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'errors' => new external_multiple_structure( new external_single_structure(
-                    array(
-                        'param' => new external_value(PARAM_TEXT, 'Param'),
-                        'string' => new external_value(PARAM_TEXT, 'String')
-                    ),PARAM_TEXT, 'Parameters errors')),
-                'data' => new external_single_structure(
-                    array(
-                        'size' => new external_value(PARAM_INT, 'Size MB'),
-                    )
-                    ,PARAM_TEXT, 'Data'
-                )
-            )
-        );
-    }
-
-    /**
-     * @return external_function_parameters
-     */
-    public static function remote_course_backup_parameters(): external_function_parameters {
-        return new external_function_parameters(
-            array(
-                'username' => new external_value(PARAM_TEXT, 'Username'),
+                'field' => new external_value(PARAM_TEXT, 'Field'),
+                'value' => new external_value(PARAM_TEXT, 'Value'),
                 'courseid' => new external_value(PARAM_INT, 'Course ID'),
-                'requestid' => new external_value(PARAM_INT, 'Request ID')
-            )
-        );
-    }
-
-    /**
-     * Course Backup (remote)
-     *
-     * @param string $username
-     * @param int $courseid
-     * @param int $requestid
-     *
-     * @return array
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
-     */
-    public static function remote_course_backup(string $username, int $courseid, int $requestid): array {
-
-        self::validate_parameters(
-            self::remote_course_backup_parameters(), [
-                'username' => $username,
-                'courseid' => $courseid,
-                'requestid' => $requestid
-            ]
-        );
-
-        $success = true;
-        $errors = [];
-        $data = new stdClass();
-
-        try {
-            // TODO. remote_course_backup logic
-        } catch (moodle_exception $e) {
-            $success = false;
-            $errors[] =
-                [
-                    'param' => 'no_params',
-                    'string' => $e->getMessage()
-                ];
-        }
-
-        return [
-            'success' => $success,
-            'errors' => $errors,
-            'data' => $data
-        ];
-    }
-
-    /**
-     * @return external_single_structure
-     */
-    public static function remote_course_backup_returns(): external_single_structure {
-        return new external_single_structure(
-            array(
-                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'errors' => new external_multiple_structure( new external_single_structure(
-                    array(
-                        'param' => new external_value(PARAM_TEXT, 'Param'),
-                        'string' => new external_value(PARAM_TEXT, 'String')
-                    ),PARAM_TEXT, 'Parameters errors')),
-                'data' => new external_single_structure(
-                    array(
-                        'url' => new external_value(PARAM_TEXT, 'URL'),
-                    )
-                    ,PARAM_TEXT, 'Data'
-                )
-            )
-        );
-    }
-
-    /**
-     * @return external_function_parameters
-     */
-    public static function remote_category_backup_parameters(): external_function_parameters {
-        return new external_function_parameters(
-            array(
-                'username' => new external_value(PARAM_TEXT, 'Username'),
-                'courseid' => new external_value(PARAM_INT, 'Course ID'),
-                'categoryid' => new external_value(PARAM_INT, 'Category ID'),
                 'requestid' => new external_value(PARAM_INT, 'Request ID'),
-                'schedule' => new external_value(PARAM_INT, 'Schedule')
+                'enrollusers' => new external_value(PARAM_BOOL, 'Enroll Users'),
+                'sections' => new external_multiple_structure(new external_single_structure(
+                    array(
+                        'sectionnum' => new external_value(PARAM_INT, 'Section Number'),
+                        'sectionid' => new external_value(PARAM_TEXT, 'Section ID'),
+                        'sectionname' => new external_value(PARAM_TEXT, 'Section Name'),
+                        'enabled' => new external_value(PARAM_BOOL, 'Enabled'),
+                        'activities' => new external_multiple_structure(new external_single_structure(
+                            array(
+                                'cmid' => new external_value(PARAM_INT, 'CMID'),
+                                'name' => new external_value(PARAM_TEXT, 'Name'),
+                                'instanceid' => new external_value(PARAM_TEXT, 'Instance ID'),
+                                'modulename' => new external_value(PARAM_TEXT, 'Module Name'),
+                                'enabled' => new external_value(PARAM_BOOL, 'Enabled'),
+                            )
+                        ))
+                    )
+                ))
             )
         );
     }
 
     /**
-     * Category Backup (remote)
+     * Backup of the course in origin
      *
-     * @param string $username
+     * @param string $field
+     * @param string $value
      * @param int $courseid
-     * @param int $categoryid
      * @param int $requestid
-     * @param int $schedule
+     * @param bool $enrollusers
+     *
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function remote_category_backup(string $username, int $courseid, int $categoryid, int $requestid, int $schedule): array {
+    public static function origin_backup_course(string $field, string $value, int $courseid,int $requestid, bool $enrollusers): array
+    {
 
         self::validate_parameters(
-            self::remote_category_backup_parameters(), [
-                'username' => $username,
+            self::origin_backup_course_parameters(), [
+                'field' => $field,
+                'value' => $value,
                 'courseid' => $courseid,
-                'categoryid' => $categoryid,
                 'requestid' => $requestid,
-                'schedule' => $schedule
+                'enrollusers' => $enrollusers
             ]
         );
 
         $success = true;
+        $message = '';
         $errors = [];
         $data = new stdClass();
 
         try {
-            // TODO. remote_category_backup logic
+            // TODO. origin_backup_course logic
         } catch (moodle_exception $e) {
             $success = false;
+            $message = $e->getMessage();
             $errors[] =
                 [
                     'param' => 'no_params',
@@ -710,6 +460,7 @@ class coursetransfer_external extends external_api {
 
         return [
             'success' => $success,
+            'message' => $message,
             'errors' => $errors,
             'data' => $data
         ];
@@ -718,25 +469,23 @@ class coursetransfer_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function remote_category_backup_returns(): external_single_structure {
+    public static function origin_backup_course_returns(): external_single_structure
+    {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'errors' => new external_multiple_structure( new external_single_structure(
+                'message' => new external_value(PARAM_TEXT, 'Message'),
+                'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'param' => new external_value(PARAM_TEXT, 'Param'),
                         'string' => new external_value(PARAM_TEXT, 'String')
-                    ),PARAM_TEXT, 'Parameters errors')),
+                    ), PARAM_TEXT, 'Parameters errors'
+                )),
                 'data' => new external_single_structure(
                     array(
-                        'url' => new external_value(PARAM_TEXT, 'URL'),
-                        'courses' => new external_multiple_structure( new external_single_structure(
-                                array(
-                                    'courseid' => new external_value(PARAM_INT, 'Course ID'),
-                                )
-                            ),PARAM_TEXT, 'Data'
-                        )
-                    )
+                        'requestid' => new external_value(PARAM_INT, 'Request ID'),
+                        'buckupsizeestimated' => new external_value(PARAM_INT, 'Backup Size Estimated (MB)'),
+                    ), PARAM_TEXT, 'Backup information'
                 )
             )
         );
@@ -745,61 +494,55 @@ class coursetransfer_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function origin_course_restore_parameters(): external_function_parameters {
+    public static function destiny_backup_course_completed_parameters(): external_function_parameters
+    {
         return new external_function_parameters(
             array(
-                'username' => new external_value(PARAM_TEXT, 'Username'),
-                'courseid' => new external_value(PARAM_INT, 'Course ID'),
-                'categoryid' => new external_value(PARAM_INT, 'Category ID'),
-                'requestid' => new external_value(PARAM_INT, 'Request ID'),
-                'schedule' => new external_value(PARAM_INT, 'Schedule'),
-                'remove' => new external_value(PARAM_BOOL, 'Remove'),
-                'merge' => new external_value(PARAM_BOOL, 'Merge'),
-                'enrolgroups' => new external_value(PARAM_BOOL, 'Enroll Groups')
+                'field' => new external_value(PARAM_TEXT, 'Field'),
+                'value' => new external_value(PARAM_TEXT, 'Value'),
+                'requestid' => new external_value(PARAM_int, 'Request ID'),
+                'backupsize' => new external_value(PARAM_INT, 'Backup Size (MB)'),
+                'fileurl' => new external_value(PARAM_TEXT, 'File URL'),
             )
         );
     }
 
     /**
-     * Restore Course (origin)
+     * Notify that the backup is completed
      *
-     * @param string $username
-     * @param int $courseid
-     * @param int $categoryid
+     * @param string $field
+     * @param string $value
      * @param int $requestid
-     * @param int $schedule
-     * @param bool $remove
-     * @param bool $merge
-     * @param bool $enrolgroups
+     * @param int $backupsize
+     * @param string $fileurl
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_course_restore(string $username, int $courseid, int $categoryid, int $requestid, int $schedule, bool $remove,
-                                                bool $merge, bool $enrolgroups): array {
+    public static function destiny_backup_course_completed(string $field, string $value, int $requestid, int $backupsize, string $fileurl): array
+    {
 
         self::validate_parameters(
-            self::origin_course_restore_parameters(), [
-                'username' => $username,
-                'courseid' => $courseid,
-                'categoryid' => $categoryid,
+            self::destiny_backup_course_completed_parameters(), [
+                'field' => $field,
+                'value' => $value,
                 'requestid' => $requestid,
-                'schedule' => $schedule,
-                'remove' => $remove,
-                'merge' => $merge,
-                'enrolgroups' => $enrolgroups
+                'backupsize' => $backupsize,
+                'fileurl' => $fileurl
             ]
         );
 
         $success = true;
+        $message = '';
         $errors = [];
         $data = new stdClass();
 
         try {
-            // TODO. origin_course_restore logic
+            // TODO. destiny_backup_course_completed logic
         } catch (moodle_exception $e) {
             $success = false;
+            $message = $e->getMessage();
             $errors[] =
                 [
                     'param' => 'no_params',
@@ -809,6 +552,7 @@ class coursetransfer_external extends external_api {
 
         return [
             'success' => $success,
+            'message' => $message,
             'errors' => $errors,
             'data' => $data
         ];
@@ -817,25 +561,19 @@ class coursetransfer_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_course_restore_returns(): external_single_structure {
+    public static function destiny_backup_course_completed_returns(): external_single_structure
+    {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'errors' => new external_multiple_structure( new external_single_structure(
+                'message' => new external_value(PARAM_TEXT, 'Message'),
+                'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'param' => new external_value(PARAM_TEXT, 'Param'),
                         'string' => new external_value(PARAM_TEXT, 'String')
-                    ),PARAM_TEXT, 'Parameters errors')),
-                'data' => new external_single_structure(
-                    array(
-                        'id' => new external_value(PARAM_INT, 'Course ID'),
-                        'fullname' => new external_value(PARAM_TEXT, 'Fullname'),
-                        'shortname' => new external_value(PARAM_TEXT, 'Shortname'),
-                        'idnumber' => new external_value(PARAM_INT, 'idNumber'),
-                        'categoryid' => new external_value(PARAM_INT, 'Category ID'),
-                        'categoryname' => new external_value(PARAM_TEXT, 'Category Name')
-                    )
-                ,PARAM_TEXT, 'Course Info')
+                    ), PARAM_TEXT, 'Parameters errors'
+                )),
+                'data' => new external_value(PARAM_TEXT, 'Data')
             )
         );
     }
@@ -843,195 +581,55 @@ class coursetransfer_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function remote_course_remove_parameters(): external_function_parameters {
+    public static function destiny_backup_course_error_parameters(): external_function_parameters
+    {
         return new external_function_parameters(
             array(
-                'username' => new external_value(PARAM_TEXT, 'Username'),
-                'courseid' => new external_value(PARAM_INT, 'Course ID')
+                'field' => new external_value(PARAM_TEXT, 'Field'),
+                'value' => new external_value(PARAM_TEXT, 'Value'),
+                'requestid' => new external_value(PARAM_int, 'Request ID'),
+                'errorcode' => new external_value(PARAM_INT, 'Error Code'),
+                'errormsg' => new external_value(PARAM_TEXT, 'Error Message'),
             )
         );
     }
 
     /**
-     * Remove Course (remote)
+     * Notify that the backup is completed
      *
-     * @param string $username
-     * @param int $courseid
-     *
-     * @return array
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
-     */
-    public static function remote_course_remove(string $username, int $courseid): array {
-
-        self::validate_parameters(
-            self::remote_course_remove_parameters(), [
-                'username' => $username,
-                'courseid' => $courseid
-            ]
-        );
-
-        $success = true;
-        $errors = [];
-        $data = new stdClass();
-
-        try {
-            // TODO. remote_course_remove logic
-        } catch (moodle_exception $e) {
-            $success = false;
-            $errors[] =
-                [
-                    'param' => 'no_params',
-                    'string' => $e->getMessage()
-                ];
-        }
-
-        return [
-            'success' => $success,
-            'errors' => $errors,
-            'data' => $data
-        ];
-    }
-
-    /**
-     * @return external_single_structure
-     */
-    public static function remote_course_remove_returns(): external_single_structure {
-        return new external_single_structure(
-            array(
-                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'errors' => new external_multiple_structure( new external_single_structure(
-                    array(
-                        'param' => new external_value(PARAM_TEXT, 'Param'),
-                        'string' => new external_value(PARAM_TEXT, 'String')
-                    ),PARAM_TEXT, 'Parameters errors')),
-                'data' => new external_single_structure(
-                    array(
-                        'id' => new external_value(PARAM_INT, 'Course ID'),
-                        'fullname' => new external_value(PARAM_TEXT, 'Fullname'),
-                        'shortname' => new external_value(PARAM_TEXT, 'Shortname'),
-                        'idnumber' => new external_value(PARAM_INT, 'idNumber'),
-                        'categoryid' => new external_value(PARAM_INT, 'Category ID'),
-                        'categoryname' => new external_value(PARAM_TEXT, 'Category Name')
-                    )
-                ,PARAM_TEXT, 'Course Info')
-            )
-        );
-    }
-
-    /**
-     * @return external_function_parameters
-     */
-    public static function remote_course_backup_remove_parameters(): external_function_parameters {
-        return new external_function_parameters(
-            array(
-                'username' => new external_value(PARAM_TEXT, 'Username'),
-                'backupid' => new external_value(PARAM_INT, 'Backup ID')
-            )
-        );
-    }
-
-    /**
-     * Remove Backup (remote)
-     *
-     * @param string $username
-     * @param int $backupid
-     *
-     * @return array
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
-     */
-    public static function remote_course_backup_remove(string $username, int $backupid): array {
-
-        self::validate_parameters(
-            self::remote_course_backup_remove_parameters(), [
-                'username' => $username,
-                'backupid' => $backupid
-            ]
-        );
-
-        $success = true;
-        $errors = [];
-        $data = new stdClass();
-
-        try {
-            // TODO. remote_course_backup_remove logic
-        } catch (moodle_exception $e) {
-            $success = false;
-            $errors[] =
-                [
-                    'param' => 'no_params',
-                    'string' => $e->getMessage()
-                ];
-        }
-
-        return [
-            'success' => $success,
-            'errors' => $errors,
-            'data' => $data
-        ];
-    }
-
-    /**
-     * @return external_single_structure
-     */
-    public static function remote_course_backup_remove_returns(): external_single_structure {
-        return new external_single_structure(
-            array(
-                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'errors' => new external_multiple_structure( new external_single_structure(
-                    array(
-                        'param' => new external_value(PARAM_TEXT, 'Param'),
-                        'string' => new external_value(PARAM_TEXT, 'String')
-                    ),PARAM_TEXT, 'Parameters errors')),
-                'data' =>  new external_single_structure(
-                    array(
-                        'backupid' => new external_value(PARAM_INT, 'Backup ID'),
-                    )
-                ,PARAM_TEXT, 'Backup Info')
-            )
-        );
-    }
-
-    /**
-     * @return external_function_parameters
-     */
-    public static function origin_send_notification_parameters(): external_function_parameters {
-        return new external_function_parameters(
-            array(
-                'username' => new external_value(PARAM_TEXT, 'Username'),
-                'requestid' => new external_value(PARAM_INT, 'Request ID')
-            )
-        );
-    }
-
-    /**
-     * Send Notification (origin)
-     *
-     * @param string $username
+     * @param string $field
+     * @param string $value
      * @param int $requestid
+     * @param int $errorcode
+     * @param string $errormsg
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_send_notification_remove(string $username, int $requestid): array {
+    public static function destiny_backup_course_error(string $field, string $value, int $requestid, int $errorcode, string $errormsg): array
+    {
 
         self::validate_parameters(
-            self::remote_course_backup_remove_parameters(), [
-                'username' => $username,
-                'requestid' => $requestid
+            self::destiny_backup_course_error_parameters(), [
+                'field' => $field,
+                'value' => $value,
+                'requestid' => $requestid,
+                'errorcode' => $errorcode,
+                'errormsg' => $errormsg
             ]
         );
 
         $success = true;
+        $message = '';
         $errors = [];
         $data = new stdClass();
 
         try {
-            // TODO. origin_send_notification logic
+            // TODO. destiny_backup_course_error logic
         } catch (moodle_exception $e) {
             $success = false;
+            $message = $e->getMessage();
             $errors[] =
                 [
                     'param' => 'no_params',
@@ -1041,6 +639,7 @@ class coursetransfer_external extends external_api {
 
         return [
             'success' => $success,
+            'message' => $message,
             'errors' => $errors,
             'data' => $data
         ];
@@ -1049,23 +648,19 @@ class coursetransfer_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_send_notification_returns(): external_single_structure {
+    public static function destiny_backup_course_error_returns(): external_single_structure
+    {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'errors' => new external_multiple_structure( new external_single_structure(
+                'message' => new external_value(PARAM_TEXT, 'Message'),
+                'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'param' => new external_value(PARAM_TEXT, 'Param'),
                         'string' => new external_value(PARAM_TEXT, 'String')
-                    ),PARAM_TEXT, 'Parameters errors')),
-                'data' => new external_single_structure(
-                    array(
-                        'status' => new external_value(PARAM_INT, '0 -> Not started, 1 -> In progress, 2 -> success, 3 -> error'),
-                        'message' => new external_value(PARAM_TEXT, 'Message'),
-                        'courseid' => new external_value(PARAM_INT, 'Course ID'),
-                        'categoryid' => new external_value(PARAM_INT, 'Category ID')
-                    )
-                    ,PARAM_TEXT, 'Data')
+                    ), PARAM_TEXT, 'Parameters errors'
+                )),
+                'data' => new external_value(PARAM_TEXT, 'Data')
             )
         );
     }

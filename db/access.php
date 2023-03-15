@@ -25,12 +25,28 @@
 defined('MOODLE_INTERNAL') || die;
 
 $capabilities = array(
-    'local/coursetransfer:view' => array(
+    'local/coursetransfer:origin_view_courses' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
             'guest' => CAP_ALLOW,
             'user' => CAP_ALLOW,
+        )
+    ),
+
+    'local/coursetransfer:origin_restore_course' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'admin' => CAP_ALLOW,
+        )
+    ),
+
+    'local/coursetransfer:origin_restore_course_users' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'admin' => CAP_ALLOW,
         )
     )
 );
