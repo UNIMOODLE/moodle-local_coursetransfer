@@ -29,64 +29,103 @@ $capabilities = array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
-            'guest' => CAP_ALLOW,
-            'user' => CAP_ALLOW,
+            'guest' => CAP_PROHIBIT,
+            'admin' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_PROHIBIT,
+            'student' => CAP_PROHIBIT
         )
     ),
 
     'local/coursetransfer:origin_restore_course' => array(
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
+            'guest' => CAP_PROHIBIT,
             'admin' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_PROHIBIT,
+            'student' => CAP_PROHIBIT
         )
     ),
 
     'local/coursetransfer:origin_restore_course_users' => array(
         'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
+            'guest' => CAP_PROHIBIT,
             'admin' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_PROHIBIT,
+            'teacher' => CAP_PROHIBIT,
+            'student' => CAP_PROHIBIT
         )
     ),
 
     'local/coursetransfer:destiny_restore_content_remove' => array(
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
+            'guest' => CAP_PROHIBIT,
             'admin' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_PROHIBIT,
+            'student' => CAP_PROHIBIT
         )
     ),
 
     'local/coursetransfer:destiny_restore_merge' => array(
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
+            'guest' => CAP_PROHIBIT,
             'admin' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_PROHIBIT,
+            'student' => CAP_PROHIBIT
         )
     ),
 
     'local/coursetransfer:destiny_restore_enrol_remove' => array(
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
+            'guest' => CAP_PROHIBIT,
             'admin' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_PROHIBIT,
+            'student' => CAP_PROHIBIT
         )
     ),
 
     'local/coursetransfer:destiny_restore_groups_remove' => array(
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
+            'guest' => CAP_PROHIBIT,
             'admin' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_PROHIBIT,
+            'student' => CAP_PROHIBIT
         )
     ),
 
     'local/coursetransfer:origin_remove_course' => array(
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
+            'guest' => CAP_PROHIBIT,
             'admin' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_PROHIBIT,
+            'teacher' => CAP_PROHIBIT,
+            'student' => CAP_PROHIBIT
         )
     )
 );
