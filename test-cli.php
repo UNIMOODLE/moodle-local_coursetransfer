@@ -80,5 +80,19 @@ if ($options['courseid'] == null)  {
 if ($options['ip'] == null)  cli_writeln("IP obligatorio");
 if ($options['name'] == null)  cli_writeln("Name obligatorio");
 
+$destinysites = get_config('local_coursetransfer', 'destiny_sites');
+$destinysites = explode(PHP_EOL ,$destinysites);
+
+$destinies = [];
+
+foreach($destinysites as $destiny) {
+    $destiny = explode(',', $destiny);
+    $item = [];
+    $item['host'] = trim($destiny[0]);
+    $item['token'] = trim($destiny[1]);
+    $destinies[] = $item;
+}
+var_dump($destinies);
+
 // Step 1: Recuperar curso
 \local_coursetransfer\test\test::execute();

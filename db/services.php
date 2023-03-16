@@ -19,23 +19,15 @@
  * @copyright   3iPunt <https://www.tresipunt.com/>
  */
 
-use local_coursetransfer\external\coursetransfer_external;
+use local_coursetransfer\external\destinycoursecallback_external;
 
 
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
-    'local_coursetransfer_origin_sites' => [
-        'classname' => coursetransfer_external::class,
-        'methodname' => 'origin_sites',
-        'description' => 'Get list of origin sites configured',
-        'type' => 'read',
-        'ajax' => true,
-        'loginrequired' => false
-    ],
 
     'local_coursetransfer_origin_has_user' => [
-        'classname' => coursetransfer_external::class,
+        'classname' => destinycoursecallback_external::class,
         'methodname' => 'origin_has_user',
         'description' => 'Asks to origin if user exists',
         'type' => 'read',
@@ -44,7 +36,7 @@ $functions = [
     ],
 
     'local_coursetransfer_origin_get_courses' => [
-        'classname' => coursetransfer_external::class,
+        'classname' => destinycoursecallback_external::class,
         'methodname' => 'origin_get_courses',
         'description' => 'Get all courses from user',
         'type' => 'read',
@@ -53,7 +45,7 @@ $functions = [
     ],
 
     'local_coursetransfer_origin_get_course_detail' => [
-        'classname' => coursetransfer_external::class,
+        'classname' => destinycoursecallback_external::class,
         'methodname' => 'origin_get_course_detail',
         'description' => 'Get specific course details',
         'type' => 'read',
@@ -62,19 +54,19 @@ $functions = [
     ],
 
     'local_coursetransfer_destiny_backup_course_completed' => [
-        'classname' => coursetransfer_external::class,
+        'classname' => destinycoursecallback_external::class,
         'methodname' => 'destiny_backup_course_completed',
         'description' => 'Notify origin that the backup is completed',
-        'type' => 'read',
+        'type' => 'write',
         'ajax' => true,
         'loginrequired' => false
     ],
 
     'local_coursetransfer_destiny_backup_course_error' => [
-        'classname' => coursetransfer_external::class,
+        'classname' => destinycoursecallback_external::class,
         'methodname' => 'destiny_backup_course_error',
         'description' => 'Notify origin that an error ocurred',
-        'type' => 'read',
+        'type' => 'write',
         'ajax' => true,
         'loginrequired' => false
     ],
@@ -85,19 +77,11 @@ $functions = [
 $services = [
     'local_coursetransfer' => [
         'functions' => [
-            'local_coursetransfer_remote_has_user',
             'local_coursetransfer_origin_has_user',
-            'local_coursetransfer_remote_get_courses',
             'local_coursetransfer_origin_get_courses',
-            'local_coursetransfer_remote_get_course_detail',
-            'local_coursetransfer_remote_get_course_size',
-            'local_coursetransfer_remote_get_site_space_available',
-            'local_coursetransfer_remote_course_backup',
-            'local_coursetransfer_remote_category_backup',
-            'local_coursetransfer_origin_course_restore',
-            'local_coursetransfer_remote_course_remove',
-            'local_coursetransfer_remote_course_backup_remove',
-            'local_coursetransfer_origin_send_notification'
+            'local_coursetransfer_origin_get_course_detail',
+            'local_coursetransfer_destiny_backup_course_completed',
+            'local_coursetransfer_destiny_backup_course_error'
         ],
         'restrictedusers' => 0,
         'enabled' => 1
