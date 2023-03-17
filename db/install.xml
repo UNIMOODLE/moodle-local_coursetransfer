@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/coursetransfer/db" VERSION="2023030601" COMMENT="XMLDB file for Moodle local/coursetransfer/db"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+    <TABLES>
+        <TABLE NAME="local_coursetransfer_request" COMMENT="Contains the information of the requests made">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="type" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" COMMENT="0 = course, 1 = category"/>
+                <FIELD NAME="direction" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" COMMENT="0 = request, 1 = answer"/>
+                <FIELD NAME="destiny_request_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="status" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="0 = error, 1 = not_started, 10 = in_progress, 50 = incompleted (no apply en curso), 70 = download, 100 = completed"/>
+                <FIELD NAME="request_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="origin_course_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="origin_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="destiny_course_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="destiny_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="origin_enrolusers" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = users not enrolled, 1 = enrol users"/>
+                <FIELD NAME="destiny_remove_activities" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
+                <FIELD NAME="destiny_merge_activities" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't merge, 1 = merge"/>
+                <FIELD NAME="destiny_remove_enrols" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
+                <FIELD NAME="destiny_remove_groups" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
+                <FIELD NAME="origin_remove_course" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
+                <FIELD NAME="origin_remove_course" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
+                <FIELD NAME="origin_schedule_datetime" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="destiny_not_remove_activities" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false"/>
+                <FIELD NAME="destiny_activities" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="JSON" DEFAULT="{}"/>
+                <FIELD NAME="destiny_backup_size" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="destiny_backup_size_estimated" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="destiny_backup_url" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false"/>
+                <FIELD NAME="error_code" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="error_message" SEQUENCE="false" TYPE="text" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="userid" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="timemodified" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="timecreated" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+        </TABLE>
+    </TABLES>
+</XMLDB>
