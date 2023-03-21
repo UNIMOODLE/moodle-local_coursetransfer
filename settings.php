@@ -36,18 +36,23 @@ if ($hassiteconfig) {
 
     $settings->add(new admin_setting_configtext('local_coursetransfer/destiny_restore_course_max_size',
         get_string('setting_destiny_restore_course_max_size', 'local_coursetransfer'),
-        get_string('setting_destiny_restore_course_max_size_desc', 'local_coursetransfer'), 500), PARAM_INT);
+        get_string('setting_destiny_restore_course_max_size_desc', 'local_coursetransfer'),
+            500, PARAM_INT));
 
     $settings->add(new admin_setting_configtextarea('local_coursetransfer/destiny_sites',
             get_string('setting_destiny_sites', 'local_coursetransfer'),
-            get_string('setting_destiny_sites_desc', 'local_coursetransfer'), ""), PARAM_RAW);
+            get_string('setting_destiny_sites_desc', 'local_coursetransfer'),
+            '', PARAM_RAW));
 
     $settings->add(new admin_setting_configtextarea('local_coursetransfer/origin_sites',
         get_string('setting_origin_sites', 'local_coursetransfer'),
-        get_string('setting_origin_sites_desc', 'local_coursetransfer'), ""), PARAM_RAW);
+        get_string('setting_origin_sites_desc', 'local_coursetransfer'),
+            '', PARAM_RAW));
 
-    $CHOICES = ['username', 'email', 'userid'];
+    $choices = ['username', 'email', 'userid'];
     $settings->add(new admin_setting_configselect('local_coursetransfer/origin_field_search_user',
         get_string('setting_origin_field_search_user', 'local_coursetransfer'),
-        get_string('setting_origin_field_search_user_desc', 'local_coursetransfer'), 'username', $CHOICES));
+        get_string('setting_origin_field_search_user_desc', 'local_coursetransfer'),
+            'username', $choices));
+
 }
