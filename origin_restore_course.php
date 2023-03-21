@@ -38,6 +38,8 @@ require_once('../../config.php');
 global $PAGE, $OUTPUT, $USER;
 
 $courseid = required_param('id', PARAM_INT);
+$isnew = optional_param('new', false, PARAM_INT);
+$isnew = $isnew === 1;
 
 $title = get_string('origin_restore_course', 'local_coursetransfer');
 
@@ -51,6 +53,20 @@ $PAGE->set_heading($title);
 $PAGE->set_url('/local/coursetransfer/origin_restore_course.php');
 $output = $PAGE->get_renderer('local_coursetransfer');
 echo $OUTPUT->header();
-$page = new \local_coursetransfer\output\origin_restore_course_page($course);
+if ($isnew) {
+    $step = required_param('step', PARAM_INT);
+    switch ($step) {
+        case 1:
+            $page = new \local_coursetransfer\output\new_origin_restore_course_step1_page($course);
+            break;
+        case 2:
+            $page = new \local_coursetransfer\output\new_origin_restore_course_step2_page($course);
+            break;
+        default:
+            throw new moodle_exception('STEP NOT VALID');
+    }
+} else {
+    $page = new \local_coursetransfer\output\origin_restore_course_page($course);
+}
 echo $output->render($page);
 echo $OUTPUT->footer();

@@ -22,16 +22,26 @@
 }}
 <div class="local_coursetransfer" data-region="origin_restore_course_page">
 
-    <!-- Button trigger modal -->
-    <a type="button" class="btn btn-primary" href="{{ new_url }}">
-        {{# str }} origin_restore_course, local_coursetransfer {{/ str }}
+    <a type="button" class="btn btn-outline-primary" href="{{ back_url }}">
+        Volver
     </a>
-
 
     <hr>
 
-    <h3 class="h3">Listado de restauraciones del curso</h3>
+    <h3 class="h3">Restaurar curso remoto - PASO 2</h3>
 
-    {{{ table }}}
+    {{# has_errors }}
+        {{# errors }}
+        <div class="alert alert-danger" role="alert">
+            {{ . }}
+        </div>
+        {{/ errors }}
+    {{/ has_errors }}
+
+    {{^ has_errors }}
+        <p>Este es el listado de curso al cuál tienes acceso en el sitio remoto</p>
+        {{{ table }}}
+    {{/ has_errors }}
+
 
 </div>

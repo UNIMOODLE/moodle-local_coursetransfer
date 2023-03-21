@@ -43,9 +43,33 @@ class renderer extends plugin_renderer_base {
      * @return bool|string
      * @throws moodle_exception
      */
-    public function render_manage_page(origin_restore_course_page $page) {
+    public function render_origin_restore_course_page(origin_restore_course_page $page) {
         $data = $page->export_for_template($this);
         return parent::render_from_template('local_coursetransfer/origin_restore_course_page', $data);
+    }
+
+    /**
+     * Defer to template.
+     *
+     * @param new_origin_restore_course_step1_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_new_origin_restore_course_step1_page(new_origin_restore_course_step1_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/new_origin_restore_course_step1_page', $data);
+    }
+
+    /**
+     * Defer to template.
+     *
+     * @param new_origin_restore_course_step2_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_new_origin_restore_course_step2_page(new_origin_restore_course_step2_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/new_origin_restore_course_step2_page', $data);
     }
 
 }

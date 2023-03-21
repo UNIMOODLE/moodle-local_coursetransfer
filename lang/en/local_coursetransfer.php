@@ -57,4 +57,6 @@ $string['status_integer'] = "Status must be an integer";
 $string['from_integer'] = "from must be an integer";
 $string['to_integer'] = "to must be an integer";
 $string['userid_integer'] = "User ID must be an integer";
+$string['origin_site'] = "Select origin site";
+$string['origin_site_help'] = "The site of origin, is where the course you want to restore is located";
 

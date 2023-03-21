@@ -25,6 +25,9 @@
 namespace local_coursetransfer\output;
 
 use coding_exception;
+use local_coursetransfer\coursetransfer;
+use local_coursetransfer\forms\new_origin_restore_course_step1_form;
+use local_coursetransfer\forms\new_origin_restore_course_step2_form;
 use local_coursetransfer\tables\origin_restore_course_table;
 use moodle_exception;
 use moodle_url;
@@ -34,13 +37,13 @@ use stdClass;
 use templatable;
 
 /**
- * origin_restore_course_page
+ * new_origin_restore_course_step2_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_course_page implements renderable, templatable {
+class new_origin_restore_course_step2_page implements renderable, templatable {
 
     /** @var stdClass Course */
     protected $course;
@@ -59,20 +62,23 @@ class origin_restore_course_page implements renderable, templatable {
      *
      * @param renderer_base $output
      * @return stdClass
-     * @throws coding_exception
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $newurl = new moodle_url('/local/coursetransfer/origin_restore_course.php',
-                ['id' => $this->course->id, 'new' => 1, 'step' => 1]);
+        $backurl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
         $data = new stdClass();
-        $data->new_url = $newurl->out(false);
-        $table = new origin_restore_course_table($this->course);
-        ob_start();
-        $table->out(100, true);
-        $output = ob_get_contents();
-        ob_end_clean();
-        $data->table = $output;
+        $data->back_url = $backurl->out(false);
+
+        // VALIDATE USER.
+        $res = coursetransfer::origin_has_user();
+
+        if ($res->success) {
+            $data->haserror = false;
+            $data->table = '';
+        } else {
+            $data->haserror = true;
+            $data->errors = $res->errors;
+        }
         return $data;
     }
 
