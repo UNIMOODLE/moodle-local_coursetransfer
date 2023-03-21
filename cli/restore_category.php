@@ -47,7 +47,7 @@ Usage:
     --destiny_remove_enrols=<destiny_remove_enrols> Remove Enrols (Boolean).
     --destiny_remove_groups=<destiny_remove_groups> Remove Groups (Boolean).
     --origin_remove_course=<origin_remove_course>   Remove Course (Boolean).
-    --origin_schedule_datetime=<origin_schedule_datetime>   Date in UNIX timestamp (UNIX timestamp -> int).
+    --origin_schedule_datetime=<origin_schedule_datetime>   Date in UNIX timestamp (int).
     
 Options:
     -h --help                   Print this help.
@@ -91,54 +91,52 @@ if ($options['help']) {
 }
 
 // TODO: comprobacion de los parametros introducidos
-if ( $options['origin_category_id'] == null ){
+if ( $options['origin_category_id'] === null ){
     cli_writeln("Origin Category ID es obligatorio");
     exit(128);
-} else {
-    if( !gettype( $options['origin_category_id']) == 'integer' ){
-        cli_writeln("Origin Category ID tiene que ser entero");
-        exit(128);
-    }
+} else if( gettype( $options['origin_category_id']) !== 'integer' ){
+    cli_writeln("Origin Category ID tiene que ser entero");
+    exit(128);
 }
 
-if ( !$options['destiny_category_id'] == null ){
-    if( !gettype( $options['destiny_category_id'] ) == 'integer' ){
+if ( $options['destiny_category_id'] !== null ){
+    if( gettype( $options['destiny_category_id'] ) !== 'integer' ){
         cli_writeln("Destiny Category ID tiene que ser entero");
         exit(128);
     }
 }
 
-if( !gettype( $options['origin_enrolusers'] ) == 'boolean' ){
+if( gettype( $options['origin_enrolusers'] ) !== 'boolean' ){
     cli_writeln("Enrol Users tiene que ser boolean");
     exit(128);
 }
 
-if( !gettype( $options['destiny_remove_activities'] ) == 'boolean' ){
+if( gettype( $options['destiny_remove_activities'] ) !== 'boolean' ){
     cli_writeln("Remove Activities tiene que ser boolean");
     exit(128);
 }
 
-if( !gettype( $options['destiny_merge_activities'] ) == 'boolean' ){
+if( gettype( $options['destiny_merge_activities'] ) !== 'boolean' ){
     cli_writeln("Merge Activities tiene que ser boolean");
     exit(128);
 }
 
-if( !gettype( $options['destiny_remove_enrols'] ) == 'boolean' ){
+if( gettype( $options['destiny_remove_enrols'] ) !== 'boolean' ){
     cli_writeln("Remove Enrols tiene que ser boolean");
     exit(128);
 }
 
-if( !gettype( $options['destiny_remove_groups'] ) == 'boolean' ){
+if( gettype( $options['destiny_remove_groups'] ) !== 'boolean' ){
     cli_writeln("Remove Groups tiene que ser boolean");
     exit(128);
 }
 
-if( !gettype( $options['origin_remove_course'] ) == 'boolean' ){
+if( gettype( $options['origin_remove_course'] ) !== 'boolean' ){
     cli_writeln("Remove Course tiene que ser boolean");
     exit(128);
 }
 
-if( !gettype( $options['origin_schedule_datetime'] ) == 'integer' ){
+if( gettype( $options['origin_schedule_datetime'] ) !== 'integer' ){
     cli_writeln("Schedule Datetime tiene que ser entero");
     exit(128);
 }

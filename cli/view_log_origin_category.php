@@ -69,14 +69,12 @@ if ($options['help']) {
 }
 
 // TODO. Validar parametros, tipados y permisos de usuario
-if ( $options['categoryid'] == null )  {
+if ( $options['categoryid'] === null )  {
     cli_writeln("Course ID es obligatorio");
     exit(128);
-} else {
-    if( !gettype( $options['categoryid']) == 'integer' ) {
-        cli_writeln("Course ID tiene que ser entero");
-        exit(128);
-    }
+} else if( gettype( $options['categoryid']) !== 'integer' ) {
+    cli_writeln("Course ID tiene que ser entero");
+    exit(128);
 }
 
 $destinysites = get_config('local_coursetransfer', 'destiny_sites');

@@ -56,7 +56,7 @@ Examples:
 
 list($options, $unrecognised) = cli_get_params([
     'help' => false,
-    'status' => 0, //Con errores¿?
+    'status' => 0,
     'from' => null,
     'to' => null,
     'userid' => 0
@@ -73,28 +73,27 @@ if ($options['help']) {
     cli_writeln($usage);
     exit(2);
 }
-
-// TODO. Validar parametros, tipados y permisos de usuario
-if( !gettype( $options['status']) == 'integer' ){
+// TODO: Validacion de los valores de status
+if( gettype( $options['status']) !== 'integer' ){
     cli_writeln("Status tiene que ser entero");
     exit(128);
 }
 
-if( !$options['from'] == null ){
-    if( !gettype( $options['from']) == 'integer' ){
+if( $options['from'] !== null ){
+    if( gettype( $options['from']) !== 'integer' ){
         cli_writeln("from tiene que ser un timestamp (entero)");
         exit(128);
     }
 }
 
-if( !$options['to'] == null ){
-    if( !gettype( $options['to']) == 'integer' ){
+if( $options['to'] !== null ){
+    if( gettype( $options['to']) !== 'integer' ){
         cli_writeln("to tiene que ser un timestamp (entero)");
         exit(128);
     }
 }
-
-if( !gettype( $options['userid']) == 'integer' ) {
+// TODO: Si es 0 coger id del Usuario actual
+if( gettype( $options['userid']) !== 'integer' ) {
     cli_writeln("User ID tiene que ser entero");
     exit(128);
 }
