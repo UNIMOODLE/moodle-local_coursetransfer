@@ -28,6 +28,7 @@ use coding_exception;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\forms\new_origin_restore_course_step1_form;
 use local_coursetransfer\forms\new_origin_restore_course_step2_form;
+use local_coursetransfer\tables\origin_courses_table;
 use local_coursetransfer\tables\origin_restore_course_table;
 use moodle_exception;
 use moodle_url;
@@ -70,11 +71,17 @@ class new_origin_restore_course_step2_page implements renderable, templatable {
         $data->back_url = $backurl->out(false);
 
         // VALIDATE USER.
-        $res = coursetransfer::origin_has_user();
+        $site = 'sdfadsfdsf';
+        $res = coursetransfer::origin_has_user($site);
 
         if ($res->success) {
             $data->haserror = false;
-            $data->table = '';
+            $table = new origin_courses_table($this->course, $site);
+            ob_start();
+            $table->out(100, true);
+            $output = ob_get_contents();
+            ob_end_clean();
+            $data->table = $output;
         } else {
             $data->haserror = true;
             $data->errors = $res->errors;

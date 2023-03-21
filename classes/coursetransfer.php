@@ -24,12 +24,17 @@
 
 namespace local_coursetransfer;
 
+use local_coursetransfer\api\request;
+use local_coursetransfer\api\response;
 use stdClass;
 
 class coursetransfer {
 
     /** @var stdClass Course */
     protected $course;
+
+    /** @var request Request */
+    protected $request;
 
     /**
      * constructor.
@@ -41,12 +46,22 @@ class coursetransfer {
     }
 
     /**
+     * Set Request.
+     *
+     * @param string $site
+     * @param string $token
+     */
+    public function set_request(string $site, string $token) {
+        $this->request = new request($site, $token);
+    }
+
+    /**
      * Get Origin Sites.
      *
      * @return array
      */
     public static function get_origin_sites(): array {
-        // TODO.
+        // TODO. Recuperar los sitios de origen.
         $items = [
                 'https://universidad1.com',
                 'https://universidad2.com',
@@ -58,14 +73,21 @@ class coursetransfer {
     /**
      * Origin Has User?.
      *
+     * @param string $site
+     * @param string $token
+     * @return response
+     */
+    public function origin_has_user(): response {
+        return $this->request->origin_has_user();
+    }
+
+    /**
+     * Origin Get Courses?.
+     *
      * @return stdClass
      */
-    public static function origin_has_user(): stdClass {
-        // TODO.
-        $res = new stdClass();
-        $res->success = true;
-        $res->errors = [];
-        return $res;
+    public function origin_get_courses(): stdClass {
+        return $this->request->origin_get_courses();
     }
 
 
