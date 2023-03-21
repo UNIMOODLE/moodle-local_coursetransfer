@@ -23,7 +23,7 @@
  */
 
 /**
- * This function extends the course navigation with AMNH Configuration.
+ * This function extends the course navigation with COURSE TRANSFER Configuration.
  *
  * @param navigation_node $navigation
  * @param stdClass $course
