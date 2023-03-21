@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <XMLDB PATH="local/coursetransfer/db" VERSION="2023030601" COMMENT="XMLDB file for Moodle local/coursetransfer/db"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+       xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
     <TABLES>
         <TABLE NAME="local_coursetransfer_request" COMMENT="Contains the information of the requests made">
             <FIELDS>
@@ -16,16 +17,16 @@
                 <FIELD NAME="destiny_course_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
                 <FIELD NAME="destiny_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
                 <FIELD NAME="origin_enrolusers" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = users not enrolled, 1 = enrol users"/>
-                <FIELD NAME="destiny_rm_activities" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
-                <FIELD NAME="destiny_mg_activities" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't merge, 1 = merge"/>
-                <FIELD NAME="destiny_rm_enrols" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
-                <FIELD NAME="destiny_rm_groups" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
-                <FIELD NAME="origin_rm_course" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
-                <FIELD NAME="origin_schedule" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
-                <FIELD NAME="destiny_not_rm_act" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false"/>
+                <FIELD NAME="destiny_remove_activities" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
+                <FIELD NAME="destiny_merge_activities" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't merge, 1 = merge"/>
+                <FIELD NAME="destiny_remove_enrols" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
+                <FIELD NAME="destiny_remove_groups" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
+                <FIELD NAME="origin_remove_course" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
+                <FIELD NAME="origin_schedule_datetime" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="destiny_not_remove_activities" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false"/>
                 <FIELD NAME="destiny_activities" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="JSON"/>
                 <FIELD NAME="destiny_backup_size" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
-                <FIELD NAME="destiny_backup_size_est" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="destiny_backup_size_estimated" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
                 <FIELD NAME="destiny_backup_url" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false"/>
                 <FIELD NAME="error_code" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
                 <FIELD NAME="error_message" SEQUENCE="false" TYPE="text" LENGTH="10" NOTNULL="false"/>
