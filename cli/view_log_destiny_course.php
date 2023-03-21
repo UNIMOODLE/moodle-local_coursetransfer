@@ -70,10 +70,10 @@ if ($options['help']) {
 
 // TODO. Validar parametros, tipados y permisos de usuario
 if ($options['courseid'] === null)  {
-    cli_writeln("Course ID es obligatorio");
+    cli_writeln(get_string('courseid_require','local_coursetransfer'));
     exit(128);
 } else if( gettype( $options['courseid']) !== 'integer' ) {
-    cli_writeln("Course ID tiene que ser entero");
+    cli_writeln(get_string('courseid_integer','local_coursetransfer'));
     exit(128);
 }
 

@@ -34,7 +34,7 @@ require_once($CFG->libdir.'/clilib.php');
 require(__DIR__.'/classes/test/test.php');
 
 
-$usage = 'CLI para ver logs de una petición.
+$usage = 'CLI para ver logs.
 
 Usage:
     # php view_logs.php --status=<status> --from=<fromtimestamp> --to=<totimestamp> --userid=<userid>
@@ -51,7 +51,8 @@ Description.
 
 Examples:
 
-    # php local/coursetransfer/view_logs.php --requestid=1
+    # php local/coursetransfer/view_logs.php
+    # php local/coursetransfer/view_logs.php --status=0
 ';
 
 list($options, $unrecognised) = cli_get_params([
@@ -75,26 +76,26 @@ if ($options['help']) {
 }
 // TODO: Validacion de los valores de status
 if( gettype( $options['status']) !== 'integer' ){
-    cli_writeln("Status tiene que ser entero");
+    cli_writeln( get_string('status_integer','local_coursetransfer') );
     exit(128);
 }
 
 if( $options['from'] !== null ){
     if( gettype( $options['from']) !== 'integer' ){
-        cli_writeln("from tiene que ser un timestamp (entero)");
+        cli_writeln( get_string('from_integer','local_coursetransfer') );
         exit(128);
     }
 }
 
 if( $options['to'] !== null ){
     if( gettype( $options['to']) !== 'integer' ){
-        cli_writeln("to tiene que ser un timestamp (entero)");
+        cli_writeln( get_string('to_integer','local_coursetransfer') );
         exit(128);
     }
 }
 // TODO: Si es 0 coger id del Usuario actual
 if( gettype( $options['userid']) !== 'integer' ) {
-    cli_writeln("User ID tiene que ser entero");
+    cli_writeln( get_string('userid_integer','local_coursetransfer') );
     exit(128);
 }
 

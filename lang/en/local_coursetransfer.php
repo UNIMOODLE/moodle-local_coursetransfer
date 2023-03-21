@@ -33,3 +33,5 @@ $string['setting_origin_sites_desc'] = 'List of origin sites, from which backup 
 $string['setting_origin_field_search_user'] = 'Origin user field';
 $string['setting_origin_field_search_user_desc'] = 'Field to be used to search for a user in the origin site.';
 $string['origin_restore_course'] = 'Restore Remote Course';
+$string['origin_course_id_require'] = "Origin Course ID must be specified";
+$string['origin_course_id_integer'] = "Origin Course ID must be an integer";
