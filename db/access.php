@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 $capabilities = array(
+
     'local/coursetransfer:origin_view_courses' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,

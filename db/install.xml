@@ -22,10 +22,9 @@
                 <FIELD NAME="destiny_remove_enrols" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
                 <FIELD NAME="destiny_remove_groups" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
                 <FIELD NAME="origin_remove_course" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
-                <FIELD NAME="origin_remove_course" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
                 <FIELD NAME="origin_schedule_datetime" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
                 <FIELD NAME="destiny_not_remove_activities" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false"/>
-                <FIELD NAME="destiny_activities" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="JSON" DEFAULT="{}"/>
+                <FIELD NAME="destiny_activities" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="JSON"/>
                 <FIELD NAME="destiny_backup_size" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
                 <FIELD NAME="destiny_backup_size_estimated" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false"/>
                 <FIELD NAME="destiny_backup_url" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false"/>

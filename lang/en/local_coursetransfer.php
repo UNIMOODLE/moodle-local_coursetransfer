@@ -32,3 +32,4 @@ $string['setting_origin_sites'] = 'Origin sites';
 $string['setting_origin_sites_desc'] = 'List of origin sites, from which backup copies of the courses can be requested. Separated by line break.';
 $string['setting_origin_field_search_user'] = 'Origin user field';
 $string['setting_origin_field_search_user_desc'] = 'Field to be used to search for a user in the origin site.';
+$string['origin_restore_course'] = 'Restore Remote Course';

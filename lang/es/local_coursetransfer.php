@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Course Transfer';
+$string['pluginname'] = 'Restaurar cursos remotos';
 $string['pluginname_header_general'] = 'General';
 $string['setting_destiny_restore_course_max_size'] = 'Tamaño máximo del curso a restaurar';
 $string['setting_destiny_restore_course_max_size_desc'] = 'Límite en el tamaño de la copia de seguridad (archivo MBZ) del curso origen a restaurar en MB.';
@@ -32,3 +32,4 @@ $string['setting_origin_sites'] = 'Sitios origen';
 $string['setting_origin_sites_desc'] = 'Listado de sitios origen, a los que se les podrá pedir copias de seguridad de los cursos. Separados por salto de línea.';
 $string['setting_origin_field_search_user'] = 'Campo usuario origen';
 $string['setting_origin_field_search_user_desc'] = 'Campo a utilizar para la búsqueda de un usuario en el sitio de origen.';
+$string['origin_restore_course'] = 'Restaurar curso en remoto';
