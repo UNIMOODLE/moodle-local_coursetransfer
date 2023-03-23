@@ -19,15 +19,16 @@
  * @copyright   3iPunt <https://www.tresipunt.com/>
  */
 
-use local_coursetransfer\external\destinycoursecallback_external;
-
+use local_coursetransfer\external\destiny_course_callback_external;
+use local_coursetransfer\external\origin_course_external;
+use local_coursetransfer\external\origin_user_external;
 
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
 
     'local_coursetransfer_origin_has_user' => [
-        'classname' => destinycoursecallback_external::class,
+        'classname' => origin_user_external::class,
         'methodname' => 'origin_has_user',
         'description' => 'Asks to origin if user exists',
         'type' => 'read',
@@ -36,7 +37,7 @@ $functions = [
     ],
 
     'local_coursetransfer_origin_get_courses' => [
-        'classname' => destinycoursecallback_external::class,
+        'classname' => origin_course_external::class,
         'methodname' => 'origin_get_courses',
         'description' => 'Get all courses from user',
         'type' => 'read',
@@ -45,7 +46,7 @@ $functions = [
     ],
 
     'local_coursetransfer_origin_get_course_detail' => [
-        'classname' => destinycoursecallback_external::class,
+        'classname' => origin_course_external::class,
         'methodname' => 'origin_get_course_detail',
         'description' => 'Get specific course details',
         'type' => 'read',
@@ -54,7 +55,7 @@ $functions = [
     ],
 
     'local_coursetransfer_destiny_backup_course_completed' => [
-        'classname' => destinycoursecallback_external::class,
+        'classname' => destiny_course_callback_external::class,
         'methodname' => 'destiny_backup_course_completed',
         'description' => 'Notify origin that the backup is completed',
         'type' => 'write',
@@ -63,7 +64,7 @@ $functions = [
     ],
 
     'local_coursetransfer_destiny_backup_course_error' => [
-        'classname' => destinycoursecallback_external::class,
+        'classname' => destiny_course_callback_external::class,
         'methodname' => 'destiny_backup_course_error',
         'description' => 'Notify origin that an error ocurred',
         'type' => 'write',
@@ -83,7 +84,7 @@ $services = [
             'local_coursetransfer_destiny_backup_course_completed',
             'local_coursetransfer_destiny_backup_course_error'
         ],
-        'restrictedusers' => 0,
+        'restrictedusers' => 1,
         'enabled' => 1
     ]
 ];

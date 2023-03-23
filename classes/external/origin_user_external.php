@@ -62,6 +62,7 @@ class origin_user_external extends external_api {
      * @throws moodle_exception
      */
     public static function origin_has_user(string $field, string $value): array {
+        global $DB;
 
         self::validate_parameters(
             self::origin_has_user_parameters(), [
@@ -76,11 +77,25 @@ class origin_user_external extends external_api {
 
         try {
             // TODO. origin_has_user logic.
+            $res = $DB->get_record('user', [$field => $value]);
+            if ($res) {
+                $data->userid = $res->id;
+                $data->username = $res->username;
+                $data->firstname = $res->firstname;
+                $data->lastname = $res->lastname;
+                $data->email = $res->email;
+            } else {
+                $success = false;
+                $errors[] = [
+                        'code' => '030341',
+                        'msg' => 'USER NOT FOUND'
+                ];
+            }
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] =
                 [
-                    'code' => 'no_code',
+                    'code' => '030340',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -101,17 +116,17 @@ class origin_user_external extends external_api {
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
                     array(
-                        'code' => new external_value(PARAM_INT, 'Code'),
+                        'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message')
                     ), PARAM_TEXT, 'Errors'
                 )),
                 'data' => new external_single_structure(
                     array(
-                        'userid' => new external_value(PARAM_INT, 'User ID'),
-                        'username' => new external_value(PARAM_TEXT, 'Username'),
-                        'firstname' => new external_value(PARAM_TEXT, 'Firstname'),
-                        'lastname' => new external_value(PARAM_TEXT, 'Lastname'),
-                        'email' => new external_value(PARAM_TEXT, 'Email')
+                        'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
+                        'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
+                        'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
+                        'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
+                        'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL)
                     ), PARAM_TEXT, 'Data'
                 )
             )
