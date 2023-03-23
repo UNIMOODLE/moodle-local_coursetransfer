@@ -30,6 +30,8 @@ use stdClass;
 
 class coursetransfer {
 
+    const FIELDS_USER = ['username', 'email', 'userid'];
+
     /** @var stdClass Course */
     protected $course;
 

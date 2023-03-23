@@ -28,6 +28,7 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use stdClass;
 
@@ -77,18 +78,28 @@ class origin_user_external extends external_api {
 
         try {
             // TODO. origin_has_user logic.
-            $res = $DB->get_record('user', [$field => $value]);
-            if ($res) {
-                $data->userid = $res->id;
-                $data->username = $res->username;
-                $data->firstname = $res->firstname;
-                $data->lastname = $res->lastname;
-                $data->email = $res->email;
+            // Hay que comprobar que los fields son correctos
+            if (in_array($field, coursetransfer::FIELDS_USER)) {
+                // Hay que comprobar que el usuario tiene cursos como profesor.
+                $res = $DB->get_record('user', [$field => $value]);
+                if ($res) {
+                    $data->userid = $res->id;
+                    $data->username = $res->username;
+                    $data->firstname = $res->firstname;
+                    $data->lastname = $res->lastname;
+                    $data->email = $res->email;
+                } else {
+                    $success = false;
+                    $errors[] = [
+                            'code' => '030341',
+                            'msg' => 'USER NOT FOUND'
+                    ];
+                }
             } else {
                 $success = false;
                 $errors[] = [
-                        'code' => '030341',
-                        'msg' => 'USER NOT FOUND'
+                        'code' => '030342',
+                        'msg' => 'FIELD NOT VALID'
                 ];
             }
         } catch (moodle_exception $e) {

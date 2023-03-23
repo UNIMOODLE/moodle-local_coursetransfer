@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_coursetransfer\coursetransfer;
+
 defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) {
@@ -49,7 +51,7 @@ if ($hassiteconfig) {
         get_string('setting_origin_sites_desc', 'local_coursetransfer'),
             '', PARAM_RAW));
 
-    $choices = ['username', 'email', 'userid'];
+    $choices = coursetransfer::FIELDS_USER;
     $settings->add(new admin_setting_configselect('local_coursetransfer/origin_field_search_user',
         get_string('setting_origin_field_search_user', 'local_coursetransfer'),
         get_string('setting_origin_field_search_user_desc', 'local_coursetransfer'),
