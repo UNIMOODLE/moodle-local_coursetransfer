@@ -111,11 +111,11 @@ class origin_course_external extends external_api {
                 'data' => new external_multiple_structure(new external_single_structure(
                     array(
                         'id' => new external_value(PARAM_INT, 'Course ID'),
-                        'fullname' => new external_value(PARAM_TEXT, 'Fullname'),
-                        'shortname' => new external_value(PARAM_TEXT, 'Shortname'),
-                        'idnumber' => new external_value(PARAM_INT, 'idNumber'),
-                        'categoryid' => new external_value(PARAM_INT, 'Category ID'),
-                        'categoryname' => new external_value(PARAM_TEXT, 'Category Name')
+                        'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
+                        'shortname' => new external_value(PARAM_TEXT, 'Shortname', VALUE_OPTIONAL),
+                        'idnumber' => new external_value(PARAM_INT, 'idNumber', VALUE_OPTIONAL),
+                        'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                        'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL)
                     ), PARAM_TEXT, 'Data'
                 ))
             )
@@ -196,24 +196,24 @@ class origin_course_external extends external_api {
                 )),
                 'data' => new external_single_structure(
                     array(
-                        'id' => new external_value(PARAM_INT, 'Course ID'),
-                        'fullname' => new external_value(PARAM_TEXT, 'Fullname'),
-                        'shortname' => new external_value(PARAM_TEXT, 'Shortname'),
-                        'idnumber' => new external_value(PARAM_INT, 'idNumber'),
-                        'categoryid' => new external_value(PARAM_INT, 'Category ID'),
-                        'categoryname' => new external_value(PARAM_TEXT, 'Category Name'),
-                        'backupsizeestimated' => new external_value(PARAM_INT, 'Backup Size Estimated'),
+                        'id' => new external_value(PARAM_INT, 'Course ID', VALUE_OPTIONAL),
+                        'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
+                        'shortname' => new external_value(PARAM_TEXT, 'Shortname', VALUE_OPTIONAL),
+                        'idnumber' => new external_value(PARAM_INT, 'idNumber', VALUE_OPTIONAL),
+                        'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                        'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
+                        'backupsizeestimated' => new external_value(PARAM_INT, 'Backup Size Estimated', VALUE_OPTIONAL),
                         'sections' => new external_multiple_structure(new external_single_structure(
                             array(
-                                'sectionnum' => new external_value(PARAM_INT, 'Section Number'),
-                                'sectionid' => new external_value(PARAM_INT, 'Section ID'),
-                                'sectionname' => new external_value(PARAM_TEXT, 'Section Name'),
+                                'sectionnum' => new external_value(PARAM_INT, 'Section Number', VALUE_OPTIONAL),
+                                'sectionid' => new external_value(PARAM_INT, 'Section ID', VALUE_OPTIONAL),
+                                'sectionname' => new external_value(PARAM_TEXT, 'Section Name', VALUE_OPTIONAL),
                                 'activities' => new external_multiple_structure(new external_single_structure(
                                     array(
-                                        'cmid' => new external_value(PARAM_INT, 'CMID'),
-                                        'name' => new external_value(PARAM_TEXT, 'Name'),
-                                        'instanceid' => new external_value(PARAM_INT, 'Instance ID'),
-                                        'modulename' => new external_value(PARAM_TEXT, 'Module Name')
+                                        'cmid' => new external_value(PARAM_INT, 'CMID', VALUE_OPTIONAL),
+                                        'name' => new external_value(PARAM_TEXT, 'Name', VALUE_OPTIONAL),
+                                        'instanceid' => new external_value(PARAM_INT, 'Instance ID', VALUE_OPTIONAL),
+                                        'modulename' => new external_value(PARAM_TEXT, 'Module Name', VALUE_OPTIONAL)
                                     )
                                 ))
                             )
