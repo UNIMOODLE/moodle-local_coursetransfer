@@ -20,6 +20,7 @@
  */
 
 use local_coursetransfer\external\destiny_course_callback_external;
+use local_coursetransfer\external\origin_course_backup_external;
 use local_coursetransfer\external\origin_course_external;
 use local_coursetransfer\external\origin_user_external;
 
@@ -54,6 +55,15 @@ $functions = [
         'loginrequired' => false
     ],
 
+    'local_coursetransfer_origin_backup_course' => [
+        'classname' => origin_course_backup_external::class,
+        'methodname' => 'origin_backup_course',
+        'description' => 'Asks origin to make a backup of the course',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => false
+    ],
+
     'local_coursetransfer_destiny_backup_course_completed' => [
         'classname' => destiny_course_callback_external::class,
         'methodname' => 'destiny_backup_course_completed',
@@ -81,6 +91,7 @@ $services = [
             'local_coursetransfer_origin_has_user',
             'local_coursetransfer_origin_get_courses',
             'local_coursetransfer_origin_get_course_detail',
+            'local_coursetransfer_origin_backup_course',
             'local_coursetransfer_destiny_backup_course_completed',
             'local_coursetransfer_destiny_backup_course_error'
         ],
