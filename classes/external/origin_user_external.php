@@ -78,16 +78,25 @@ class origin_user_external extends external_api {
 
         try {
             // TODO. origin_has_user logic.
-            // Hay que comprobar que los fields son correctos
             if (in_array($field, coursetransfer::FIELDS_USER)) {
-                // Hay que comprobar que el usuario tiene cursos como profesor.
                 $res = $DB->get_record('user', [$field => $value]);
                 if ($res) {
-                    $data->userid = $res->id;
-                    $data->username = $res->username;
-                    $data->firstname = $res->firstname;
-                    $data->lastname = $res->lastname;
-                    $data->email = $res->email;
+                    $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
+                    $isteacheranywhere = $DB->record_exists('role_assignments', ['userid' => $res->id, 'roleid' => $roleid]);
+                    var_dump($isteacheranywhere);
+                    if ($isteacheranywhere) {
+                        $data->userid = $res->id;
+                        $data->username = $res->username;
+                        $data->firstname = $res->firstname;
+                        $data->lastname = $res->lastname;
+                        $data->email = $res->email;
+                    } else {
+                        $success = false;
+                        $errors[] = [
+                            'code' => '030343',
+                            'msg' => 'USER NOT ENROLLED AS TEACHER IN ANY COURSE'
+                        ];
+                    }
                 } else {
                     $success = false;
                     $errors[] = [
