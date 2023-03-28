@@ -78,7 +78,7 @@ class origin_user_external extends external_api {
 
         try {
             // TODO. origin_has_user logic. call auth_user()
-            if (in_array($field, coursetransfer::FIELDS_USER)) {
+            /*if (in_array($field, coursetransfer::FIELDS_USER)) {
                 $res = $DB->get_record('user', [$field => $value]);
                 if ($res) {
                     $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
@@ -110,6 +110,17 @@ class origin_user_external extends external_api {
                         'code' => '030342',
                         'msg' => 'FIELD NOT VALID'
                 ];
+            }*/
+            $authres = coursetransfer::auth_user($field, $value);
+            if($authres['success']){
+                $data->userid = $authres['data']->id;
+                $data->username = $authres['data']->username;
+                $data->firstname = $authres['data']->firstname;
+                $data->lastname = $authres['data']->lastname;
+                $data->email = $authres['data']->email;
+            }else{
+                $success = false;
+                $errors[] = $authres['error'];
             }
         } catch (moodle_exception $e) {
             $success = false;
