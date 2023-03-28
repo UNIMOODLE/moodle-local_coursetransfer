@@ -77,7 +77,6 @@ class origin_user_external extends external_api {
         $data = new stdClass();
 
         try {
-            // TODO. origin_has_user logic. call auth_user()
             $authres = coursetransfer::auth_user($field, $value);
             if($authres['success'] && isset($authres['data'])){
                 $data->userid = $authres['data']->id;

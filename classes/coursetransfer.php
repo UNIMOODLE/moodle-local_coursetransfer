@@ -86,9 +86,9 @@ class coursetransfer {
     /**
      * Origin Get Courses?.
      *
-     * @return stdClass
+     * @return response
      */
-    public function origin_get_courses(): stdClass {
+    public function origin_get_courses(): response {
         return $this->request->origin_get_courses();
     }
 
@@ -99,22 +99,21 @@ class coursetransfer {
      */
     public static function auth_user(string $field, string $value): array {
         global $DB;
-        //TODO: saber si tiene cursos como professor.
 
         if (in_array($field, coursetransfer::FIELDS_USER)) {
             $res = $DB->get_record('user', [$field => $value]);
             if ($res) {
                 $courses = enrol_get_users_courses($res->id);
                 $hascourse = false;
-                foreach ($courses as $course){
+                foreach ($courses as $course) {
                     $context = \context_course::instance($course->id);
                     if(has_capability('moodle/backup:backupcourse', $context, $res->id)){
                         $hascourse = true;
                         break;
                     }
                 }
-                //var_dump($courses);
-                if($hascourse){
+
+                if ($hascourse) {
                     return
                         [
                             'success' => true,
@@ -125,14 +124,14 @@ class coursetransfer {
                                     'msg' => ''
                                 ]
                         ];
-                }else{
+                } else {
                     return
                         [
                             'success' => false,
                             'data' => new stdClass(),
                             'error' =>
                                 [
-                                    'code' => '030343',
+                                    'code' => '030343', // TODO. Escpecificar codigo de errores (crear tabla con todos los errores)
                                     'msg' => 'USER DOES NOT HAVE COURSES'
                                 ]
                         ];
@@ -150,6 +149,7 @@ class coursetransfer {
                             ]
                     ];
             }
+
         } else {
             return
                 [
@@ -161,7 +161,6 @@ class coursetransfer {
                             'msg' => 'FIELD NOT VALID'
                         ]
                 ];
-
         }
     }
 
