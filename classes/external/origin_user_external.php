@@ -78,41 +78,8 @@ class origin_user_external extends external_api {
 
         try {
             // TODO. origin_has_user logic. call auth_user()
-            /*if (in_array($field, coursetransfer::FIELDS_USER)) {
-                $res = $DB->get_record('user', [$field => $value]);
-                if ($res) {
-                    $roleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
-                    $isteacheranywhere = $DB->record_exists('role_assignments', ['userid' => $res->id, 'roleid' => $roleid]);
-                    var_dump($isteacheranywhere);
-                    if ($isteacheranywhere) {
-                        $data->userid = $res->id;
-                        $data->username = $res->username;
-                        $data->firstname = $res->firstname;
-                        $data->lastname = $res->lastname;
-                        $data->email = $res->email;
-                    } else {
-                        $success = false;
-                        $errors[] = [
-                            'code' => '030343',
-                            'msg' => 'USER NOT ENROLLED AS TEACHER IN ANY COURSE'
-                        ];
-                    }
-                } else {
-                    $success = false;
-                    $errors[] = [
-                            'code' => '030341',
-                            'msg' => 'USER NOT FOUND'
-                    ];
-                }
-            } else {
-                $success = false;
-                $errors[] = [
-                        'code' => '030342',
-                        'msg' => 'FIELD NOT VALID'
-                ];
-            }*/
             $authres = coursetransfer::auth_user($field, $value);
-            if($authres['success']){
+            if($authres['success'] && isset($authres['data'])){
                 $data->userid = $authres['data']->id;
                 $data->username = $authres['data']->username;
                 $data->firstname = $authres['data']->firstname;
