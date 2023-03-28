@@ -92,5 +92,77 @@ class coursetransfer {
         return $this->request->origin_get_courses();
     }
 
+    /**
+     * @param string $field
+     * @param string $value
+     * @return array
+     */
+    public static function auth_user(string $field, string $value): array {
+        global $DB;
+        //TODO: saber si tiene cursos como professor.
+
+        if (in_array($field, coursetransfer::FIELDS_USER)) {
+            $res = $DB->get_record('user', [$field => $value]);
+            if ($res) {
+                $courses = enrol_get_users_courses($res->id);
+                $hascourse = false;
+                foreach ($courses as $course){
+                    $context = \context_course::instance($course->id);
+                    if(has_capability('moodle/backup:backupcourse', $context, $res->id)){
+                        $hascourse = true;
+                        break;
+                    }
+                }
+                //var_dump($courses);
+                if($hascourse){
+                    return
+                        [
+                            'success' => true,
+                            'data' => $res,
+                            'error' =>
+                                [
+                                    'code' => '',
+                                    'msg' => ''
+                                ]
+                        ];
+                }else{
+                    return
+                        [
+                            'success' => false,
+                            'data' => new stdClass(),
+                            'error' =>
+                                [
+                                    'code' => '030343',
+                                    'msg' => 'USER DOES NOT HAVE COURSES'
+                                ]
+                        ];
+                }
+
+            } else {
+                return
+                    [
+                        'success' => false,
+                        'data' => new stdClass(),
+                        'error' =>
+                            [
+                                'code' => '030341',
+                                'msg' => 'USER NOT FOUND'
+                            ]
+                    ];
+            }
+        } else {
+            return
+                [
+                    'success' => false,
+                    'data' => new stdClass(),
+                    'error' =>
+                        [
+                            'code' => '030342',
+                            'msg' => 'FIELD NOT VALID'
+                        ]
+                ];
+
+        }
+    }
 
 }

@@ -28,6 +28,7 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use stdClass;
 
@@ -73,10 +74,16 @@ class origin_course_external extends external_api {
 
         $success = true;
         $errors = [];
-        $data = new stdClass();
+        $data = [];
 
         try {
-            // TODO. origin_get_courses logic
+            $authres = coursetransfer::auth_user($field, $value);
+            if($authres['success']){
+                //TODO: logica
+            }else{
+                $success = false;
+                $errors[] = $authres['error'];
+            }
         } catch (moodle_exception $e) {
             $success = false;
             $message = $e->getMessage();
@@ -104,7 +111,7 @@ class origin_course_external extends external_api {
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
                     array(
-                        'code' => new external_value(PARAM_INT, 'Code'),
+                        'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message')
                     ), PARAM_TEXT, 'Errors'
                 )),
