@@ -32,6 +32,15 @@ class coursetransfer {
 
     const FIELDS_USER = ['username', 'email', 'userid'];
 
+    const STATUS = [
+        0 => ['shortname' => 'error', 'alert' => 'danger'],
+        1 => ['shortname' => 'not_started', 'alert' => 'warning'],
+        10 => ['shortname' => 'in_progress', 'alert' => 'primary'],
+        50 => ['shortname' => 'incompleted', 'alert' => 'secondary'],
+        70 => ['shortname' => 'download', 'alert' => 'info'],
+        100 => ['shortname' => 'completed', 'alert' => 'success'],
+    ];
+
     /** @var stdClass Course */
     protected $course;
 
