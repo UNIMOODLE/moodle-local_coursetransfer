@@ -67,18 +67,9 @@ class origin_restore_course_page implements renderable, templatable {
         $newurl = new moodle_url('/local/coursetransfer/origin_restore_course.php',
                 ['id' => $this->course->id, 'new' => 1, 'step' => 1]);
 
-        $uniqid = uniqid('', true);
-        $table = new origin_restore_course_table($uniqid, $this->course);
-
-        ob_start();
-        $table->out(100, true);
-        $output = ob_get_contents();
-        ob_end_clean();
-
         $data = new stdClass();
         $data->new_url = $newurl->out(false);
-        $data->table = $output;
-        $data->restoretable = $this->get_restore_table();
+        $data->table = $this->get_restore_table();
         return $data;
     }
 
@@ -105,6 +96,7 @@ class origin_restore_course_page implements renderable, templatable {
         $table->collapsible(false);
         $table->define_baseurl(
                 new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]));
+
         ob_start();
         $table->out(200, true, false);
         $tablecontent = ob_get_contents();

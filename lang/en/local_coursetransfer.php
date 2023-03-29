@@ -59,4 +59,5 @@ $string['to_integer'] = "to must be an integer";
 $string['userid_integer'] = "User ID must be an integer";
 $string['origin_site'] = "Select origin site";
 $string['origin_site_help'] = "The site of origin, is where the course you want to restore is located";
-
+$string['request_id'] = "Request ID";
+$string['siteurl'] = "Origin Site";

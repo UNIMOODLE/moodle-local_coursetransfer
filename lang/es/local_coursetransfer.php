@@ -59,3 +59,5 @@ $string['to_integer'] = "to tiene que ser un timestamp (entero)";
 $string['userid_integer'] = "User ID tiene que ser entero";
 $string['origin_site'] = "Seleccione el sitio de origen";
 $string['origin_site_help'] = "El sitio de origen, es donde se encuentra el curso que se quiere restaurar";
+$string['request_id'] = "ID Petición";
+$string['siteurl'] = "Sitio Origen";

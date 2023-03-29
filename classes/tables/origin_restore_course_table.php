@@ -63,14 +63,6 @@ class origin_restore_course_table extends table_sql {
 
         $this->course = $course;
 
-        //$this->pageable(true);
-        //$this->collapsible(true);
-        //$this->sortable(true);
-        //$url = '/local/coursetransfer/origin_restore_course.php';
-        //$paramsurl = ['id' => $this->course->id];
-        //$moodleurl = new moodle_url($url, $paramsurl);
-        //$this->define_baseurl($moodleurl);
-
         $this->define_columns([
             'id', 'siteurl', 'origin_course_id', 'status', 'origin_activities',
                 'configuration', 'error', 'userid', 'timemodified', 'timecreated'
@@ -95,57 +87,6 @@ class origin_restore_course_table extends table_sql {
     }
 
     /**
-     * Query DB.
-     *
-     * @param int $pagesize
-     * @param bool $useinitialsbar
-     * @throws moodle_exception
-     */
-    public function query_db($pagesize, $useinitialsbar = true) {
-        $this->rawdata = $this->get_data();
-    }
-
-    /**
-     * Get Data
-     *
-     * @return array
-     * @throws moodle_exception
-     */
-    public function get_data(): array {
-
-        $data = [];
-        $total = [];
-        $data = $this->data_sort_columns($data);
-        $this->pagesize(self::PAGE_SIZE, count($total));
-        return $data;
-    }
-
-    /**
-     * Data Sort Columns.
-     *
-     * @param $data
-     * @return mixed
-     * @throws coding_exception
-     */
-    protected function data_sort_columns($data) {
-        $columns = array_reverse($this->get_sort_columns());
-        foreach ($columns as $k => $v) {
-            usort($data, function($a, $b) use ($k, $v){
-                if (isset($a->{$k})) {
-                    if ($v === 3) {
-                        return $a->{$k} < $b->{$k} ? 1 : -1;
-                    } else {
-                        return $a->{$k} < $b->{$k} ? -1 : 1;
-                    }
-                } else {
-                    return true;
-                }
-            });
-        }
-        return $data;
-    }
-
-    /**
      * Col request id
      *
      * @param stdClass $row Full data of the current row.
@@ -156,23 +97,35 @@ class origin_restore_course_table extends table_sql {
     }
 
     /**
-     * Col User id
+     * Col Site URL
      *
      * @param stdClass $row Full data of the current row.
      * @return string
      */
-    public function col_userid(stdClass $row): string {
-        return $row->userid;
+    public function col_siteurl(stdClass $row): string {
+        return '<a href="' . $row->siteurl . '" target="_blank">' . $row->siteurl . '</a>';
     }
 
     /**
-     * Col TimeModified
+     * Col Origin Course ID
+     *
+     * @param stdClass $row Full data of the current row.
+     * @return string
+     * @throws moodle_exception
+     */
+    public function col_origin_course_id(stdClass $row): string {
+        $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->origin_course_id]);
+        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_course_id . '</a>';
+    }
+
+    /**
+     * Col Error
      *
      * @param stdClass $row Full data of the current row.
      * @return string
      */
-    public function col_timemodified(stdClass $row): string {
-        return $row->timemodified;
+    public function col_error(stdClass $row): string {
+        return $row->error_message;
     }
 
 }
