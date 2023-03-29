@@ -63,17 +63,53 @@ class origin_restore_course_page implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+
         $newurl = new moodle_url('/local/coursetransfer/origin_restore_course.php',
                 ['id' => $this->course->id, 'new' => 1, 'step' => 1]);
-        $data = new stdClass();
-        $data->new_url = $newurl->out(false);
-        $table = new origin_restore_course_table($this->course);
+
+        $uniqid = uniqid('', true);
+        $table = new origin_restore_course_table($uniqid, $this->course);
+
         ob_start();
         $table->out(100, true);
         $output = ob_get_contents();
         ob_end_clean();
+
+        $data = new stdClass();
+        $data->new_url = $newurl->out(false);
         $data->table = $output;
+        $data->restoretable = $this->get_restore_table();
         return $data;
+    }
+
+    /**
+     * Get restore request table
+     *
+     * @return string
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    protected function get_restore_table(): string {
+        $uniqid = uniqid('', true);
+        $table = new origin_restore_course_table($uniqid, $this->course);
+        $table->is_downloadable(false);
+        $table->pageable(false);
+        $select = 'csr.id, csr.siteurl, origin_course_id, origin_course_id, status, origin_activities, destiny_remove_activities,
+        destiny_merge_activities, destiny_remove_enrols, destiny_remove_groups, error_code, error_message, userid, timemodified
+        timecreated';
+        $from = '{local_coursetransfer_request} csr';
+        $where = 'destiny_course_id = :courseid';
+        $params = ['courseid' => $this->course->id];
+        $table->set_sql($select, $from, $where, $params);
+        $table->sortable(true, 'timemodified', SORT_DESC);
+        $table->collapsible(false);
+        $table->define_baseurl(
+                new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]));
+        ob_start();
+        $table->out(200, true, false);
+        $tablecontent = ob_get_contents();
+        ob_end_clean();
+        return $tablecontent;
     }
 
 }

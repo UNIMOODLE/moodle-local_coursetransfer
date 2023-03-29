@@ -52,40 +52,46 @@ class origin_restore_course_table extends table_sql {
     /**
      * constructor.
      *
+     * @param string $uniqueid
      * @param stdClass $course
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public function __construct(stdClass $course) {
+    public function __construct(string $uniqueid, stdClass $course) {
 
-        $uniqueid = time();
         parent::__construct($uniqueid);
 
         $this->course = $course;
 
-        $this->pageable(true);
-        $this->collapsible(true);
-        $this->sortable(true);
-        $url = '/local/coursetransfer/origin_restore_course.php';
-        $paramsurl = ['id' => $this->course->id];
-        $moodleurl = new moodle_url($url, $paramsurl);
-        $this->define_baseurl($moodleurl);
+        //$this->pageable(true);
+        //$this->collapsible(true);
+        //$this->sortable(true);
+        //$url = '/local/coursetransfer/origin_restore_course.php';
+        //$paramsurl = ['id' => $this->course->id];
+        //$moodleurl = new moodle_url($url, $paramsurl);
+        //$this->define_baseurl($moodleurl);
 
         $this->define_columns([
-            'id', 'userid', 'timemodified'
-        ]);
-        $this->define_headers([
-                get_string('request_id', 'local_coursetransfer'),
-                get_string('table_userid', 'local_coursetransfer'),
-                get_string('table_timemodified', 'local_coursetransfer'),
+            'id', 'siteurl', 'origin_course_id', 'status', 'origin_activities',
+                'configuration', 'error', 'userid', 'timemodified', 'timecreated'
         ]);
 
-        $this->is_collapsible = false;
+        $this->define_headers([
+                get_string('request_id', 'local_coursetransfer'),
+                get_string('siteurl', 'local_coursetransfer'),
+                get_string('origin_course_id', 'local_coursetransfer'),
+                get_string('status', 'local_coursetransfer'),
+                get_string('origin_activities', 'local_coursetransfer'),
+                get_string('configuration', 'local_coursetransfer'),
+                get_string('error', 'local_coursetransfer'),
+                get_string('userid', 'local_coursetransfer'),
+                get_string('timemodified', 'local_coursetransfer'),
+                get_string('timecreated', 'local_coursetransfer'),
+        ]);
+
         $this->sortable(false);
 
         $this->column_style('id', 'text-align', 'center');
-        $this->column_style('userid', 'text-align', 'left');
-        $this->column_style('timemodified', 'text-align', 'center');
     }
 
     /**

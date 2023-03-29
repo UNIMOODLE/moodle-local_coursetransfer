@@ -78,13 +78,13 @@ class origin_user_external extends external_api {
 
         try {
             $authres = coursetransfer::auth_user($field, $value);
-            if($authres['success'] && isset($authres['data'])){
+            if ($authres['success'] && isset($authres['data'])) {
                 $data->userid = $authres['data']->id;
                 $data->username = $authres['data']->username;
                 $data->firstname = $authres['data']->firstname;
                 $data->lastname = $authres['data']->lastname;
                 $data->email = $authres['data']->email;
-            }else{
+            } else {
                 $success = false;
                 $errors[] = $authres['error'];
             }
