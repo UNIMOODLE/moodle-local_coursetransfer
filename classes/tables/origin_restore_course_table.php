@@ -69,7 +69,7 @@ class origin_restore_course_table extends table_sql
 
         $this->define_columns([
             'id', 'siteurl', 'origin_course_id', 'status', 'origin_activities',
-                'configuration', 'error', 'userid', 'timemodified', 'timecreated'
+                'configuration', 'error', 'backupsize', 'userid', 'timemodified', 'timecreated'
         ]);
 
         $this->define_headers([
@@ -80,6 +80,7 @@ class origin_restore_course_table extends table_sql
                 get_string('origin_activities', 'local_coursetransfer'),
                 get_string('configuration', 'local_coursetransfer'),
                 get_string('error', 'local_coursetransfer'),
+                get_string('backupsize', 'local_coursetransfer'),
                 get_string('userid', 'local_coursetransfer'),
                 get_string('timemodified', 'local_coursetransfer'),
                 get_string('timecreated', 'local_coursetransfer'),
@@ -88,6 +89,7 @@ class origin_restore_course_table extends table_sql
         $this->sortable(false);
 
         $this->column_style('id', 'text-align', 'center');
+
     }
 
     /**
@@ -139,6 +141,117 @@ class origin_restore_course_table extends table_sql
     }
 
     /**
+     * Col Origin Activities
+     *
+     * @param stdClass $row Full data of the current row.
+     * @return string
+     * @throws moodle_exception
+     */
+    public function col_origin_activities(stdClass $row): string
+    {
+        return
+            '
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+              Activities
+            </button>
+            
+            <!-- Modal -->
+            <div class="modal fade bd-example-modal-lg" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+              <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Activities</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">'
+                    . $row->origin_activities .
+                  '</div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        ';
+    }
+
+    /**
+     * Col Configuration
+     *
+     * @param stdClass $row Full data of the current row.
+     * @return string
+     * @throws moodle_exception
+     */
+    public function col_configuration(stdClass $row): string
+    {
+        return
+            '
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+              Configuration
+            </button>
+            
+            <!-- Modal -->
+            <div class="modal fade bd-example-modal-lg" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+              <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Configuration</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">'
+                    . $row->configuration .
+                '</div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+        ';
+    }
+
+    /**
+     * Col Errors
+     *
+     * @param stdClass $row Full data of the current row.
+     * @return string
+     * @throws moodle_exception
+     */
+    public function col_error(stdClass $row): string
+    {
+        return
+            '
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+              Errors
+            </button>
+            
+            <!-- Modal -->
+            <div class="modal fade bd-example-modal-lg" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+              <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Errors</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">'
+            . $row->error_message . $row->error_code .
+            '</div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        ';
+    }
+
+    /**
      * Col User ID
      *
      * @param stdClass $row Full data of the current row.
@@ -149,6 +262,18 @@ class origin_restore_course_table extends table_sql
     {
         $href = new moodle_url($row->siteurl . '/user/profile.php', ['id' => $row->userid]);
         return '<a href="' . $href->out(false) . '" target="_blank">' . $row->userid . '</a>';
+    }
+
+    /**
+     * Col Size
+     *
+     * @param stdClass $row Full data of the current row.
+     * @return string
+     * @throws moodle_exception
+     */
+    public function col_backupsize(stdClass $row): string
+    {
+        return '<a>' . $row->backupsize . '</a>';
     }
 
     /**

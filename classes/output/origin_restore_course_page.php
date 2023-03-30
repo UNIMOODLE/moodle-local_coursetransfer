@@ -66,7 +66,6 @@ class origin_restore_course_page implements renderable, templatable
      */
     public function export_for_template(renderer_base $output): stdClass
     {
-
         $newurl = new moodle_url(
             '/local/coursetransfer/origin_restore_course.php',
             ['id' => $this->course->id, 'new' => 1, 'step' => 1]
@@ -93,7 +92,7 @@ class origin_restore_course_page implements renderable, templatable
         $table->pageable(false);
         $select = 'csr.id, csr.siteurl, origin_course_id, origin_course_id, status, 
                     origin_activities, destiny_remove_activities,
-                    destiny_merge_activities, destiny_remove_enrols, destiny_remove_groups, 
+                    destiny_merge_activities, destiny_remove_enrols, destiny_remove_groups, origin_backup_size,
                     error_code, error_message, userid, timemodified, timecreated';
         $from = '{local_coursetransfer_request} csr';
         $where = 'destiny_course_id = :courseid';

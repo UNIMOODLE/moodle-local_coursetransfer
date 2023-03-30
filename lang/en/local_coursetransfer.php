@@ -67,5 +67,6 @@ $string['origin_activities'] = "Origin Activities";
 $string['configuration'] = "Config";
 $string['error'] = "Errors";
 $string['userid'] = "User ID";
+$string['backupsize'] = "Size (MB)";
 $string['timemodified'] = "Time Modified";
 $string['timecreated'] = "Time Created";
