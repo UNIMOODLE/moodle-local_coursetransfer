@@ -15,16 +15,18 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
   }}
 {{!
-  @template local_coursetransfer/origin_restore_course_page
+  @template local_coursetransfer/new_origin_restore_course_step1_page
 
   Example context (json):
 
 }}
-<div class="local_coursetransfer" data-region="origin_restore_course_page">
+<div class="local_coursetransfer" data-region="new_origin_restore_course_step1_page">
 
     <a type="button" class="btn btn-outline-primary" href="{{ back_url }}">
         Volver
     </a>
+
+    {{> local_coursetransfer/components/stepbystep }}
 
     <hr>
 

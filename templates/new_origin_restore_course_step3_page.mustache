@@ -15,12 +15,12 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
   }}
 {{!
-  @template local_coursetransfer/new_origin_restore_course_step2_page
+  @template local_coursetransfer/new_origin_restore_course_step3_page
 
   Example context (json):
 
 }}
-<div class="local_coursetransfer" data-region="new_origin_restore_course_step2_page">
+<div class="local_coursetransfer" data-region="new_origin_restore_course_step3_page">
 
     <a type="button" class="btn btn-outline-primary" href="{{ back_url }}">
         Volver
@@ -30,20 +30,8 @@
 
     <hr>
 
-    <h3 class="h3">Restaurar curso remoto - PASO 2</h3>
+    <h3 class="h3">Restaurar curso remoto - PASO 3</h3>
 
-    {{# has_errors }}
-        {{# errors }}
-        <div class="alert alert-danger" role="alert">
-            {{ . }}
-        </div>
-        {{/ errors }}
-    {{/ has_errors }}
-
-    {{^ has_errors }}
-        <p>Este es el listado de curso al cuál tienes acceso en el sitio remoto</p>
-        {{{ table }}}
-    {{/ has_errors }}
 
 
 </div>

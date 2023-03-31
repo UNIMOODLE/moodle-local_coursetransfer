@@ -40,8 +40,7 @@ use templatable;
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_course_page implements renderable, templatable
-{
+class origin_restore_course_page implements renderable, templatable {
 
     /** @var stdClass Course */
     protected $course;
@@ -51,8 +50,7 @@ class origin_restore_course_page implements renderable, templatable
      *
      * @param stdClass $course
      */
-    public function __construct(stdClass $course)
-    {
+    public function __construct(stdClass $course) {
         $this->course = $course;
     }
 
@@ -64,8 +62,7 @@ class origin_restore_course_page implements renderable, templatable
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public function export_for_template(renderer_base $output): stdClass
-    {
+    public function export_for_template(renderer_base $output): stdClass {
         $newurl = new moodle_url(
             '/local/coursetransfer/origin_restore_course.php',
             ['id' => $this->course->id, 'new' => 1, 'step' => 1]
@@ -84,16 +81,15 @@ class origin_restore_course_page implements renderable, templatable
      * @throws coding_exception
      * @throws moodle_exception
      */
-    protected function get_restore_table(): string
-    {
+    protected function get_restore_table(): string {
         $uniqid = uniqid('', true);
         $table = new origin_restore_course_table($uniqid, $this->course);
         $table->is_downloadable(false);
         $table->pageable(false);
-        $select = 'csr.id, csr.siteurl, origin_course_id, origin_course_id, status, 
-                    origin_activities, destiny_remove_activities,
-                    destiny_merge_activities, destiny_remove_enrols, destiny_remove_groups, origin_backup_size,
-                    error_code, error_message, userid, timemodified, timecreated';
+        $select = 'csr.id, csr.siteurl, csr.origin_course_id, csr.origin_course_id, csr.status,
+                    csr.origin_activities, csr.destiny_remove_activities,
+                    csr.destiny_merge_activities, csr.destiny_remove_enrols, csr.destiny_remove_groups, csr.origin_backup_size,
+                    csr.error_code, csr.error_message, csr.userid, csr.timemodified, csr.timecreated';
         $from = '{local_coursetransfer_request} csr';
         $where = 'destiny_course_id = :courseid';
         $params = ['courseid' => $this->course->id];
@@ -110,4 +106,5 @@ class origin_restore_course_page implements renderable, templatable
         ob_end_clean();
         return $tablecontent;
     }
+
 }

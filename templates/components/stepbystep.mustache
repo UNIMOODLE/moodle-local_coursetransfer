@@ -15,35 +15,18 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
   }}
 {{!
-  @template local_coursetransfer/new_origin_restore_course_step2_page
+  @template local_coursetransfer/components/stepbystep
 
   Example context (json):
 
 }}
-<div class="local_coursetransfer" data-region="new_origin_restore_course_step2_page">
+<div class="local_coursetransfer" data-region="stepbystep">
 
-    <a type="button" class="btn btn-outline-primary" href="{{ back_url }}">
-        Volver
-    </a>
-
-    {{> local_coursetransfer/components/stepbystep }}
-
-    <hr>
-
-    <h3 class="h3">Restaurar curso remoto - PASO 2</h3>
-
-    {{# has_errors }}
-        {{# errors }}
-        <div class="alert alert-danger" role="alert">
-            {{ . }}
-        </div>
-        {{/ errors }}
-    {{/ has_errors }}
-
-    {{^ has_errors }}
-        <p>Este es el listado de curso al cuál tienes acceso en el sitio remoto</p>
-        {{{ table }}}
-    {{/ has_errors }}
-
+    <ul>
+        <li><a href="http://cncs.test/local/coursetransfer/origin_restore_course.php?id=6&new=1&step=1">Paso 1</a></li>
+        <li><a href="http://cncs.test/local/coursetransfer/origin_restore_course.php?id=6&new=1&step=2">Paso 2</a></li>
+        <li><a href="http://cncs.test/local/coursetransfer/origin_restore_course.php?id=6&new=1&step=3">Paso 3</a></li>
+        <li><a href="http://cncs.test/local/coursetransfer/origin_restore_course.php?id=6&new=1&step=4">Paso 4</a></li>
+    </ul>
 
 </div>

@@ -51,7 +51,10 @@ $PAGE->set_context(context_course::instance($courseid));
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->set_url('/local/coursetransfer/origin_restore_course.php');
+
+
 $output = $PAGE->get_renderer('local_coursetransfer');
+
 echo $OUTPUT->header();
 if ($isnew) {
     $step = required_param('step', PARAM_INT);
@@ -61,6 +64,12 @@ if ($isnew) {
             break;
         case 2:
             $page = new \local_coursetransfer\output\new_origin_restore_course_step2_page($course);
+            break;
+        case 3:
+            $page = new \local_coursetransfer\output\new_origin_restore_course_step3_page($course);
+            break;
+        case 4:
+            $page = new \local_coursetransfer\output\new_origin_restore_course_step4_page($course);
             break;
         default:
             throw new moodle_exception('STEP NOT VALID');
