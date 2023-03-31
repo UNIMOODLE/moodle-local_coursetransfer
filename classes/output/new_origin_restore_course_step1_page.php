@@ -65,8 +65,15 @@ class new_origin_restore_course_step1_page implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         $backurl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
+        $nexturl = new moodle_url('/local/coursetransfer/origin_restore_course.php',
+                ['id' => $this->course->id, 'new' => 1, 'step' => 2]);
+        $tableurl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
+
         $data = new stdClass();
         $data->back_url = $backurl->out(false);
+        $data->next_url = $nexturl->out(false);
+        $data->table_url = $tableurl->out(false);
+
         $url = new moodle_url('/local/coursetransfer/origin_restore_course.php',
                 ['id' => $this->course->id, 'new' => 1, 'step' => 2 ]);
         $form = new new_origin_restore_course_step1_form($this->course, $url->out(false));

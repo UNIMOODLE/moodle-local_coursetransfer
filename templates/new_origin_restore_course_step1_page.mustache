@@ -22,11 +22,6 @@
 }}
 <div class="local_coursetransfer" data-region="new_origin_restore_course_step1_page">
 
-    <!-- solo para debugging-->
-    <a type="button" class="btn btn-outline-primary" href="{{ back_url }}">
-        Volver
-    </a>
-
     {{> local_coursetransfer/components/stepbystep }}
 
     <hr>
@@ -42,9 +37,9 @@
     </div>
 
     <div class="button-container">
-        <button type="button" class="btn btn-dark">Cancelar</button>
-        <button type="button" class="btn btn-light">Atrás</button>
-        <button type="button" class="btn btn-primary">Siguiente</button>
+        <a type="button" class="btn btn-dark" href="{{ table_url }}">Cancelar</a>
+        <a type="button" class="btn btn-light" href="{{ back_url }}">Atrás</a>
+        <a type="button" class="btn btn-primary" href="{{ next_url }}">Siguiente</a>
     </div>
 
 
@@ -56,10 +51,6 @@
         justify-content: center;
         align-items: center;
     }
-    div[data-region='new_origin_restore_course_step1_page'] a.btn-outline-primary{
-        margin: auto;
-        padding: 10px;
-    }
     div[data-region='new_origin_restore_course_step1_page'] div[data-region="stepbystep"] {
         margin: auto;
         width: 50%;
@@ -69,11 +60,13 @@
         margin: auto;
         width: 50%;
         padding: 10px;
+        text-align: center;
     }
     div[data-region='new_origin_restore_course_step1_page'] p{
         margin: auto;
         width: 50%;
         padding: 10px;
+        text-align: center;
     }
     div[data-region='new_origin_restore_course_step1_page'] form{
         margin: auto;

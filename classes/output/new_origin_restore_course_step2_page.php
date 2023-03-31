@@ -66,10 +66,10 @@ class new_origin_restore_course_step2_page implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $backurl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
+        $backurl = new moodle_url('/local/coursetransfer/origin_restore_course.php',
+            ['id' => $this->course->id, 'new' => 1, 'step' => 1]);
         $data = new stdClass();
         $data->back_url = $backurl->out(false);
-
 
         return $data;
     }
