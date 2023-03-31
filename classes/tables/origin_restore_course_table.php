@@ -151,7 +151,7 @@ class origin_restore_course_table extends table_sql
     {
         return
             '
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+            <button type="button" class="btn btn-dark origin-activity" data-toggle="modal" data-target="#exampleModalCenter">
               Activities
             </button>
             
@@ -165,9 +165,9 @@ class origin_restore_course_table extends table_sql
                       <span aria-hidden="true">&times;</span>
                     </button>
                   </div>
-                  <div class="modal-body">'
-                    . $row->origin_activities .
-                  '</div>
+                  <div class="modal-body">
+                    <!--. ($row->origin_activities ??) .-->
+                  </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                   </div>
@@ -188,7 +188,7 @@ class origin_restore_course_table extends table_sql
     {
         return
             '
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+            <button type="button" class="btn btn-light configuration" data-toggle="modal" data-target="#exampleModalCenter">
               Configuration
             </button>
             
@@ -203,7 +203,7 @@ class origin_restore_course_table extends table_sql
                     </button>
                   </div>
                   <div class="modal-body">'
-                    . $row->configuration .
+                    . ($row->configuration ?? '') .
                 '</div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
