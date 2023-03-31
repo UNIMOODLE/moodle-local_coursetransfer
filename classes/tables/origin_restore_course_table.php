@@ -69,7 +69,7 @@ class origin_restore_course_table extends table_sql
 
         $this->define_columns([
             'id', 'siteurl', 'origin_course_id', 'status', 'origin_activities',
-                'configuration', 'error', 'backupsize', 'userid', 'timemodified', 'timecreated'
+                    'configuration', 'error', 'backupsize', 'userid', 'timemodified', 'timecreated'
         ]);
 
         $this->define_headers([
@@ -268,12 +268,12 @@ class origin_restore_course_table extends table_sql
      * Col Size
      *
      * @param stdClass $row Full data of the current row.
-     * @return string
+     * @return int
      * @throws moodle_exception
      */
-    public function col_backupsize(stdClass $row): string
+    public function col_backupsize(stdClass $row): int
     {
-        return '<a>' . $row->backupsize . '</a>';
+        return $row->origin_backup_size;
     }
 
     /**
