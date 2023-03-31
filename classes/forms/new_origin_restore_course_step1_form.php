@@ -64,8 +64,6 @@ class new_origin_restore_course_step1_form extends moodleform {
                 get_string('origin_site', 'local_coursetransfer'), $sites);
         $mform->addHelpButton('origin_site', 'origin_site', 'local_coursetransfer');
 
-        $this->add_action_buttons(false, get_string('next'));
-
     }
 
 }

@@ -43,8 +43,8 @@ require_once('../../lib/tablelib.php');
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_course_table extends table_sql {
-
+class origin_restore_course_table extends table_sql
+{
 
     /** @var int PAGE SIZE */
     const PAGE_SIZE = 20;
@@ -60,7 +60,8 @@ class origin_restore_course_table extends table_sql {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public function __construct(string $uniqueid, stdClass $course) {
+    public function __construct(string $uniqueid, stdClass $course)
+    {
 
         parent::__construct($uniqueid);
 
@@ -97,7 +98,8 @@ class origin_restore_course_table extends table_sql {
      * @param stdClass $row Full data of the current row.
      * @return string
      */
-    public function col_id(stdClass $row): string {
+    public function col_id(stdClass $row): string
+    {
         return $row->id;
     }
 
@@ -107,7 +109,8 @@ class origin_restore_course_table extends table_sql {
      * @param stdClass $row Full data of the current row.
      * @return string
      */
-    public function col_siteurl(stdClass $row): string {
+    public function col_siteurl(stdClass $row): string
+    {
         return '<a href="' . $row->siteurl . '" target="_blank">' . $row->siteurl . '</a>';
     }
 
@@ -118,7 +121,8 @@ class origin_restore_course_table extends table_sql {
      * @return string
      * @throws moodle_exception
      */
-    public function col_origin_course_id(stdClass $row): string {
+    public function col_origin_course_id(stdClass $row): string
+    {
         $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->origin_course_id]);
         return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_course_id . '</a>';
     }
@@ -130,7 +134,8 @@ class origin_restore_course_table extends table_sql {
      * @return string
      * @throws moodle_exception
      */
-    public function col_status(stdClass $row): string {
+    public function col_status(stdClass $row): string
+    {
         return '<label class="text-' . coursetransfer::STATUS[$row->status]['alert'] . '">'
             . coursetransfer::STATUS[$row->status]['shortname'] . '</label>';
     }
@@ -142,7 +147,8 @@ class origin_restore_course_table extends table_sql {
      * @return string
      * @throws moodle_exception
      */
-    public function col_origin_activities(stdClass $row): string {
+    public function col_origin_activities(stdClass $row): string
+    {
         return
             '
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalActivities">
@@ -178,7 +184,8 @@ class origin_restore_course_table extends table_sql {
      * @return string
      * @throws moodle_exception
      */
-    public function col_configuration(stdClass $row): string {
+    public function col_configuration(stdClass $row): string
+    {
         return
             '
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalConfiguration">
@@ -213,7 +220,8 @@ class origin_restore_course_table extends table_sql {
      * @return string
      * @throws moodle_exception
      */
-    public function col_error(stdClass $row): string {
+    public function col_error(stdClass $row): string
+    {
         return
             '
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalErrors">
@@ -249,7 +257,8 @@ class origin_restore_course_table extends table_sql {
      * @return string
      * @throws moodle_exception
      */
-    public function col_userid(stdClass $row): string {
+    public function col_userid(stdClass $row): string
+    {
         $href = new moodle_url($row->siteurl . '/user/profile.php', ['id' => $row->userid]);
         return '<a href="' . $href->out(false) . '" target="_blank">' . $row->userid . '</a>';
     }
@@ -261,7 +270,8 @@ class origin_restore_course_table extends table_sql {
      * @return int
      * @throws moodle_exception
      */
-    public function col_backupsize(stdClass $row): int {
+    public function col_backupsize(stdClass $row): int
+    {
         return $row->origin_backup_size;
     }
 
@@ -272,7 +282,8 @@ class origin_restore_course_table extends table_sql {
      * @return string
      * @throws moodle_exception
      */
-    public function col_timemodified(stdClass $row): string {
+    public function col_timemodified(stdClass $row): string
+    {
         $date = new DateTime();
         $date->setTimestamp($row->timemodified);
         $date = userdate($row->timemodified, get_string("strftimedatetimeshort", "core_langconfig"));
@@ -286,7 +297,8 @@ class origin_restore_course_table extends table_sql {
      * @return string
      * @throws moodle_exception
      */
-    public function col_timecreated(stdClass $row): string {
+    public function col_timecreated(stdClass $row): string
+    {
         $date = new DateTime();
         $date->setTimestamp($row->timecreated);
         $date = userdate($row->timecreated, get_string("strftimedatetimeshort", "core_langconfig"));

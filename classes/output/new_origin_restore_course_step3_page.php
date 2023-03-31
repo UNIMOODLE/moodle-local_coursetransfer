@@ -38,13 +38,13 @@ use stdClass;
 use templatable;
 
 /**
- * new_origin_restore_course_step2_page
+ * new_origin_restore_course_step3_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class new_origin_restore_course_step2_page implements renderable, templatable {
+class new_origin_restore_course_step3_page implements renderable, templatable {
 
     /** @var stdClass Course */
     protected $course;
@@ -69,7 +69,6 @@ class new_origin_restore_course_step2_page implements renderable, templatable {
         $backurl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
         $data = new stdClass();
         $data->back_url = $backurl->out(false);
-
 
         return $data;
     }

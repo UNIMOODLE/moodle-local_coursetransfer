@@ -72,4 +72,28 @@ class renderer extends plugin_renderer_base {
         return parent::render_from_template('local_coursetransfer/new_origin_restore_course_step2_page', $data);
     }
 
+    /**
+     * Defer to template.
+     *
+     * @param new_origin_restore_course_step3_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_new_origin_restore_course_step3_page(new_origin_restore_course_step3_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/new_origin_restore_course_step3_page', $data);
+    }
+
+    /**
+     * Defer to template.
+     *
+     * @param new_origin_restore_course_step4_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_new_origin_restore_course_step4_page(new_origin_restore_course_step4_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/new_origin_restore_course_step4_page', $data);
+    }
+
 }
