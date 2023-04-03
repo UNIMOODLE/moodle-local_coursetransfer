@@ -42,7 +42,8 @@ use templatable;
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class new_origin_restore_course_step1_page implements renderable, templatable {
+class new_origin_restore_course_step1_page implements renderable, templatable
+{
 
     /** @var stdClass Course */
     protected $course;
@@ -52,7 +53,8 @@ class new_origin_restore_course_step1_page implements renderable, templatable {
      *
      * @param stdClass $course
      */
-    public function __construct(stdClass $course) {
+    public function __construct(stdClass $course)
+    {
         $this->course = $course;
     }
 
@@ -65,8 +67,10 @@ class new_origin_restore_course_step1_page implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         $backurl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
-        $nexturl = new moodle_url('/local/coursetransfer/origin_restore_course.php',
-                ['id' => $this->course->id, 'new' => 1, 'step' => 2]);
+        $nexturl = new moodle_url(
+            '/local/coursetransfer/origin_restore_course.php',
+            ['id' => $this->course->id, 'new' => 1, 'step' => 2]
+        );
         $tableurl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
 
         $data = new stdClass();
@@ -74,12 +78,12 @@ class new_origin_restore_course_step1_page implements renderable, templatable {
         $data->next_url = $nexturl->out(false);
         $data->table_url = $tableurl->out(false);
 
-        $url = new moodle_url('/local/coursetransfer/origin_restore_course.php',
-                ['id' => $this->course->id, 'new' => 1, 'step' => 2 ]);
+        $url = new moodle_url(
+            '/local/coursetransfer/origin_restore_course.php',
+            ['id' => $this->course->id, 'new' => 1, 'step' => 2 ]
+        );
         $form = new new_origin_restore_course_step1_form($this->course, $url->out(false));
         $data->form = $form->render();
         return $data;
     }
-
 }
-

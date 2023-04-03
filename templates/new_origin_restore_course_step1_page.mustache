@@ -26,20 +26,20 @@
 
     <hr>
 
-    <h3 class="h3">Restaurar Curso remoto</h3>
+    <h3 class="h3">{{#str}} step1_restore_title, local_coursetransfer {{/str}}</h3>
 
-    <p>Para restaurar un curso desde otra plataforma, primero debes seleccionar el sitio dónde se encuentra el curso original.</p>
+    <p>{{#str}} step1_restore_desc, local_coursetransfer {{/str}}</p>
 
     {{{ form }}}
 
     <div class="alert alert-danger" role="alert">
-        A simple aler-Check it out!
+        A simple aler---Check it out!
     </div>
 
     <div class="button-container">
-        <a type="button" class="btn btn-dark" href="{{ table_url }}">Cancelar</a>
-        <a type="button" class="btn btn-light" href="{{ back_url }}">Atrás</a>
-        <a type="button" class="btn btn-primary" href="{{ next_url }}">Siguiente</a>
+        <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
+        <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
+        <a type="button" class="btn btn-primary" href="{{ next_url }}">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
     </div>
 
 
@@ -81,15 +81,12 @@
         align-self: center;
     }
     div[data-region='new_origin_restore_course_step1_page'] div.button-container{
-        margin: 0 auto;
-        width: 50%;
         padding: 10px;
     }
-    div[data-region='new_origin_restore_course_step1_page'] div.button-container button.btn-primary{
+    div[data-region='new_origin_restore_course_step1_page'] div.button-container a.btn-primary{
         background: #0D6EFD;
     }
-    div[data-region='new_origin_restore_course_step1_page'] div.button-container button.btn-light{
+    div[data-region='new_origin_restore_course_step1_page'] div.button-container a.btn-light{
         border: 1px solid black;
     }
-
 </style>
