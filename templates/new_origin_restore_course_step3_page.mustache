@@ -22,16 +22,84 @@
 }}
 <div class="local_coursetransfer" data-region="new_origin_restore_course_step3_page">
 
-    <a type="button" class="btn btn-outline-primary" href="{{ back_url }}">
-        Volver
-    </a>
-
     {{> local_coursetransfer/components/stepbystep }}
 
-    <hr>
+    <h3 class="h3">{{#str}} steps_restore_title, local_coursetransfer {{/str}}</h3>
 
-    <h3 class="h3">Restaurar curso remoto - PASO 3</h3>
+    <p>{{#str}} step3_restore_desc, local_coursetransfer {{/str}}</p>
 
+    <div class="course_details">
+        <div class="course_details_header">
+            <span class="text-white">Course Name</span>
+            <span class="text-white">ID: Course ID</span>
+        </div>
+        <div class="course_details_body"></div>
+    </div>
 
+    <div class="button-container">
+        <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
+        <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
+        <a type="button" class="btn btn-primary" href="{{ next_url }}">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
+    </div>
 
 </div>
+<style>
+    div[data-region='new_origin_restore_course_step3_page']{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div[data-region="stepbystep"] {
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] h3.h3{
+        font-size: 28px;
+        font-weight: 600;
+        margin: auto;
+        padding-top: 0;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] p{
+        font-size: 16px;
+        font-weight: 400;
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.button-container{
+        padding: 10px;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.button-container a.btn-primary{
+        background: #0D6EFD;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.button-container a.btn-light{
+        border: 1px solid black;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.course_details {
+        height: 30vh;
+        width: 50%;
+        border: 1px solid black;
+        border-radius: 10px;
+        margin-top: 10px;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.course_details_header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+        height: 20%;
+        background-color: #0c0c0c;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.course_details_header span {
+        font-size: 18px;
+        font-weight: 600;
+    }
+</style>
