@@ -36,27 +36,81 @@
         <div class="course_details_body">
             <div class="row-1">
                 <section>
-                    <span class="section-tittle">Nombre Corto</span>
+                    <span class="section-tittle">{{#str}} step3_details_shortname, local_coursetransfer {{/str}}</span>
                     <span class="data text-muted">BP102</span>
                 </section>
                 <section>
-                    <span class="section-tittle">ID number del Curso</span>
-                    <span class="data text-muted">BP102</span>
+                    <span class="section-tittle">{{#str}} step3_details_course_id, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">482400</span>
                 </section>
                 <section>
-                    <span class="section-tittle">Nombre Categoría</span>
-                    <span class="data text-muted">BP102</span>
+                    <span class="section-tittle">{{#str}} step3_details_category_name, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">Math</span>
                 </section>
             </div>
             <div class="row-2">
                 <section>
-                    <span class="section-tittle">ID Categoria</span>
-                    <span class="data text-muted">BP102</span>
+                    <span class="section-tittle">{{#str}} step3_details_category_id, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">220</span>
                 </section>
                 <section>
-                    <span class="section-tittle">Tamaño del backup estimado</span>
-                    <span class="data text-muted">BP102</span>
+                    <span class="section-tittle">{{#str}} step3_details_backup_size, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">120 MB</span>
                 </section>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="h4">Secciones</h4>
+
+    <div class="sections-table">
+        <div class="sections-table-header">
+            <div class="ckeckbox"></div>
+            <div class="section-data">ID de la sección</div>
+            <div class="section-data">Número de la sección</div>
+            <div class="section-data">Nombre de la sección</div>
+        </div>
+        <div class="section-row">
+            <div class="section-info">
+                <div class="ckeckbox"><input type="checkbox"></div>
+                <div class="section-data">48144</div>
+                <div class="section-data">Sección 0</div>
+                <div class="section-data">La evolución</div>
+            </div>
+        </div>
+        <div class="section-row">
+            <div class="section-info">
+                <div class="ckeckbox"><input type="checkbox"></div>
+                <div class="section-data">48122</div>
+                <div class="section-data">Sección 1</div>
+                <div class="section-data">Mamíferos</div>
+            </div>
+            <div class="center-div">
+                <div class="activities-table">
+                    <div class="activities-table-header">
+                        <div class="ckeckbox"></div>
+                        <div class="activities-data">Nombre</div>
+                        <div class="activities-data">Tipo</div>
+                    </div>
+                    <div class="activities-row">
+                        <div class="ckeckbox"><input type="checkbox"></div>
+                        <div class="activities-data">Redacción sobre los mamíferos</div>
+                        <div class="activities-data">Tarea</div>
+                    </div>
+                    <div class="activities-row">
+                        <div class="ckeckbox"><input type="checkbox"></div>
+                        <div class="activities-data">Avisos</div>
+                        <div class="activities-data">Foro</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="section-row">
+            <div class="section-info">
+                <div class="ckeckbox"><input type="checkbox"></div>
+                <div class="section-data">48132</div>
+                <div class="section-data">Sección 2</div>
+                <div class="section-data">El cuerpo humano</div>
             </div>
         </div>
     </div>
@@ -107,18 +161,15 @@
         border: 1px solid black;
     }
     div[data-region='new_origin_restore_course_step3_page'] div.course_details {
-        height: 20vh;
-        width: 40%;
+        width: 50%;
         border: 1px solid black;
         border-radius: 10px;
-        margin-top: 10px;
+        margin: 10px 0;
     }
     div[data-region='new_origin_restore_course_step3_page'] div.course_details_header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0 20px;
-        height: 30%;
         background-color: #0c0c0c;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
@@ -126,17 +177,15 @@
     div[data-region='new_origin_restore_course_step3_page'] div.course_details_header span.course-name {
         font-size: 18px;
         font-weight: 600;
+        padding: 10px;
     }
     div[data-region='new_origin_restore_course_step3_page'] div.course_details_header span.course-id {
         font-size: 14px;
         font-weight: 500;
-    }
-    div[data-region='new_origin_restore_course_step3_page'] div.course_details_body {
-        height: 70%;
+        padding: 10px;
     }
     div[data-region='new_origin_restore_course_step3_page'] div.course_details_body div.row-1, div.course_details_body div.row-2 {
         display: flex;
-        justify-content: space-around;
         align-items: center;
         height: 50%;
     }
@@ -145,6 +194,8 @@
         flex-direction: column;
         justify-content: center;
         text-align: left;
+        width: 33%;
+        padding: 10px;
     }
     div[data-region='new_origin_restore_course_step3_page'] div.course_details_body section span.section-tittle {
         font-size: 14px;
@@ -153,5 +204,69 @@
     div[data-region='new_origin_restore_course_step3_page'] div.course_details_body section span.data {
         font-size: 14px;
         font-weight: 500;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] h4.h4 {
+        font-size: 24px;
+        font-weight: 600;
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        text-align: left;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.sections-table {
+        width: 50%;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.sections-table-header {
+        display: flex;
+        border-bottom: 2px solid #9396AA;
+        padding: 5px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.ckeckbox {
+        width: 10%;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.section-data {
+        width: 30%;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.section-info {
+        display: flex;
+        border-bottom: 1px solid #D7D8E2;
+        padding: 10px;
+        font-size: 14px;
+        font-weight: 400;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.section-row {
+        display: flex;
+        flex-direction: column;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.activities-table {
+        width: 90%;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.center-div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.activities-table-header {
+        display: flex;
+        border-bottom: 2px solid #9396AA;
+        padding: 5px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.ckeckbox {
+        width: 10%;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.activities-data {
+        width: 45%;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.activities-row {
+        display: flex;
+        border-bottom: 1px solid #D7D8E2;
+        padding: 5px;
+        font-size: 13px;
+        font-weight: 400;
     }
 </style>

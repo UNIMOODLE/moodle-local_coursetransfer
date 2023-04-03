@@ -78,3 +78,8 @@ $string['step1_restore_desc'] = "To restore a course from another platform,
 you must first select the site where the original course is located";
 $string['step2_restore_desc'] = "Select the course to restore";
 $string['step3_restore_desc'] = "Selected course details";
+$string['step3_details_shortname'] = "Short Name";
+$string['step3_details_course_id'] = "Course ID Number";
+$string['step3_details_category_name'] = "Category Name";
+$string['step3_details_category_id'] = "Category ID";
+$string['step3_details_backup_size'] = "Backup Estimated Size";
