@@ -73,6 +73,7 @@ $string['timecreated'] = "Time Created";
 $string['steps_buttons_next'] = 'Next';
 $string['steps_buttons_back'] = 'Back';
 $string['steps_buttons_cancel'] = 'Cancel';
-$string['step1_restore_title'] = "Restore Remote Course";
+$string['steps_restore_title'] = "Restore Remote Course";
 $string['step1_restore_desc'] = "To restore a course from another platform, 
-you must first select the site where the original course is located.";
+you must first select the site where the original course is located";
+$string['step2_restore_desc'] = "Select the course to restore";
