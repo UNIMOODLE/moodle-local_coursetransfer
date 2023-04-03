@@ -30,10 +30,35 @@
 
     <div class="course_details">
         <div class="course_details_header">
-            <span class="text-white">Course Name</span>
-            <span class="text-white">ID: Course ID</span>
+            <span class="text-white course-name">Course Name</span>
+            <span class="text-white course-id">ID: Course ID</span>
         </div>
-        <div class="course_details_body"></div>
+        <div class="course_details_body">
+            <div class="row-1">
+                <section>
+                    <span class="section-tittle">Nombre Corto</span>
+                    <span class="data text-muted">BP102</span>
+                </section>
+                <section>
+                    <span class="section-tittle">ID number del Curso</span>
+                    <span class="data text-muted">BP102</span>
+                </section>
+                <section>
+                    <span class="section-tittle">Nombre Categoría</span>
+                    <span class="data text-muted">BP102</span>
+                </section>
+            </div>
+            <div class="row-2">
+                <section>
+                    <span class="section-tittle">ID Categoria</span>
+                    <span class="data text-muted">BP102</span>
+                </section>
+                <section>
+                    <span class="section-tittle">Tamaño del backup estimado</span>
+                    <span class="data text-muted">BP102</span>
+                </section>
+            </div>
+        </div>
     </div>
 
     <div class="button-container">
@@ -64,7 +89,7 @@
         padding: 10px;
         text-align: center;
     }
-    div[data-region='new_origin_restore_course_step3_page'] p{
+    div[data-region='new_origin_restore_course_step3_page'] p {
         font-size: 16px;
         font-weight: 400;
         margin: auto;
@@ -82,8 +107,8 @@
         border: 1px solid black;
     }
     div[data-region='new_origin_restore_course_step3_page'] div.course_details {
-        height: 30vh;
-        width: 50%;
+        height: 20vh;
+        width: 40%;
         border: 1px solid black;
         border-radius: 10px;
         margin-top: 10px;
@@ -93,13 +118,40 @@
         justify-content: space-between;
         align-items: center;
         padding: 0 20px;
-        height: 20%;
+        height: 30%;
         background-color: #0c0c0c;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
     }
-    div[data-region='new_origin_restore_course_step3_page'] div.course_details_header span {
+    div[data-region='new_origin_restore_course_step3_page'] div.course_details_header span.course-name {
         font-size: 18px;
         font-weight: 600;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.course_details_header span.course-id {
+        font-size: 14px;
+        font-weight: 500;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.course_details_body {
+        height: 70%;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.course_details_body div.row-1, div.course_details_body div.row-2 {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: 50%;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.course_details_body section {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: left;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.course_details_body section span.section-tittle {
+        font-size: 14px;
+        font-weight: 600;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.course_details_body section span.data {
+        font-size: 14px;
+        font-weight: 500;
     }
 </style>
