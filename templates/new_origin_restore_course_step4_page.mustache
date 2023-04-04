@@ -22,16 +22,267 @@
 }}
 <div class="local_coursetransfer" data-region="new_origin_restore_course_step4_page">
 
-    <a type="button" class="btn btn-outline-primary" href="{{ back_url }}">
-        Volver
-    </a>
-
     {{> local_coursetransfer/components/stepbystep }}
 
-    <hr>
+    <h3 class="h3">{{#str}} steps_restore_title, local_coursetransfer {{/str}}</h3>
 
-    <h3 class="h3">Restaurar curso remoto - PASO 4</h3>
+    <p>{{#str}} step4_restore_desc, local_coursetransfer {{/str}}</p>
 
+    <h3 class="h3">{{#str}} step4_restore_origin_site, local_coursetransfer {{/str}}</h3>
 
+    <div class="origin-site">https://univerdad1.com</div>
+
+    <h3 class="h3">{{#str}} step4_restore_selected_course, local_coursetransfer {{/str}}</h3>
+
+    <div class="course_details">
+        <div class="course_details_header">
+            <span class="text-white course-name">Course Name</span>
+            <span class="text-white course-id">ID: Course ID</span>
+        </div>
+        <div class="course_details_body">
+            <div class="row-1">
+                <section>
+                    <span class="section-tittle">{{#str}} step4_details_shortname, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">BP102</span>
+                </section>
+                <section>
+                    <span class="section-tittle">{{#str}} step4_details_course_id, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">482400</span>
+                </section>
+                <section>
+                    <span class="section-tittle">{{#str}} step4_details_category_name, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">Math</span>
+                </section>
+            </div>
+            <div class="row-2">
+                <section>
+                    <span class="section-tittle">{{#str}} step4_details_category_id, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">220</span>
+                </section>
+                <section>
+                    <span class="section-tittle">{{#str}} step4_details_backup_size, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">120 MB</span>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="h4">{{#str}} step4_sections_activities_title, local_coursetransfer {{/str}}</h4>
+
+    <div class="sections-table">
+        <div class="sections-table-header">
+            <div class="ckeckbox"></div>
+            <div class="section-data">{{#str}} step4_sections_table_id, local_coursetransfer {{/str}}</div>
+            <div class="section-data">{{#str}} step4_sections_table_number, local_coursetransfer {{/str}}</div>
+            <div class="section-data">{{#str}} step4_sections_table_name, local_coursetransfer {{/str}}</div>
+        </div>
+        <div class="section-row">
+            <div class="section-info">
+                <div class="ckeckbox"><input type="checkbox"></div>
+                <div class="section-data">48144</div>
+                <div class="section-data">Sección 0</div>
+                <div class="section-data">La evolución</div>
+            </div>
+        </div>
+        <div class="section-row">
+            <div class="section-info">
+                <div class="ckeckbox"><input type="checkbox"></div>
+                <div class="section-data">48122</div>
+                <div class="section-data">Sección 1</div>
+                <div class="section-data">Mamíferos</div>
+            </div>
+            <div class="center-div">
+                <div class="activities-table">
+                    <div class="activities-table-header">
+                        <div class="ckeckbox"></div>
+                        <div class="activities-data">{{#str}} step4_activities_table_name, local_coursetransfer {{/str}}</div>
+                        <div class="activities-data">{{#str}} step4_activities_table_type, local_coursetransfer {{/str}}</div>
+                    </div>
+                    <div class="activities-row">
+                        <div class="ckeckbox"><input type="checkbox"></div>
+                        <div class="activities-data">Redacción sobre los mamíferos</div>
+                        <div class="activities-data">Tarea</div>
+                    </div>
+                    <div class="activities-row">
+                        <div class="ckeckbox"><input type="checkbox"></div>
+                        <div class="activities-data">Avisos</div>
+                        <div class="activities-data">Foro</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="section-row">
+            <div class="section-info">
+                <div class="ckeckbox"><input type="checkbox"></div>
+                <div class="section-data">48132</div>
+                <div class="section-data">Sección 2</div>
+                <div class="section-data">El cuerpo humano</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="button-container">
+        <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
+        <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
+        <a type="button" class="btn btn-primary" href="{{ next_url }}">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
+    </div>
 
 </div>
+<style>
+    div[data-region='new_origin_restore_course_step4_page']{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div[data-region="stepbystep"] {
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] h3.h3{
+        font-size: 28px;
+        font-weight: 600;
+        padding-top: 0;
+        margin-top: 20px;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] p {
+        font-size: 16px;
+        font-weight: 400;
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.button-container{
+        padding: 10px;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.button-container a.btn-primary{
+        background: #0D6EFD;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.button-container a.btn-light{
+        border: 1px solid black;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.origin-site {
+        width: 50%;
+        border: 1px solid black;
+        border-radius: 10px;
+        margin: 10px 0;
+        padding: 20px 0;
+        text-align: center;
+        font-size: 16px;
+        font-weight: 400;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.course_details {
+        width: 50%;
+        border: 1px solid black;
+        border-radius: 10px;
+        margin: 10px 0;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.course_details_header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #0c0c0c;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.course_details_header span.course-name {
+        font-size: 18px;
+        font-weight: 600;
+        padding: 10px;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.course_details_header span.course-id {
+        font-size: 14px;
+        font-weight: 500;
+        padding: 10px;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.course_details_body div.row-1, div.course_details_body div.row-2 {
+        display: flex;
+        align-items: center;
+        height: 50%;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.course_details_body section {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: left;
+        width: 33%;
+        padding: 10px;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.course_details_body section span.section-tittle {
+        font-size: 14px;
+        font-weight: 600;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.course_details_body section span.data {
+        font-size: 14px;
+        font-weight: 500;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] h4.h4 {
+        font-size: 24px;
+        font-weight: 600;
+        margin-top: 20px;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.sections-table {
+        width: 50%;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.sections-table-header {
+        display: flex;
+        border-bottom: 2px solid #9396AA;
+        padding: 5px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.ckeckbox {
+        width: 10%;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.section-data {
+        width: 30%;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.section-info {
+        display: flex;
+        border-bottom: 1px solid #D7D8E2;
+        padding: 10px;
+        font-size: 14px;
+        font-weight: 400;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.section-row {
+        display: flex;
+        flex-direction: column;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.activities-table {
+        width: 90%;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.center-div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.activities-table-header {
+        display: flex;
+        border-bottom: 2px solid #9396AA;
+        padding: 5px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.ckeckbox {
+        width: 10%;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.activities-data {
+        width: 45%;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] div.activities-row {
+        display: flex;
+        border-bottom: 1px solid #D7D8E2;
+        padding: 5px;
+        font-size: 13px;
+        font-weight: 400;
+    }
+</style>
