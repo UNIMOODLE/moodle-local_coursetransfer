@@ -25,11 +25,14 @@
 $string['pluginname'] = 'Course Transfer';
 $string['pluginname_header_general'] = 'General';
 $string['setting_destiny_restore_course_max_size'] = 'Maximum course size to be restored';
-$string['setting_destiny_restore_course_max_size_desc'] = 'Limit of the size of the backup copy (MBZ file) of the origin course to be restored in MB.';
+$string['setting_destiny_restore_course_max_size_desc'] = 'Limit of the size of the backup copy (MBZ file) 
+of the origin course to be restored in MB.';
 $string['setting_destiny_sites'] = 'Destiny sites';
-$string['setting_destiny_sites_desc'] = 'List of destiny sites to which course backups can be delivered. Separated by line break.';
+$string['setting_destiny_sites_desc'] = 'List of destiny sites to which course backups 
+can be delivered. Separated by line break.';
 $string['setting_origin_sites'] = 'Origin sites';
-$string['setting_origin_sites_desc'] = 'List of origin sites, from which backup copies of the courses can be requested. Separated by line break.';
+$string['setting_origin_sites_desc'] = 'List of origin sites, from which backup 
+copies of the courses can be requested. Separated by line break.';
 $string['setting_origin_field_search_user'] = 'Origin user field';
 $string['setting_origin_field_search_user_desc'] = 'Field to be used to search for a user in the origin site.';
 $string['origin_restore_course'] = 'Restore Remote Course';
@@ -83,3 +86,9 @@ $string['step3_details_course_id'] = "Course ID Number";
 $string['step3_details_category_name'] = "Category Name";
 $string['step3_details_category_id'] = "Category ID";
 $string['step3_details_backup_size'] = "Backup Estimated Size";
+$string['step3_sections_title'] = "Sections";
+$string['step3_sections_table_id'] = "Section ID";
+$string['step3_sections_table_number'] = "Section Number";
+$string['step3_sections_table_name'] = "Section Name";
+$string['step3_activities_table_name'] = "Name";
+$string['step3_activities_table_type'] = "Type";
