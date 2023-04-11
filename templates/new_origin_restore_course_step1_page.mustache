@@ -20,7 +20,7 @@
   Example context (json):
 
 }}
-<div class="local_coursetransfer" data-region="new_origin_restore_course_step1_page">
+<div class="local_coursetransfer" data-region="new_origin_restore_course_step1_page" data-nexturl="{{ nexturl }}">
 
     {{> local_coursetransfer/components/stepbystep }}
 
@@ -37,7 +37,7 @@
     <div class="button-container">
         <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
         <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
-        <a type="button" class="btn btn-primary" href="{{ next_url }}">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
+        <button type="button" class="btn btn-primary" data-action="next">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</button>
     </div>
 
 </div>
@@ -92,3 +92,10 @@
         border: 1px solid black;
     }
 </style>
+
+
+{{#js}}
+    require(['local_coursetransfer/origin_restore_course_step1'], function(restoreCourseStep1) {
+        restoreCourseStep1.initRestoreCourseStep1('[data-region="new_origin_restore_course_step1_page"]');
+    });
+{{/js}}
