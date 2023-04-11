@@ -45,16 +45,14 @@ define([
         function restoreCourseStep1(region)
         {
             this.node = $(region);
-            console.log(this.node.data);
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         }
 
         restoreCourseStep1.prototype.clickNext = function (e) {
-            console.log("Button Pressed");
             const request = {
                 methodname: SERVICES.RESTORE_COURSE_STEP1,
                 args: {
-                    siteurl: this.node.data('siteurl'),
+                    siteurl: this.node.find("#id_origin_site option:selected").text(),
                 }
             };
             Ajax.call([request])[0].done(function (response) {
@@ -83,7 +81,7 @@ define([
         return {
             /**
              * @param {String} region
-             * @return {uniquePage}
+             * @return {restoreCourseStep1}
              */
             initRestoreCourseStep1: function (region) {
                 // eslint-disable-next-line babel/new-cap

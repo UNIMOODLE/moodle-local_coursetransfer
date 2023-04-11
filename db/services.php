@@ -82,6 +82,14 @@ $functions = [
         'loginrequired' => false
     ],
 
+    'local_coursetransfer_new_origin_restore_course_step1' => [
+        'classname' => destiny_course_callback_external::class,
+        'methodname' => 'new_origin_restore_course_step1',
+        'description' => 'Verify that user exists in origin in step 1',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => false
+    ],
 
 ];
 
@@ -93,7 +101,8 @@ $services = [
             'local_coursetransfer_origin_get_course_detail',
             'local_coursetransfer_origin_backup_course',
             'local_coursetransfer_destiny_backup_course_completed',
-            'local_coursetransfer_destiny_backup_course_error'
+            'local_coursetransfer_destiny_backup_course_error',
+            'local_coursetransfer_new_origin_restore_course_step1'
         ],
         'restrictedusers' => 1,
         'enabled' => 1

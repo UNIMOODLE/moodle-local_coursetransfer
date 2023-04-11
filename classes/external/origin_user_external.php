@@ -39,11 +39,13 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
-class origin_user_external extends external_api {
+class origin_user_external extends external_api
+{
     /**
      * @return external_function_parameters
      */
-    public static function origin_has_user_parameters(): external_function_parameters {
+    public static function origin_has_user_parameters(): external_function_parameters
+    {
         return new external_function_parameters(
             array(
                 'field' => new external_value(PARAM_TEXT, 'Field'),
@@ -62,11 +64,13 @@ class origin_user_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_has_user(string $field, string $value): array {
+    public static function origin_has_user(string $field, string $value): array
+    {
         global $DB;
 
         self::validate_parameters(
-            self::origin_has_user_parameters(), [
+            self::origin_has_user_parameters(),
+            [
                 'field' => $field,
                 'value' => $value
             ]
@@ -107,7 +111,8 @@ class origin_user_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_has_user_returns(): external_single_structure {
+    public static function origin_has_user_returns(): external_single_structure
+    {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
@@ -115,7 +120,9 @@ class origin_user_external extends external_api {
                     array(
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ), PARAM_TEXT, 'Errors'
+                    ),
+                    PARAM_TEXT,
+                    'Errors'
                 )),
                 'data' => new external_single_structure(
                     array(
@@ -124,9 +131,13 @@ class origin_user_external extends external_api {
                         'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
                         'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
                         'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL)
-                    ), PARAM_TEXT, 'Data'
+                    ),
+                    PARAM_TEXT,
+                    'Data'
                 )
             )
         );
     }
+
+
 };
