@@ -61,3 +61,4 @@ $string['origin_site'] = "Seleccione el sitio de origen";
 $string['origin_site_help'] = "El sitio de origen, es donde se encuentra el curso que se quiere restaurar";
 $string['request_id'] = "ID Petición";
 $string['siteurl'] = "Sitio Origen";
+$string['list_course_restoration'] = "Listado de restauraciones del curso";

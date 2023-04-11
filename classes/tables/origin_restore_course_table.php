@@ -151,7 +151,7 @@ class origin_restore_course_table extends table_sql
     {
         return
             '
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalActivities">
+            <button type="button" class="btn btn-dark origin-activity" data-toggle="modal" data-target="#exampleModalActivities">
               Ver
             </button>
             
@@ -188,7 +188,7 @@ class origin_restore_course_table extends table_sql
     {
         return
             '
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalConfiguration">
+            <button type="button" class="btn btn-light configuration" data-toggle="modal" data-target="#exampleModalConfiguration">
               Detalles
             </button>
             
@@ -224,7 +224,7 @@ class origin_restore_course_table extends table_sql
     {
         return
             '
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalErrors">
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModalErrors">
               Errors
             </button>
             
