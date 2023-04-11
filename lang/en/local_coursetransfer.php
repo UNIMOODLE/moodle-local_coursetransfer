@@ -107,3 +107,4 @@ $string['step4_sections_table_name'] = "Section Name";
 $string['step4_activities_table_name'] = "Name";
 $string['step4_activities_table_type'] = "Type";
 $string['step4_sections_activities_title'] = "Sections and activities selected";
+$string['list_course_restoration'] = "List of course restorations";
