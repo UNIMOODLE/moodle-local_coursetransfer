@@ -83,7 +83,7 @@ $functions = [
     ],
 
     'local_coursetransfer_new_origin_restore_course_step1' => [
-        'classname' => destiny_course_callback_external::class,
+        'classname' => origin_user_external::class,
         'methodname' => 'new_origin_restore_course_step1',
         'description' => 'Verify that user exists in origin in step 1',
         'type' => 'read',

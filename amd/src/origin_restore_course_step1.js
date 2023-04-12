@@ -52,12 +52,12 @@ define([
             const request = {
                 methodname: SERVICES.RESTORE_COURSE_STEP1,
                 args: {
-                    siteurl: this.node.find("#id_origin_site option:selected").text(),
+                    siteurl: this.node.find("#id_origin_site option:selected").text()
                 }
             };
             Ajax.call([request])[0].done(function (response) {
                 if (response.success) {
-                    window.location.href = response.data.next_url;
+                    window.location.href = response.data.nexturl;
                 } else if (!response.success) {
                     this.renderErrors(response.data.errors); // TODO. Pintar errores (no entra nuna aqui se va a fail)
                 } else {
