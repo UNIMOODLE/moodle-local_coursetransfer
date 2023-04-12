@@ -43,8 +43,7 @@ require_once('../../lib/tablelib.php');
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_course_table extends table_sql
-{
+class origin_restore_course_table extends table_sql {
 
     /** @var int PAGE SIZE */
     const PAGE_SIZE = 20;
@@ -60,8 +59,7 @@ class origin_restore_course_table extends table_sql
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public function __construct(string $uniqueid, stdClass $course)
-    {
+    public function __construct(string $uniqueid, stdClass $course) {
 
         parent::__construct($uniqueid);
 
@@ -69,7 +67,7 @@ class origin_restore_course_table extends table_sql
 
         $this->define_columns([
             'id', 'siteurl', 'origin_course_id', 'status', 'origin_activities',
-                    'configuration' /*'error'*/, 'backupsize', 'userid', 'timemodified', 'timecreated'
+                    'configuration', 'backupsize', 'userid', 'timemodified', 'timecreated'
         ]);
 
         $this->define_headers([
@@ -79,7 +77,6 @@ class origin_restore_course_table extends table_sql
                 get_string('status', 'local_coursetransfer'),
                 get_string('origin_activities', 'local_coursetransfer'),
                 get_string('configuration', 'local_coursetransfer'),
-                // get_string('error', 'local_coursetransfer'),
                 get_string('backupsize', 'local_coursetransfer'),
                 get_string('userid', 'local_coursetransfer'),
                 get_string('timemodified', 'local_coursetransfer'),
@@ -98,8 +95,7 @@ class origin_restore_course_table extends table_sql
      * @param stdClass $row Full data of the current row.
      * @return string
      */
-    public function col_id(stdClass $row): string
-    {
+    public function col_id(stdClass $row): string {
         return $row->id;
     }
 
@@ -109,8 +105,7 @@ class origin_restore_course_table extends table_sql
      * @param stdClass $row Full data of the current row.
      * @return string
      */
-    public function col_siteurl(stdClass $row): string
-    {
+    public function col_siteurl(stdClass $row): string {
         return '<a href="' . $row->siteurl . '" target="_blank">' . $row->siteurl . '</a>';
     }
 
@@ -135,13 +130,13 @@ class origin_restore_course_table extends table_sql
      */
     public function col_status(stdClass $row): string {
         if ( (int)$row->status === 0 ) {
-            return '<button type="button" class="btn btn-danger" data-container="body" data-toggle="popover"
+            return '<button type="button" class="btn btn-danger label-status" data-container="body" data-toggle="popover"
              data-placement="bottom" data-content="'. $row->error_code . ': ' . $row->error_message .'">'
                 . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
                     'local_coursetransfer') .'
             </button>';
         } else {
-            return '<label class="text-' . coursetransfer::STATUS[$row->status]['alert'] . '">'
+            return '<label class="label-status text-' . coursetransfer::STATUS[$row->status]['alert'] . '">'
                 . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
                     'local_coursetransfer') . '</label>';
         }
@@ -154,14 +149,13 @@ class origin_restore_course_table extends table_sql
      * @return string
      * @throws moodle_exception
      */
-    public function col_origin_activities(stdClass $row): string
-    {
+    public function col_origin_activities(stdClass $row): string {
         return
             '
             <button type="button" class="btn btn-dark origin-activity" data-toggle="modal" data-target="#exampleModalActivities">
               Ver
             </button>
-            
+
             <!-- Modal -->
             <div class="modal fade bd-example-modal-lg" id="exampleModalActivities" tabindex="-1" role="dialog" aria-labelledby="exampleModalActivitiesTitle" aria-hidden="true">
               <div class="modal-dialog modal-lg" role="document">
@@ -191,16 +185,15 @@ class origin_restore_course_table extends table_sql
      * @return string
      * @throws moodle_exception
      */
-    public function col_configuration(stdClass $row): string
-    {
+    public function col_configuration(stdClass $row): string {
         return
             '
             <button type="button" class="btn btn-light configuration" data-toggle="modal" data-target="#exampleModalConfiguration">
               Detalles
             </button>
-            
             <!-- Modal -->
-            <div class="modal fade bd-example-modal-lg" id="exampleModalConfiguration" tabindex="-1" role="dialog" aria-labelledby="exampleModalConfigurationTitle" aria-hidden="true">
+            <div class="modal fade bd-example-modal-lg" id="exampleModalConfiguration" tabindex="-1" role="dialog"
+             aria-labelledby="exampleModalConfigurationTitle" aria-hidden="true">
               <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
@@ -221,51 +214,13 @@ class origin_restore_course_table extends table_sql
     }
 
     /**
-     * Col Errors
-     *
-     * @param stdClass $row Full data of the current row.
-     * @return string
-     * @throws moodle_exception
-     */
-    /*public function col_error(stdClass $row): string
-    {
-        return
-            '
-            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModalErrors">
-              Errors
-            </button>
-
-            <!-- Modal -->
-            <div class="modal fade bd-example-modal-lg" id="exampleModalErrors" tabindex="-1" role="dialog" aria-labelledby="exampleModalErrorsTitle" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Errors</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">'
-            . $row->error_message . $row->error_code .
-            '</div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-        ';
-    }*/
-
-    /**
      * Col User ID
      *
      * @param stdClass $row Full data of the current row.
      * @return string
      * @throws moodle_exception
      */
-    public function col_userid(stdClass $row): string
-    {
+    public function col_userid(stdClass $row): string {
         $href = new moodle_url($row->siteurl . '/user/profile.php', ['id' => $row->userid]);
         return '<a href="' . $href->out(false) . '" target="_blank">' . $row->userid . '</a>';
     }
@@ -277,8 +232,7 @@ class origin_restore_course_table extends table_sql
      * @return int
      * @throws moodle_exception
      */
-    public function col_backupsize(stdClass $row): int
-    {
+    public function col_backupsize(stdClass $row): int {
         return $row->origin_backup_size;
     }
 
@@ -289,8 +243,7 @@ class origin_restore_course_table extends table_sql
      * @return string
      * @throws moodle_exception
      */
-    public function col_timemodified(stdClass $row): string
-    {
+    public function col_timemodified(stdClass $row): string {
         $date = new DateTime();
         $date->setTimestamp($row->timemodified);
         $date = userdate($row->timemodified, get_string("strftimedatetimeshort", "core_langconfig"));
@@ -304,8 +257,7 @@ class origin_restore_course_table extends table_sql
      * @return string
      * @throws moodle_exception
      */
-    public function col_timecreated(stdClass $row): string
-    {
+    public function col_timecreated(stdClass $row): string {
         $date = new DateTime();
         $date->setTimestamp($row->timecreated);
         $date = userdate($row->timecreated, get_string("strftimedatetimeshort", "core_langconfig"));
