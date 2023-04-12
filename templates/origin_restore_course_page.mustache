@@ -23,10 +23,14 @@
 <div class="local_coursetransfer" data-region="origin_restore_course_page">
 
     <!-- Button trigger modal -->
-    <a type="button" class="btn btn-primary" href="{{ new_url }}">
-        {{# str }} origin_restore_course, local_coursetransfer {{/ str }}
-    </a>
-
+    <div class="centered-content">
+        <p>
+            {{# str }} list_desc_restoration, local_coursetransfer {{/ str }}
+        </p>
+        <a type="button" class="btn btn-primary" href="{{ new_url }}">
+            {{# str }} origin_restore_course, local_coursetransfer {{/ str }}
+        </a>
+    </div>
     <hr>
 
     <h3 class="h3">{{# str }} list_course_restoration, local_coursetransfer {{/ str }}</h3>
@@ -35,14 +39,40 @@
 
 </div>
 <style>
-    div[data-region="origin_restore_course_page"] label.text-danger{
+    div[data-region="origin_restore_course_page"] div.centered-content{
+        align-content: center;
+        text-align: center;
+        align-items: center;
+    }
+    div[data-region="origin_restore_course_page"] th {
+        align-content: center;
+        text-align: center;
+        align-items: center;
+    }
+    div[data-region="origin_restore_course_page"] td {
+        align-content: center;
+        text-align: center;
+        align-items: center;
+    }
+    div[data-region="origin_restore_course_page"] th a{
+        font-style: normal;
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 17px;
+        letter-spacing: -0.04em;
+        color: black;
+        text-align: center;
+    }
+    div[data-region="origin_restore_course_page"] button.btn-danger{
         background: #FFEBEB;
+        color: #A40505;
         border-radius: 2px;
         width: 87px;
         height: 28px;
         font-weight: 700;
         text-align: center;
         margin: auto;
+        border:0;
     }
     div[data-region="origin_restore_course_page"] label.text-success{
         background: #EBFFF5;
@@ -76,3 +106,8 @@
         letter-spacing: -0.04em;
     }
 </style>
+<script>
+    $(function () {
+        $('[data-toggle="popover"]').popover()
+    })
+</script>

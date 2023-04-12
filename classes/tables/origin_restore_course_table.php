@@ -69,7 +69,7 @@ class origin_restore_course_table extends table_sql
 
         $this->define_columns([
             'id', 'siteurl', 'origin_course_id', 'status', 'origin_activities',
-                    'configuration', 'error', 'backupsize', 'userid', 'timemodified', 'timecreated'
+                    'configuration' /*'error'*/, 'backupsize', 'userid', 'timemodified', 'timecreated'
         ]);
 
         $this->define_headers([
@@ -79,7 +79,7 @@ class origin_restore_course_table extends table_sql
                 get_string('status', 'local_coursetransfer'),
                 get_string('origin_activities', 'local_coursetransfer'),
                 get_string('configuration', 'local_coursetransfer'),
-                get_string('error', 'local_coursetransfer'),
+                // get_string('error', 'local_coursetransfer'),
                 get_string('backupsize', 'local_coursetransfer'),
                 get_string('userid', 'local_coursetransfer'),
                 get_string('timemodified', 'local_coursetransfer'),
@@ -89,7 +89,7 @@ class origin_restore_course_table extends table_sql
         $this->sortable(false);
 
         $this->column_style('id', 'text-align', 'center');
-
+        $this->column_style('configuration', 'text-align', 'center');
     }
 
     /**
@@ -121,8 +121,7 @@ class origin_restore_course_table extends table_sql
      * @return string
      * @throws moodle_exception
      */
-    public function col_origin_course_id(stdClass $row): string
-    {
+    public function col_origin_course_id(stdClass $row): string {
         $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->origin_course_id]);
         return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_course_id . '</a>';
     }
@@ -134,10 +133,18 @@ class origin_restore_course_table extends table_sql
      * @return string
      * @throws moodle_exception
      */
-    public function col_status(stdClass $row): string
-    {
-        return '<label class="text-' . coursetransfer::STATUS[$row->status]['alert'] . '">'
-            . coursetransfer::STATUS[$row->status]['shortname'] . '</label>';
+    public function col_status(stdClass $row): string {
+        if ( (int)$row->status === 0 ) {
+            return '<button type="button" class="btn btn-danger" data-container="body" data-toggle="popover"
+             data-placement="bottom" data-content="'. $row->error_code . ': ' . $row->error_message .'">'
+                . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
+                    'local_coursetransfer') .'
+            </button>';
+        } else {
+            return '<label class="text-' . coursetransfer::STATUS[$row->status]['alert'] . '">'
+                . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
+                    'local_coursetransfer') . '</label>';
+        }
     }
 
     /**
@@ -220,14 +227,14 @@ class origin_restore_course_table extends table_sql
      * @return string
      * @throws moodle_exception
      */
-    public function col_error(stdClass $row): string
+    /*public function col_error(stdClass $row): string
     {
         return
             '
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModalErrors">
               Errors
             </button>
-            
+
             <!-- Modal -->
             <div class="modal fade bd-example-modal-lg" id="exampleModalErrors" tabindex="-1" role="dialog" aria-labelledby="exampleModalErrorsTitle" aria-hidden="true">
               <div class="modal-dialog modal-lg" role="document">
@@ -248,7 +255,7 @@ class origin_restore_course_table extends table_sql
               </div>
             </div>
         ';
-    }
+    }*/
 
     /**
      * Col User ID
