@@ -49,17 +49,20 @@ define([
         }
 
         restoreCourseStep1.prototype.clickNext = function (e) {
+            let siteurl = this.node.find("#id_origin_site option:selected").text();
             const request = {
                 methodname: SERVICES.RESTORE_COURSE_STEP1,
                 args: {
-                    siteurl: this.node.find("#id_origin_site option:selected").text()
+                    siteurl: siteurl,
                 }
             };
             Ajax.call([request])[0].done(function (response) {
                 if (response.success) {
                     window.location.href = response.data.nexturl;
                 } else if (!response.success) {
-                    this.renderErrors(response.data.errors); // TODO. Pintar errores (no entra nuna aqui se va a fail)
+                    console.log("Errores:");
+                    console.log(response.data.errors);
+                    // this.renderErrors(response.data.errors); // TODO. Pintar errores (no entra nuna aqui se va a fail)
                 } else {
                     $('#errorModal').modal("show");
                 }

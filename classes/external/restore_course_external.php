@@ -39,15 +39,14 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
-class origin_user_external extends external_api {
+class restore_course_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function origin_has_user_parameters(): external_function_parameters {
+    public static function new_origin_restore_course_step1_parameters(): external_function_parameters {
         return new external_function_parameters(
             array(
-                'field' => new external_value(PARAM_TEXT, 'Field'),
-                'value' => new external_value(PARAM_TEXT, 'Value')
+                'siteurl' => new external_value(PARAM_RAW, 'Site Url')
             )
         );
     }
@@ -55,21 +54,17 @@ class origin_user_external extends external_api {
     /**
      * Check if user exists
      *
-     * @param string $field
-     * @param string $value
+     * @param string $siteurl
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_has_user(string $field, string $value): array {
-        global $DB;
-
+    public static function new_origin_restore_course_step1(string $siteurl): array {
         self::validate_parameters(
-            self::origin_has_user_parameters(),
+            self::new_origin_restore_course_step1_parameters(),
             [
-                'field' => $field,
-                'value' => $value
+                'siteurl' => $siteurl
             ]
         );
 
@@ -78,17 +73,12 @@ class origin_user_external extends external_api {
         $data = new stdClass();
 
         try {
-            $authres = coursetransfer::auth_user($field, $value);
-            if ($authres['success'] && isset($authres['data'])) {
-                $data->userid = $authres['data']->id;
-                $data->username = $authres['data']->username;
-                $data->firstname = $authres['data']->firstname;
-                $data->lastname = $authres['data']->lastname;
-                $data->email = $authres['data']->email;
-            } else {
-                $success = false;
-                $errors[] = $authres['error'];
-            }
+            $success = false;
+            $errors[] =
+                [
+                    'code' => '030343', // TODO. Escpecificar codigo de errores (crear tabla con todos los errores)
+                    'msg' => 'USER DOES NOT HAVE COURSES'
+                ];
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] =
@@ -108,7 +98,7 @@ class origin_user_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_has_user_returns(): external_single_structure {
+    public static function new_origin_restore_course_step1_returns(): external_single_structure {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
@@ -122,11 +112,7 @@ class origin_user_external extends external_api {
                 )),
                 'data' => new external_single_structure(
                     array(
-                        'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
-                        'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
-                        'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
-                        'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
-                        'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL)
+                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
                     ),
                     PARAM_TEXT,
                     'Data'
@@ -134,4 +120,4 @@ class origin_user_external extends external_api {
             )
         );
     }
-}
+};

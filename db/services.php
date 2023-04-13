@@ -23,6 +23,7 @@ use local_coursetransfer\external\destiny_course_callback_external;
 use local_coursetransfer\external\origin_course_backup_external;
 use local_coursetransfer\external\origin_course_external;
 use local_coursetransfer\external\origin_user_external;
+use local_coursetransfer\external\restore_course_external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -83,9 +84,9 @@ $functions = [
     ],
 
     'local_coursetransfer_new_origin_restore_course_step1' => [
-        'classname' => origin_user_external::class,
+        'classname' => restore_course_external::class,
         'methodname' => 'new_origin_restore_course_step1',
-        'description' => 'Verify that user exists in origin in step 1',
+        'description' => 'Verify that user exists in origin and check if it has courses as a teacher',
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => false
