@@ -29,6 +29,11 @@ use dml_exception;
 use stdClass;
 use stored_file;
 
+defined('MOODLE_INTERNAL') || die;
+
+global $CFG;
+require_once($CFG->libdir . '/filelib.php');
+
 /**
  * Class request
  *
@@ -47,12 +52,25 @@ class request {
     public $token;
 
     /**
-     * constructor.
+     * constructor
      *
+     * @param string $host
      */
-    public function __construct($host, $token) {
+    public function __construct(string $host) {
         $this->host = $host;
-        $this->token = $token;
+        $this->set_token();
+    }
+
+    protected function set_token() {
+        $originsites = get_config('local_coursetransfer', 'origin_sites');
+        $originsites = explode(PHP_EOL, $originsites);
+        foreach ($originsites as $site) {
+            $site = explode(';', $site);
+            if ($site[0] === $this->host) {
+                $this->token = $site[1];
+                break;
+            }
+        }
     }
 
     /**
@@ -61,9 +79,10 @@ class request {
      * @return response
      */
     public function origin_has_user(): response {
+        global $USER;
         $params = new stdClass();
-        $params->field = 'sdfdasf';
-        $params->value = 'sdfadfdf';
+        $params->field = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params->value = $USER->{$params->field};
         return $this->req('local_coursetransfer_origin_has_user', $params);
     }
 
@@ -86,7 +105,7 @@ class request {
      * @param stdClass $params
      * @return response
      */
-    protected function req(string $wsname, stdClass $params): response {
+    protected function req_test(string $wsname, stdClass $params): response {
         $curl = new curl();
         $url = $this->host . '/webservice/rest/server.php';
         $headers = array();
@@ -97,7 +116,7 @@ class request {
         try {
             $curl->post($url, json_encode($params), $this->get_options_curl('POST'));
             $response = $curl->getResponse();
-            $response = new response($response->success, $response->data);
+            $response = new response(true);
         } catch (\Exception $e) {
             $response = new response(false, null,
                     [$e->getMessage()]);
@@ -105,6 +124,31 @@ class request {
         return $response;
     }
 
+    protected function req(string $wsname, stdClass $params): response {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->host . '/webservice/rest/server.php',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => self::TIMEOUT,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array(
+                'wstoken' => $this->token,
+                'wsfunction' => 'local_coursetransfer_origin_has_user',
+                'moodlewsrestformat' => 'json',
+                'field' => $params->field,
+                'value' => $params->value),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        return new response(true);
+    }
 
     /**
      * Get Options CURL.

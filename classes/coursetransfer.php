@@ -72,12 +72,13 @@ class coursetransfer {
      * @return array
      */
     public static function get_origin_sites(): array {
-        // TODO. Recuperar los sitios de origen.
-        $items = [
-                'https://universidad1.com',
-                'https://universidad2.com',
-                'https://universidad3.com',
-        ];
+        $items = [];
+        $originsites = get_config('local_coursetransfer', 'origin_sites');
+        $originsites = explode(PHP_EOL, $originsites);
+        foreach ($originsites as $site) {
+            $site = explode(';', $site);
+            $items[] = $site[0];
+        }
         return $items;
     }
 

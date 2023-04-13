@@ -28,6 +28,7 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use stdClass;
@@ -73,12 +74,9 @@ class restore_course_external extends external_api {
         $data = new stdClass();
 
         try {
-            $success = false;
-            $errors[] =
-                [
-                    'code' => '030343', // TODO. Escpecificar codigo de errores (crear tabla con todos los errores)
-                    'msg' => 'USER DOES NOT HAVE COURSES'
-                ];
+            $request = new request($siteurl);
+            $data = $request->origin_has_user();
+            $data->nexturl = "google.com";
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] =
@@ -112,6 +110,11 @@ class restore_course_external extends external_api {
                 )),
                 'data' => new external_single_structure(
                     array(
+                        'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
+                        'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
+                        'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
+                        'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
+                        'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
                         'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
                     ),
                     PARAM_TEXT,

@@ -27,7 +27,7 @@ define([
         'core/str',
         'core/ajax',
         'core/templates'
-    ], function ($, Str, Ajax, Templates) {
+    ], function($, Str, Ajax, Templates) {
         "use strict";
         let SERVICES = {
             RESTORE_COURSE_STEP1: 'local_coursetransfer_new_origin_restore_course_step1'
@@ -42,13 +42,14 @@ define([
          *
          * @constructor
          */
-        function restoreCourseStep1(region)
-        {
+        function restoreCourseStep1(region) {
             this.node = $(region);
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         }
 
-        restoreCourseStep1.prototype.clickNext = function (e) {
+        restoreCourseStep1.prototype.clickNext = function(e) {
+            let self = this; // Store the reference of this.
+            let alertbox = this.node.find(".alert");
             let siteurl = this.node.find("#id_origin_site option:selected").text();
             const request = {
                 methodname: SERVICES.RESTORE_COURSE_STEP1,
@@ -56,17 +57,15 @@ define([
                     siteurl: siteurl,
                 }
             };
-            Ajax.call([request])[0].done(function (response) {
+            Ajax.call([request])[0].done(function(response) {
                 if (response.success) {
                     window.location.href = response.data.nexturl;
                 } else if (!response.success) {
-                    console.log("Errores:");
-                    console.log(response.data.errors);
-                    // this.renderErrors(response.data.errors); // TODO. Pintar errores (no entra nuna aqui se va a fail)
+                    self.renderErrors(response.errors, alertbox);
                 } else {
                     $('#errorModal').modal("show");
                 }
-            }).fail(function (fail) {
+            }).fail(function(fail) {
                 $('#errorModal').modal("show");
             });
         };
@@ -74,9 +73,15 @@ define([
         /**
          *
          * @param {String[]} errors
+         * @param {String} alertbox
          */
-        restoreCourseStep1.prototype.renderErrors = function (errors) {
-            console.log(errors);
+        restoreCourseStep1.prototype.renderErrors = function(errors, alertbox) {
+            let errorString = "";
+            alertbox.removeClass("hidden");
+            errors.forEach(error => {
+                errorString += error.msg;
+            });
+            alertbox.text(errorString);
         };
 
         restoreCourseStep1.prototype.node = null;
@@ -86,7 +91,7 @@ define([
              * @param {String} region
              * @return {restoreCourseStep1}
              */
-            initRestoreCourseStep1: function (region) {
+            initRestoreCourseStep1: function(region) {
                 // eslint-disable-next-line babel/new-cap
                 return new restoreCourseStep1(region);
             }
