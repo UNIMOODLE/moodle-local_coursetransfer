@@ -59,6 +59,6 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configselect('local_coursetransfer/origin_field_search_user',
         get_string('setting_origin_field_search_user', 'local_coursetransfer'),
         get_string('setting_origin_field_search_user_desc', 'local_coursetransfer'),
-            'username', $options    ));
+            'username', $options ));
 
 }

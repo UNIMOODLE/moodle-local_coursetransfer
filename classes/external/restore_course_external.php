@@ -74,9 +74,9 @@ class restore_course_external extends external_api {
         $data = new stdClass();
 
         try {
+            $success = false;
             $request = new request($siteurl);
-            $data = $request->origin_has_user();
-            $data->nexturl = "google.com";
+            $res = $request->origin_has_user();
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] =

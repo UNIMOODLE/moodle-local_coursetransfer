@@ -78,10 +78,11 @@ define([
         restoreCourseStep1.prototype.renderErrors = function(errors, alertbox) {
             let errorString = "";
             alertbox.removeClass("hidden");
+            console.log(errors);
             errors.forEach(error => {
-                errorString += error.msg;
+                errorString += 'Error: ' + error.msg + '<br>';
             });
-            alertbox.text(errorString);
+            alertbox.append(errorString);
         };
 
         restoreCourseStep1.prototype.node = null;

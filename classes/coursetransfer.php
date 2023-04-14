@@ -141,8 +141,8 @@ class coursetransfer {
                             'data' => new stdClass(),
                             'error' =>
                                 [
-                                    'code' => '030343', // TODO. Escpecificar codigo de errores (crear tabla con todos los errores)
-                                    'msg' => 'USER DOES NOT HAVE COURSES'
+                                    'code' => '030343',
+                                    'msg' => get_string('user_does_not_have_courses', 'local_coursettansfer')
                                 ]
                         ];
                 }
@@ -155,7 +155,7 @@ class coursetransfer {
                         'error' =>
                             [
                                 'code' => '030341',
-                                'msg' => 'USER NOT FOUND'
+                                'msg' => get_string('user_not_found', 'local_coursettansfer')
                             ]
                     ];
             }
@@ -168,7 +168,7 @@ class coursetransfer {
                     'error' =>
                         [
                             'code' => '030342',
-                            'msg' => 'FIELD NOT VALID'
+                            'msg' => get_string('field_not_valid', 'local_coursettansfer')
                         ]
                 ];
         }
