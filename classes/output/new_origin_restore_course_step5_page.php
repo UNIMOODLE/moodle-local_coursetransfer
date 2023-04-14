@@ -44,7 +44,7 @@ use templatable;
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class new_origin_restore_course_step4_page implements renderable, templatable {
+class new_origin_restore_course_step5_page implements renderable, templatable {
 
     /** @var stdClass Course */
     protected $course;
@@ -72,8 +72,8 @@ class new_origin_restore_course_step4_page implements renderable, templatable {
         );
         $nexturl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
         $data = new stdClass();
-        /*$data->back_url = $backurl->out(false);
-        $data->next_url = $nexturl->out(false);*/
+        $data->back_url = $backurl->out(false);
+        $data->next_url = $nexturl->out(false);
 
         return $data;
     }

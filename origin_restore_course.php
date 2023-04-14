@@ -71,6 +71,9 @@ if ($isnew) {
         case 4:
             $page = new \local_coursetransfer\output\new_origin_restore_course_step4_page($course);
             break;
+        case 5:
+            $page = new \local_coursetransfer\output\new_origin_restore_course_step5_page($course);
+            break;
         default:
             throw new moodle_exception('STEP NOT VALID');
     }
