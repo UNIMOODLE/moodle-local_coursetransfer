@@ -79,6 +79,8 @@ class new_origin_restore_course_step2_page implements renderable, templatable
         );
 
         $data = new stdClass();
+        $data->steps = [ ["current" => false, "num" => 1], ["current" => true, "num" => 2],
+            ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
 

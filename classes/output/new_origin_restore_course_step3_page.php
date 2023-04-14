@@ -75,6 +75,8 @@ class new_origin_restore_course_step3_page implements renderable, templatable {
             ['id' => $this->course->id, 'new' => 1, 'step' => 4]
         );
         $data = new stdClass();
+        $data->steps = [ ["current" => false, "num" => 1], ["current" => false, "num" => 2],
+            ["current" => true, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
 
