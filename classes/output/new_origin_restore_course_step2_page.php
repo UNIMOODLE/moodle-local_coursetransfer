@@ -84,6 +84,8 @@ class new_origin_restore_course_step2_page implements renderable, templatable
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
 
+        // TODO Llamar curl listado de cursos y meterlos en el data
+
         return $data;
     }
 }

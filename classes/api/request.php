@@ -98,6 +98,9 @@ class request {
         return $this->req('local_coursetransfer_origin_get_courses', $params);
     }
 
+    /**
+     * @throws \JsonException
+     */
     protected function req(string $wsname, stdClass $params): response {
         $curl = curl_init();
 
@@ -119,9 +122,10 @@ class request {
         ));
 
         $response = curl_exec($curl);
+        $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
 
         curl_close($curl);
-        return new response(true);
+        return new response($response->success, $response->data, $response->errors);
     }
 }
 

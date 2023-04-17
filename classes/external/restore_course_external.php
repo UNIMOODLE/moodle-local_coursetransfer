@@ -31,6 +31,7 @@ use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
+use moodle_url;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -47,7 +48,8 @@ class restore_course_external extends external_api {
     public static function new_origin_restore_course_step1_parameters(): external_function_parameters {
         return new external_function_parameters(
             array(
-                'siteurl' => new external_value(PARAM_RAW, 'Site Url')
+                'siteurl' => new external_value(PARAM_RAW, 'Site Url'),
+                'courseid' => new external_value(PARAM_INT, 'Course ID')
             )
         );
     }
@@ -56,16 +58,18 @@ class restore_course_external extends external_api {
      * Check if user exists
      *
      * @param string $siteurl
+     * @param int $courseid
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function new_origin_restore_course_step1(string $siteurl): array {
+    public static function new_origin_restore_course_step1(string $siteurl, int $courseid): array {
         self::validate_parameters(
             self::new_origin_restore_course_step1_parameters(),
             [
-                'siteurl' => $siteurl
+                'siteurl' => $siteurl,
+                'courseid' => $courseid
             ]
         );
 
@@ -74,9 +78,18 @@ class restore_course_external extends external_api {
         $data = new stdClass();
 
         try {
-            $success = false;
             $request = new request($siteurl);
             $res = $request->origin_has_user();
+            if ($res->success) {
+                $data = $res->data;
+                $nexturl = new moodle_url(
+                    '/local/coursetransfer/origin_restore_course.php',
+                    ['id' => $courseid, 'new' => 1, 'step' => 2, 'site' => $siteurl]
+                );
+                $data->nexturl = $nexturl->out(false);
+            } else {
+                $errors = $res->errors;
+            }
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] =

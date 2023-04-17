@@ -97,6 +97,6 @@
 
 {{#js}}
     require(['local_coursetransfer/origin_restore_course_step1'], function(restoreCourseStep1) {
-        restoreCourseStep1.initRestoreCourseStep1('[data-region="new_origin_restore_course_step1_page"]');
+        restoreCourseStep1.initRestoreCourseStep1('[data-region="new_origin_restore_course_step1_page"]', {{ courseid }});
     });
 {{/js}}

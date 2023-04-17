@@ -39,11 +39,13 @@ define([
 
         /**
          * @param {String} region
+         * @param {int} courseid
          *
          * @constructor
          */
-        function restoreCourseStep1(region) {
+        function restoreCourseStep1(region, courseid) {
             this.node = $(region);
+            this.courseid = courseid;
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         }
 
@@ -55,6 +57,7 @@ define([
                 methodname: SERVICES.RESTORE_COURSE_STEP1,
                 args: {
                     siteurl: siteurl,
+                    courseid: this.courseid
                 }
             };
             Ajax.call([request])[0].done(function(response) {
@@ -90,11 +93,12 @@ define([
         return {
             /**
              * @param {String} region
+             * @param {int} courseid
              * @return {restoreCourseStep1}
              */
-            initRestoreCourseStep1: function(region) {
+            initRestoreCourseStep1: function(region, courseid) {
                 // eslint-disable-next-line babel/new-cap
-                return new restoreCourseStep1(region);
+                return new restoreCourseStep1(region, courseid);
             }
         };
     });
