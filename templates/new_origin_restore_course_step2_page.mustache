@@ -37,23 +37,40 @@
     {{/ haserrors }}
 
     {{^ haserrors }}
-        <ul>
+        <h3 class="h2">{{#str}} step2_course_list, local_coursetransfer {{/str}}</h3>
+        <table>
+            <tr>
+                <th></th>
+                <th>{{#str}} step2_course_id, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_name, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_shortname, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
+            </tr>
             {{# courses }}
-                <li>{{ fullname }}</li>
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td>{{ id }}</td>
+                    <td>{{ fullname }}</td>
+                    <td>{{ shortname }}</td>
+                    <td>{{ idnumber }}</td>
+                    <td>{{ categoryid }}</td>
+                    <td>{{ categoryname }}</td>
+                </tr>
             {{/ courses }}
-        </ul>
+        </table>
     {{/ haserrors }}
 
-
-        <div class="button-container">
+    <div class="button-container">
         <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
         <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
-        <a type="button" class="btn btn-primary" href="{{ next_url }}">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
+        <button type="button" class="btn btn-primary" data-action="next" disabled>{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</button>
     </div>
 
 </div>
 <style>
-    div[data-region='new_origin_restore_course_step2_page']{
+    div[data-region='new_origin_restore_course_step2_page'] {
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -64,7 +81,14 @@
         width: 50%;
         padding: 10px;
     }
-    div[data-region='new_origin_restore_course_step2_page'] h3.h3{
+    div[data-region='new_origin_restore_course_step2_page'] h3.h2 {
+        font-size: 24px;
+        font-weight: 600;
+        width: 100%;
+        padding: 10px;
+        text-align: left;
+    }
+    div[data-region='new_origin_restore_course_step2_page'] h3.h3 {
         font-size: 28px;
         font-weight: 600;
         margin: auto;
@@ -72,7 +96,22 @@
         padding: 10px;
         text-align: center;
     }
-    div[data-region='new_origin_restore_course_step2_page'] p{
+    div[data-region='new_origin_restore_course_step2_page'] table {
+        width: 100%;
+    }
+    div[data-region='new_origin_restore_course_step2_page'] table tr {
+        font-size: 14px;
+        font-weight: 400;
+    }
+    div[data-region='new_origin_restore_course_step2_page'] table th {
+        border-bottom: 2px solid #9396AA;
+        padding: 10px;
+    }
+    div[data-region='new_origin_restore_course_step2_page'] table td {
+        border-top: 1px solid #D7D8E2;
+        padding: 10px;
+    }
+    div[data-region='new_origin_restore_course_step2_page'] p {
         font-size: 16px;
         font-weight: 400;
         margin: auto;
@@ -80,13 +119,13 @@
         padding: 10px;
         text-align: center;
     }
-    div[data-region='new_origin_restore_course_step2_page'] div.button-container{
+    div[data-region='new_origin_restore_course_step2_page'] div.button-container {
         padding: 10px;
     }
-    div[data-region='new_origin_restore_course_step2_page'] div.button-container a.btn-primary{
+    div[data-region='new_origin_restore_course_step2_page'] div.button-container a.btn-primary {
         background: #0D6EFD;
     }
-    div[data-region='new_origin_restore_course_step2_page'] div.button-container a.btn-light{
+    div[data-region='new_origin_restore_course_step2_page'] div.button-container a.btn-light {
         border: 1px solid black;
     }
 </style>

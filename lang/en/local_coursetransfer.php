@@ -83,6 +83,13 @@ $string['steps_restore_title'] = "Restore Remote Course";
 $string['step1_restore_desc'] = "To restore a course from another platform,
 you must first select the site where the original course is located";
 $string['step2_restore_desc'] = "Select the course to restore";
+$string['step2_course_list'] = "Origin course list";
+$string['step2_course_id'] = "Course ID";
+$string['step2_course_name'] = "Course Name";
+$string['step2_course_shortname'] = "Shortname";
+$string['step2_course_idnumber'] = "Course ID Number";
+$string['step2_course_categoryid'] = "Category ID";
+$string['step2_course_categoryname'] = "Category Name";
 $string['step3_restore_desc'] = "Selected course details";
 $string['step3_details_shortname'] = "Short Name";
 $string['step3_details_course_id'] = "Course ID Number";
