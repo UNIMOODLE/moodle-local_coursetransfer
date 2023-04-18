@@ -72,12 +72,13 @@ class coursetransfer {
      * @return array
      */
     public static function get_origin_sites(): array {
-        // TODO. Recuperar los sitios de origen.
-        $items = [
-                'https://universidad1.com',
-                'https://universidad2.com',
-                'https://universidad3.com',
-        ];
+        $items = [];
+        $originsites = get_config('local_coursetransfer', 'origin_sites');
+        $originsites = explode(PHP_EOL, $originsites);
+        foreach ($originsites as $site) {
+            $site = explode(';', $site);
+            $items[] = $site[0];
+        }
         return $items;
     }
 
@@ -109,14 +110,14 @@ class coursetransfer {
     public static function auth_user(string $field, string $value): array {
         global $DB;
 
-        if (in_array($field, coursetransfer::FIELDS_USER)) {
+        if (in_array($field, self::FIELDS_USER)) {
             $res = $DB->get_record('user', [$field => $value]);
             if ($res) {
                 $courses = enrol_get_users_courses($res->id);
                 $hascourse = false;
                 foreach ($courses as $course) {
                     $context = \context_course::instance($course->id);
-                    if(has_capability('moodle/backup:backupcourse', $context, $res->id)){
+                    if (has_capability('moodle/backup:backupcourse', $context, $res->id)) {
                         $hascourse = true;
                         break;
                     }
@@ -140,8 +141,8 @@ class coursetransfer {
                             'data' => new stdClass(),
                             'error' =>
                                 [
-                                    'code' => '030343', // TODO. Escpecificar codigo de errores (crear tabla con todos los errores)
-                                    'msg' => 'USER DOES NOT HAVE COURSES'
+                                    'code' => '030343',
+                                    'msg' => get_string('user_does_not_have_courses', 'local_coursettansfer')
                                 ]
                         ];
                 }
@@ -154,7 +155,7 @@ class coursetransfer {
                         'error' =>
                             [
                                 'code' => '030341',
-                                'msg' => 'USER NOT FOUND'
+                                'msg' => get_string('user_not_found', 'local_coursettansfer')
                             ]
                     ];
             }
@@ -167,7 +168,7 @@ class coursetransfer {
                     'error' =>
                         [
                             'code' => '030342',
-                            'msg' => 'FIELD NOT VALID'
+                            'msg' => get_string('field_not_valid', 'local_coursettansfer')
                         ]
                 ];
         }

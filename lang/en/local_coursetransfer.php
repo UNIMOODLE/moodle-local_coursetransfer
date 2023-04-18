@@ -73,11 +73,14 @@ $string['userid'] = "User ID";
 $string['backupsize'] = "Size (MB)";
 $string['timemodified'] = "Time Modified";
 $string['timecreated'] = "Time Created";
+$string['user_not_found'] = "User not founded in remote Moodle";
+$string['user_does_not_have_courses'] = "User does not have courses in remote Moodle";
+$string['field_not_valid'] = "Field is not valid. Please, check your plugin settings page";
 $string['steps_buttons_next'] = 'Next';
 $string['steps_buttons_back'] = 'Back';
 $string['steps_buttons_cancel'] = 'Cancel';
 $string['steps_restore_title'] = "Restore Remote Course";
-$string['step1_restore_desc'] = "To restore a course from another platform, 
+$string['step1_restore_desc'] = "To restore a course from another platform,
 you must first select the site where the original course is located";
 $string['step2_restore_desc'] = "Select the course to restore";
 $string['step3_restore_desc'] = "Selected course details";

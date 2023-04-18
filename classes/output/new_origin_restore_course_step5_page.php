@@ -25,7 +25,6 @@
 namespace local_coursetransfer\output;
 
 use coding_exception;
-use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\forms\new_origin_restore_course_step1_form;
 use local_coursetransfer\forms\new_origin_restore_course_step2_form;
@@ -39,14 +38,13 @@ use stdClass;
 use templatable;
 
 /**
- * new_origin_restore_course_step2_page
+ * new_origin_restore_course_step4_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class new_origin_restore_course_step2_page implements renderable, templatable
-{
+class new_origin_restore_course_step5_page implements renderable, templatable {
 
     /** @var stdClass Course */
     protected $course;
@@ -56,8 +54,7 @@ class new_origin_restore_course_step2_page implements renderable, templatable
      *
      * @param stdClass $course
      */
-    public function __construct(stdClass $course)
-    {
+    public function __construct(stdClass $course) {
         $this->course = $course;
     }
 
@@ -68,34 +65,20 @@ class new_origin_restore_course_step2_page implements renderable, templatable
      * @return stdClass
      * @throws moodle_exception
      */
-    public function export_for_template(renderer_base $output): stdClass
-    {
+    public function export_for_template(renderer_base $output): stdClass {
         $backurl = new moodle_url(
-            '/local/coursetransfer/origin_restore_course.php',
-            ['id' => $this->course->id, 'new' => 1, 'step' => 1]
-        );
-        $nexturl = new moodle_url(
             '/local/coursetransfer/origin_restore_course.php',
             ['id' => $this->course->id, 'new' => 1, 'step' => 3]
         );
-
+        $nexturl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
         $data = new stdClass();
-        $data->siteurl = required_param('site', PARAM_RAW);
-        $data->steps = [ ["current" => false, "num" => 1], ["current" => true, "num" => 2],
-            ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
+        $data->steps = [ ["current" => false, "num" => 1], ["current" => false, "num" => 2],
+            ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => true, "num" => 5] ];
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
 
-        $request = new request($data->siteurl);
-        $res = $request->origin_get_courses();
-        if ($res->success) {
-            $data->courses = $res->data;
-            $data->haserrors = false;
-        } else {
-            $data->errors = $res->errors;
-            $data->haserrors = true;
-        }
-
         return $data;
     }
+
 }
+

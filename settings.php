@@ -52,9 +52,13 @@ if ($hassiteconfig) {
             '', PARAM_RAW));
 
     $choices = coursetransfer::FIELDS_USER;
+    $options = [];
+    foreach ($choices as $choice) {
+        $options[$choice] = $choice;
+    }
     $settings->add(new admin_setting_configselect('local_coursetransfer/origin_field_search_user',
         get_string('setting_origin_field_search_user', 'local_coursetransfer'),
         get_string('setting_origin_field_search_user_desc', 'local_coursetransfer'),
-            'username', $choices));
+            'username', $options ));
 
 }

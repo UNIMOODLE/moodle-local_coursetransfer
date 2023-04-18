@@ -28,8 +28,10 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
+use moodle_url;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -39,15 +41,15 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
-class origin_user_external extends external_api {
+class restore_course_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function origin_has_user_parameters(): external_function_parameters {
+    public static function new_origin_restore_course_step1_parameters(): external_function_parameters {
         return new external_function_parameters(
             array(
-                'field' => new external_value(PARAM_TEXT, 'Field'),
-                'value' => new external_value(PARAM_TEXT, 'Value')
+                'siteurl' => new external_value(PARAM_RAW, 'Site Url'),
+                'courseid' => new external_value(PARAM_INT, 'Course ID')
             )
         );
     }
@@ -55,21 +57,19 @@ class origin_user_external extends external_api {
     /**
      * Check if user exists
      *
-     * @param string $field
-     * @param string $value
+     * @param string $siteurl
+     * @param int $courseid
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_has_user(string $field, string $value): array {
-        global $DB;
-
+    public static function new_origin_restore_course_step1(string $siteurl, int $courseid): array {
         self::validate_parameters(
-            self::origin_has_user_parameters(),
+            self::new_origin_restore_course_step1_parameters(),
             [
-                'field' => $field,
-                'value' => $value
+                'siteurl' => $siteurl,
+                'courseid' => $courseid
             ]
         );
 
@@ -78,16 +78,17 @@ class origin_user_external extends external_api {
         $data = new stdClass();
 
         try {
-            $authres = coursetransfer::auth_user($field, $value);
-            if ($authres['success'] && isset($authres['data'])) {
-                $data->userid = $authres['data']->id;
-                $data->username = $authres['data']->username;
-                $data->firstname = $authres['data']->firstname;
-                $data->lastname = $authres['data']->lastname;
-                $data->email = $authres['data']->email;
+            $request = new request($siteurl);
+            $res = $request->origin_has_user();
+            if ($res->success) {
+                $data = $res->data;
+                $nexturl = new moodle_url(
+                    '/local/coursetransfer/origin_restore_course.php',
+                    ['id' => $courseid, 'new' => 1, 'step' => 2, 'site' => $siteurl]
+                );
+                $data->nexturl = $nexturl->out(false);
             } else {
-                $success = false;
-                $errors[] = $authres['error'];
+                $errors = $res->errors;
             }
         } catch (moodle_exception $e) {
             $success = false;
@@ -108,7 +109,7 @@ class origin_user_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_has_user_returns(): external_single_structure {
+    public static function new_origin_restore_course_step1_returns(): external_single_structure {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
@@ -126,7 +127,8 @@ class origin_user_external extends external_api {
                         'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
                         'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
                         'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
-                        'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL)
+                        'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
+                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
                     ),
                     PARAM_TEXT,
                     'Data'
@@ -134,4 +136,4 @@ class origin_user_external extends external_api {
             )
         );
     }
-}
+};

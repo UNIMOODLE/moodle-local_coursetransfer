@@ -36,6 +36,7 @@ use plugin_renderer_base;
  */
 class renderer extends plugin_renderer_base {
 
+
     /**
      * Defer to template.
      *
@@ -95,5 +96,15 @@ class renderer extends plugin_renderer_base {
         $data = $page->export_for_template($this);
         return parent::render_from_template('local_coursetransfer/new_origin_restore_course_step4_page', $data);
     }
-
+    /**
+     * Defer to template.
+     *
+     * @param new_origin_restore_course_step5_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_new_origin_restore_course_step5_page(new_origin_restore_course_step5_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/new_origin_restore_course_step5_page', $data);
+    }
 }

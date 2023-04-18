@@ -29,6 +29,11 @@ use dml_exception;
 use stdClass;
 use stored_file;
 
+defined('MOODLE_INTERNAL') || die;
+
+global $CFG;
+require_once($CFG->libdir . '/filelib.php');
+
 /**
  * Class request
  *
@@ -47,12 +52,25 @@ class request {
     public $token;
 
     /**
-     * constructor.
+     * constructor
      *
+     * @param string $host
      */
-    public function __construct($host, $token) {
+    public function __construct(string $host) {
         $this->host = $host;
-        $this->token = $token;
+        $this->set_token();
+    }
+
+    protected function set_token() {
+        $originsites = get_config('local_coursetransfer', 'origin_sites');
+        $originsites = explode(PHP_EOL, $originsites);
+        foreach ($originsites as $site) {
+            $site = explode(';', $site);
+            if ($site[0] === $this->host) {
+                $this->token = $site[1];
+                break;
+            }
+        }
     }
 
     /**
@@ -61,9 +79,10 @@ class request {
      * @return response
      */
     public function origin_has_user(): response {
+        global $USER;
         $params = new stdClass();
-        $params->field = 'sdfdasf';
-        $params->value = 'sdfadfdf';
+        $params->field = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params->value = $USER->{$params->field};
         return $this->req('local_coursetransfer_origin_has_user', $params);
     }
 
@@ -73,54 +92,54 @@ class request {
      * @return response
      */
     public function origin_get_courses(): response {
+        global $USER;
         $params = new stdClass();
-        $params->field = 'sdfdasf';
-        $params->value = 'sdfadfdf';
+        $params->field = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params->value = $USER->{$params->field};
         return $this->req('local_coursetransfer_origin_get_courses', $params);
     }
 
     /**
-     * Req
+     * Origen Get course detail.
      *
-     * @param string $wsname
-     * @param stdClass $params
      * @return response
      */
-    protected function req(string $wsname, stdClass $params): response {
-        $curl = new curl();
-        $url = $this->host . '/webservice/rest/server.php';
-        $headers = array();
-        $headers[] = "Content-type: application/json";
-        $curl->setHeader($headers);
-        $params->wstoken = $this->token;
-        $params->wsname = $wsname;
-        try {
-            $curl->post($url, json_encode($params), $this->get_options_curl('POST'));
-            $response = $curl->getResponse();
-            $response = new response($response->success, $response->data);
-        } catch (\Exception $e) {
-            $response = new response(false, null,
-                    [$e->getMessage()]);
-        }
-        return $response;
+    public function origin_get_course_detail(int $courseid): response {
+        global $USER;
+        $params = new stdClass();
+        $params->field = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params->value = $USER->{$params->field};
+        $params->courseid = $courseid;
+        return $this->req('local_coursetransfer_origin_get_course_detail', $params);
     }
-
 
     /**
-     * Get Options CURL.
-     *
-     * @param string $method
-     * @return array
+     * @throws \JsonException
      */
-    private function get_options_curl(string $method): array {
-        return [
-                'CURLOPT_RETURNTRANSFER' => true,
-                'CURLOPT_TIMEOUT' => self::TIMEOUT,
-                'CURLOPT_HTTP_VERSION' => CURL_HTTP_VERSION_1_1,
-                'CURLOPT_CUSTOMREQUEST' => $method,
-                'CURLOPT_SSLVERSION' => CURL_SSLVERSION_TLSv1_2,
-        ];
-    }
+    protected function req(string $wsname, stdClass $params): response {
+        $curl = curl_init();
+        $params->wstoken = $this->token;
+        $params->wsfunction = $wsname;
+        $params->moodlewsrestformat = 'json';
+        $params = (array)$params;
 
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->host . '/webservice/rest/server.php',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => self::TIMEOUT,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $params,
+        ));
+
+        $response = curl_exec($curl);
+        $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+
+        curl_close($curl);
+        return new response($response->success, $response->data, $response->errors);
+    }
 }
 

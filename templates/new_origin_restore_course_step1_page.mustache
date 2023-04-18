@@ -30,8 +30,7 @@
 
     {{{ form }}}
 
-    <div class="alert alert-danger" role="alert">
-        A simple aler---Check it out!
+    <div class="alert alert-danger hidden" role="alert">
     </div>
 
     <div class="button-container">
@@ -81,6 +80,8 @@
         padding: 10px;
         align-content: center;
         align-self: center;
+        font-size: 16px;
+        font-weight: 400;
     }
     div[data-region='new_origin_restore_course_step1_page'] div.button-container{
         padding: 10px;
@@ -96,6 +97,6 @@
 
 {{#js}}
     require(['local_coursetransfer/origin_restore_course_step1'], function(restoreCourseStep1) {
-        restoreCourseStep1.initRestoreCourseStep1('[data-region="new_origin_restore_course_step1_page"]');
+        restoreCourseStep1.initRestoreCourseStep1('[data-region="new_origin_restore_course_step1_page"]', {{ courseid }});
     });
 {{/js}}

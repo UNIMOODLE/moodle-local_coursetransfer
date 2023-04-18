@@ -22,6 +22,7 @@
 
 namespace local_coursetransfer\external;
 
+use core_course_category;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -43,8 +44,7 @@ class origin_course_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function origin_get_courses_parameters(): external_function_parameters
-    {
+    public static function origin_get_courses_parameters(): external_function_parameters {
         return new external_function_parameters(
             array(
                 'field' => new external_value(PARAM_TEXT, 'Field'),
@@ -63,8 +63,7 @@ class origin_course_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_get_courses(string $field, string $value): array
-    {
+    public static function origin_get_courses(string $field, string $value): array {
         self::validate_parameters(
             self::origin_get_courses_parameters(), [
                 'field' => $field,
@@ -78,15 +77,27 @@ class origin_course_external extends external_api {
 
         try {
             $authres = coursetransfer::auth_user($field, $value);
-            if($authres['success']){
-                //TODO: logica
-            }else{
+            if ($authres['success']) {
+                global $DB;
+                $res = $authres['data'];
+                $courses = enrol_get_users_courses($res->id);
+                foreach ($courses as $course) {
+                    $item = new stdClass();
+                    $item->id = $course->id;
+                    $item->fullname = $course->fullname;
+                    $item->shortname = $course->shortname;
+                    $item->idnumber = $course->idnumber;
+                    $item->categoryid = $course->category;
+                    $category = core_course_category::get($item->categoryid);
+                    $item->categoryname = $category->name;
+                    $data[] = $item;
+                }
+            } else {
                 $success = false;
                 $errors[] = $authres['error'];
             }
         } catch (moodle_exception $e) {
             $success = false;
-            $message = $e->getMessage();
             $errors[] =
                 [
                     'code' => 'no_code',
@@ -104,8 +115,7 @@ class origin_course_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_get_courses_returns(): external_single_structure
-    {
+    public static function origin_get_courses_returns(): external_single_structure {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
@@ -120,7 +130,7 @@ class origin_course_external extends external_api {
                         'id' => new external_value(PARAM_INT, 'Course ID'),
                         'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
                         'shortname' => new external_value(PARAM_TEXT, 'Shortname', VALUE_OPTIONAL),
-                        'idnumber' => new external_value(PARAM_INT, 'idNumber', VALUE_OPTIONAL),
+                        'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
                         'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                         'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL)
                     ), PARAM_TEXT, 'Data'
@@ -132,8 +142,7 @@ class origin_course_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function origin_get_course_detail_parameters(): external_function_parameters
-    {
+    public static function origin_get_course_detail_parameters(): external_function_parameters {
         return new external_function_parameters(
             array(
                 'field' => new external_value(PARAM_TEXT, 'Field'),
@@ -154,8 +163,7 @@ class origin_course_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_get_course_detail(string $field, string $value, int $courseid): array
-    {
+    public static function origin_get_course_detail(string $field, string $value, int $courseid): array {
         self::validate_parameters(
             self::origin_get_course_detail_parameters(), [
                 'field' => $field,
@@ -166,7 +174,7 @@ class origin_course_external extends external_api {
 
         $success = true;
         $errors = [];
-        $data = new stdClass();
+        $data = [];
 
         try {
             // TODO. origin_get_course_detail logic
@@ -190,8 +198,7 @@ class origin_course_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_get_course_detail_returns(): external_single_structure
-    {
+    public static function origin_get_course_detail_returns(): external_single_structure {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
@@ -201,7 +208,7 @@ class origin_course_external extends external_api {
                         'msg' => new external_value(PARAM_TEXT, 'Message')
                     ), PARAM_TEXT, 'Errors'
                 )),
-                'data' => new external_single_structure(
+                /*'data' => new external_single_structure(
                     array(
                         'id' => new external_value(PARAM_INT, 'Course ID', VALUE_OPTIONAL),
                         'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
@@ -225,8 +232,8 @@ class origin_course_external extends external_api {
                                 ))
                             )
                         ))
-                    ), PARAM_TEXT, 'Data'
-                )
+                    ), PARAM_TEXT
+                )*/
             )
         );
     }
