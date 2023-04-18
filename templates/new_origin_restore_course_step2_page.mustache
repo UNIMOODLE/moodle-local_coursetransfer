@@ -28,9 +28,24 @@
 
     <p>{{#str}} step2_restore_desc, local_coursetransfer {{/str}}</p>
 
-    <p>-> Tabla creada con SQL Tables <-</p>
+    {{# haserrors }}
+        <div class="alert alert-danger hidden" role="alert">
+            {{# errors }}
+                <li>{{ code }}: {{ msg }}</li>
+            {{/ errors }}
+        </div>
+    {{/ haserrors }}
 
-    <div class="button-container">
+    {{^ haserrors }}
+        <ul>
+            {{# courses }}
+                <li>{{ fullname }}</li>
+            {{/ courses }}
+        </ul>
+    {{/ haserrors }}
+
+
+        <div class="button-container">
         <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
         <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
         <a type="button" class="btn btn-primary" href="{{ next_url }}">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
