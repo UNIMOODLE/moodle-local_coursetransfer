@@ -100,10 +100,28 @@ class request {
     }
 
     /**
+     * Origen Get course detail.
+     *
+     * @return response
+     */
+    public function origin_get_course_detail(int $courseid): response {
+        global $USER;
+        $params = new stdClass();
+        $params->field = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params->value = $USER->{$params->field};
+        $params->courseid = $courseid;
+        return $this->req('local_coursetransfer_origin_get_course_detail', $params);
+    }
+
+    /**
      * @throws \JsonException
      */
     protected function req(string $wsname, stdClass $params): response {
         $curl = curl_init();
+        $params->wstoken = $this->token;
+        $params->wsfunction = $wsname;
+        $params->moodlewsrestformat = 'json';
+        $params = (array)$params;
 
         curl_setopt_array($curl, array(
             CURLOPT_URL => $this->host . '/webservice/rest/server.php',
@@ -114,12 +132,7 @@ class request {
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => array(
-                'wstoken' => $this->token,
-                'wsfunction' => $wsname,
-                'moodlewsrestformat' => 'json',
-                'field' => $params->field,
-                'value' => $params->value),
+            CURLOPT_POSTFIELDS => $params,
         ));
 
         $response = curl_exec($curl);

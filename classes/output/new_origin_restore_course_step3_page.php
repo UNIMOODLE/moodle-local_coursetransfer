@@ -25,6 +25,7 @@
 namespace local_coursetransfer\output;
 
 use coding_exception;
+use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\forms\new_origin_restore_course_step1_form;
 use local_coursetransfer\forms\new_origin_restore_course_step2_form;
@@ -74,6 +75,21 @@ class new_origin_restore_course_step3_page implements renderable, templatable {
             '/local/coursetransfer/origin_restore_course.php',
             ['id' => $this->course->id, 'new' => 1, 'step' => 4]
         );
+        $site = required_param('site', PARAM_RAW);
+        // TODO: Verificar que site es correcto.
+        $restoreid = required_param('restoreid', PARAM_INT);
+        // TODO: Llamar a la funcion remota local_coursetransfer_origin_get_course_detail.
+        // TODO: Logica de origin_course_external (get_course_detail).
+        // TODO: Printar datos.
+        $request = new request($site);
+        $res = $request->origin_get_course_detail($restoreid);
+        var_dump($res);
+        echo '<pre>';
+        //var_dump($site);
+        //var_dump($restoreid);
+        var_dump($res);
+        die();
+
         $data = new stdClass();
         $data->steps = [ ["current" => false, "num" => 1], ["current" => false, "num" => 2],
             ["current" => true, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];

@@ -41,17 +41,17 @@ class response {
     /** @var string[] Errors  */
     public $errors;
 
-    /** @var stdClass Data */
+    /** @var stdClass|array Data */
     public $data;
 
     /**
      * response constructor.
      *
      * @param bool $success
-     * @param stdClass|null $data
+     * @param stdClass|array|null $data
      * @param array|null $errors
      */
-    public function __construct(bool $success, stdClass $data = null, array $errors = null) {
+    public function __construct(bool $success,  $data = null, array $errors = null) {
         $this->success = $success;
         $this->data = $data;
         $this->errors = $errors;

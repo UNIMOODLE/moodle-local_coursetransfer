@@ -89,7 +89,6 @@ class origin_course_external extends external_api {
                     $item->categoryid = $course->category;
                     $data[] = $item;
                 }
-                var_dump($data);
             } else {
                 $success = false;
                 $errors[] = $authres['error'];
@@ -173,7 +172,7 @@ class origin_course_external extends external_api {
 
         $success = true;
         $errors = [];
-        $data = new stdClass();
+        $data = [];
 
         try {
             // TODO. origin_get_course_detail logic
@@ -207,7 +206,7 @@ class origin_course_external extends external_api {
                         'msg' => new external_value(PARAM_TEXT, 'Message')
                     ), PARAM_TEXT, 'Errors'
                 )),
-                'data' => new external_single_structure(
+                /*'data' => new external_single_structure(
                     array(
                         'id' => new external_value(PARAM_INT, 'Course ID', VALUE_OPTIONAL),
                         'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
@@ -231,8 +230,8 @@ class origin_course_external extends external_api {
                                 ))
                             )
                         ))
-                    ), PARAM_TEXT, 'Data'
-                )
+                    ), PARAM_TEXT
+                )*/
             )
         );
     }
