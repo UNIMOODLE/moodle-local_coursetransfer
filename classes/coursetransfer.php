@@ -110,14 +110,14 @@ class coursetransfer {
     public static function auth_user(string $field, string $value): array {
         global $DB;
 
-        if (in_array($field, coursetransfer::FIELDS_USER)) {
+        if (in_array($field, self::FIELDS_USER)) {
             $res = $DB->get_record('user', [$field => $value]);
             if ($res) {
                 $courses = enrol_get_users_courses($res->id);
                 $hascourse = false;
                 foreach ($courses as $course) {
                     $context = \context_course::instance($course->id);
-                    if(has_capability('moodle/backup:backupcourse', $context, $res->id)){
+                    if (has_capability('moodle/backup:backupcourse', $context, $res->id)) {
                         $hascourse = true;
                         break;
                     }

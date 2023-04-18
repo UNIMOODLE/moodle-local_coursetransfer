@@ -25,6 +25,7 @@
 namespace local_coursetransfer\output;
 
 use coding_exception;
+use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\forms\new_origin_restore_course_step1_form;
 use local_coursetransfer\forms\new_origin_restore_course_step2_form;
@@ -79,12 +80,15 @@ class new_origin_restore_course_step2_page implements renderable, templatable
         );
 
         $data = new stdClass();
+        $data->siteurl = required_param('site', PARAM_RAW);
         $data->steps = [ ["current" => false, "num" => 1], ["current" => true, "num" => 2],
             ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
 
         // TODO Llamar curl listado de cursos y meterlos en el data
+        $request = new request($data->siteurl);
+        $res = $request->origin_get_courses();
 
         return $data;
     }

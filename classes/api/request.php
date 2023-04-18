@@ -92,9 +92,10 @@ class request {
      * @return response
      */
     public function origin_get_courses(): response {
+        global $USER;
         $params = new stdClass();
-        $params->field = 'sdfdasf';
-        $params->value = 'sdfadfdf';
+        $params->field = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params->value = $USER->{$params->field};
         return $this->req('local_coursetransfer_origin_get_courses', $params);
     }
 
@@ -115,13 +116,16 @@ class request {
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => array(
                 'wstoken' => $this->token,
-                'wsfunction' => 'local_coursetransfer_origin_has_user',
+                'wsfunction' => $wsname,
                 'moodlewsrestformat' => 'json',
                 'field' => $params->field,
                 'value' => $params->value),
         ));
 
         $response = curl_exec($curl);
+        echo '<pre>';
+        var_dump($response);
+        die();
         $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
 
         curl_close($curl);
