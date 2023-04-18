@@ -22,6 +22,7 @@
 
 namespace local_coursetransfer\external;
 
+use core_course_category;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -78,7 +79,7 @@ class origin_course_external extends external_api {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 global $DB;
-                $res = $DB->get_record('user', [$field => $value]);
+                $res = $authres['data'];
                 $courses = enrol_get_users_courses($res->id);
                 foreach ($courses as $course) {
                     $item = new stdClass();
@@ -87,6 +88,8 @@ class origin_course_external extends external_api {
                     $item->shortname = $course->shortname;
                     $item->idnumber = $course->idnumber;
                     $item->categoryid = $course->category;
+                    $category = core_course_category::get($item->categoryid);
+                    $item->categoryname = $category->name;
                     $data[] = $item;
                 }
                 var_dump($data);
@@ -96,7 +99,6 @@ class origin_course_external extends external_api {
             }
         } catch (moodle_exception $e) {
             $success = false;
-            $message = $e->getMessage();
             $errors[] =
                 [
                     'code' => 'no_code',
