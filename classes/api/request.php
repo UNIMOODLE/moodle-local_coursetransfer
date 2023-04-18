@@ -123,9 +123,6 @@ class request {
         ));
 
         $response = curl_exec($curl);
-        echo '<pre>';
-        var_dump($response);
-        die();
         $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
 
         curl_close($curl);
