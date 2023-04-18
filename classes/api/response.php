@@ -51,7 +51,7 @@ class response {
      * @param stdClass|null|array $data
      * @param array|null $errors
      */
-    public function __construct(bool $success, $data = null, array $errors = null) {
+    public function __construct(bool $success,  $data = null, array $errors = null) {
         $this->success = $success;
         $this->data = $data;
         $this->errors = $errors;
