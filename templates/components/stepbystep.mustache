@@ -24,10 +24,9 @@
 
     <ul class="stepbystep">
         <span class="line"></span>
-        <li class="step current"><span class="num">1</span></li>
-        <li class="step"><span class="num">2</span></li>
-        <li class="step"><span class="num">3</span></li>
-        <li class="step"><span class="num">4</span></li>
+        {{# steps }}
+        <li class="step {{# current }}current{{/ current }}"><span class="num">{{ num }}</span></li>
+        {{/ steps }}
     </ul>
 
 </div>
