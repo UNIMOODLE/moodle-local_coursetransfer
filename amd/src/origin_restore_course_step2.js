@@ -38,13 +38,14 @@ define([
 
         /**
          * @param {String} region
+         * @param {URL} nexturl
          *
          * @constructor
          */
-        function restoreCourseStep2(region) {
+        function restoreCourseStep2(region, nexturl) {
             this.node = $(region);
             this.node.find(ACTIONS.COURSE_SELECT).on('click', this.selectCourse.bind(this));
-            this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
+            this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this, nexturl));
         }
 
         restoreCourseStep2.prototype.selectCourse = function(e) {
@@ -59,9 +60,11 @@ define([
             this.node.find(ACTIONS.NEXT).removeAttr('disabled');
         };
 
-        restoreCourseStep2.prototype.clickNext = function(e) {
+        restoreCourseStep2.prototype.clickNext = function(e, nexturl) {
             let selectedcourse = $('tr.selected');
             let courseid = selectedcourse.find('#courseid').text();
+            console.log(nexturl);
+            nexturl.searchParams.append('restoreid', courseid);
         };
 
         restoreCourseStep2.prototype.node = null;
@@ -69,11 +72,12 @@ define([
         return {
             /**
              * @param {String} region
+             * @param {URL} nexturl
              * @return {restoreCourseStep2}
              */
-            initRestoreCourseStep2: function(region) {
+            initRestoreCourseStep2: function(region, nexturl) {
                 // eslint-disable-next-line babel/new-cap
-                return new restoreCourseStep2(region);
+                return new restoreCourseStep2(region, nexturl);
             }
         };
     });
