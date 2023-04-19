@@ -28,10 +28,15 @@
 
     <p>{{#str}} step3_restore_desc, local_coursetransfer {{/str}}</p>
 
+    {{# haserrors }}
+        {{> local_coursetransfer/components/alert }}
+    {{/ haserrors }}
+
+    {{^ haserrors }}
     <div class="course_details">
         <div class="course_details_header">
-            <span class="text-white course-name">Course Name</span>
-            <span class="text-white course-id">ID: Course ID</span>
+            <span class="text-white course-name">{{course.fullname}}</span>
+            <span class="text-white course-id">ID: {{course.id}}</span>
         </div>
         <div class="course_details_body">
             <div class="row-1">
@@ -66,25 +71,19 @@
     <div class="sections-table">
         <div class="sections-table-header">
             <div class="ckeckbox"></div>
+            <div class="section-data">{{#str}} step3_sections_table_name, local_coursetransfer {{/str}}</div>
             <div class="section-data">{{#str}} step3_sections_table_id, local_coursetransfer {{/str}}</div>
             <div class="section-data">{{#str}} step3_sections_table_number, local_coursetransfer {{/str}}</div>
-            <div class="section-data">{{#str}} step3_sections_table_name, local_coursetransfer {{/str}}</div>
         </div>
+        {{#course.sections}}
         <div class="section-row">
             <div class="section-info">
                 <div class="ckeckbox"><input type="checkbox"></div>
-                <div class="section-data">48144</div>
-                <div class="section-data">Sección 0</div>
-                <div class="section-data">La evolución</div>
+                <div class="section-data">{{sectionname}}</div>
+                <div class="section-data">{{sectionid}}</div>
+                <div class="section-data">{{sectionnum}}</div>
             </div>
-        </div>
-        <div class="section-row">
-            <div class="section-info">
-                <div class="ckeckbox"><input type="checkbox"></div>
-                <div class="section-data">48122</div>
-                <div class="section-data">Sección 1</div>
-                <div class="section-data">Mamíferos</div>
-            </div>
+            {{#activities}}
             <div class="center-div">
                 <div class="activities-table">
                     <div class="activities-table-header">
@@ -94,26 +93,16 @@
                     </div>
                     <div class="activities-row">
                         <div class="ckeckbox"><input type="checkbox"></div>
-                        <div class="activities-data">Redacción sobre los mamíferos</div>
-                        <div class="activities-data">Tarea</div>
-                    </div>
-                    <div class="activities-row">
-                        <div class="ckeckbox"><input type="checkbox"></div>
-                        <div class="activities-data">Avisos</div>
-                        <div class="activities-data">Foro</div>
+                        <div class="activities-data">{{name}}</div>
+                        <div class="activities-data">{{modname}}</div>
                     </div>
                 </div>
             </div>
+            {{/activities}}
         </div>
-        <div class="section-row">
-            <div class="section-info">
-                <div class="ckeckbox"><input type="checkbox"></div>
-                <div class="section-data">48132</div>
-                <div class="section-data">Sección 2</div>
-                <div class="section-data">El cuerpo humano</div>
-            </div>
-        </div>
+        {{/course.sections}}
     </div>
+    {{/ haserrors }}
 
     <div class="button-container">
         <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>

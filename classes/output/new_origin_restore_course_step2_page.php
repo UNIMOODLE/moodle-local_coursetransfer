@@ -45,8 +45,8 @@ use templatable;
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class new_origin_restore_course_step2_page implements renderable, templatable
-{
+class new_origin_restore_course_step2_page implements renderable, templatable {
+
 
     /** @var stdClass Course */
     protected $course;
@@ -56,8 +56,7 @@ class new_origin_restore_course_step2_page implements renderable, templatable
      *
      * @param stdClass $course
      */
-    public function __construct(stdClass $course)
-    {
+    public function __construct(stdClass $course) {
         $this->course = $course;
     }
 
@@ -68,8 +67,7 @@ class new_origin_restore_course_step2_page implements renderable, templatable
      * @return stdClass
      * @throws moodle_exception
      */
-    public function export_for_template(renderer_base $output): stdClass
-    {
+    public function export_for_template(renderer_base $output): stdClass {
         $backurl = new moodle_url(
             '/local/coursetransfer/origin_restore_course.php',
             ['id' => $this->course->id, 'new' => 1, 'step' => 1]

@@ -29,11 +29,7 @@
     <p>{{#str}} step2_restore_desc, local_coursetransfer {{/str}}</p>
 
     {{# haserrors }}
-        <div class="alert alert-danger hidden" role="alert">
-            {{# errors }}
-                <li>{{ code }}: {{ msg }}</li>
-            {{/ errors }}
-        </div>
+        {{> local_coursetransfer/components/alert }}
     {{/ haserrors }}
 
     {{^ haserrors }}

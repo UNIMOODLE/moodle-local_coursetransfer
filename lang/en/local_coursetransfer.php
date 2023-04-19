@@ -125,3 +125,4 @@ $string['status_in_progress'] = "In progress";
 $string['status_incompleted'] = "Incompleted";
 $string['status_download'] = "Download";
 $string['status_completed'] = "Completed";
+$string['error_validate_site'] = "The selected site is invalid";

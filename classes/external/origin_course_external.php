@@ -172,18 +172,39 @@ class origin_course_external extends external_api {
             ]
         );
 
-        $success = true;
+        $success = false;
         $errors = [];
-        $data = [];
+        $data = [
+            'id' => 0,
+            'fullname' => '',
+            'shortname' => '',
+            'idnumber' => 0,
+            'categoryid' => 0,
+            'categoryname' => '',
+            'backupsizeestimated' => 0,
+            'sections' => []
+            ];
 
         try {
-            // TODO. origin_get_course_detail logic
+            $course = get_course($courseid);
+            $category = core_course_category::get($course->category);
+            $data = [
+                'id' => $course->id,
+                'fullname' => $course->fullname,
+                'shortname' => $course->shortname,
+                'idnumber' => $course->idnumber,
+                'categoryid' => $course->category,
+                'categoryname' => $category->name,
+                'backupsizeestimated' => coursetransfer::get_backup_size_estimated($course->id),
+                'sections' => coursetransfer::get_sections_with_activities($course->id)
+            ];
+            $success = true;
         } catch (moodle_exception $e) {
             $success = false;
             $message = $e->getMessage();
             $errors[] =
                 [
-                    'code' => 'no_code',
+                    'code' => 129,
                     'msg' => $e->getMessage()
                 ];
         }
@@ -208,12 +229,12 @@ class origin_course_external extends external_api {
                         'msg' => new external_value(PARAM_TEXT, 'Message')
                     ), PARAM_TEXT, 'Errors'
                 )),
-                /*'data' => new external_single_structure(
+                'data' => new external_single_structure(
                     array(
                         'id' => new external_value(PARAM_INT, 'Course ID', VALUE_OPTIONAL),
                         'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
                         'shortname' => new external_value(PARAM_TEXT, 'Shortname', VALUE_OPTIONAL),
-                        'idnumber' => new external_value(PARAM_INT, 'idNumber', VALUE_OPTIONAL),
+                        'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
                         'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                         'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
                         'backupsizeestimated' => new external_value(PARAM_INT, 'Backup Size Estimated', VALUE_OPTIONAL),
@@ -226,14 +247,14 @@ class origin_course_external extends external_api {
                                     array(
                                         'cmid' => new external_value(PARAM_INT, 'CMID', VALUE_OPTIONAL),
                                         'name' => new external_value(PARAM_TEXT, 'Name', VALUE_OPTIONAL),
-                                        'instanceid' => new external_value(PARAM_INT, 'Instance ID', VALUE_OPTIONAL),
-                                        'modulename' => new external_value(PARAM_TEXT, 'Module Name', VALUE_OPTIONAL)
+                                        'instance' => new external_value(PARAM_INT, 'Instance', VALUE_OPTIONAL),
+                                        'modname' => new external_value(PARAM_TEXT, 'Module Name', VALUE_OPTIONAL)
                                     )
                                 ))
                             )
                         ))
                     ), PARAM_TEXT
-                )*/
+                )
             )
         );
     }

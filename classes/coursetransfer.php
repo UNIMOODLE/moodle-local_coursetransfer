@@ -24,8 +24,11 @@
 
 namespace local_coursetransfer;
 
+use core_badges\output\standard_action_bar;
+use course_modinfo;
 use local_coursetransfer\api\request;
 use local_coursetransfer\api\response;
+use moodle_exception;
 use stdClass;
 
 class coursetransfer {
@@ -174,4 +177,75 @@ class coursetransfer {
         }
     }
 
+    /**
+     * Validate Origin Site
+     *
+     * @param string $siteurl
+     * @return bool
+     */
+    public static function validate_origin_site(string $siteurl): bool {
+        // TODO: comprobar que en el setting la url existe (comparacion de url).
+        return true;
+    }
+
+    /**
+     * Get Backup Size Estimated
+     *
+     * @param int $courseid
+     * @return int
+     */
+    public static function get_backup_size_estimated(int $courseid): int {
+        // TODO: calcular tamaño estimado del backup.
+        return 320;
+    }
+
+    /**
+     * Get Sections With Activities
+     *
+     * @param int $courseid
+     * @return array
+     * @throws moodle_exception
+     */
+    public static function get_sections_with_activities(int $courseid): array {
+        $finalsections = [];
+        /** @var course_modinfo $modinfo */
+        $modinfo = get_fast_modinfo($courseid);
+        $sections = $modinfo->get_section_info_all();
+        $course = get_course($courseid);
+        foreach ($sections as $section) {
+            $finalsection = [
+                'sectionnum' => $section->section,
+                'sectionid' => $section->id,
+                'sectionname' => is_null($section->name) ?
+                    get_string('sectionname', 'format_'. $course->format) . ' ' . $section->section : $section->name,
+                'activities' => self::get_activities_by_section($modinfo, $section->id)
+            ];
+            $finalsections[] = $finalsection;
+        }
+        return $finalsections;
+    }
+
+    /**
+     * Get Activities by Section
+     *
+     * @param int $courseid
+     * @param int $section
+     * @return array
+     */
+    public static function get_activities_by_section(course_modinfo $modinfo, int $section): array {
+        $activities = [];
+        $modules = $modinfo->get_cms();
+        foreach ($modules as $module) {
+            if ((int)$module->section === $section) {
+                $activity = [
+                    'cmid' => $module->id,
+                    'name' => $module->name,
+                    'instance' => $module->instance,
+                    'modname' => $module->modname
+                ];
+                $activities[] = $activity;
+            }
+        }
+        return $activities;
+    }
 }
