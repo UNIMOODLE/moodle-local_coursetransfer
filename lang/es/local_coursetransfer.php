@@ -69,3 +69,4 @@ $string['status_in_progress'] = "En progreso";
 $string['status_incompleted'] = "Sin completar";
 $string['status_download'] = "Descargada";
 $string['status_completed'] = "Completada";
+$string['error_validate_site'] = "El sitio seleccionado es invalido";

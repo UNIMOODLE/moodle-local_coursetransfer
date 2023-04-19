@@ -76,25 +76,29 @@ class new_origin_restore_course_step3_page implements renderable, templatable {
             ['id' => $this->course->id, 'new' => 1, 'step' => 4]
         );
         $site = required_param('site', PARAM_RAW);
-        // TODO: Verificar que site es correcto.
-        $restoreid = required_param('restoreid', PARAM_INT);
-        // TODO: Llamar a la funcion remota local_coursetransfer_origin_get_course_detail.
-        // TODO: Logica de origin_course_external (get_course_detail).
-        // TODO: Printar datos.
-        $request = new request($site);
-        $res = $request->origin_get_course_detail($restoreid);
-        var_dump($res);
-        echo '<pre>';
-        //var_dump($site);
-        //var_dump($restoreid);
-        var_dump($res);
-        die();
-
         $data = new stdClass();
         $data->steps = [ ["current" => false, "num" => 1], ["current" => false, "num" => 2],
             ["current" => true, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
+        $errors = [];
+
+        if (coursetransfer::validate_origin_site($site)) {
+            $data->haserrors = false;
+            $restoreid = required_param('restoreid', PARAM_INT);
+            $request = new request($site);
+            $res = $request->origin_get_course_detail($restoreid);
+            if ($res->success) {
+                $data->course = $res->data;
+            } else {
+                $data->errors = $res->errors;
+                $data->haserrors = true;
+            }
+        } else {
+            $data->haserrors = true;
+            $errors[] = ['code' => 140, 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $data->errors = $errors;
+        }
 
         return $data;
     }
