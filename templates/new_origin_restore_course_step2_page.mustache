@@ -39,26 +39,30 @@
     {{^ haserrors }}
         <h3 class="h2">{{#str}} step2_course_list, local_coursetransfer {{/str}}</h3>
         <table>
-            <tr>
-                <th></th>
-                <th>{{#str}} step2_course_id, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_name, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_shortname, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
-            </tr>
-            {{# courses }}
+            <thead>
                 <tr>
-                    <td><input type="checkbox"></td>
-                    <td>{{ id }}</td>
-                    <td>{{ fullname }}</td>
-                    <td>{{ shortname }}</td>
-                    <td>{{ idnumber }}</td>
-                    <td>{{ categoryid }}</td>
-                    <td>{{ categoryname }}</td>
+                    <th></th>
+                    <th>{{#str}} step2_course_id, local_coursetransfer {{/str}}</th>
+                    <th>{{#str}} step2_course_name, local_coursetransfer {{/str}}</th>
+                    <th>{{#str}} step2_course_shortname, local_coursetransfer {{/str}}</th>
+                    <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
+                    <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
+                    <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
                 </tr>
-            {{/ courses }}
+            </thead>
+            <tbody>
+                {{# courses }}
+                    <tr data-action="course">
+                        <td><input type="radio" name="radiogroup" data-action="select"></td>
+                        <td id="courseid">{{ id }}</td>
+                        <td>{{ fullname }}</td>
+                        <td>{{ shortname }}</td>
+                        <td>{{ idnumber }}</td>
+                        <td>{{ categoryid }}</td>
+                        <td>{{ categoryname }}</td>
+                    </tr>
+                {{/ courses }}
+            </tbody>
         </table>
     {{/ haserrors }}
 
@@ -111,6 +115,9 @@
         border-top: 1px solid #D7D8E2;
         padding: 10px;
     }
+    div[data-region='new_origin_restore_course_step2_page'] tbody {
+        color: #7C7C7C;
+    }
     div[data-region='new_origin_restore_course_step2_page'] p {
         font-size: 16px;
         font-weight: 400;
@@ -128,4 +135,17 @@
     div[data-region='new_origin_restore_course_step2_page'] div.button-container a.btn-light {
         border: 1px solid black;
     }
+    div[data-region='new_origin_restore_course_step2_page'] tr.selected {
+        color: black;
+        background-color: #F7F9FC;
+    }
+    div[data-region='new_origin_restore_course_step2_page'] input[type="radio"]:checked, input[type="radio"]:active {
+        box-shadow: none;
+    }
 </style>
+
+{{#js}}
+    require(['local_coursetransfer/origin_restore_course_step2'], function(restoreCourseStep2) {
+        restoreCourseStep2.initRestoreCourseStep2('[data-region="new_origin_restore_course_step2_page"]');
+    });
+{{/js}}
