@@ -44,8 +44,9 @@ define([
          */
         function restoreCourseStep2(region, nexturl) {
             this.node = $(region);
+            this.nextURL = nexturl;
             this.node.find(ACTIONS.COURSE_SELECT).on('click', this.selectCourse.bind(this));
-            this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this, nexturl));
+            this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         }
 
         restoreCourseStep2.prototype.selectCourse = function(e) {
@@ -55,16 +56,15 @@ define([
             let checked = $("input:checked");
             let td = checked.parent().addClass('selected');
             td.parent().addClass('selected');
-            let n = checked.length;
-            console.log('Checked: ' + n);
             this.node.find(ACTIONS.NEXT).removeAttr('disabled');
         };
 
         restoreCourseStep2.prototype.clickNext = function(e, nexturl) {
             let selectedcourse = $('tr.selected');
             let courseid = selectedcourse.find('#courseid').text();
-            console.log(nexturl);
-            nexturl.searchParams.append('restoreid', courseid);
+            let url = new URL(this.nextURL);
+            url.searchParams.append('restoreid', courseid);
+            window.location.href = url
         };
 
         restoreCourseStep2.prototype.node = null;
