@@ -64,7 +64,7 @@ define([
             let courseid = selectedcourse.find('#courseid').text();
             let url = new URL(this.nextURL);
             url.searchParams.append('restoreid', courseid);
-            window.location.href = url
+            window.location.href = url;
         };
 
         restoreCourseStep2.prototype.node = null;
