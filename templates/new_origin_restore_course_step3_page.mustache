@@ -42,25 +42,25 @@
             <div class="row-1">
                 <section>
                     <span class="section-tittle">{{#str}} step3_details_shortname, local_coursetransfer {{/str}}</span>
-                    <span class="data text-muted">BP102</span>
+                    <span class="data text-muted">{{course.shortname}}</span>
                 </section>
                 <section>
                     <span class="section-tittle">{{#str}} step3_details_course_id, local_coursetransfer {{/str}}</span>
-                    <span class="data text-muted">482400</span>
+                    <span class="data text-muted">{{course.id}}</span>
                 </section>
                 <section>
                     <span class="section-tittle">{{#str}} step3_details_category_name, local_coursetransfer {{/str}}</span>
-                    <span class="data text-muted">Math</span>
+                    <span class="data text-muted">{{course.categoryname}}</span>
                 </section>
             </div>
             <div class="row-2">
                 <section>
                     <span class="section-tittle">{{#str}} step3_details_category_id, local_coursetransfer {{/str}}</span>
-                    <span class="data text-muted">220</span>
+                    <span class="data text-muted">{{course.categoryid}}</span>
                 </section>
                 <section>
                     <span class="section-tittle">{{#str}} step3_details_backup_size, local_coursetransfer {{/str}}</span>
-                    <span class="data text-muted">120 MB</span>
+                    <span class="data text-muted">{{course.backupsizeestimated}} MB</span>
                 </section>
             </div>
         </div>

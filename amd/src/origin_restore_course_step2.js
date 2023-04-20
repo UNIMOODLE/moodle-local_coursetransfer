@@ -61,7 +61,7 @@ define([
             this.node.find(ACTIONS.NEXT).removeAttr('disabled');
         };
 
-        restoreCourseStep2.prototype.clickNext = function(e) {
+        restoreCourseStep2.prototype.clickNext = function(e, nexturl) {
             let selectedcourse = $('tr.selected');
             let courseid = selectedcourse.find('#courseid').text();
             // let url = this.nextURL + '&restoreid=' + courseid;
