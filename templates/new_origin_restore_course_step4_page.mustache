@@ -26,6 +26,73 @@
 
     <h3 class="h3">{{#str}} steps_restore_title, local_coursetransfer {{/str}}</h3>
 
+    <p>{{#str}} step4_restore_desc, local_coursetransfer {{/str}}</p>
+
+    <div class="course_details">
+        <div class="course_details_header">
+            <span class="text-white course-name">{{course.fullname}}</span>
+            <span class="text-white course-id">ID: {{course.id}}</span>
+        </div>
+        <div class="course_details_body">
+            <div class="row-1">
+                <section>
+                    <span class="section-tittle">{{#str}} step3_details_shortname, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">{{course.shortname}}</span>
+                </section>
+                <section>
+                    <span class="section-tittle">{{#str}} step3_details_course_id, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">{{course.id}}</span>
+                </section>
+                <section>
+                    <span class="section-tittle">{{#str}} step3_details_category_name, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">{{course.categoryname}}</span>
+                </section>
+            </div>
+            <div class="row-2">
+                <section>
+                    <span class="section-tittle">{{#str}} step3_details_category_id, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">{{course.categoryid}}</span>
+                </section>
+                <section>
+                    <span class="section-tittle">{{#str}} step3_details_backup_size, local_coursetransfer {{/str}}</span>
+                    <span class="data text-muted">{{course.backupsizeestimated}} MB</span>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="h4">{{#str}} step4_config_title, local_coursetransfer {{/str}}</h4>
+
+    <ul class="configuration-list">
+        <li class="configuration-group">
+            <div class="checkbox">
+                <input type="checkbox">
+            </div>
+            <div class="config-info">
+                <div class="config-title">{{#str}} step4_config_fuse, local_coursetransfer {{/str}}</div>
+                <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
+            </div>
+        </li>
+        <li class="configuration-group">
+            <div class="checkbox">
+                <input type="checkbox">
+            </div>
+            <div class="config-info">
+                <div class="config-title">{{#str}} step4_config_delete_enrollments, local_coursetransfer {{/str}}</div>
+                <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
+            </div>
+        </li>
+        <li class="configuration-group">
+            <div class="checkbox">
+                <input type="checkbox">
+            </div>
+            <div class="config-info">
+                <div class="config-title">{{#str}} step4_config_delete_groups, local_coursetransfer {{/str}}</div>
+                <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
+            </div>
+        </li>
+    </ul>
+
     <div class="button-container">
         <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
         <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
@@ -48,8 +115,7 @@
     div[data-region='new_origin_restore_course_step4_page'] h3.h3{
         font-size: 28px;
         font-weight: 600;
-        padding-top: 0;
-        margin-top: 20px;
+        margin: auto;
         width: 50%;
         padding: 10px;
         text-align: center;
@@ -70,16 +136,6 @@
     }
     div[data-region='new_origin_restore_course_step4_page'] div.button-container a.btn-light{
         border: 1px solid black;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div.origin-site {
-        width: 50%;
-        border: 1px solid black;
-        border-radius: 10px;
-        margin: 10px 0;
-        padding: 20px 0;
-        text-align: center;
-        font-size: 16px;
-        font-weight: 400;
     }
     div[data-region='new_origin_restore_course_step4_page'] div.course_details {
         width: 50%;
@@ -129,65 +185,37 @@
     div[data-region='new_origin_restore_course_step4_page'] h4.h4 {
         font-size: 24px;
         font-weight: 600;
-        margin-top: 20px;
+        margin: auto;
         width: 50%;
-        padding: 10px;
-        text-align: center;
+        padding-top: 20px;
+        padding-bottom: 10px;
+        text-align: left;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.sections-table {
+    div[data-region='new_origin_restore_course_step4_page'] ul.configuration-list {
+        list-style-type: none;
         width: 50%;
+        padding: 0;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.sections-table-header {
-        display: flex;
-        border-bottom: 2px solid #9396AA;
-        padding: 5px;
-        font-size: 14px;
-        font-weight: 600;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div.ckeckbox {
-        width: 10%;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div.section-data {
-        width: 30%;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div.section-info {
-        display: flex;
-        border-bottom: 1px solid #D7D8E2;
-        padding: 10px;
-        font-size: 14px;
-        font-weight: 400;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div.section-row {
-        display: flex;
-        flex-direction: column;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div.activities-table {
-        width: 90%;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div.center-div {
+    div[data-region='new_origin_restore_course_step4_page'] li.configuration-group {
         display: flex;
         justify-content: center;
-        align-items: center;
-        width: 100%;
+        margin: 20px 0;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.activities-table-header {
-        display: flex;
-        border-bottom: 2px solid #9396AA;
-        padding: 5px;
-        font-size: 13px;
-        font-weight: 600;
+    div[data-region='new_origin_restore_course_step4_page'] div.checkbox {
+         padding: 0 5%;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.ckeckbox {
-        width: 10%;
+    div[data-region='new_origin_restore_course_step4_page'] div.config-title {
+        padding-bottom: 5px;
+        font-size: 14px;
+        font-weight: 700;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.activities-data {
-        width: 45%;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div.activities-row {
-        display: flex;
-        border-bottom: 1px solid #D7D8E2;
-        padding: 5px;
-        font-size: 13px;
+    div[data-region='new_origin_restore_course_step4_page'] div.config-desc {
+        padding-bottom: 5px;
+        padding-right: 10px;
+        font-size: 12px;
         font-weight: 400;
+    }
+    div[data-region='new_origin_restore_course_step4_page'] input[type="checkbox"]:checked, input[type="checkbox"]:active, input[type="checkbox"]:disabled {
+        box-shadow: none;
     }
 </style>
