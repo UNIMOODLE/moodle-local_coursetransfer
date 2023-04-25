@@ -59,7 +59,7 @@ define([
             this.node.find(ACTIONS.NEXT).removeAttr('disabled');
         };
 
-        restoreCourseStep2.prototype.clickNext = function(e, nexturl) {
+        restoreCourseStep2.prototype.clickNext = function(e) {
             let selectedcourse = $('tr.selected');
             let courseid = selectedcourse.find('#courseid').text();
             let url = new URL(this.nextURL);
