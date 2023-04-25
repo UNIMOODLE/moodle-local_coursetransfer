@@ -96,7 +96,7 @@
     <div class="button-container">
         <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
         <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
-        <a type="button" class="btn btn-primary" href="{{ next_url }}">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
+        <button type="button" class="btn btn-primary" data-action="next">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</button>
     </div>
 
 </div>
@@ -219,3 +219,9 @@
         box-shadow: none;
     }
 </style>
+
+{{#js}}
+    require(['local_coursetransfer/origin_restore_course_step4'], function(restoreCourseStep4) {
+        restoreCourseStep4.initRestoreCourseStep4('[data-region="new_origin_restore_course_step4_page"]');
+    });
+{{/js}}
