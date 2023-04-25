@@ -38,15 +38,13 @@ define([
 
         /**
          * @param {String} region
-         * @param {Number} courseid
-         * @param {String} siteurl
+         * @param {String} nexturl
          *
          * @constructor
          */
-        function restoreCourseStep2(region, courseid, siteurl) {
+        function restoreCourseStep2(region, nexturl) {
             this.node = $(region);
-            this.courseid = courseid;
-            this.siteurl = siteurl;
+            this.nextURL = nexturl;
             this.node.find(ACTIONS.COURSE_SELECT).on('click', this.selectCourse.bind(this));
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         }
@@ -64,13 +62,9 @@ define([
         restoreCourseStep2.prototype.clickNext = function(e, nexturl) {
             let selectedcourse = $('tr.selected');
             let courseid = selectedcourse.find('#courseid').text();
-            // let url = this.nextURL + '&restoreid=' + courseid;
-            let url = 'http://moodle4.test/local/coursetransfer/origin_restore_course.php?id=' + this.courseid +
-                '&new=1&step=3&site=' + this.siteurl + '&restoreid=' + courseid;
-            // let url = new URL(this.nextURL);
-            // url.searchParams.append('restoreid', courseid);
-            console.log(url);
-            window.location.href = url;
+            let url = new URL(this.nextURL);
+            url.searchParams.append('restoreid', courseid);
+            window.location.href = url.href.replace(/&amp%3B/g, "&");
         };
 
         restoreCourseStep2.prototype.node = null;
@@ -78,13 +72,12 @@ define([
         return {
             /**
              * @param {String} region
-             * @param {Number} courseid
-             * @param {String} siteurl
+             * @param {String} nexturl
              * @return {restoreCourseStep2}
              */
-            initRestoreCourseStep2: function(region, courseid, siteurl) {
+            initRestoreCourseStep2: function(region, nexturl) {
                 // eslint-disable-next-line babel/new-cap
-                return new restoreCourseStep2(region, courseid, siteurl);
+                return new restoreCourseStep2(region, nexturl);
             }
         };
     });
