@@ -41,19 +41,23 @@ define([
          */
         function restoreCourseStep4(region) {
             this.node = $(region);
-            this.data = {
-                configuration: {
-                    destiny_remove_groups: $('#destiny_remove_groups')[0].checked,
-                    destiny_remove_enrols: $('#destiny_remove_enrols')[0].checked,
-                    destiny_merge_activities: $('#destiny_merge_activities')[0].checked,
-                    destiny_remove_activities: $('#destiny_remove_activities')[0].checked
-                }
-            };
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         }
 
         restoreCourseStep4.prototype.clickNext = function(e) {
             // TODO. Add configuration data to localstorage in JavaScript.
+            this.data = {
+                configuration: {
+                    // eslint-disable-next-line camelcase
+                    destiny_remove_groups: $('#destiny_remove_groups')[0].checked,
+                    // eslint-disable-next-line camelcase
+                    destiny_remove_enrols: $('#destiny_remove_enrols')[0].checked,
+                    // eslint-disable-next-line camelcase
+                    destiny_merge_activities: $('#destiny_merge_activities')[0].checked,
+                    // eslint-disable-next-line camelcase
+                    destiny_remove_activities: $('#destiny_remove_activities')[0].checked
+                }
+            };
             console.log(this.data);
         };
 
