@@ -78,7 +78,7 @@
         </div>
         {{#course.sections}}
         <div class="section-row" data-section-sectionname="{{sectionname}}"
-             data-section-section="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
+             data-section-sectionid="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
             <div class="section-info">
                 <div class="ckeckbox"><input type="checkbox"></div>
                 <div class="section-data">{{sectionname}}</div>
@@ -93,10 +93,10 @@
                         <div class="activities-data">{{#str}} step3_activities_table_name, local_coursetransfer {{/str}}</div>
                         <div class="activities-data">{{#str}} step3_activities_table_type, local_coursetransfer {{/str}}</div>
                     </div>
-                    <div class="activities-row">
+                    <div class="activities-row" data-activity-name="{{name}}" data-activity-modname="{{modname}}">
                         <div class="ckeckbox"><input type="checkbox"></div>
-                        <div class="activities-data" data-activity-name="{{name}}">{{name}}</div>
-                        <div class="activities-data" data-activity-modname="{{modname}}">{{modname}}</div>
+                        <div class="activities-data">{{name}}</div>
+                        <div class="activities-data">{{modname}}</div>
                     </div>
                 </div>
             </div>
@@ -109,7 +109,7 @@
     <div class="button-container">
         <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
         <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
-        <a type="button" class="btn btn-primary" href="{{ next_url }}">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
+        <a type="button" class="btn btn-primary" data-action="next" href="{{ next_url }}">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
     </div>
 
 </div>

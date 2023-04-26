@@ -43,7 +43,7 @@ define([
      */
     function restoreCourseStep3(region) {
         this.node = $(region);
-        let data = {
+        this.data = {
             course: {
                 id: parseInt($("[data-course-id]").attr("data-course-id")),
                 fullname: $("[data-course-fullname]").attr("data-course-fullname"),
@@ -56,12 +56,37 @@ define([
             }
         };
         this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
-        // console.log(data);
-        console.log($("[data-section-sectionname]").attr("data-section-sectionname"));
     }
 
     restoreCourseStep3.prototype.clickNext = function(e) {
-        // TODO: logica del guardado de datos en un json y guardarlos en session storage.
+        let rawSections = [...$(".sections-table").children()];
+        rawSections.shift();
+        this.data.course.sections = rawSections.map(v => {
+            let finalActivities = [];
+            if (v.children.length >= 2) {
+                let children = [...v.children];
+                let activities = [...children[1].children[0].children];
+                activities.shift();
+                finalActivities = activities.map(v => {
+                    return {
+                        selected: v.children[0].children[0].checked,
+                        cmid: null,
+                        name: v.getAttribute("data-activity-name"),
+                        instance: null,
+                        modname: v.getAttribute("data-activity-modname")
+                    };
+                });
+            }
+            return {
+                selected: v.children[0].children[0].children[0].checked,
+                sectionnum: v.getAttribute("data-section-sectionnum"),
+                sectionid: v.getAttribute("data-section-sectionid"),
+                sectionname: v.getAttribute("data-section-sectionname"),
+                activities: finalActivities
+            };
+        });
+        console.log(this.data);
+        sessionStorage.setItem('data', JSON.stringify(this.data));
     };
 
     restoreCourseStep3.prototype.node = null;
