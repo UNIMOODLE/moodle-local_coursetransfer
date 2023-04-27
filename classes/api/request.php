@@ -24,7 +24,9 @@
 
 namespace local_coursetransfer\api;
 
+use coding_exception;
 use dml_exception;
+use moodle_exception;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die;
@@ -49,31 +51,58 @@ class request {
     /** @var string Token */
     public $token;
 
+    /** @var array Origin Sites */
+    public $originsites;
+
     /**
-     * constructor
+     * request constructor.
      *
-     * @param string $host
+     * @param int $host
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function __construct(int $host) {
+        $this->set_origin_sites();
+        $this->set_host_token($host);
+    }
+
+    /**
+     * Set Origin Sites.
+     *
      * @throws dml_exception
      */
-    public function __construct(string $host) {
-        $this->host = $host;
-        $this->set_token();
+    protected function set_origin_sites() {
+        $originsites = get_config('local_coursetransfer', 'origin_sites');
+        $originsites = explode(PHP_EOL, $originsites);
+        $this->originsites = [];
+        foreach ($originsites as $site) {
+            $site = explode(';', $site);
+            if (isset($site[0]) && isset($site[1])) {
+                $item['url'] = $site[0];
+                $item['token'] = $site[1];
+                $this->originsites[] = $item;
+            }
+        }
     }
 
     /**
      * Set Token.
      *
-     * @throws dml_exception
+     * @param int $host
+     * @throws coding_exception
+     * @throws moodle_exception
      */
-    protected function set_token() {
-        $originsites = get_config('local_coursetransfer', 'origin_sites');
-        $originsites = explode(PHP_EOL, $originsites);
-        foreach ($originsites as $site) {
-            $site = explode(';', $site);
-            if ($site[0] === $this->host) {
-                $this->token = $site[1];
+    protected function set_host_token(int $host) {
+        foreach ($this->originsites as $key => $site) {
+            if ($key === $host) {
+                $this->host = $site['url'];
+                $this->token = $site['token'];
                 break;
             }
+        }
+        if (empty($this->host) || empty($this->token)) {
+            throw new moodle_exception(get_string('site_not_found', 'local_coursetransfer'));
         }
     }
 
@@ -151,7 +180,7 @@ class request {
         try {
             $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
             curl_close($curl);
-            if (isset($response->success)) {
+            if (isset($response->success) && isset($response->data) && isset($response->errors)) {
                 return new response($response->success, $response->data, $response->errors);
             } else {
                 if (!empty($response->message)) {

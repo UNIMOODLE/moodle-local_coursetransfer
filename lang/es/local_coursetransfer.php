@@ -71,3 +71,4 @@ $string['status_download'] = "Descargada";
 $string['status_completed'] = "Completada";
 $string['error_validate_site'] = "El sitio seleccionado es invalido";
 $string['error_not_controlled'] = "El sitio no está disponible en este momento. Inténtelo más tarde";
+$string['site_not_found'] = "El sitio seleccionado no se encuentra entre los disponibles";

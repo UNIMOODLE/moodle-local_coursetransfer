@@ -48,7 +48,7 @@ class restore_course_external extends external_api {
     public static function new_origin_restore_course_step1_parameters(): external_function_parameters {
         return new external_function_parameters(
             array(
-                'siteurl' => new external_value(PARAM_RAW, 'Site Url'),
+                'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                 'courseid' => new external_value(PARAM_INT, 'Course ID')
             )
         );
@@ -57,14 +57,14 @@ class restore_course_external extends external_api {
     /**
      * Check if user exists
      *
-     * @param string $siteurl
+     * @param int $siteurl
      * @param int $courseid
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function new_origin_restore_course_step1(string $siteurl, int $courseid): array {
+    public static function new_origin_restore_course_step1(int $siteurl, int $courseid): array {
         self::validate_parameters(
             self::new_origin_restore_course_step1_parameters(),
             [
