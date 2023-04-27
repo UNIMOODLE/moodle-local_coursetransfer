@@ -41,7 +41,9 @@ define([
             let sections = data.course.sections;
             console.log(sections);
             sections.forEach(function (section) {
-                console.log(section);
+                if (section.selected) {
+                    $('#' + section.sectionid).children[0].children[0].checked = true;
+                }
             });
         }
 

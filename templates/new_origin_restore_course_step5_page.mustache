@@ -53,7 +53,7 @@
             <div class="section-data">{{#str}} step3_sections_table_number, local_coursetransfer {{/str}}</div>
         </div>
         {{#course.sections}}
-            <div class="section-row" data-section-sectionname="{{sectionname}}"
+            <div id="{{sectionid}}" class="section-row" data-section-sectionname="{{sectionname}}"
                  data-section-sectionid="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
                 <div class="section-info">
                     <div class="ckeckbox"><input type="checkbox"></div>
@@ -69,7 +69,7 @@
                                 <div class="activities-data">{{#str}} step3_activities_table_name, local_coursetransfer {{/str}}</div>
                                 <div class="activities-data">{{#str}} step3_activities_table_type, local_coursetransfer {{/str}}</div>
                             </div>
-                            <div class="activities-row" data-activity-name="{{name}}" data-activity-modname="{{modname}}">
+                            <div id={{name}} class="activities-row" data-activity-name="{{name}}" data-activity-modname="{{modname}}">
                                 <div class="ckeckbox"><input type="checkbox"></div>
                                 <div class="activities-data">{{name}}</div>
                                 <div class="activities-data">{{modname}}</div>
