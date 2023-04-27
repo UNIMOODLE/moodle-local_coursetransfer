@@ -67,10 +67,12 @@ define([
                 } else if (!response.success) {
                     self.renderErrors(response.errors, alertbox);
                 } else {
-                    $('#errorModal').modal("show");
+                    let errors = [{'code': '064893', 'msg': 'error_not_controlled'}];
+                    self.renderErrors(errors, alertbox);
                 }
             }).fail(function (fail) {
-                $('#errorModal').modal("show");
+                let errors = [{'code': '064896', 'msg': fail.message}];
+                self.renderErrors(errors, alertbox);
             });
         };
 
@@ -82,9 +84,8 @@ define([
         restoreCourseStep1.prototype.renderErrors = function(errors, alertbox) {
             let errorString = "";
             alertbox.removeClass("hidden");
-            console.log(errors);
             errors.forEach(error => {
-                errorString += 'Error: ' + error.msg + '<br>';
+                errorString += 'Error (' + error.code + '): ' + error.msg + '<br>';
             });
             alertbox.append(errorString);
         };

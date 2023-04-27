@@ -73,9 +73,15 @@ class restore_course_external extends external_api {
             ]
         );
 
-        $success = true;
+        $success = false;
         $errors = [];
         $data = new stdClass();
+        $data->userid = 0;
+        $data->username = '';
+        $data->firstname = '';
+        $data->lastname = '';
+        $data->email = '';
+        $data->nexturl = '';
 
         try {
             $request = new request($siteurl);
@@ -87,11 +93,11 @@ class restore_course_external extends external_api {
                     ['id' => $courseid, 'new' => 1, 'step' => 2, 'site' => $siteurl]
                 );
                 $data->nexturl = $nexturl->out(false);
+                $success = true;
             } else {
-                $errors = $res->errors;
+                $errors[] = $res->errors;
             }
         } catch (moodle_exception $e) {
-            $success = false;
             $errors[] =
                 [
                     'code' => '030340',
