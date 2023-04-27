@@ -41,7 +41,10 @@ define([
          */
         function restoreCourseStep4(region) {
             this.node = $(region);
-            this.sessionData = sessionStorage.getItem('data');
+            this.restoreid = $("[data-restoreid]").attr("data-restoreid");
+            console.log(this.restoreid);
+            this.sessionData = sessionStorage.getItem('local_coursetransfer_' + 1 + this.restoreid);
+            console.log(JSON.parse(this.sessionData));
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
             console.log(JSON.parse(this.sessionData));
         }
@@ -59,7 +62,7 @@ define([
             };
             let sessionData = JSON.parse(this.sessionData);
             sessionData.course.configuration = configuration;
-            sessionStorage.setItem('data', JSON.stringify(sessionData));
+            sessionStorage.setItem('local_coursetransfer_' + 1 + this.restoreid, JSON.stringify(sessionData));
         };
 
         restoreCourseStep4.prototype.node = null;

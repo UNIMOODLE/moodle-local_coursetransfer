@@ -78,6 +78,7 @@ class new_origin_restore_course_step4_page implements renderable, templatable {
             ['id' => $this->course->id, 'new' => 1, 'step' => 5, 'site' => $siteposition, 'restoreid' => $restoreid]
         );
         $data = new stdClass();
+        $data->restoreid = $restoreid;
         $data->steps = [ ["current" => false, "num" => 1], ["current" => false, "num" => 2],
             ["current" => false, "num" => 3], ["current" => true, "num" => 4], ["current" => false, "num" => 5] ];
         $data->back_url = $backurl->out(false);

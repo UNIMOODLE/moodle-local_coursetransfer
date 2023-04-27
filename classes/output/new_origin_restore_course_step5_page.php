@@ -74,18 +74,30 @@ class new_origin_restore_course_step5_page implements renderable, templatable {
             ['id' => $this->course->id, 'new' => 1, 'step' => 3]
         );
         $data = new stdClass();
+        $data->restoreid = $restoreid;
         $data->steps = [ ["current" => false, "num" => 1], ["current" => false, "num" => 2],
             ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => true, "num" => 5] ];
         $data->back_url = $backurl->out(false);
         $site = coursetransfer::get_site_by_position($siteposition);
         $data->host = $site->host;
         if (coursetransfer::validate_origin_site($site->host)) {
-            $request = new request($site);
-            $res = $request->origin_get_course_detail($restoreid);
-            if ($res->success) {
-                $data->course = $res->data;
-            } else {
-                $data->errors = $res->errors;
+            $data->haserrors = false;
+            try {
+                $request = new request($site);
+                $res = $request->origin_get_course_detail($restoreid);
+                if ($res->success) {
+                    $data->course = $res->data;
+                    if (isset($data->course->sections)) {
+                        for ($i = 0; $i < count($data->course->sections); $i++) {
+                            $data->course->sections[$i]->hasactivities = count($data->course->sections[$i]->activities);
+                        }
+                    }
+                } else {
+                    $data->errors = $res->errors;
+                    $data->haserrors = true;
+                }
+            } catch (moodle_exception $e) {
+                $data->errors = ['code' => '234341', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {
@@ -93,7 +105,6 @@ class new_origin_restore_course_step5_page implements renderable, templatable {
             $errors[] = ['code' => 140, 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
-
 
         return $data;
     }

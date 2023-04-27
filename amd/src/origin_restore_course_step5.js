@@ -37,12 +37,16 @@ define([
          */
         function restoreCourseStep5(region) {
             this.node = $(region);
-            let data = JSON.parse(sessionStorage.getItem('data'));
-            let sections = data.course.sections;
-            console.log(sections);
+            this.restoreid = $("[data-restoreid]").attr("data-restoreid");
+            let sessiondata = sessionStorage.getItem('local_coursetransfer_' + 1 + this.restoreid);
+            sessiondata = JSON.parse(sessiondata);
+            let sections = sessiondata.course.sections;
+            $('input[type="checkbox"]').prop('disabled', true);
             sections.forEach(function (section) {
                 if (section.selected) {
-                    $('#' + section.sectionid).children[0].children[0].checked = true;
+                    let sectionrow = $("#section-" + section.sectionid);
+                    sectionrow.addClass('selected');
+                    sectionrow[0].children[0].children[0].children[0].checked = true;
                 }
             });
         }
