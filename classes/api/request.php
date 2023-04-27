@@ -57,54 +57,16 @@ class request {
     /**
      * request constructor.
      *
-     * @param int $host
+     * @param stdClass $site
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function __construct(int $host) {
-        $this->set_origin_sites();
-        $this->set_host_token($host);
+    public function __construct(stdClass $site) {
+        $this->host = $site->host;
+        $this->token = $site->token;
     }
 
-    /**
-     * Set Origin Sites.
-     *
-     * @throws dml_exception
-     */
-    protected function set_origin_sites() {
-        $originsites = get_config('local_coursetransfer', 'origin_sites');
-        $originsites = explode(PHP_EOL, $originsites);
-        $this->originsites = [];
-        foreach ($originsites as $site) {
-            $site = explode(';', $site);
-            if (isset($site[0]) && isset($site[1])) {
-                $item['url'] = $site[0];
-                $item['token'] = $site[1];
-                $this->originsites[] = $item;
-            }
-        }
-    }
-
-    /**
-     * Set Token.
-     *
-     * @param int $host
-     * @throws coding_exception
-     * @throws moodle_exception
-     */
-    protected function set_host_token(int $host) {
-        foreach ($this->originsites as $key => $site) {
-            if ($key === $host) {
-                $this->host = $site['url'];
-                $this->token = $site['token'];
-                break;
-            }
-        }
-        if (empty($this->host) || empty($this->token)) {
-            throw new moodle_exception(get_string('site_not_found', 'local_coursetransfer'));
-        }
-    }
 
     /**
      * Origen Has User?

@@ -247,4 +247,24 @@ class coursetransfer {
         }
         return $activities;
     }
+
+    /**
+     * @param int $position
+     * @return stdClass
+     * @throws \dml_exception
+     */
+    public static function get_site_by_position(int $position): stdClass {
+        $originsites = get_config('local_coursetransfer', 'origin_sites');
+        $originsites = explode(PHP_EOL, $originsites);
+        $res = new stdClass();
+        if (isset($originsites[$position])) {
+            $site = $originsites[$position];
+            $site = explode(';', $site);
+            if (isset($site[0]) && isset($site[1])) {
+                $res->host = $site[0];
+                $res->token = $site[1];
+            }
+        }
+        return $res;
+    }
 }
