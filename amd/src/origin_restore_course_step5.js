@@ -40,7 +40,7 @@ define([
             let data = JSON.parse(sessionStorage.getItem('data'));
             let sections = data.course.sections;
             console.log(sections);
-            sections.forEach(function (section) {
+            sections.forEach(function(section) {
                 console.log(section);
             });
         }

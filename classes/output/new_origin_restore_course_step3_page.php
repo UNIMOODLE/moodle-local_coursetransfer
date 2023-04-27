@@ -25,6 +25,7 @@
 namespace local_coursetransfer\output;
 
 use coding_exception;
+use core_reportbuilder\local\aggregation\count;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\forms\new_origin_restore_course_step1_form;
@@ -105,6 +106,13 @@ class new_origin_restore_course_step3_page implements renderable, templatable {
             ['id' => $this->course->id, 'new' => 1, 'step' => 4, 'site' => $site, 'restoreid' => $restoreid]
         );
         $data->next_url = $nexturl->out(false);
+        echo '<pre>';
+        // foreach ($data->course->sections as $section) {
+            // var_dump(count($section->activities));
+        // }
+        for ($i = 0; $i < count($data->course->sections); $i++) {
+            var_dump($data->course->sections[0]->activities);
+        }
         return $data;
     }
 }
