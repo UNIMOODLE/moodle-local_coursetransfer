@@ -125,3 +125,4 @@ $string['status_download'] = "Download";
 $string['status_completed'] = "Completed";
 $string['error_validate_site'] = "The selected site is invalid";
 $string['error_not_controlled'] = "The site is not available at this time. try again later";
+$string['site_not_found'] = "The selected site is not among those available";

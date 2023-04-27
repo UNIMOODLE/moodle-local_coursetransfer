@@ -25,6 +25,7 @@
 namespace local_coursetransfer\output;
 
 use coding_exception;
+use core_reportbuilder\local\aggregation\count;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\forms\new_origin_restore_course_step1_form;
@@ -73,7 +74,7 @@ class new_origin_restore_course_step3_page implements renderable, templatable {
             ['id' => $this->course->id, 'new' => 1, 'step' => 2]
         );
         $data->back_url = $backurl->out(false);
-        $site = required_param('site', PARAM_RAW);
+        $site = required_param('site', PARAM_INT);
         $restoreid = required_param('restoreid', PARAM_INT);
         $data->steps = [ ["current" => false, "num" => 1], ["current" => false, "num" => 2],
             ["current" => true, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
@@ -81,12 +82,22 @@ class new_origin_restore_course_step3_page implements renderable, templatable {
 
         if (coursetransfer::validate_origin_site($site)) {
             $data->haserrors = false;
-            $request = new request($site);
-            $res = $request->origin_get_course_detail($restoreid);
-            if ($res->success) {
-                $data->course = $res->data;
-            } else {
-                $data->errors = $res->errors;
+            try {
+                $request = new request($site);
+                $res = $request->origin_get_course_detail($restoreid);
+                if ($res->success) {
+                    $data->course = $res->data;
+                    if (isset($data->course->sections)) {
+                        for ($i = 0; $i < count($data->course->sections); $i++) {
+                            $data->course->sections[$i]->hasactivities = count($data->course->sections[$i]->activities);
+                        }
+                    }
+                } else {
+                    $data->errors = $res->errors;
+                    $data->haserrors = true;
+                }
+            } catch (moodle_exception $e) {
+                $data->errors = ['code' => '234341', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {

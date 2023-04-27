@@ -92,6 +92,15 @@ $functions = [
         'loginrequired' => false
     ],
 
+    'local_coursetransfer_new_origin_restore_course_step5' => [
+        'classname' => restore_course_external::class,
+        'methodname' => 'new_origin_restore_course_step5',
+        'description' => 'Execute restauration from moodle remote in step5',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => false
+    ],
+
 ];
 
 $services = [
@@ -103,7 +112,8 @@ $services = [
             'local_coursetransfer_origin_backup_course',
             'local_coursetransfer_destiny_backup_course_completed',
             'local_coursetransfer_destiny_backup_course_error',
-            'local_coursetransfer_new_origin_restore_course_step1'
+            'local_coursetransfer_new_origin_restore_course_step1',
+            'local_coursetransfer_new_origin_restore_course_step5'
         ],
         'restrictedusers' => 1,
         'enabled' => 1
