@@ -24,7 +24,6 @@
 
 namespace local_coursetransfer;
 
-use core_badges\output\standard_action_bar;
 use course_modinfo;
 use local_coursetransfer\api\request;
 use local_coursetransfer\api\response;
@@ -145,7 +144,7 @@ class coursetransfer {
                             'error' =>
                                 [
                                     'code' => '030343',
-                                    'msg' => get_string('user_does_not_have_courses', 'local_coursettansfer')
+                                    'msg' => get_string('user_does_not_have_courses', 'local_coursetransfer')
                                 ]
                         ];
                 }
@@ -158,7 +157,7 @@ class coursetransfer {
                         'error' =>
                             [
                                 'code' => '030341',
-                                'msg' => get_string('user_not_found', 'local_coursettansfer')
+                                'msg' => get_string('user_not_found', 'local_coursetransfer')
                             ]
                     ];
             }
@@ -171,7 +170,7 @@ class coursetransfer {
                     'error' =>
                         [
                             'code' => '030342',
-                            'msg' => get_string('field_not_valid', 'local_coursettansfer')
+                            'msg' => get_string('field_not_valid', 'local_coursetransfer')
                         ]
                 ];
         }

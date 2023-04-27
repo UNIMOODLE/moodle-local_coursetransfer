@@ -24,10 +24,8 @@
 
 namespace local_coursetransfer\api;
 
-use curl;
 use dml_exception;
 use stdClass;
-use stored_file;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -55,12 +53,18 @@ class request {
      * constructor
      *
      * @param string $host
+     * @throws dml_exception
      */
     public function __construct(string $host) {
         $this->host = $host;
         $this->set_token();
     }
 
+    /**
+     * Set Token.
+     *
+     * @throws dml_exception
+     */
     protected function set_token() {
         $originsites = get_config('local_coursetransfer', 'origin_sites');
         $originsites = explode(PHP_EOL, $originsites);
@@ -77,6 +81,7 @@ class request {
      * Origen Has User?
      *
      * @return response
+     * @throws dml_exception
      */
     public function origin_has_user(): response {
         global $USER;
@@ -90,6 +95,7 @@ class request {
      * Origen Get courses.
      *
      * @return response
+     * @throws dml_exception
      */
     public function origin_get_courses(): response {
         global $USER;
@@ -102,7 +108,9 @@ class request {
     /**
      * Origen Get course detail.
      *
+     * @param int $courseid
      * @return response
+     * @throws dml_exception
      */
     public function origin_get_course_detail(int $courseid): response {
         global $USER;
@@ -114,7 +122,11 @@ class request {
     }
 
     /**
-     * @throws \JsonException
+     * Request.
+     *
+     * @param string $wsname
+     * @param stdClass $params
+     * @return response
      */
     protected function req(string $wsname, stdClass $params): response {
         $curl = curl_init();
@@ -136,10 +148,23 @@ class request {
         ));
 
         $response = curl_exec($curl);
-        $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        try {
+            $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+            curl_close($curl);
+            if (isset($response->success)) {
+                return new response($response->success, $response->data, $response->errors);
+            } else {
+                if (!empty($response->message)) {
+                    $message = $response->message;
+                } else {
+                    $message = get_string('error_not_controlled', 'local_coursetransfer');
+                }
+                return new response(false, null, ['code' => '12344', 'msg' => $message]);
+            }
+        } catch (\Exception $e) {
+            return new response(false, null, ['code' => '1561343', 'msg' => $e->getMessage()]);
+        }
 
-        curl_close($curl);
-        return new response($response->success, $response->data, $response->errors);
     }
 }
 

@@ -43,13 +43,14 @@ define([
          *
          * @constructor
          */
-        function restoreCourseStep1(region, courseid) {
+        function restoreCourseStep1(region, courseid)
+        {
             this.node = $(region);
             this.courseid = courseid;
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         }
 
-        restoreCourseStep1.prototype.clickNext = function(e) {
+        restoreCourseStep1.prototype.clickNext = function (e) {
             let self = this; // Store the reference of this.
             let alertbox = this.node.find(".alert");
             let siteurl = this.node.find("#id_origin_site option:selected").text();
@@ -60,16 +61,18 @@ define([
                     courseid: this.courseid
                 }
             };
-            Ajax.call([request])[0].done(function(response) {
+            Ajax.call([request])[0].done(function (response) {
                 if (response.success) {
                     window.location.href = response.data.nexturl;
                 } else if (!response.success) {
                     self.renderErrors(response.errors, alertbox);
                 } else {
-                    $('#errorModal').modal("show");
+                    let errors = [{'code': '064893', 'msg': 'error_not_controlled'}];
+                    self.renderErrors(errors, alertbox);
                 }
-            }).fail(function(fail) {
-                $('#errorModal').modal("show");
+            }).fail(function (fail) {
+                let errors = [{'code': '064896', 'msg': fail.message}];
+                self.renderErrors(errors, alertbox);
             });
         };
 
@@ -81,9 +84,8 @@ define([
         restoreCourseStep1.prototype.renderErrors = function(errors, alertbox) {
             let errorString = "";
             alertbox.removeClass("hidden");
-            console.log(errors);
             errors.forEach(error => {
-                errorString += 'Error: ' + error.msg + '<br>';
+                errorString += 'Error (' + error.code + '): ' + error.msg + '<br>';
             });
             alertbox.append(errorString);
         };

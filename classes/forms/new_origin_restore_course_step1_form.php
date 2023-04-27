@@ -54,6 +54,7 @@ class new_origin_restore_course_step1_form extends moodleform {
      * @throws moodle_exception
      */
     public function definition() {
+        $this->_form->disable_form_change_checker();
 
         $mform = $this->_form;
 
