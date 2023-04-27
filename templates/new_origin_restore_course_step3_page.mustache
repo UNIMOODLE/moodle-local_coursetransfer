@@ -54,22 +54,24 @@
                 <div class="section-data">{{sectionid}}</div>
                 <div class="section-data">{{sectionnum}}</div>
             </div>
-            {{#activities}}
+            <!--Principio tabla actividades-->
             <div class="center-div">
-                <div class="activities-table">
-                    <div class="activities-table-header">
-                        <div class="ckeckbox"></div>
-                        <div class="activities-data">{{#str}} step3_activities_table_name, local_coursetransfer {{/str}}</div>
-                        <div class="activities-data">{{#str}} step3_activities_table_type, local_coursetransfer {{/str}}</div>
-                    </div>
-                    <div class="activities-row" data-activity-name="{{name}}" data-activity-modname="{{modname}}">
-                        <div class="ckeckbox"><input type="checkbox"></div>
-                        <div class="activities-data">{{name}}</div>
-                        <div class="activities-data">{{modname}}</div>
-                    </div>
+            <div class="activities-table">
+                <div class="activities-table-header">
+                    <div class="ckeckbox"></div>
+                    <div class="activities-data">{{#str}} step3_activities_table_name, local_coursetransfer {{/str}}</div>
+                    <div class="activities-data">{{#str}} step3_activities_table_type, local_coursetransfer {{/str}}</div>
                 </div>
+                {{#activities}}
+                <div class="activities-row" data-activity-cmid="{{cmid}}" data-activity-name="{{name}}" data-activity-modname="{{modname}}" data-activity-instance="{{instance}}">
+                    <div class="ckeckbox"><input type="checkbox"></div>
+                    <div class="activities-data">{{name}}</div>
+                    <div class="activities-data">{{modname}}</div>
+                </div>
+                {{/activities}}
             </div>
-            {{/activities}}
+            </div>
+            <!--Final tabla actividades-->
         </div>
         {{/course.sections}}
     </div>

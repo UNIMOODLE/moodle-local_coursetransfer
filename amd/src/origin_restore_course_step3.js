@@ -70,9 +70,9 @@ define([
                 finalActivities = activities.map(v => {
                     return {
                         selected: v.children[0].children[0].checked,
-                        cmid: null,
+                        cmid: v.getAttribute("data-activity-cmid"),
                         name: v.getAttribute("data-activity-name"),
-                        instance: null,
+                        instance: v.getAttribute("data-activity-instance"),
                         modname: v.getAttribute("data-activity-modname")
                     };
                 });
@@ -86,7 +86,8 @@ define([
             };
         });
         console.log(this.data);
-        sessionStorage.setItem('data', JSON.stringify(this.data));
+        let userid = 1;
+        sessionStorage.setItem('local_coursetransfer_' + userid + this.data.course.id, JSON.stringify(this.data));
     };
 
     restoreCourseStep3.prototype.node = null;
