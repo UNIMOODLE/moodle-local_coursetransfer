@@ -142,4 +142,89 @@ class restore_course_external extends external_api {
             )
         );
     }
+
+    /**
+     * @return external_function_parameters
+     */
+    public static function new_origin_restore_course_step5_parameters(): external_function_parameters {
+        return new external_function_parameters(
+            array(
+                'siteurl' => new external_value(PARAM_INT, 'Site Url'),
+                'courseid' => new external_value(PARAM_INT, 'Course ID')
+            )
+        );
+    }
+
+    /**
+     * Check if user exists
+     *
+     * @param int $siteurl
+     * @param int $courseid
+     *
+     * @return array
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     */
+    public static function new_origin_restore_course_step5(int $siteurl, int $courseid): array {
+        self::validate_parameters(
+            self::new_origin_restore_course_step1_parameters(),
+            [
+                'siteurl' => $siteurl,
+                'courseid' => $courseid
+            ]
+        );
+
+        $success = false;
+        $errors = [];
+        $data = new stdClass();
+
+        try {
+            // TODO. Ejecutar en el moodle remoto, la restauración con request.
+            // local_coursetransfer_origin_backup_course
+            var_dump('prueba');
+        } catch (moodle_exception $e) {
+            $errors[] =
+                [
+                    'code' => '030340',
+                    'msg' => $e->getMessage()
+                ];
+        }
+
+        return [
+            'success' => $success,
+            'errors' => $errors,
+            'data' => $data
+        ];
+    }
+
+    /**
+     * @return external_single_structure
+     */
+    public static function new_origin_restore_course_step5_returns(): external_single_structure {
+        return new external_single_structure(
+            array(
+                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'errors' => new external_multiple_structure(new external_single_structure(
+                    array(
+                        'code' => new external_value(PARAM_TEXT, 'Code'),
+                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                    ),
+                    PARAM_TEXT,
+                    'Errors'
+                )),
+                'data' => new external_single_structure(
+                    array(
+                        'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
+                        'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
+                        'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
+                        'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
+                        'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
+                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
+                    ),
+                    PARAM_TEXT,
+                    'Data'
+                )
+            )
+        );
+    }
 };

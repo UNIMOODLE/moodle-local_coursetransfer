@@ -43,8 +43,7 @@ class origin_course_backup_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function origin_backup_course_parameters(): external_function_parameters
-    {
+    public static function origin_backup_course_parameters(): external_function_parameters {
         return new external_function_parameters(
             array(
                 'field' => new external_value(PARAM_TEXT, 'Field'),
