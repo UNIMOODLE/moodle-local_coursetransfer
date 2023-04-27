@@ -53,7 +53,7 @@ define([
         restoreCourseStep1.prototype.clickNext = function (e) {
             let self = this; // Store the reference of this.
             let alertbox = this.node.find(".alert");
-            let siteurl = this.node.find("#id_origin_site option:selected").text();
+            let siteurl = this.node.find("#id_origin_site option:selected").val();
             const request = {
                 methodname: SERVICES.RESTORE_COURSE_STEP1,
                 args: {

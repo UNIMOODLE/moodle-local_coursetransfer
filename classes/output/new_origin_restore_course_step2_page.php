@@ -69,7 +69,7 @@ class new_origin_restore_course_step2_page implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();
-        $data->siteurl = required_param('site', PARAM_RAW);
+        $data->siteurl = required_param('site', PARAM_INT);
 
         $data->steps = [ ["current" => false, "num" => 1], ["current" => true, "num" => 2],
             ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
@@ -85,13 +85,18 @@ class new_origin_restore_course_step2_page implements renderable, templatable {
         $data->backurl = $backurl->out(false);
         $data->nexturl = $nexturl->out(false);
 
-        $request = new request($data->siteurl);
-        $res = $request->origin_get_courses();
-        if ($res->success) {
-            $data->courses = $res->data;
-            $data->haserrors = false;
-        } else {
-            $data->errors = $res->errors;
+        try {
+            $request = new request($data->siteurl);
+            $res = $request->origin_get_courses();
+            if ($res->success) {
+                $data->courses = $res->data;
+                $data->haserrors = false;
+            } else {
+                $data->errors = $res->errors;
+                $data->haserrors = true;
+            }
+        } catch (moodle_exception $e) {
+            $data->errors = ['code' => '234343', 'msg' => $e->getMessage()];
             $data->haserrors = true;
         }
 
