@@ -54,7 +54,7 @@
                 <div class="section-data">{{sectionid}}</div>
                 <div class="section-data">{{sectionnum}}</div>
             </div>
-            <!--Principio tabla actividades-->
+            {{#hasactivities}}
             <div class="center-div">
             <div class="activities-table">
                 <div class="activities-table-header">
@@ -71,7 +71,7 @@
                 {{/activities}}
             </div>
             </div>
-            <!--Final tabla actividades-->
+            {{/hasactivities}}
         </div>
         {{/course.sections}}
     </div>

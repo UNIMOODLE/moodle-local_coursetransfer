@@ -101,12 +101,8 @@ class new_origin_restore_course_step3_page implements renderable, templatable {
             ['id' => $this->course->id, 'new' => 1, 'step' => 4, 'site' => $site, 'restoreid' => $restoreid]
         );
         $data->next_url = $nexturl->out(false);
-        echo '<pre>';
-        // foreach ($data->course->sections as $section) {
-            // var_dump(count($section->activities));
-        // }
         for ($i = 0; $i < count($data->course->sections); $i++) {
-            var_dump($data->course->sections[0]->activities);
+            $data->course->sections[$i]->hasactivities = count($data->course->sections[$i]->activities);
         }
         return $data;
     }
