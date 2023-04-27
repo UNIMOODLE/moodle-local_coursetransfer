@@ -25,6 +25,7 @@
 namespace local_coursetransfer\output;
 
 use coding_exception;
+use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\forms\new_origin_restore_course_step1_form;
 use local_coursetransfer\forms\new_origin_restore_course_step2_form;
@@ -66,16 +67,37 @@ class new_origin_restore_course_step4_page implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        $site = required_param('site', PARAM_RAW);
+        $restoreid = required_param('restoreid', PARAM_INT);
         $backurl = new moodle_url(
             '/local/coursetransfer/origin_restore_course.php',
             ['id' => $this->course->id, 'new' => 1, 'step' => 3]
         );
-        $nexturl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
+        $nexturl = new moodle_url(
+            '/local/coursetransfer/origin_restore_course.php',
+            ['id' => $this->course->id, 'new' => 1, 'step' => 5, 'site' => $site, 'restoreid' => $restoreid]
+        );
         $data = new stdClass();
         $data->steps = [ ["current" => false, "num" => 1], ["current" => false, "num" => 2],
             ["current" => false, "num" => 3], ["current" => true, "num" => 4], ["current" => false, "num" => 5] ];
-        /*$data->back_url = $backurl->out(false);
-        $data->next_url = $nexturl->out(false);*/
+        $data->back_url = $backurl->out(false);
+        $data->next_url = $nexturl->out(false);
+
+        if (coursetransfer::validate_origin_site($site)) {
+            $data->haserrors = false;
+            $request = new request($site);
+            $res = $request->origin_get_course_detail($restoreid);
+            if ($res->success) {
+                $data->course = $res->data;
+            } else {
+                $data->errors = $res->errors;
+                $data->haserrors = true;
+            }
+        } else {
+            $data->haserrors = true;
+            $errors[] = ['code' => 140, 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $data->errors = $errors;
+        }
 
         return $data;
     }

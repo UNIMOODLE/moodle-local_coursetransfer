@@ -33,39 +33,8 @@
     {{/ haserrors }}
 
     {{^ haserrors }}
-    <div class="course_details">
-        <div class="course_details_header">
-            <span class="text-white course-name" data-course-fullname="{{course.fullname}}">{{course.fullname}}</span>
-            <span class="text-white course-id">ID: {{course.id}}</span>
-            <span class="text-white course-id" hidden="hidden" data-course-idnumber="{{course.idnumber}}"></span>
-        </div>
-        <div class="course_details_body">
-            <div class="row-1">
-                <section>
-                    <span class="section-tittle">{{#str}} step3_details_shortname, local_coursetransfer {{/str}}</span>
-                    <span class="data text-muted" data-course-shortname="{{course.shortname}}">{{course.shortname}}</span>
-                </section>
-                <section>
-                    <span class="section-tittle">{{#str}} step3_details_course_id, local_coursetransfer {{/str}}</span>
-                    <span class="data text-muted" data-course-id="{{course.id}}">{{course.id}}</span>
-                </section>
-                <section>
-                    <span class="section-tittle">{{#str}} step3_details_category_name, local_coursetransfer {{/str}}</span>
-                    <span class="data text-muted" data-course-categoryname="{{course.categoryname}}">{{course.categoryname}}</span>
-                </section>
-            </div>
-            <div class="row-2">
-                <section>
-                    <span class="section-tittle">{{#str}} step3_details_category_id, local_coursetransfer {{/str}}</span>
-                    <span class="data text-muted" data-course-categoryid="{{course.categoryid}}">{{course.categoryid}}</span>
-                </section>
-                <section>
-                    <span class="section-tittle">{{#str}} step3_details_backup_size, local_coursetransfer {{/str}}</span>
-                    <span class="data text-muted" data-course-backupsizeestimated="{{course.backupsizeestimated}}">{{course.backupsizeestimated}} MB</span>
-                </section>
-            </div>
-        </div>
-    </div>
+        {{> local_coursetransfer/components/course_details }}
+    {{/ haserrors }}
 
     <h4 class="h4">{{#str}} step3_sections_title, local_coursetransfer {{/str}}</h4>
 
@@ -78,7 +47,7 @@
         </div>
         {{#course.sections}}
         <div class="section-row" data-section-sectionname="{{sectionname}}"
-             data-section-section="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
+             data-section-sectionid="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
             <div class="section-info">
                 <div class="ckeckbox"><input type="checkbox"></div>
                 <div class="section-data">{{sectionname}}</div>
@@ -93,10 +62,10 @@
                         <div class="activities-data">{{#str}} step3_activities_table_name, local_coursetransfer {{/str}}</div>
                         <div class="activities-data">{{#str}} step3_activities_table_type, local_coursetransfer {{/str}}</div>
                     </div>
-                    <div class="activities-row">
+                    <div class="activities-row" data-activity-name="{{name}}" data-activity-modname="{{modname}}">
                         <div class="ckeckbox"><input type="checkbox"></div>
-                        <div class="activities-data" data-activity-name="{{name}}">{{name}}</div>
-                        <div class="activities-data" data-activity-modname="{{modname}}">{{modname}}</div>
+                        <div class="activities-data">{{name}}</div>
+                        <div class="activities-data">{{modname}}</div>
                     </div>
                 </div>
             </div>
@@ -104,12 +73,11 @@
         </div>
         {{/course.sections}}
     </div>
-    {{/ haserrors }}
 
     <div class="button-container">
         <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
         <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
-        <a type="button" class="btn btn-primary" href="{{ next_url }}">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
+        <a type="button" class="btn btn-primary" data-action="next" href="{{ next_url }}">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
     </div>
 
 </div>
@@ -150,51 +118,6 @@
     }
     div[data-region='new_origin_restore_course_step3_page'] div.button-container a.btn-light{
         border: 1px solid black;
-    }
-    div[data-region='new_origin_restore_course_step3_page'] div.course_details {
-        width: 50%;
-        border: 1px solid black;
-        border-radius: 10px;
-        margin: 10px 0;
-    }
-    div[data-region='new_origin_restore_course_step3_page'] div.course_details_header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #0c0c0c;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-    }
-    div[data-region='new_origin_restore_course_step3_page'] div.course_details_header span.course-name {
-        font-size: 18px;
-        font-weight: 600;
-        padding: 10px;
-    }
-    div[data-region='new_origin_restore_course_step3_page'] div.course_details_header span.course-id {
-        font-size: 14px;
-        font-weight: 500;
-        padding: 10px;
-    }
-    div[data-region='new_origin_restore_course_step3_page'] div.course_details_body div.row-1, div.course_details_body div.row-2 {
-        display: flex;
-        align-items: center;
-        height: 50%;
-    }
-    div[data-region='new_origin_restore_course_step3_page'] div.course_details_body section {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        text-align: left;
-        width: 33%;
-        padding: 10px;
-    }
-    div[data-region='new_origin_restore_course_step3_page'] div.course_details_body section span.section-tittle {
-        font-size: 14px;
-        font-weight: 600;
-    }
-    div[data-region='new_origin_restore_course_step3_page'] div.course_details_body section span.data {
-        font-size: 14px;
-        font-weight: 500;
     }
     div[data-region='new_origin_restore_course_step3_page'] h4.h4 {
         font-size: 24px;
