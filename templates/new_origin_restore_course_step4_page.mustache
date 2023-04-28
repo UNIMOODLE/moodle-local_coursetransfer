@@ -34,54 +34,14 @@
 
     {{^ haserrors }}
         {{> local_coursetransfer/components/course_details }}
+
+        <h4 class="h4">{{#str}} step4_config_title, local_coursetransfer {{/str}}</h4>
+
+        {{> local_coursetransfer/components/course_configuration }}
+
     {{/ haserrors }}
 
-    <h4 class="h4">{{#str}} step4_config_title, local_coursetransfer {{/str}}</h4>
-
-    <ul class="configuration-list">
-        <li class="configuration-group">
-            <div class="checkbox">
-                <input class="configuration-checkbox" id="destiny_merge_activities" type="checkbox">
-            </div>
-            <div class="config-info">
-                <div class="config-title">{{#str}} step4_config_destiny_merge_activities, local_coursetransfer {{/str}}</div>
-                <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
-            </div>
-        </li>
-        <li class="configuration-group">
-            <div class="checkbox">
-                <input class="configuration-checkbox" id="destiny_remove_enrols" type="checkbox">
-            </div>
-            <div class="config-info">
-                <div class="config-title">{{#str}} step4_config_destiny_remove_enrols, local_coursetransfer {{/str}}</div>
-                <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
-            </div>
-        </li>
-        <li class="configuration-group">
-            <div class="checkbox">
-                <input class="configuration-checkbox" id="destiny_remove_groups" type="checkbox">
-            </div>
-            <div class="config-info">
-                <div class="config-title">{{#str}} step4_config_destiny_remove_groups, local_coursetransfer {{/str}}</div>
-                <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
-            </div>
-        </li>
-        <li class="configuration-group">
-            <div class="checkbox">
-                <input class="configuration-checkbox" id="destiny_remove_activities" type="checkbox">
-            </div>
-            <div class="config-info">
-                <div class="config-title">{{#str}} step4_config_destiny_remove_activities, local_coursetransfer {{/str}}</div>
-                <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
-            </div>
-        </li>
-    </ul>
-
-    <div class="button-container">
-        <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
-        <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
-        <a type="button" class="btn btn-primary" data-action="next" href="{{ next_url }}">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
-    </div>
+    {{> local_coursetransfer/components/action_buttons }}
 
 </div>
 <style>
@@ -90,11 +50,6 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div[data-region="stepbystep"] {
-        margin: auto;
-        width: 50%;
-        padding: 10px;
     }
     div[data-region='new_origin_restore_course_step4_page'] h3.h3{
         font-size: 28px;
@@ -112,15 +67,6 @@
         padding: 10px;
         text-align: center;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.button-container{
-        padding: 10px;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div.button-container a.btn-primary{
-        background: #0D6EFD;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div.button-container a.btn-light{
-        border: 1px solid black;
-    }
     div[data-region='new_origin_restore_course_step4_page'] h4.h4 {
         font-size: 24px;
         font-weight: 600;
@@ -129,33 +75,6 @@
         padding-top: 20px;
         padding-bottom: 10px;
         text-align: left;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] ul.configuration-list {
-        list-style-type: none;
-        width: 50%;
-        padding: 0;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] li.configuration-group {
-        display: flex;
-        justify-content: center;
-        margin: 20px 0;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div.checkbox {
-         padding: 0 5%;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div.config-title {
-        padding-bottom: 5px;
-        font-size: 14px;
-        font-weight: 700;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] div.config-desc {
-        padding-bottom: 5px;
-        padding-right: 10px;
-        font-size: 12px;
-        font-weight: 400;
-    }
-    div[data-region='new_origin_restore_course_step4_page'] input[type="checkbox"]:checked, input[type="checkbox"]:active, input[type="checkbox"]:disabled {
-        box-shadow: none;
     }
 </style>
 
