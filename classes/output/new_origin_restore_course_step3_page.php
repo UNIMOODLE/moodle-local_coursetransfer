@@ -112,6 +112,7 @@ class new_origin_restore_course_step3_page implements renderable, templatable {
             ['id' => $this->course->id, 'new' => 1, 'step' => 4, 'site' => $siteposition, 'restoreid' => $restoreid]
         );
         $data->next_url = $nexturl->out(false);
+        $data->next_url_disabled = false;
         return $data;
     }
 }

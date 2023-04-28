@@ -100,7 +100,7 @@ class new_origin_restore_course_step4_page implements renderable, templatable {
             $errors[] = ['code' => 140, 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
-
+        $data->next_url_disabled = false;
         return $data;
     }
 

@@ -81,6 +81,7 @@ class new_origin_restore_course_step1_page implements renderable, templatable {
         );
         $form = new new_origin_restore_course_step1_form($this->course, $url->out(false));
         $data->form = $form->render();
+        $data->next_url_disabled = false;
         return $data;
     }
 }
