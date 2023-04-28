@@ -23,7 +23,12 @@
 <div data-region="button-container" class="button-container">
     <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
     <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
-    <a type="button" class="btn btn-primary" data-action="next" href="{{ next_url }}" {{#next_url_disabled}}disabled{{/next_url_disabled}}>{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
+    {{# button }}
+        <button type="button" class="btn btn-primary" data-action="next">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</button>
+    {{/ button }}
+    {{^ button }}
+        <a type="button" class="btn btn-primary" data-action="next" href="{{ next_url }}" {{#next_url_disabled}}disabled{{/next_url_disabled}}>{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
+    {{/ button }}
 </div>
 <style>
     div[data-region='button-container'] div.button-container{

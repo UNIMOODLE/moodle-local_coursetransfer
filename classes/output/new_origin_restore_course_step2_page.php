@@ -70,6 +70,7 @@ class new_origin_restore_course_step2_page implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();
         $siteposition = required_param('site', PARAM_INT);
+        $data->button = true;
         $data->steps = [ ["current" => false, "num" => 1], ["current" => true, "num" => 2],
             ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
         $backurl = new moodle_url(

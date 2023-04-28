@@ -74,6 +74,7 @@ class new_origin_restore_course_step5_page implements renderable, templatable {
             ['id' => $this->course->id, 'new' => 1, 'step' => 3]
         );
         $data = new stdClass();
+        $data->button = false;
         $data->restoreid = $restoreid;
         $data->steps = [ ["current" => false, "num" => 1], ["current" => false, "num" => 2],
             ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => true, "num" => 5] ];
