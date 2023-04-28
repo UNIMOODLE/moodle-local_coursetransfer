@@ -20,26 +20,74 @@
   Example context (json):
 
 }}
-<div class="section-row" data-section-sectionname="{{sectionname}}"
-     data-section-sectionid="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
-    <div class="section-info">
-        <div class="ckeckbox"><input type="checkbox"></div>
-        <div class="section-data">{{sectionname}}</div>
-        <div class="section-data">{{sectionid}}</div>
-        <div class="section-data">{{sectionnum}}</div>
-    </div>
-    {{#hasactivities}}
-        <div class="center-div">
-            <div class="activities-table">
-                <div class="activities-table-header">
-                    <div class="ckeckbox"></div>
-                    <div class="activities-data">{{#str}} step3_activities_table_name, local_coursetransfer {{/str}}</div>
-                    <div class="activities-data">{{#str}} step3_activities_table_type, local_coursetransfer {{/str}}</div>
-                </div>
-                {{#activities}}
-                    {{> local_coursetransfer/components/activity }}
-                {{/activities}}
-            </div>
+<div data-region="restore_course_sections">
+    <div id="section-{{sectionid}}" class="section-row" data-section-sectionname="{{sectionname}}"
+         data-section-sectionid="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
+        <div class="section-info">
+            <div class="ckeckbox"><input type="checkbox"></div>
+            <div class="section-data">{{sectionname}}</div>
+            <div class="section-data">{{sectionid}}</div>
+            <div class="section-data">{{sectionnum}}</div>
         </div>
-    {{/hasactivities}}
+        {{#hasactivities}}
+            <div class="center-div">
+                <div class="activities-table">
+                    <div class="activities-table-header">
+                        <div class="ckeckbox"></div>
+                        <div class="activities-data">{{#str}} activities_table_name, local_coursetransfer {{/str}}</div>
+                        <div class="activities-data">{{#str}} activities_table_type, local_coursetransfer {{/str}}</div>
+                    </div>
+                    {{#activities}}
+                        {{> local_coursetransfer/components/activity }}
+                    {{/activities}}
+                </div>
+            </div>
+        {{/hasactivities}}
+    </div>
 </div>
+<style>
+    div[data-region='restore_course_sections'] div.section-info {
+        display: flex;
+        border-bottom: 1px solid #D7D8E2;
+        padding: 10px;
+        font-size: 14px;
+        font-weight: 400;
+    }
+    div[data-region='restore_course_sections'] div.section-row {
+        display: flex;
+        flex-direction: column;
+    }
+    div[data-region='restore_course_sections'] div.activities-table {
+        width: 90%;
+    }
+    div[data-region='restore_course_sections'] div.center-div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+    div[data-region='restore_course_sections'] div.activities-table-header {
+        display: flex;
+        border-bottom: 2px solid #9396AA;
+        padding: 5px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    div[data-region='restore_course_sections'] div.activities-data {
+        width: 45%;
+    }
+    div[data-region='restore_course_sections'] div.ckeckbox {
+        width: 10%;
+    }
+    div[data-region='restore_course_sections'] div.activities-row {
+        display: flex;
+        border-bottom: 1px solid #D7D8E2;
+        padding: 5px;
+        font-size: 13px;
+        font-weight: 400;
+    }
+    div[data-region='restore_course_sections'] .selected {
+        background-color: #F7F9FC;
+    }
+
+</style>
