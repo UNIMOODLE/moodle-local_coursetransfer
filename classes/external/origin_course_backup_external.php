@@ -87,8 +87,8 @@ class origin_course_backup_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_backup_course(string $field, string $value, int $courseid,int $requestid, bool $enrollusers, array $sections): array
-    {
+    public static function origin_backup_course(string $field, string $value,
+            int $courseid, int $requestid, bool $enrollusers, array $sections): array {
 
         self::validate_parameters(
             self::origin_backup_course_parameters(), [
@@ -106,6 +106,7 @@ class origin_course_backup_external extends external_api {
         $data = new stdClass();
 
         try {
+            // TODO. Crear petición en la tabla request.
             // TODO. origin_backup_course logic
         } catch (moodle_exception $e) {
             $success = false;
@@ -126,8 +127,7 @@ class origin_course_backup_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_backup_course_returns(): external_single_structure
-    {
+    public static function origin_backup_course_returns(): external_single_structure {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
@@ -140,7 +140,8 @@ class origin_course_backup_external extends external_api {
                 'data' => new external_single_structure(
                     array(
                         'requestid' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
-                        'buckupsizeestimated' => new external_value(PARAM_INT, 'Backup Size Estimated (MB)', VALUE_OPTIONAL ),
+                        'buckupsizeestimated' => new external_value(PARAM_INT, 'Backup Size Estimated (MB)',
+                                VALUE_OPTIONAL ),
                     ), PARAM_TEXT, 'Data'
                 )
             )

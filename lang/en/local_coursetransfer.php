@@ -25,14 +25,11 @@
 $string['pluginname'] = 'Course Transfer';
 $string['pluginname_header_general'] = 'General';
 $string['setting_destiny_restore_course_max_size'] = 'Maximum course size to be restored';
-$string['setting_destiny_restore_course_max_size_desc'] = 'Limit of the size of the backup copy (MBZ file)
-of the origin course to be restored in MB.';
+$string['setting_destiny_restore_course_max_size_desc'] = 'Limit of the size of the backup copy (MBZ file)of the origin course to be restored in MB.';
 $string['setting_destiny_sites'] = 'Destiny sites';
-$string['setting_destiny_sites_desc'] = 'List of destiny sites to which course backups
-can be delivered. Separated by line break.';
+$string['setting_destiny_sites_desc'] = 'List of destiny sites to which course backupscan be delivered. Separated by line break.';
 $string['setting_origin_sites'] = 'Origin sites';
-$string['setting_origin_sites_desc'] = 'List of origin sites, from which backup
-copies of the courses can be requested. Separated by line break.';
+$string['setting_origin_sites_desc'] = 'List of origin sites, from which backupcopies of the courses can be requested. Separated by line break.';
 $string['setting_origin_field_search_user'] = 'Origin user field';
 $string['setting_origin_field_search_user_desc'] = 'Field to be used to search for a user in the origin site.';
 $string['origin_restore_course'] = 'Restore Remote Course';
@@ -80,8 +77,7 @@ $string['steps_buttons_next'] = 'Next';
 $string['steps_buttons_back'] = 'Back';
 $string['steps_buttons_cancel'] = 'Cancel';
 $string['steps_restore_title'] = "Restore Remote Course";
-$string['step1_restore_desc'] = "To restore a course from another platform,
-you must first select the site where the original course is located";
+$string['step1_restore_desc'] = "To restore a course from another platform, you must first select the site where the original course is located";
 $string['step2_restore_desc'] = "Select the course to restore";
 $string['step2_course_list'] = "Origin course list";
 $string['step2_course_id'] = "Course ID";
@@ -111,8 +107,8 @@ $string['course_sections_title'] = "Sections";
 $string['sections_table_id'] = "Section ID";
 $string['sections_table_number'] = "Section Number";
 $string['sections_table_name'] = "Section Name";
-$string['activities_table_name'] = "Name";
-$string['activities_table_type'] = "Type";
+$string['activities_table_name'] = "Activity Name";
+$string['activities_table_type'] = "Activity Type";
 $string['list_course_restoration'] = "List of course restorations";
 $string['list_desc_restoration'] = "Click here to restore a course from another platform. <br> Next it will show you what to do in each step";
 $string['status_error'] = "Error";
