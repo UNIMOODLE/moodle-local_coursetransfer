@@ -84,7 +84,8 @@ class restore_course_external extends external_api {
         $data->nexturl = '';
 
         try {
-            $request = new request($siteurl);
+            $site = coursetransfer::get_site_by_position($siteurl);
+            $request = new request($site);
             $res = $request->origin_has_user();
             if ($res->success) {
                 $data = $res->data;

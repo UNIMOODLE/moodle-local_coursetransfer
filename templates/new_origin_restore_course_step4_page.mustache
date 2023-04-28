@@ -20,7 +20,7 @@
   Example context (json):
 
 }}
-<div class="local_coursetransfer" data-region="new_origin_restore_course_step4_page">
+<div class="local_coursetransfer" data-region="new_origin_restore_course_step4_page" data-restoreid="{{ restoreid }}">
 
     {{> local_coursetransfer/components/stepbystep }}
 
@@ -41,7 +41,7 @@
     <ul class="configuration-list">
         <li class="configuration-group">
             <div class="checkbox">
-                <input id="destiny_merge_activities" type="checkbox">
+                <input class="configuration-checkbox" id="destiny_merge_activities" type="checkbox">
             </div>
             <div class="config-info">
                 <div class="config-title">{{#str}} step4_config_destiny_merge_activities, local_coursetransfer {{/str}}</div>
@@ -50,7 +50,7 @@
         </li>
         <li class="configuration-group">
             <div class="checkbox">
-                <input id="destiny_remove_enrols" type="checkbox">
+                <input class="configuration-checkbox" id="destiny_remove_enrols" type="checkbox">
             </div>
             <div class="config-info">
                 <div class="config-title">{{#str}} step4_config_destiny_remove_enrols, local_coursetransfer {{/str}}</div>
@@ -59,7 +59,7 @@
         </li>
         <li class="configuration-group">
             <div class="checkbox">
-                <input id="destiny_remove_groups" type="checkbox">
+                <input class="configuration-checkbox" id="destiny_remove_groups" type="checkbox">
             </div>
             <div class="config-info">
                 <div class="config-title">{{#str}} step4_config_destiny_remove_groups, local_coursetransfer {{/str}}</div>
@@ -68,7 +68,7 @@
         </li>
         <li class="configuration-group">
             <div class="checkbox">
-                <input id="destiny_remove_activities" type="checkbox">
+                <input class="configuration-checkbox" id="destiny_remove_activities" type="checkbox">
             </div>
             <div class="config-info">
                 <div class="config-title">{{#str}} step4_config_destiny_remove_activities, local_coursetransfer {{/str}}</div>

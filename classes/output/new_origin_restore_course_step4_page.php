@@ -67,7 +67,7 @@ class new_origin_restore_course_step4_page implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $site = required_param('site', PARAM_RAW);
+        $siteposition = required_param('site', PARAM_INT);
         $restoreid = required_param('restoreid', PARAM_INT);
         $backurl = new moodle_url(
             '/local/coursetransfer/origin_restore_course.php',
@@ -75,15 +75,17 @@ class new_origin_restore_course_step4_page implements renderable, templatable {
         );
         $nexturl = new moodle_url(
             '/local/coursetransfer/origin_restore_course.php',
-            ['id' => $this->course->id, 'new' => 1, 'step' => 5, 'site' => $site, 'restoreid' => $restoreid]
+            ['id' => $this->course->id, 'new' => 1, 'step' => 5, 'site' => $siteposition, 'restoreid' => $restoreid]
         );
         $data = new stdClass();
+        $data->restoreid = $restoreid;
         $data->steps = [ ["current" => false, "num" => 1], ["current" => false, "num" => 2],
             ["current" => false, "num" => 3], ["current" => true, "num" => 4], ["current" => false, "num" => 5] ];
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
+        $site = coursetransfer::get_site_by_position($siteposition);
 
-        if (coursetransfer::validate_origin_site($site)) {
+        if (coursetransfer::validate_origin_site($site->host)) {
             $data->haserrors = false;
             $request = new request($site);
             $res = $request->origin_get_course_detail($restoreid);

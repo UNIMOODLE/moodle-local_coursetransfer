@@ -20,66 +20,109 @@
   Example context (json):
 
 }}
-<div class="local_coursetransfer" data-region="new_origin_restore_course_step4_page">
+<div class="local_coursetransfer" data-region="new_origin_restore_course_step5_page" data-restoreid="{{ restoreid }}">
 
     {{> local_coursetransfer/components/stepbystep }}
 
     <h3 class="h3">{{#str}} steps_restore_title, local_coursetransfer {{/str}}</h3>
-
-    <p>{{#str}} step4_restore_desc, local_coursetransfer {{/str}}</p>
-
-    <h3 class="h3">{{#str}} step4_restore_origin_site, local_coursetransfer {{/str}}</h3>
-
-    <div class="origin-site">{{ siteurl }}</div>
-
-    <h3 class="h3">{{#str}} step4_restore_selected_course, local_coursetransfer {{/str}}</h3>
 
     {{# haserrors }}
         {{> local_coursetransfer/components/alert }}
     {{/ haserrors }}
 
     {{^ haserrors }}
+        <p>{{#str}} step4_restore_desc, local_coursetransfer {{/str}}</p>
+
+        <h3 class="h3">{{#str}} step4_restore_origin_site, local_coursetransfer {{/str}}</h3>
+
+        <div class="origin-site">{{ host }}</div>
+
+        <h3 class="h3">{{#str}} step4_restore_selected_course, local_coursetransfer {{/str}}</h3>
+
         {{> local_coursetransfer/components/course_details }}
-    {{/ haserrors }}
 
-    <h4 class="h4">{{#str}} step4_sections_activities_title, local_coursetransfer {{/str}}</h4>
+        <h4 class="h4">{{#str}} step3_sections_title, local_coursetransfer {{/str}}</h4>
 
-
-    <div class="sections-table">
-        <div class="sections-table-header">
-            <div class="ckeckbox"></div>
-            <div class="section-data">{{#str}} step3_sections_table_name, local_coursetransfer {{/str}}</div>
-            <div class="section-data">{{#str}} step3_sections_table_id, local_coursetransfer {{/str}}</div>
-            <div class="section-data">{{#str}} step3_sections_table_number, local_coursetransfer {{/str}}</div>
-        </div>
-        {{#course.sections}}
-            <div class="section-row" data-section-sectionname="{{sectionname}}"
-                 data-section-sectionid="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
-                <div class="section-info">
-                    <div class="ckeckbox"><input type="checkbox"></div>
-                    <div class="section-data">{{sectionname}}</div>
-                    <div class="section-data">{{sectionid}}</div>
-                    <div class="section-data">{{sectionnum}}</div>
-                </div>
-                {{#activities}}
-                    <div class="center-div">
-                        <div class="activities-table">
-                            <div class="activities-table-header">
-                                <div class="ckeckbox"></div>
-                                <div class="activities-data">{{#str}} step3_activities_table_name, local_coursetransfer {{/str}}</div>
-                                <div class="activities-data">{{#str}} step3_activities_table_type, local_coursetransfer {{/str}}</div>
-                            </div>
-                            <div class="activities-row" data-activity-name="{{name}}" data-activity-modname="{{modname}}">
-                                <div class="ckeckbox"><input type="checkbox"></div>
-                                <div class="activities-data">{{name}}</div>
-                                <div class="activities-data">{{modname}}</div>
+        <div class="sections-table">
+            <div class="sections-table-header">
+                <div class="ckeckbox"></div>
+                <div class="section-data">{{#str}} step3_sections_table_name, local_coursetransfer {{/str}}</div>
+                <div class="section-data">{{#str}} step3_sections_table_id, local_coursetransfer {{/str}}</div>
+                <div class="section-data">{{#str}} step3_sections_table_number, local_coursetransfer {{/str}}</div>
+            </div>
+            {{#course.sections}}
+                <div id="section-{{sectionid}}" class="section-row" data-section-sectionname="{{sectionname}}"
+                     data-section-sectionid="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
+                    <div class="section-info">
+                        <div class="ckeckbox"><input type="checkbox"></div>
+                        <div class="section-data">{{sectionname}}</div>
+                        <div class="section-data">{{sectionid}}</div>
+                        <div class="section-data">{{sectionnum}}</div>
+                    </div>
+                    {{#hasactivities}}
+                        <div class="center-div">
+                            <div class="activities-table">
+                                <div class="activities-table-header">
+                                    <div class="ckeckbox"></div>
+                                    <div class="activities-data">{{#str}} step3_activities_table_name, local_coursetransfer {{/str}}</div>
+                                    <div class="activities-data">{{#str}} step3_activities_table_type, local_coursetransfer {{/str}}</div>
+                                </div>
+                                {{#activities}}
+                                    <div id="activity-{{cmid}}" class="activities-row" data-activity-cmid="{{cmid}}" data-activity-name="{{name}}" data-activity-modname="{{modname}}" data-activity-instance="{{instance}}">
+                                        <div class="ckeckbox"><input type="checkbox"></div>
+                                        <div class="activities-data">{{name}}</div>
+                                        <div class="activities-data">{{modname}}</div>
+                                    </div>
+                                {{/activities}}
                             </div>
                         </div>
-                    </div>
-                {{/activities}}
-            </div>
-        {{/course.sections}}
-    </div>
+                    {{/hasactivities}}
+                </div>
+            {{/course.sections}}
+        </div>
+
+        <h4 class="h4">{{#str}} step4_config_title, local_coursetransfer {{/str}}</h4>
+
+        <ul class="configuration-list">
+            <li class="configuration-group">
+                <div class="checkbox">
+                    <input id="destiny_merge_activities" type="checkbox">
+                </div>
+                <div class="config-info">
+                    <div class="config-title">{{#str}} step4_config_destiny_merge_activities, local_coursetransfer {{/str}}</div>
+                    <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
+                </div>
+            </li>
+            <li class="configuration-group">
+                <div class="checkbox">
+                    <input id="destiny_remove_enrols" type="checkbox">
+                </div>
+                <div class="config-info">
+                    <div class="config-title">{{#str}} step4_config_destiny_remove_enrols, local_coursetransfer {{/str}}</div>
+                    <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
+                </div>
+            </li>
+            <li class="configuration-group">
+                <div class="checkbox">
+                    <input id="destiny_remove_groups" type="checkbox">
+                </div>
+                <div class="config-info">
+                    <div class="config-title">{{#str}} step4_config_destiny_remove_groups, local_coursetransfer {{/str}}</div>
+                    <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
+                </div>
+            </li>
+            <li class="configuration-group">
+                <div class="checkbox">
+                    <input id="destiny_remove_activities" type="checkbox">
+                </div>
+                <div class="config-info">
+                    <div class="config-title">{{#str}} step4_config_destiny_remove_activities, local_coursetransfer {{/str}}</div>
+                    <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
+                </div>
+            </li>
+        </ul>
+
+    {{/ haserrors }}
 
     <div class="button-container">
         <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
@@ -89,18 +132,18 @@
 
 </div>
 <style>
-    div[data-region='new_origin_restore_course_step4_page']{
+    div[data-region='new_origin_restore_course_step5_page']{
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div[data-region="stepbystep"] {
+    div[data-region='new_origin_restore_course_step5_page'] div[data-region="stepbystep"] {
         margin: auto;
         width: 50%;
         padding: 10px;
     }
-    div[data-region='new_origin_restore_course_step4_page'] h3.h3{
+    div[data-region='new_origin_restore_course_step5_page'] h3.h3{
         font-size: 28px;
         font-weight: 600;
         padding-top: 0;
@@ -109,7 +152,7 @@
         padding: 10px;
         text-align: center;
     }
-    div[data-region='new_origin_restore_course_step4_page'] p {
+    div[data-region='new_origin_restore_course_step5_page'] p {
         font-size: 16px;
         font-weight: 400;
         margin: auto;
@@ -117,16 +160,16 @@
         padding: 10px;
         text-align: center;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.button-container{
+    div[data-region='new_origin_restore_course_step5_page'] div.button-container{
         padding: 10px;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.button-container a.btn-primary{
+    div[data-region='new_origin_restore_course_step5_page'] div.button-container a.btn-primary{
         background: #0D6EFD;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.button-container a.btn-light{
+    div[data-region='new_origin_restore_course_step5_page'] div.button-container a.btn-light{
         border: 1px solid black;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.origin-site {
+    div[data-region='new_origin_restore_course_step5_page'] div.origin-site {
         width: 50%;
         border: 1px solid black;
         border-radius: 10px;
@@ -136,13 +179,13 @@
         font-size: 16px;
         font-weight: 400;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.course_details {
+    div[data-region='new_origin_restore_course_step5_page'] div.course_details {
         width: 50%;
         border: 1px solid black;
         border-radius: 10px;
         margin: 10px 0;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.course_details_header {
+    div[data-region='new_origin_restore_course_step5_page'] div.course_details_header {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -150,22 +193,22 @@
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.course_details_header span.course-name {
+    div[data-region='new_origin_restore_course_step5_page'] div.course_details_header span.course-name {
         font-size: 18px;
         font-weight: 600;
         padding: 10px;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.course_details_header span.course-id {
+    div[data-region='new_origin_restore_course_step5_page'] div.course_details_header span.course-id {
         font-size: 14px;
         font-weight: 500;
         padding: 10px;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.course_details_body div.row-1, div.course_details_body div.row-2 {
+    div[data-region='new_origin_restore_course_step5_page'] div.course_details_body div.row-1, div.course_details_body div.row-2 {
         display: flex;
         align-items: center;
         height: 50%;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.course_details_body section {
+    div[data-region='new_origin_restore_course_step5_page'] div.course_details_body section {
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -173,15 +216,15 @@
         width: 33%;
         padding: 10px;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.course_details_body section span.section-tittle {
+    div[data-region='new_origin_restore_course_step5_page'] div.course_details_body section span.section-tittle {
         font-size: 14px;
         font-weight: 600;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.course_details_body section span.data {
+    div[data-region='new_origin_restore_course_step5_page'] div.course_details_body section span.data {
         font-size: 14px;
         font-weight: 500;
     }
-    div[data-region='new_origin_restore_course_step4_page'] h4.h4 {
+    div[data-region='new_origin_restore_course_step5_page'] h4.h4 {
         font-size: 24px;
         font-weight: 600;
         margin-top: 20px;
@@ -189,61 +232,91 @@
         padding: 10px;
         text-align: center;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.sections-table {
+    div[data-region='new_origin_restore_course_step5_page'] div.sections-table {
         width: 50%;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.sections-table-header {
+    div[data-region='new_origin_restore_course_step5_page'] div.sections-table-header {
         display: flex;
         border-bottom: 2px solid #9396AA;
         padding: 5px;
         font-size: 14px;
         font-weight: 600;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.ckeckbox {
+    div[data-region='new_origin_restore_course_step5_page'] div.ckeckbox {
         width: 10%;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.section-data {
+    div[data-region='new_origin_restore_course_step5_page'] div.section-data {
         width: 30%;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.section-info {
+    div[data-region='new_origin_restore_course_step5_page'] div.section-info {
         display: flex;
         border-bottom: 1px solid #D7D8E2;
         padding: 10px;
         font-size: 14px;
         font-weight: 400;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.section-row {
+    div[data-region='new_origin_restore_course_step5_page'] div.section-row {
         display: flex;
         flex-direction: column;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.activities-table {
+    div[data-region='new_origin_restore_course_step5_page'] div.activities-table {
         width: 90%;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.center-div {
+    div[data-region='new_origin_restore_course_step5_page'] div.center-div {
         display: flex;
         justify-content: center;
         align-items: center;
         width: 100%;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.activities-table-header {
+    div[data-region='new_origin_restore_course_step5_page'] div.activities-table-header {
         display: flex;
         border-bottom: 2px solid #9396AA;
         padding: 5px;
         font-size: 13px;
         font-weight: 600;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.ckeckbox {
+    div[data-region='new_origin_restore_course_step5_page'] div.ckeckbox {
         width: 10%;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.activities-data {
+    div[data-region='new_origin_restore_course_step5_page'] div.activities-data {
         width: 45%;
     }
-    div[data-region='new_origin_restore_course_step4_page'] div.activities-row {
+    div[data-region='new_origin_restore_course_step5_page'] div.activities-row {
         display: flex;
         border-bottom: 1px solid #D7D8E2;
         padding: 5px;
         font-size: 13px;
         font-weight: 400;
+    }
+    div[data-region='new_origin_restore_course_step5_page'] .selected {
+        background-color: #F7F9FC;
+    }
+    div[data-region='new_origin_restore_course_step5_page'] ul.configuration-list {
+        list-style-type: none;
+        width: 50%;
+        padding: 0;
+    }
+    div[data-region='new_origin_restore_course_step5_page'] li.configuration-group {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+    div[data-region='new_origin_restore_course_step5_page'] div.checkbox {
+        padding: 0 5%;
+    }
+    div[data-region='new_origin_restore_course_step5_page'] div.config-title {
+        padding-bottom: 5px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+    div[data-region='new_origin_restore_course_step5_page'] div.config-desc {
+        padding-bottom: 5px;
+        padding-right: 10px;
+        font-size: 12px;
+        font-weight: 400;
+    }
+    div[data-region='new_origin_restore_course_step5_page'] input[type="checkbox"]:checked, input[type="checkbox"]:active, input[type="checkbox"]:disabled {
+        box-shadow: none;
     }
 </style>
 {{#js}}

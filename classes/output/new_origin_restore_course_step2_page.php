@@ -69,7 +69,7 @@ class new_origin_restore_course_step2_page implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();
-        $data->siteurl = required_param('site', PARAM_INT);
+        $siteposition = required_param('site', PARAM_INT);
 
         $data->steps = [ ["current" => false, "num" => 1], ["current" => true, "num" => 2],
             ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
@@ -80,13 +80,14 @@ class new_origin_restore_course_step2_page implements renderable, templatable {
         $data->courseid = $this->course->id;
         $nexturl = new moodle_url(
             '/local/coursetransfer/origin_restore_course.php',
-            ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $data->siteurl]
+            ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $siteposition]
         );
         $data->backurl = $backurl->out(false);
         $data->nexturl = $nexturl->out(false);
+        $site = coursetransfer::get_site_by_position($siteposition);
 
         try {
-            $request = new request($data->siteurl);
+            $request = new request($site);
             $res = $request->origin_get_courses();
             if ($res->success) {
                 $data->courses = $res->data;
