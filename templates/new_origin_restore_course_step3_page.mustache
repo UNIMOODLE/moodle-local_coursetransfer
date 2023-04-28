@@ -46,41 +46,11 @@
             <div class="section-data">{{#str}} step3_sections_table_number, local_coursetransfer {{/str}}</div>
         </div>
         {{#course.sections}}
-        <div class="section-row" data-section-sectionname="{{sectionname}}"
-             data-section-sectionid="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
-            <div class="section-info">
-                <div class="ckeckbox"><input type="checkbox"></div>
-                <div class="section-data">{{sectionname}}</div>
-                <div class="section-data">{{sectionid}}</div>
-                <div class="section-data">{{sectionnum}}</div>
-            </div>
-            {{#hasactivities}}
-            <div class="center-div">
-            <div class="activities-table">
-                <div class="activities-table-header">
-                    <div class="ckeckbox"></div>
-                    <div class="activities-data">{{#str}} step3_activities_table_name, local_coursetransfer {{/str}}</div>
-                    <div class="activities-data">{{#str}} step3_activities_table_type, local_coursetransfer {{/str}}</div>
-                </div>
-                {{#activities}}
-                <div class="activities-row" data-activity-cmid="{{cmid}}" data-activity-name="{{name}}" data-activity-modname="{{modname}}" data-activity-instance="{{instance}}">
-                    <div class="ckeckbox"><input type="checkbox"></div>
-                    <div class="activities-data">{{name}}</div>
-                    <div class="activities-data">{{modname}}</div>
-                </div>
-                {{/activities}}
-            </div>
-            </div>
-            {{/hasactivities}}
-        </div>
+            {{> local_coursetransfer/components/section }}
         {{/course.sections}}
     </div>
 
-    <div class="button-container">
-        <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
-        <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
-        <a type="button" class="btn btn-primary" data-action="next" href="{{ next_url }}">{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
-    </div>
+    {{> local_coursetransfer/components/action_buttons }}
 
 </div>
 <style>
