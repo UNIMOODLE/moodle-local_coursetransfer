@@ -44,6 +44,7 @@ define([
             sections.forEach(function(section) {
                 if (section.selected) {
                     let sectionrow = $("#section-" + section.sectionid);
+                    console.log(sectionrow[0]);
                     sectionrow.addClass('selected');
                     sectionrow[0].children[0].children[0].children[0].checked = true;
                 }

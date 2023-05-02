@@ -61,9 +61,6 @@ define([
     restoreCourseStep3.prototype.clickNext = function(e) {
         let rawSections = [...$(".sections-table").children()];
         rawSections.shift();
-        rawSections = rawSections.filter(function(v, i) {
-            return i % 2 === 0;
-        });
         this.data.course.sections = rawSections.map(v => {
             let finalActivities = [];
             if (v.children.length >= 2) {
