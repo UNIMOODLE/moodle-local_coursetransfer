@@ -20,7 +20,6 @@
   Example context (json):
 
 }}
-<div data-region="restore_course_sections">
     <div id="section-{{sectionid}}" class="section-row" data-section-sectionname="{{sectionname}}"
          data-section-sectionid="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
         <div class="section-info">
@@ -44,50 +43,3 @@
             </div>
         {{/hasactivities}}
     </div>
-</div>
-<style>
-    div[data-region='restore_course_sections'] div.section-info {
-        display: flex;
-        border-bottom: 1px solid #D7D8E2;
-        padding: 10px;
-        font-size: 14px;
-        font-weight: 400;
-    }
-    div[data-region='restore_course_sections'] div.section-row {
-        display: flex;
-        flex-direction: column;
-    }
-    div[data-region='restore_course_sections'] div.activities-table {
-        width: 90%;
-    }
-    div[data-region='restore_course_sections'] div.center-div {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-    }
-    div[data-region='restore_course_sections'] div.activities-table-header {
-        display: flex;
-        border-bottom: 2px solid #9396AA;
-        padding: 5px;
-        font-size: 13px;
-        font-weight: 600;
-    }
-    div[data-region='restore_course_sections'] div.activities-data {
-        width: 45%;
-    }
-    div[data-region='restore_course_sections'] div.ckeckbox {
-        width: 10%;
-    }
-    div[data-region='restore_course_sections'] div.activities-row {
-        display: flex;
-        border-bottom: 1px solid #D7D8E2;
-        padding: 5px;
-        font-size: 13px;
-        font-weight: 400;
-    }
-    div[data-region='restore_course_sections'] .selected {
-        background-color: #F7F9FC;
-    }
-
-</style>

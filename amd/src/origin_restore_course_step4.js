@@ -52,7 +52,9 @@ define([
             checkboxes.each(function() {
                 configuration.push({"name": $(this).attr("id"), "selected": $(this).prop('checked')});
             });
+            console.log(configuration);
             let sessionData = JSON.parse(this.sessionData);
+            console.log(sessionData);
             sessionData.course.configuration = configuration;
             sessionStorage.setItem('local_coursetransfer_' + 1 + this.restoreid, JSON.stringify(sessionData));
         };
