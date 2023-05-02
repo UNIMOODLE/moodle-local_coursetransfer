@@ -113,6 +113,21 @@ class request {
     }
 
     /**
+     * Origin back up course remote.
+     *
+     * @return response
+     * @throws dml_exception
+     */
+    public function origin_backup_course(int $courseid): response {
+        global $USER;
+        $params = new stdClass();
+        $params->field = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params->value = $USER->{$params->field};
+        $params->courseid = $courseid;
+        return $this->req('local_coursetransfer_origin_get_course_detail', $params);
+    }
+
+    /**
      * Request.
      *
      * @param string $wsname

@@ -168,7 +168,7 @@ class restore_course_external extends external_api {
      */
     public static function new_origin_restore_course_step5(int $siteurl, int $courseid): array {
         self::validate_parameters(
-            self::new_origin_restore_course_step1_parameters(),
+            self::new_origin_restore_course_step5_parameters(),
             [
                 'siteurl' => $siteurl,
                 'courseid' => $courseid
@@ -181,9 +181,14 @@ class restore_course_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
-            // TODO. Ejecutar en el moodle remoto, la restauración con request.
-            // TODO. Servicio a llamar: local_coursetransfer_origin_backup_course
-            var_dump('Test');
+            $request = new request($site);
+            $res = $request->origin_backup_course($courseid);
+            if ($res->success) {
+                $data = $res->data;
+                $success = true;
+            } else {
+                $errors[] = $res->errors;
+            }
         } catch (moodle_exception $e) {
             $errors[] =
                 [
