@@ -41,14 +41,14 @@ define([
             let sessiondata = JSON.parse(sessionStorage.getItem('local_coursetransfer_' + 1 + this.restoreid));
             let sections = sessiondata.course.sections;
             $('input[type="checkbox"]').prop('disabled', true);
-            sections.forEach(function (section) {
+            sections.forEach(function(section) {
                 if (section.selected) {
                     let sectionrow = $("#section-" + section.sectionid);
                     sectionrow.addClass('selected');
                     sectionrow[0].children[0].children[0].children[0].checked = true;
                 }
                 let activities = section.activities;
-                activities.forEach(function (activity) {
+                activities.forEach(function(activity) {
                     if (activity.selected) {
                         let activityrow = $("#activity-" + activity.cmid);
                         activityrow.addClass('selected');
@@ -57,7 +57,7 @@ define([
                 });
             });
             let configuration = sessiondata.course.configuration;
-            configuration.forEach(function (config) {
+            configuration.forEach(function(config) {
                 if (config.selected) {
                     $("#" + config.name).prop('checked', true);
                 }
