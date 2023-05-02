@@ -33,7 +33,8 @@ define([
     let ACTIONS = {
         COURSE_SELECT: '[data-action="select"]',
         COURSE: '[data-action="course"]',
-        NEXT: '[data-action="next"]'
+        NEXT: '[data-action="next"]',
+        CHECK: '[data-action="check"]'
     };
 
     /**
@@ -56,7 +57,16 @@ define([
             }
         };
         this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
+        this.node.find(ACTIONS.CHECK).on('click', this.clickCheck.bind(this));
     }
+
+    restoreCourseStep3.prototype.clickCheck = (e) => {
+        let activities = [...e.currentTarget.parentElement.parentElement.parentElement.children[1].children[0].children];
+        activities.shift();
+        activities.forEach(v => {
+            v.children[0].children[0].checked = e.currentTarget.checked;
+        });
+    };
 
     restoreCourseStep3.prototype.clickNext = function(e) {
         let rawSections = [...$(".sections-table").children()];
