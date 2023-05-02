@@ -29,6 +29,13 @@ define([
     'core/templates'
     ], function($, Str, Ajax, Templates) {
         "use strict";
+        let SERVICES = {
+            RESTORE_COURSE_STEP5: 'local_coursetransfer_new_origin_restore_course_step5'
+        };
+
+        let ACTIONS = {
+            RESTORE: '[data-action="execute-restore"]'
+        };
 
         /**
          * @param {String} region
@@ -38,13 +45,13 @@ define([
         function restoreCourseStep5(region) {
             this.node = $(region);
             this.restoreid = $("[data-restoreid]").attr("data-restoreid");
+            this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
             let sessiondata = JSON.parse(sessionStorage.getItem('local_coursetransfer_' + 1 + this.restoreid));
             let sections = sessiondata.course.sections;
             $('input[type="checkbox"]').prop('disabled', true);
             sections.forEach(function(section) {
                 if (section.selected) {
                     let sectionrow = $("#section-" + section.sectionid);
-                    console.log(sectionrow[0]);
                     sectionrow.addClass('selected');
                     sectionrow[0].children[0].children[0].children[0].checked = true;
                 }
@@ -64,6 +71,47 @@ define([
                 }
             });
         }
+
+        restoreCourseStep5.prototype.clickNext = function(e) {
+            let self = this; // Store the reference of this.
+            let alertbox = this.node.find(".alert");
+            let siteurl = 1;
+            let course = 1;
+            console.log("Clicked");
+            const request = {
+                methodname: SERVICES.RESTORE_COURSE_STEP5,
+                args: {
+                    siteurl: siteurl,
+                    courseid: course
+                }
+            };
+            Ajax.call([request])[0].done(function(response) {
+                if (response.success) {
+                } else if (!response.success) {
+                    self.renderErrors(response.errors, alertbox);
+                } else {
+                    let errors = [{'code': '064893', 'msg': 'error_not_controlled'}];
+                    self.renderErrors(errors, alertbox);
+                }
+            }).fail(function(fail) {
+                let errors = [{'code': '064896', 'msg': fail.message}];
+                self.renderErrors(errors, alertbox);
+            });
+        };
+
+        /**
+         *
+         * @param {String[]} errors
+         * @param {String} alertbox
+         */
+        restoreCourseStep5.prototype.renderErrors = function(errors, alertbox) {
+            let errorString = "";
+            alertbox.removeClass("hidden");
+            errors.forEach(error => {
+                errorString += 'Error (' + error.code + '): ' + error.msg + '<br>';
+            });
+            alertbox.append(errorString);
+        };
 
         restoreCourseStep5.prototype.node = null;
 

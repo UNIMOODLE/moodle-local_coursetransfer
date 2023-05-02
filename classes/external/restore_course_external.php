@@ -180,9 +180,10 @@ class restore_course_external extends external_api {
         $data = new stdClass();
 
         try {
+            $site = coursetransfer::get_site_by_position($siteurl);
             // TODO. Ejecutar en el moodle remoto, la restauración con request.
-            // local_coursetransfer_origin_backup_course
-            var_dump('prueba');
+            // TODO. Servicio a llamar: local_coursetransfer_origin_backup_course
+            var_dump('Test');
         } catch (moodle_exception $e) {
             $errors[] =
                 [
