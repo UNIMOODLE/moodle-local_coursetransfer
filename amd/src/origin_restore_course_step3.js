@@ -61,11 +61,13 @@ define([
     }
 
     restoreCourseStep3.prototype.clickCheck = (e) => {
-        let activities = [...e.currentTarget.parentElement.parentElement.parentElement.children[1].children[0].children];
-        activities.shift();
-        activities.forEach(v => {
-            v.children[0].children[0].checked = e.currentTarget.checked;
-        });
+        if ([...e.currentTarget.parentElement.parentElement.parentElement.children].length > 1) {
+            let activities = [...e.currentTarget.parentElement.parentElement.parentElement.children[1].children[0].children];
+            activities.shift();
+            activities.forEach(v => {
+                v.children[0].children[0].checked = e.currentTarget.checked;
+            });
+        }
     };
 
     restoreCourseStep3.prototype.clickNext = function(e) {
