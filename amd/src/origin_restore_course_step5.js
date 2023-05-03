@@ -39,12 +39,14 @@ define([
 
         /**
          * @param {String} region
-         *
+         * @param {Integer} site
          * @constructor
          */
-        function restoreCourseStep5(region) {
+        function restoreCourseStep5(region, site) {
             this.node = $(region);
             this.restoreid = $("[data-restoreid]").attr("data-restoreid");
+            console.log("Sitepos: " + site);
+            this.site = site;
             this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
             let sessiondata = JSON.parse(sessionStorage.getItem('local_coursetransfer_' + 1 + this.restoreid));
             let sections = sessiondata.course.sections;
@@ -75,14 +77,13 @@ define([
         restoreCourseStep5.prototype.clickNext = function(e) {
             let self = this; // Store the reference of this.
             let alertbox = this.node.find(".alert");
-            let siteurl = 1;
-            let course = 1;
-            console.log("Clicked");
+            let siteurl = this.site;
+            let courseid = this.restoreid;
             const request = {
                 methodname: SERVICES.RESTORE_COURSE_STEP5,
                 args: {
                     siteurl: siteurl,
-                    courseid: course
+                    courseid: courseid
                 }
             };
             Ajax.call([request])[0].done(function(response) {
@@ -118,11 +119,12 @@ define([
         return {
             /**
              * @param {String} region
+             * @param {Integer} site
              * @return {restoreCourseStep5}
              */
-            initRestoreCourseStep5: function(region) {
+            initRestoreCourseStep5: function(region, site) {
                 // eslint-disable-next-line babel/new-cap
-                return new restoreCourseStep5(region);
+                return new restoreCourseStep5(region, site);
             }
         };
     });
