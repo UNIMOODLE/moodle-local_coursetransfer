@@ -267,4 +267,15 @@ class coursetransfer {
         }
         return $res;
     }
+
+    /**
+     * Create Task to Backup of Course.
+     *
+     * @param int $courseid
+     */
+    public static function create_task_backup_course(int $courseid) {
+        // Este backup será asíncrono.
+        // Crear la tarea ADHOC.
+        // Si es necesario lanzar una excepción, la recogerá el servicio.
+    }
 }

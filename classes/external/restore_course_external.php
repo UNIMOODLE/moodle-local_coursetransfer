@@ -30,6 +30,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -152,6 +153,7 @@ class restore_course_external extends external_api {
             array(
                 'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                 'courseid' => new external_value(PARAM_INT, 'Course ID')
+                    // TODO. AÑADIR TODOS LOS DATOS DEL SESSION STORAGE.
             )
         );
     }
@@ -181,12 +183,20 @@ class restore_course_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
+            $object = new stdClass();
+            $object->type = 0;
+            $object->siteurl = $siteurl;
+            $object->direction = 0;
+            // TODO. Añadimos todos los parámetros.
+            $requestid = coursetransfer_request::insert_or_update($object);
             $request = new request($site);
-            $res = $request->origin_backup_course($courseid);
+            $res = $request->origin_backup_course($requestid, $courseid);
             if ($res->success) {
+                // TODO. Actualizar la tabla de request con el nuevo estado.
                 $data = $res->data;
                 $success = true;
             } else {
+                // TODO. Actular la tabla de request con el nuevo estado de error y su mensaje.
                 $errors[] = $res->errors;
             }
         } catch (moodle_exception $e) {

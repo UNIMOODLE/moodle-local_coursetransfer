@@ -28,6 +28,8 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
 use moodle_exception;
 use stdClass;
 
@@ -67,7 +69,7 @@ class origin_course_backup_external extends external_api {
                             )
                         ))
                     )
-                ))
+                ), '', VALUE_DEFAULT, [])
             )
         );
     }
@@ -88,7 +90,9 @@ class origin_course_backup_external extends external_api {
      * @throws moodle_exception
      */
     public static function origin_backup_course(string $field, string $value,
-            int $courseid, int $requestid, bool $enrollusers, array $sections): array {
+            int $courseid, int $requestid, bool $enrollusers, array $sections = []): array {
+
+        global $CFG;
 
         self::validate_parameters(
             self::origin_backup_course_parameters(), [
@@ -101,18 +105,28 @@ class origin_course_backup_external extends external_api {
             ]
         );
 
-        $success = true;
         $errors = [];
         $data = new stdClass();
 
         try {
-            // TODO. Crear petición en la tabla request.
+            // TODO. Crear petición de ten la tabla request en direction answer con el destiny_request_id que sería request_id
+            $object = new stdClass();
+            $object->type = 0;
+            $object->siteurl = $CFG->wwwroot;
+            $object->direction = 1;
+            $object->destiny_request_id = $requestid;
+            // TODO. Añadimos todos los parámetros.
+            coursetransfer_request::insert_or_update($object);
             // TODO. origin_backup_course logic
+            coursetransfer::create_task_backup_course($courseid);
+            $success = true;
+            $data->requestid = $requestid;
+            $data->buckupsizeestimated = coursetransfer::get_backup_size_estimated($courseid);;
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] =
                 [
-                    'code' => 'no_code',
+                    'code' => '056465',
                     'string' => $e->getMessage()
                 ];
         }
