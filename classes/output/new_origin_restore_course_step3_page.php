@@ -114,6 +114,7 @@ class new_origin_restore_course_step3_page implements renderable, templatable {
         );
         $data->next_url = $nexturl->out(false);
         $data->next_url_disabled = false;
+        $data->course->sessionStorage_id = "local_coursetransfer_".$this->course->id."_".$data->course->id;
         return $data;
     }
 }

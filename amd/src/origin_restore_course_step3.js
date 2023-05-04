@@ -108,7 +108,7 @@ define([
         });
         console.log(this.data);
         let userid = 1;
-        sessionStorage.setItem('local_coursetransfer_' + userid + this.data.course.id, JSON.stringify(this.data));
+        sessionStorage.setItem($("[data-course-sessionStorageId]").attr("data-course-sessionStorageId"), JSON.stringify(this.data));
     };
 
     restoreCourseStep3.prototype.node = null;
