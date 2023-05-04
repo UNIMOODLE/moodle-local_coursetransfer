@@ -48,7 +48,8 @@ define([
             console.log("Sitepos: " + site);
             this.site = site;
             this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
-            let sessiondata = JSON.parse(sessionStorage.getItem('local_coursetransfer_' + 1 + this.restoreid));
+            let sessiondata = JSON.parse(sessionStorage.getItem($("[data-course-sessionStorageId]")
+                .attr("data-course-sessionStorageId")));
             let sections = sessiondata.course.sections;
             $('input[type="checkbox"]').prop('disabled', true);
             sections.forEach(function(section) {

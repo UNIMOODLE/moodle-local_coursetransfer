@@ -107,7 +107,7 @@ class new_origin_restore_course_step5_page implements renderable, templatable {
             $errors[] = ['code' => 140, 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
-
+        $data->course->sessionStorage_id = "local_coursetransfer_".$this->course->id."_".$data->course->id;
         return $data;
     }
 
