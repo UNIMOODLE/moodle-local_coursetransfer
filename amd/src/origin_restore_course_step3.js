@@ -34,7 +34,8 @@ define([
         COURSE_SELECT: '[data-action="select"]',
         COURSE: '[data-action="course"]',
         NEXT: '[data-action="next"]',
-        CHECK: '[data-action="check"]'
+        CHECK: '[data-action="check"]',
+        CHECK_ACT: '[data-action="act-check"]'
     };
 
     /**
@@ -58,7 +59,15 @@ define([
         };
         this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         this.node.find(ACTIONS.CHECK).on('click', this.clickCheck.bind(this));
+        this.node.find(ACTIONS.CHECK_ACT).on('click', this.clickActCheck.bind(this));
     }
+
+    restoreCourseStep3.prototype.clickActCheck = (e) => {
+        if (e.currentTarget.checked) {
+            e.currentTarget.parentElement.parentElement.parentElement.parentElement.parentElement.children[0]
+                .children[0].children[0].checked = true;
+        }
+    };
 
     restoreCourseStep3.prototype.clickCheck = (e) => {
         if ([...e.currentTarget.parentElement.parentElement.parentElement.children].length > 1) {
