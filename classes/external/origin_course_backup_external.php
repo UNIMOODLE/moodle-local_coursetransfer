@@ -115,6 +115,29 @@ class origin_course_backup_external extends external_api {
             $object->siteurl = $CFG->wwwroot;
             $object->direction = 1;
             $object->destiny_request_id = $requestid;
+            $object->request_category_id = null;
+            $object->origin_course_id = null;
+            $object->origin_category_id = null;
+            $object->origin_enrolusers = null;
+            $object->origin_remove_course = null;
+            $object->origin_schedule_datetime = null;
+            $object->origin_remove_activities = null;
+            $object->origin_activities = null;
+            $object->origin_backup_size = null;
+            $object->origin_backup_size_estimated = null;
+            $object->origin_backup_url = null;
+            $object->destiny_course_id = null;
+            $object->destiny_category_id = null;
+            $object->destiny_remove_activities = null;
+            $object->destiny_merge_activities = null;
+            $object->destiny_remove_enrols = null;
+            $object->destiny_remove_groups = null;
+            $object->error_code = null;
+            $object->error_message = null;
+            $object->userid = null;
+            $object->status = null;
+            $object->timemodified = null;
+            $object->timecreated = null;
             // TODO. Añadimos todos los parámetros.
             coursetransfer_request::insert_or_update($object);
             // TODO. origin_backup_course logic
