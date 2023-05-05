@@ -152,8 +152,32 @@ class restore_course_external extends external_api {
         return new external_function_parameters(
             array(
                 'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                'courseid' => new external_value(PARAM_INT, 'Course ID')
-                    // TODO. AÑADIR TODOS LOS DATOS DEL SESSION STORAGE.
+                'courseid' => new external_value(PARAM_INT, 'Course ID'),
+                'configuration' => new external_single_structure(
+                    array(
+                        'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
+                        'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
+                        'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
+                        'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities')
+                    )
+                ),
+                'sections' => new external_multiple_structure(new external_single_structure(
+                    array(
+                        'sectionnum' => new external_value(PARAM_INT, 'Section Number'),
+                        'sectionid' => new external_value(PARAM_INT, 'Section ID'),
+                        'sectionname' => new external_value(PARAM_TEXT, 'Section Name'),
+                        'selected' => new external_value(PARAM_BOOL, 'Selected'),
+                        'activities' => new external_multiple_structure(new external_single_structure(
+                            array(
+                                'cmid' => new external_value(PARAM_INT, 'CMID'),
+                                'name' => new external_value(PARAM_TEXT, 'Name'),
+                                'instance' => new external_value(PARAM_INT, 'Instance ID'),
+                                'modname' => new external_value(PARAM_TEXT, 'Module Name'),
+                                'selected' => new external_value(PARAM_BOOL, 'Selected'),
+                            )
+                        ))
+                    )
+                ))
             )
         );
     }
@@ -163,17 +187,22 @@ class restore_course_external extends external_api {
      *
      * @param int $siteurl
      * @param int $courseid
+     * @param array $configuration
+     * @param array $sections
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function new_origin_restore_course_step5(int $siteurl, int $courseid): array {
+    public static function new_origin_restore_course_step5(int $siteurl, int $courseid,
+                                                           array $configuration, array $sections): array {
         self::validate_parameters(
             self::new_origin_restore_course_step5_parameters(),
             [
                 'siteurl' => $siteurl,
-                'courseid' => $courseid
+                'courseid' => $courseid,
+                'configuration' => $configuration,
+                'sections' => $sections
             ]
         );
 
@@ -187,8 +216,18 @@ class restore_course_external extends external_api {
             $object->type = 0;
             $object->siteurl = $siteurl;
             $object->direction = 0;
-            // TODO. Añadimos todos los parámetros.
+            $object->enrolusers = 0;
+            $object->removecourse = 0; // No está en configuración, es configuración de origen?
+            $object->activities = json_encode($sections);
+            $object->removeactivities = $configuration['destiny_remove_activities'];
+            $object->mergeactivities = $configuration['destiny_merge_activities'];
+            $object->removeenrols = $configuration['destiny_remove_enrols'];
+            $object->removegroups = $configuration['destiny_remove_groups'];
+            global $USER;
+            $object->userid = $USER->id;
+
             $requestid = coursetransfer_request::insert_or_update($object);
+            die();
             $request = new request($site);
             $res = $request->origin_backup_course($requestid, $courseid);
             if ($res->success) {

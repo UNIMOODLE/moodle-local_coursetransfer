@@ -80,11 +80,19 @@ define([
             let alertbox = this.node.find(".alert");
             let siteurl = this.site;
             let courseid = this.restoreid;
+            let sessiondata = JSON.parse(sessionStorage.getItem($("[data-course-sessionStorageId]")
+                .attr("data-course-sessionStorageId")));
+            let configuration = {};
+            sessiondata.course.configuration.forEach(function(config) {
+                configuration[config.name] = config.selected;
+            });
             const request = {
                 methodname: SERVICES.RESTORE_COURSE_STEP5,
                 args: {
                     siteurl: siteurl,
-                    courseid: courseid
+                    courseid: courseid,
+                    configuration: configuration,
+                    sections: sessiondata.course.sections,
                 }
             };
             Ajax.call([request])[0].done(function(response) {

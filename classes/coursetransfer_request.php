@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * coursetransfer
+ * coursetransfer_request
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
@@ -46,10 +46,33 @@ class coursetransfer_request {
      */
     public static function insert_or_update(stdClass $object, int $id = null) {
         global $DB;
-        // TODO. Valide los parámetros.
         if (!in_array($object->type, [0, 1])) {
             throw new moodle_exception('TYPE IS NOT VALID');
         }
+        if (!in_array($object->direction, [0, 1])) {
+            throw new moodle_exception('DIRECTION IS NOT VALID');
+        }
+        if (!in_array($object->enrolusers, [0, 1])) {
+            throw new moodle_exception('ENROL USERS IS NOT VALID');
+        }
+        if (!in_array($object->removecourse, [0, 1])) {
+            throw new moodle_exception('REMOVE COURSE IS NOT VALID');
+        }
+        if (!in_array($object->removeactivities, [0, 1])) {
+            throw new moodle_exception('REMOVE ACTIVITIES IS NOT VALID');
+        }
+        if (!in_array($object->mergeactivities, [0, 1])) {
+            throw new moodle_exception('MERGE ACTIVITIES IS NOT VALID');
+        }
+        if (!in_array($object->removeenrols, [0, 1])) {
+            throw new moodle_exception('REMOVE ENROLS IS NOT VALID');
+        }
+        if (!in_array($object->removegroups, [0, 1])) {
+            throw new moodle_exception('REMOVE GROUPS IS NOT VALID');
+        }
+        echo '<pre>';
+        var_dump($object);
+        die();
         if (is_null($id)) {
             return $DB->insert_record(self::TABLE, $object);
         } else {
