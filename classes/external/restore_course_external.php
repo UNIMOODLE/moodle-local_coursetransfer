@@ -216,13 +216,13 @@ class restore_course_external extends external_api {
             $object->type = 0;
             $object->siteurl = $siteurl;
             $object->direction = 0;
-            $object->enrolusers = 0;
-            $object->removecourse = 0; // No está en configuración, es configuración de origen?
-            $object->activities = json_encode($sections);
-            $object->removeactivities = $configuration['destiny_remove_activities'];
-            $object->mergeactivities = $configuration['destiny_merge_activities'];
-            $object->removeenrols = $configuration['destiny_remove_enrols'];
-            $object->removegroups = $configuration['destiny_remove_groups'];
+            $object->origin_enrolusers = 0;
+            $object->origin_remove_course = 0; // No está en configuración, es configuración de origen?
+            $object->origin_activities = json_encode($sections);
+            $object->destiny_remove_activities = $configuration['destiny_remove_activities'];
+            $object->destiny_merge_activities = $configuration['destiny_merge_activities'];
+            $object->destiny_remove_enrols = $configuration['destiny_remove_enrols'];
+            $object->destiny_remove_groups = $configuration['destiny_remove_groups'];
             global $USER;
             $object->userid = $USER->id;
 
