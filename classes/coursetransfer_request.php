@@ -52,27 +52,24 @@ class coursetransfer_request {
         if (!in_array($object->direction, [0, 1])) {
             throw new moodle_exception('DIRECTION IS NOT VALID');
         }
-        if (!in_array($object->enrolusers, [0, 1])) {
+        if (!in_array($object->origin_enrolusers, [0, 1])) {
             throw new moodle_exception('ENROL USERS IS NOT VALID');
         }
-        if (!in_array($object->removecourse, [0, 1])) {
+        if (!in_array($object->origin_remove_course, [0, 1])) {
             throw new moodle_exception('REMOVE COURSE IS NOT VALID');
         }
-        if (!in_array($object->removeactivities, [0, 1])) {
+        if (!in_array($object->destiny_remove_activities, [0, 1])) {
             throw new moodle_exception('REMOVE ACTIVITIES IS NOT VALID');
         }
-        if (!in_array($object->mergeactivities, [0, 1])) {
+        if (!in_array($object->destiny_merge_activities, [0, 1])) {
             throw new moodle_exception('MERGE ACTIVITIES IS NOT VALID');
         }
-        if (!in_array($object->removeenrols, [0, 1])) {
+        if (!in_array($object->destiny_remove_enrols, [0, 1])) {
             throw new moodle_exception('REMOVE ENROLS IS NOT VALID');
         }
-        if (!in_array($object->removegroups, [0, 1])) {
+        if (!in_array($object->destiny_remove_groups, [0, 1])) {
             throw new moodle_exception('REMOVE GROUPS IS NOT VALID');
         }
-        echo '<pre>';
-        var_dump($object);
-        die();
         if (is_null($id)) {
             return $DB->insert_record(self::TABLE, $object);
         } else {
