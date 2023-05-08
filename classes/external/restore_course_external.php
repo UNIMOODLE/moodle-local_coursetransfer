@@ -196,6 +196,7 @@ class restore_course_external extends external_api {
      */
     public static function new_origin_restore_course_step5(int $siteurl, int $courseid,
                                                            array $configuration, array $sections): array {
+        global $USER;
         self::validate_parameters(
             self::new_origin_restore_course_step5_parameters(),
             [
@@ -208,35 +209,38 @@ class restore_course_external extends external_api {
 
         $success = false;
         $errors = [];
-        $data = new stdClass();
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
             $object = new stdClass();
             $object->type = 0;
-            $object->siteurl = $siteurl;
+            $object->siteurl = $site->host;
             $object->direction = 0;
-            $object->origin_enrolusers = 0;
+            $object->destiny_course_id = 2; // El curso actual, id=X en la url.
+            $object->origin_course_id = $courseid;
+            $object->origin_enrolusers = 0; // Revisar pliego, posiblemente esto sea 0, pq el profesor no puede.
             $object->origin_remove_course = 0; // No está en configuración, es configuración de origen?
             $object->origin_activities = json_encode($sections);
             $object->destiny_remove_activities = $configuration['destiny_remove_activities'];
             $object->destiny_merge_activities = $configuration['destiny_merge_activities'];
             $object->destiny_remove_enrols = $configuration['destiny_remove_enrols'];
             $object->destiny_remove_groups = $configuration['destiny_remove_groups'];
-            global $USER;
+            $object->status = 1;
             $object->userid = $USER->id;
-
             $requestid = coursetransfer_request::insert_or_update($object);
-            die();
             $request = new request($site);
             $res = $request->origin_backup_course($requestid, $courseid);
             if ($res->success) {
-                // TODO. Actualizar la tabla de request con el nuevo estado.
-                $data = $res->data;
+                $object->status = 30;
+                coursetransfer_request::insert_or_update($object, $requestid);
                 $success = true;
             } else {
-                // TODO. Actular la tabla de request con el nuevo estado de error y su mensaje.
                 $errors[] = $res->errors;
+                $object->status = 0;
+                $object->error_code = $errors[0]['code'];
+                $object->error_message = $errors[0]['msg'];
+                coursetransfer_request::insert_or_update($object, $requestid);
+                $success = false;
             }
         } catch (moodle_exception $e) {
             $errors[] =
@@ -248,8 +252,7 @@ class restore_course_external extends external_api {
 
         return [
             'success' => $success,
-            'errors' => $errors,
-            'data' => $data
+            'errors' => $errors
         ];
     }
 
@@ -267,19 +270,7 @@ class restore_course_external extends external_api {
                     ),
                     PARAM_TEXT,
                     'Errors'
-                )),
-                'data' => new external_single_structure(
-                    array(
-                        'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
-                        'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
-                        'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
-                        'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
-                        'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
-                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
-                    ),
-                    PARAM_TEXT,
-                    'Data'
-                )
+                ))
             )
         );
     }

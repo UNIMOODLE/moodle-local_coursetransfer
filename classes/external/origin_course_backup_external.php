@@ -52,7 +52,14 @@ class origin_course_backup_external extends external_api {
                 'value' => new external_value(PARAM_TEXT, 'Value'),
                 'courseid' => new external_value(PARAM_INT, 'Course ID'),
                 'requestid' => new external_value(PARAM_INT, 'Request ID'),
-                'enrollusers' => new external_value(PARAM_BOOL, 'Enroll Users'),
+                'configuration' => new external_single_structure(
+                        array(
+                                'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
+                                'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
+                                'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
+                                'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities')
+                        )
+                ),
                 'sections' => new external_multiple_structure(new external_single_structure(
                     array(
                         'sectionnum' => new external_value(PARAM_INT, 'Section Number'),
@@ -63,9 +70,9 @@ class origin_course_backup_external extends external_api {
                             array(
                                 'cmid' => new external_value(PARAM_INT, 'CMID'),
                                 'name' => new external_value(PARAM_TEXT, 'Name'),
-                                'instanceid' => new external_value(PARAM_INT, 'Instance ID'),
-                                'modulename' => new external_value(PARAM_TEXT, 'Module Name'),
-                                'enabled' => new external_value(PARAM_BOOL, 'Enabled'),
+                                'instance' => new external_value(PARAM_INT, 'Instance ID'),
+                                'modname' => new external_value(PARAM_TEXT, 'Module Name'),
+                                'selected' => new external_value(PARAM_BOOL, 'Selected'),
                             )
                         ))
                     )
@@ -81,16 +88,16 @@ class origin_course_backup_external extends external_api {
      * @param string $value
      * @param int $courseid
      * @param int $requestid
+     * @param array $configuration
      * @param bool $enrollusers
      * @param array $sections
      *
      *
      * @return array
      * @throws invalid_parameter_exception
-     * @throws moodle_exception
      */
     public static function origin_backup_course(string $field, string $value,
-            int $courseid, int $requestid, bool $enrollusers, array $sections = []): array {
+            int $courseid, int $requestid, array $configuration, bool $enrollusers, array $sections = []): array {
 
         global $CFG;
 
@@ -100,6 +107,7 @@ class origin_course_backup_external extends external_api {
                 'value' => $value,
                 'courseid' => $courseid,
                 'requestid' => $requestid,
+                'configuration' => $configuration,
                 'enrollusers' => $enrollusers,
                 'sections' => $sections
             ]
@@ -107,44 +115,49 @@ class origin_course_backup_external extends external_api {
 
         $errors = [];
         $data = new stdClass();
+        $data->requestid = $requestid;
 
         try {
-            // TODO. Crear petición de ten la tabla request en direction answer con el destiny_request_id que sería request_id
-            $object = new stdClass();
-            $object->type = 0;
-            $object->siteurl = $CFG->wwwroot;
-            $object->direction = 1;
-            $object->destiny_request_id = $requestid;
-            $object->request_category_id = null;
-            $object->origin_course_id = null;
-            $object->origin_category_id = null;
-            $object->origin_enrolusers = null;
-            $object->origin_remove_course = null;
-            $object->origin_schedule_datetime = null;
-            $object->origin_remove_activities = null;
-            $object->origin_activities = null;
-            $object->origin_backup_size = null;
-            $object->origin_backup_size_estimated = null;
-            $object->origin_backup_url = null;
-            $object->destiny_course_id = null;
-            $object->destiny_category_id = null;
-            $object->destiny_remove_activities = null;
-            $object->destiny_merge_activities = null;
-            $object->destiny_remove_enrols = null;
-            $object->destiny_remove_groups = null;
-            $object->error_code = null;
-            $object->error_message = null;
-            $object->userid = null;
-            $object->status = null;
-            $object->timemodified = null;
-            $object->timecreated = null;
-            // TODO. Añadimos todos los parámetros.
-            coursetransfer_request::insert_or_update($object);
-            // TODO. origin_backup_course logic
-            coursetransfer::create_task_backup_course($courseid);
-            $success = true;
-            $data->requestid = $requestid;
-            $data->buckupsizeestimated = coursetransfer::get_backup_size_estimated($courseid);;
+            // TODO. Validar que este usuario puede ejecutar la restauración.
+            $authres = coursetransfer::auth_user($field, $value);
+            if ($authres['success']) {
+                $res = $authres['data'];
+                // TODO. Crear petición de ten la tabla request en direction answer con el destiny_request_id que sería request_id
+                $object = new stdClass();
+                $object->type = 0;
+                $object->siteurl = $CFG->wwwroot;
+                $object->direction = 1;
+                $object->destiny_request_id = $requestid;
+                $object->request_category_id = null;
+                $object->origin_course_id = $courseid;
+                $object->origin_category_id = null;
+                $object->origin_enrolusers = 0;  // Revisar pliego, posiblemente esto sea 0, pq el profesor no puede.
+                $object->origin_remove_course = 0;  // Revisar pliego, posiblemente esto sea 0, pq el profesor no puede.
+                $object->origin_schedule_datetime = null;
+                $object->origin_remove_activities = 0;  // Revisar pliego, posiblemente esto sea 0, pq el profesor no puede.
+                $object->origin_activities = json_encode($sections);
+                $object->origin_backup_size = null;
+                $object->origin_backup_size_estimated = coursetransfer::get_backup_size_estimated($courseid);
+                $object->origin_backup_url = null;
+                $object->destiny_course_id = null; // Este parámetro debe venir del servicio.
+                $object->destiny_category_id = null;
+                $object->destiny_remove_activities = $configuration['destiny_remove_activities'];
+                $object->destiny_merge_activities = $configuration['destiny_merge_activities'];
+                $object->destiny_remove_enrols = $configuration['destiny_remove_enrols'];
+                $object->destiny_remove_groups = $configuration['destiny_remove_groups'];
+                $object->error_code = null;
+                $object->error_message = null;
+                $object->userid = $res->id; // Este userid será el de la plataforma de origen.
+                $object->status = 10;
+                $requestoriginid = coursetransfer_request::insert_or_update($object);
+                coursetransfer::create_task_backup_course($courseid);
+                $data->origin_backup_size_estimated = $object->origin_backup_size_estimated;
+                $data->request_origin_id = $requestoriginid;
+                $success = true;
+            } else {
+                $success = false;
+                $errors[] = $authres['error'];
+            }
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] =
@@ -177,7 +190,8 @@ class origin_course_backup_external extends external_api {
                 'data' => new external_single_structure(
                     array(
                         'requestid' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
-                        'buckupsizeestimated' => new external_value(PARAM_INT, 'Backup Size Estimated (MB)',
+                        'request_origin_id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                        'origin_backup_size_estimated' => new external_value(PARAM_INT, 'Backup Size Estimated (MB)',
                                 VALUE_OPTIONAL ),
                     ), PARAM_TEXT, 'Data'
                 )

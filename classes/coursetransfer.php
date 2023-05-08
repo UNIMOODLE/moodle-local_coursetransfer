@@ -25,6 +25,7 @@
 namespace local_coursetransfer;
 
 use course_modinfo;
+use dml_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\api\response;
 use moodle_exception;
@@ -38,6 +39,7 @@ class coursetransfer {
         0 => ['shortname' => 'error', 'alert' => 'danger'],
         1 => ['shortname' => 'not_started', 'alert' => 'warning'],
         10 => ['shortname' => 'in_progress', 'alert' => 'primary'],
+        30 => ['shortname' => 'in_backup', 'alert' => 'primary'],
         50 => ['shortname' => 'incompleted', 'alert' => 'secondary'],
         70 => ['shortname' => 'download', 'alert' => 'info'],
         100 => ['shortname' => 'completed', 'alert' => 'success'],
@@ -251,7 +253,8 @@ class coursetransfer {
     /**
      * @param int $position
      * @return stdClass
-     * @throws \dml_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     public static function get_site_by_position(int $position): stdClass {
         $originsites = get_config('local_coursetransfer', 'origin_sites');
@@ -264,6 +267,9 @@ class coursetransfer {
                 $res->host = $site[0];
                 $res->token = $site[1];
             }
+        }
+        if (empty($res->host) || empty($res->token)) {
+            throw new moodle_exception('SITE NOT VALID');
         }
         return $res;
     }

@@ -58,9 +58,6 @@ class request {
      * request constructor.
      *
      * @param stdClass $site
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws moodle_exception
      */
     public function __construct(stdClass $site) {
         $this->host = $site->host;

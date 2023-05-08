@@ -46,6 +46,8 @@ class coursetransfer_request {
      */
     public static function insert_or_update(stdClass $object, int $id = null) {
         global $DB;
+        // TODO. validar destiny_course_id , status, origin_course_id, userid.
+
         if (!in_array($object->type, [0, 1])) {
             throw new moodle_exception('TYPE IS NOT VALID');
         }
@@ -70,7 +72,9 @@ class coursetransfer_request {
         if (!in_array($object->destiny_remove_groups, [0, 1])) {
             throw new moodle_exception('REMOVE GROUPS IS NOT VALID');
         }
+        $object->timemodified = time();
         if (is_null($id)) {
+            $object->timecreated = time();
             return $DB->insert_record(self::TABLE, $object);
         } else {
             $object->id = $id;
