@@ -229,7 +229,7 @@ class restore_course_external extends external_api {
             $object->userid = $USER->id;
             $requestid = coursetransfer_request::insert_or_update($object);
             $request = new request($site);
-            $res = $request->origin_backup_course($requestid, $courseid);
+            $res = $request->origin_backup_course($requestid, $courseid, $configuration, $sections);
             if ($res->success) {
                 $object->status = 30;
                 coursetransfer_request::insert_or_update($object, $requestid);
