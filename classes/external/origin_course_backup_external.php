@@ -97,7 +97,7 @@ class origin_course_backup_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function origin_backup_course(string $field, string $value,
-            int $courseid, int $requestid, array $configuration, bool $enrollusers, array $sections = []): array {
+            int $courseid, int $requestid, array $configuration, array $sections = []): array {
 
         global $CFG;
 
@@ -108,7 +108,6 @@ class origin_course_backup_external extends external_api {
                 'courseid' => $courseid,
                 'requestid' => $requestid,
                 'configuration' => $configuration,
-                'enrollusers' => $enrollusers,
                 'sections' => $sections
             ]
         );
