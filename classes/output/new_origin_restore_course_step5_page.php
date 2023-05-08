@@ -71,7 +71,7 @@ class new_origin_restore_course_step5_page implements renderable, templatable {
         $restoreid = required_param('restoreid', PARAM_INT);
         $backurl = new moodle_url(
             '/local/coursetransfer/origin_restore_course.php',
-            ['id' => $this->course->id, 'new' => 1, 'step' => 3]
+            ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $siteposition, 'restoreid' => $restoreid]
         );
         $data = new stdClass();
         $data->button = false;
