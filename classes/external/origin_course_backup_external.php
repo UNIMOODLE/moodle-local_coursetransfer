@@ -65,7 +65,7 @@ class origin_course_backup_external extends external_api {
                         'sectionnum' => new external_value(PARAM_INT, 'Section Number'),
                         'sectionid' => new external_value(PARAM_INT, 'Section ID'),
                         'sectionname' => new external_value(PARAM_TEXT, 'Section Name'),
-                        'enabled' => new external_value(PARAM_BOOL, 'Enabled'),
+                        'selected' => new external_value(PARAM_BOOL, 'Enabled'),
                         'activities' => new external_multiple_structure(new external_single_structure(
                             array(
                                 'cmid' => new external_value(PARAM_INT, 'CMID'),

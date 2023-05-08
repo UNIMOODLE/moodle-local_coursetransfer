@@ -121,16 +121,55 @@ class request {
      */
     public function origin_backup_course(int $requestid, int $courseid, array $configuration, array $sections): response {
         global $USER;
-        $params = new stdClass();
-        $params->field = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params->value = $USER->{$params->field};
-        $params->requestid = $requestid;
-        $params->courseid = $courseid;
-        $params->configuration = $configuration;
-        $params->sections = $sections;
-        return $this->req('local_coursetransfer_origin_backup_course', $params);
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params->field};
+        $params['requestid'] = $requestid;
+        $params['courseid'] = $courseid;
+        $params = array_merge($params, $this->serialize_configuration($configuration));
+        $params = array_merge($params, $this->serialize_sections($sections));
+        var_dump($params);
+        return $this->req('local_coursetransfer_origin_backup_course', (object)$params);
     }
-    
+
+    public function serialize_configuration(array $configuration) {
+        $res = [];
+        foreach ($configuration as $key => $config) {
+            $res['configuration['.$key.']'] = (string)(int)$config;
+        }
+        return $res;
+    }
+
+    public function serialize_sections(array $sections) {
+        $res = [];
+        $sectionindex = 0;
+        foreach ($sections as $section) {
+            $activitiesindex = 0;
+            foreach ($section as $key => $param) {
+                if ($key === 'activities') {
+                    foreach ($param as $activity) {
+                        foreach ($activity as $act => $actparams) {
+                            $insertparamact = $actparams;
+                            if ($act === 'selected') {
+                                $insertparamact = (string)(int)$actparams;
+                            }
+                            $res['sections[' . $sectionindex . '][activities][' . $activitiesindex . '][' . $act . ']'] = $insertparamact;
+                        }
+                        ++$activitiesindex;
+                    }
+                } else {
+                    $insertparamsec = $param;
+                    if ($key === 'selected') {
+                        $insertparamsec = (string)(int)$param;
+                    }
+                    $res['sections[' . $sectionindex . '][' . $key . ']'] = $insertparamsec;
+                }
+            }
+            ++$sectionindex;
+        }
+        return $res;
+    }
+
     /**
      * Request.
      *
@@ -174,7 +213,6 @@ class request {
         } catch (\Exception $e) {
             return new response(false, null, ['code' => '1561343', 'msg' => $e->getMessage()]);
         }
-
     }
 }
 
