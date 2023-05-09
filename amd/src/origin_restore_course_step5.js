@@ -45,7 +45,7 @@ define([
         function restoreCourseStep5(region, site) {
             this.node = $(region);
             this.restoreid = $("[data-restoreid]").attr("data-restoreid");
-            console.log("Sitepos: " + site);
+            this.destinyid = $("[data-destinyid]").attr("data-destinyid");
             this.site = site;
             this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
             let sessiondata = JSON.parse(sessionStorage.getItem($("[data-course-sessionStorageId]")
@@ -80,6 +80,7 @@ define([
             let alertbox = this.node.find(".alert");
             let siteurl = this.site;
             let courseid = this.restoreid;
+            let destinyid = this.destinyid;
             let sessiondata = JSON.parse(sessionStorage.getItem($("[data-course-sessionStorageId]")
                 .attr("data-course-sessionStorageId")));
             let configuration = {};
@@ -91,6 +92,7 @@ define([
                 args: {
                     siteurl: siteurl,
                     courseid: courseid,
+                    destinyid: destinyid,
                     configuration: configuration,
                     sections: sessiondata.course.sections,
                 }

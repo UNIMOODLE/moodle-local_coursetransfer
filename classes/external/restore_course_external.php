@@ -153,6 +153,7 @@ class restore_course_external extends external_api {
             array(
                 'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                 'courseid' => new external_value(PARAM_INT, 'Course ID'),
+                'destinyid' => new external_value(PARAM_INT, 'Destiny ID'),
                 'configuration' => new external_single_structure(
                     array(
                         'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
@@ -187,6 +188,7 @@ class restore_course_external extends external_api {
      *
      * @param int $siteurl
      * @param int $courseid
+     * @param int $destinyid
      * @param array $configuration
      * @param array $sections
      *
@@ -194,7 +196,7 @@ class restore_course_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function new_origin_restore_course_step5(int $siteurl, int $courseid,
+    public static function new_origin_restore_course_step5(int $siteurl, int $courseid, int $destinyid,
                                                            array $configuration, array $sections): array {
         global $USER;
         self::validate_parameters(
@@ -202,6 +204,7 @@ class restore_course_external extends external_api {
             [
                 'siteurl' => $siteurl,
                 'courseid' => $courseid,
+                'destinyid' => $destinyid,
                 'configuration' => $configuration,
                 'sections' => $sections
             ]
@@ -216,7 +219,7 @@ class restore_course_external extends external_api {
             $object->type = 0;
             $object->siteurl = $site->host;
             $object->direction = 0;
-            $object->destiny_course_id = 2; // El curso actual, id=X en la url.
+            $object->destiny_course_id = $destinyid;
             $object->origin_course_id = $courseid;
             $object->origin_enrolusers = 0; // Revisar pliego, posiblemente esto sea 0, pq el profesor no puede.
             $object->origin_remove_course = 0; // No está en configuración, es configuración de origen?
