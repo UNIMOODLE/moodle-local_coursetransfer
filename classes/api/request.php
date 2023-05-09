@@ -64,7 +64,6 @@ class request {
         $this->token = $site->token;
     }
 
-
     /**
      * Origen Has User?
      *
@@ -73,9 +72,9 @@ class request {
      */
     public function origin_has_user(): response {
         global $USER;
-        $params = new stdClass();
-        $params->field = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params->value = $USER->{$params->field};
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params['field']};
         return $this->req('local_coursetransfer_origin_has_user', $params);
     }
 
@@ -87,9 +86,9 @@ class request {
      */
     public function origin_get_courses(): response {
         global $USER;
-        $params = new stdClass();
-        $params->field = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params->value = $USER->{$params->field};
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params['field']};
         return $this->req('local_coursetransfer_origin_get_courses', $params);
     }
 
@@ -102,10 +101,10 @@ class request {
      */
     public function origin_get_course_detail(int $courseid): response {
         global $USER;
-        $params = new stdClass();
-        $params->field = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params->value = $USER->{$params->field};
-        $params->courseid = $courseid;
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params['field']};
+        $params['courseid'] = $courseid;
         return $this->req('local_coursetransfer_origin_get_course_detail', $params);
     }
 
@@ -123,13 +122,12 @@ class request {
         global $USER;
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params->field};
+        $params['value'] = $USER->{$params['field']};
         $params['requestid'] = $requestid;
         $params['courseid'] = $courseid;
         $params = array_merge($params, $this->serialize_configuration($configuration));
         $params = array_merge($params, $this->serialize_sections($sections));
-        var_dump($params);
-        return $this->req('local_coursetransfer_origin_backup_course', (object)$params);
+        return $this->req('local_coursetransfer_origin_backup_course', $params);
     }
 
     public function serialize_configuration(array $configuration) {
@@ -174,15 +172,14 @@ class request {
      * Request.
      *
      * @param string $wsname
-     * @param stdClass $params
+     * @param array $params
      * @return response
      */
-    protected function req(string $wsname, stdClass $params): response {
+    protected function req(string $wsname, array $params): response {
         $curl = curl_init();
-        $params->wstoken = $this->token;
-        $params->wsfunction = $wsname;
-        $params->moodlewsrestformat = 'json';
-        $params = (array)$params;
+        $params['wstoken'] = $this->token;
+        $params['wsfunction'] = $wsname;
+        $params['moodlewsrestformat'] = 'json';
 
         curl_setopt_array($curl, array(
             CURLOPT_URL => $this->host . '/webservice/rest/server.php',
