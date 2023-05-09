@@ -228,6 +228,7 @@ class restore_course_external extends external_api {
             $object->destiny_merge_activities = $configuration['destiny_merge_activities'];
             $object->destiny_remove_enrols = $configuration['destiny_remove_enrols'];
             $object->destiny_remove_groups = $configuration['destiny_remove_groups'];
+            $object->origin_backup_size_estimated = coursetransfer::get_backup_size_estimated($courseid);
             $object->status = 1;
             $object->userid = $USER->id;
             $requestid = coursetransfer_request::insert_or_update($object);

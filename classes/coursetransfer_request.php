@@ -46,7 +46,6 @@ class coursetransfer_request {
      */
     public static function insert_or_update(stdClass $object, int $id = null) {
         global $DB;
-        // TODO. validar destiny_course_id , origin_course_id.
         if (!array_key_exists($object->status, coursetransfer::STATUS)) {
             throw new moodle_exception('STATUS IS NOT VALID');
         }
