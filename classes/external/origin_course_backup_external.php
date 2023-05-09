@@ -74,7 +74,7 @@ class origin_course_backup_external extends external_api {
                                 'modname' => new external_value(PARAM_TEXT, 'Module Name'),
                                 'selected' => new external_value(PARAM_BOOL, 'Selected'),
                             )
-                        ))
+                        ), '', VALUE_DEFAULT, [])
                     )
                 ), '', VALUE_DEFAULT, [])
             )

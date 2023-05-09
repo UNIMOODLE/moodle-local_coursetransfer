@@ -142,7 +142,7 @@ class request {
         $res = [];
         $sectionindex = 0;
         foreach ($sections as $section) {
-            $activitiesindex = 0;
+            $activitiesindex = 1;
             foreach ($section as $key => $param) {
                 if ($key === 'activities') {
                     foreach ($param as $activity) {
