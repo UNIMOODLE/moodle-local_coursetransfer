@@ -77,6 +77,10 @@ class new_origin_restore_course_step2_page implements renderable, templatable {
             '/local/coursetransfer/origin_restore_course.php',
             ['id' => $this->course->id, 'new' => 1, 'step' => 1]
         );
+        $tableurl = new moodle_url(
+            '/local/coursetransfer/origin_restore_course.php',
+            ['id' => $this->course->id]
+        );
         $data->courseid = $this->course->id;
         $nexturl = new moodle_url(
             '/local/coursetransfer/origin_restore_course.php',
@@ -84,6 +88,7 @@ class new_origin_restore_course_step2_page implements renderable, templatable {
         );
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
+        $data->table_url = $tableurl->out(false);
         $site = coursetransfer::get_site_by_position($siteposition);
 
         try {
