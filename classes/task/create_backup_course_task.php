@@ -35,7 +35,7 @@ class create_backup_course_task extends \core\task\adhoc_task {
     public static function instance(
         int $id,
         string $status,
-    ): void {
+    ) {
         $task = new self();
         $task->set_custom_data((object) [
             'id' => $id,
