@@ -24,12 +24,27 @@
 
 namespace local_coursetransfer;
 
+use backup;
+use backup_controller;
+use context_course;
 use course_modinfo;
 use dml_exception;
+use file_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\api\response;
+use local_coursetransfer\task\create_backup_course_task;
 use moodle_exception;
+use moodle_url;
 use stdClass;
+use stored_file;
+use stored_file_creation_exception;
+
+defined('MOODLE_INTERNAL') || die;
+
+global $CFG;
+
+require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+
 
 class coursetransfer {
 
@@ -229,7 +244,7 @@ class coursetransfer {
     /**
      * Get Activities by Section
      *
-     * @param int $courseid
+     * @param course_modinfo $modinfo
      * @param int $section
      * @return array
      */
@@ -278,10 +293,58 @@ class coursetransfer {
      * Create Task to Backup of Course.
      *
      * @param int $courseid
+     * @param int $userid
      */
-    public static function create_task_backup_course(int $courseid) {
-        // Este backup será asíncrono.
-        // Crear la tarea ADHOC.
-        // Si es necesario lanzar una excepción, la recogerá el servicio.
+    public static function create_task_backup_course(int $courseid, int $userid) {
+        $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
+                backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, backup::RELEASESESSION_NO);
+        $bc->set_status(backup::STATUS_AWAITING);
+        $bc->set_execution(backup::EXECUTION_DELAYED);
+        $bc->save_controller();
+        $backupid = $bc->get_backupid();
+        $asynctask = new create_backup_course_task();
+        $asynctask->set_blocking(false);
+        $asynctask->set_custom_data(array('backupid' => $backupid));
+        $asynctask->set_userid($userid);
+        \core\task\manager::queue_adhoc_task($asynctask);
+    }
+
+    /**
+     * Create backupfile.
+     *
+     * @param int $courseid
+     * @param stored_file $file
+     * @return array
+     * @throws file_exception
+     * @throws stored_file_creation_exception
+     */
+    public static function create_backupfile_url(int $courseid, stored_file $file): array {
+        $context = context_course::instance($courseid);
+        $fs = get_file_storage();
+        $timestamp = time();
+
+        $filerecord = array(
+                'contextid' => $context->id,
+                'component' => 'local_coursetransfer',
+                'filearea' => 'backup',
+                'itemid' => $timestamp,
+                'filepath' => '/',
+                'filename' => 'backup.mbz',
+                'timecreated' => $timestamp,
+                'timemodified' => $timestamp
+        );
+        $storedfile = $fs->create_file_from_storedfile($filerecord, $file);
+        $file->delete();
+
+        // Make the link.
+        $fileurl = moodle_url::make_webservice_pluginfile_url(
+                $storedfile->get_contextid(),
+                $storedfile->get_component(),
+                $storedfile->get_filearea(),
+                $storedfile->get_itemid(),
+                $storedfile->get_filepath(),
+                $storedfile->get_filename()
+        );
+        return array('url' => $fileurl->out(true));
     }
 }

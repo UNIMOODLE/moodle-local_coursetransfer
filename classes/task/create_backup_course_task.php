@@ -22,35 +22,48 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_coursetransfer\task;
 
-defined('MOODLE_INTERNAL') || die();
+use file_exception;
+use local_coursetransfer\coursetransfer;
+use stored_file_creation_exception;
 
 /**
  * Create Backup Course Task
  */
-class create_backup_course_task extends \core\task\adhoc_task {
+class create_backup_course_task extends \core\task\asynchronous_backup_task {
 
-    public static function instance(
-        int $id,
-        string $status,
-    ): void {
-        $task = new self();
-        $task->set_custom_data((object) [
-            'id' => $id,
-            'status' => $status,
-        ]);
+    // Use the logging trait to get some nice, juicy, logging.
+    use \core\task\logging_trait;
 
-        return $task;
-    }
 
     /**
      * Execute the task.
+     *
+     * @throws file_exception
+     * @throws stored_file_creation_exception
      */
     public function execute() {
-        $data = $this->get_custom_data();
-        mtrace($data->id);
-        mtrace($data->status);
+        $backupid = $this->get_custom_data()->backupid;
+        $bc = \backup_controller::load_controller($backupid);
+
+        $this->log_start("Course Transfer Backup");
+        parent::execute();
+        $result  = $bc->get_results();
+        error_log(json_encode($result));
+        $file = coursetransfer::create_backupfile_url($bc->get_courseid(), $result['backup_destination']);
+        error_log(json_encode($file));
+        // TODO. Request a Destino. local_coursetransfer_destiny_backup_course_completed
+        // local_coursetransfer_destiny_backup_course_error
+        // Cual es la URL de descarga con token.
+        $this->log_finish("Course Transfer Backup");
     }
+
+    /**
+     * Course Backup.
+     */
+    public function course_backup() {
+
+    }
+
 }
