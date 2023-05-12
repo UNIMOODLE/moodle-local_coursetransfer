@@ -126,46 +126,49 @@ class origin_course_backup_external extends external_api {
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
-                // TODO. Add verification that destinysite is in settings and grab token.
-                $res = $authres['data'];
-                $object = new stdClass();
-                $object->type = 0;
-                $object->siteurl = $CFG->wwwroot;
-                $object->direction = 1;
-                $object->destiny_request_id = $requestid;
-                $object->request_category_id = null;
-                $object->origin_course_id = $courseid;
-                $object->origin_category_id = null;
-                // TODO. Revisar pliego.
-                $object->origin_enrolusers = 0;
-                $object->origin_remove_course = 0;
-                $object->origin_schedule_datetime = null;
-                $object->origin_remove_activities = 0;
-                // TODO.
-                $object->origin_activities = json_encode($sections);
-                $object->origin_backup_size = null;
-                $object->origin_backup_size_estimated = coursetransfer::get_backup_size_estimated($courseid);
-                $object->origin_backup_url = null;
+                $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
+                if ($verifydestiny['success']) {
+                    $res = $authres['data'];
+                    $object = new stdClass();
+                    $object->type = 0;
+                    $object->siteurl = $CFG->wwwroot;
+                    $object->direction = 1;
+                    $object->destiny_request_id = $requestid;
+                    $object->request_category_id = null;
+                    $object->origin_course_id = $courseid;
+                    $object->origin_category_id = null;
+                    // TODO. Revisar pliego.
+                    $object->origin_enrolusers = 0;
+                    $object->origin_remove_course = 0;
+                    $object->origin_schedule_datetime = null;
+                    $object->origin_remove_activities = 0;
+                    // TODO.
+                    $object->origin_activities = json_encode($sections);
+                    $object->origin_backup_size = null;
+                    $object->origin_backup_size_estimated = coursetransfer::get_backup_size_estimated($courseid);
+                    $object->origin_backup_url = null;
+                    $object->destiny_course_id = $destinycourseid;
+                    $object->destiny_category_id = null;
+                    $object->destiny_remove_activities = $configuration['destiny_remove_activities'];
+                    $object->destiny_merge_activities = $configuration['destiny_merge_activities'];
+                    $object->destiny_remove_enrols = $configuration['destiny_remove_enrols'];
+                    $object->destiny_remove_groups = $configuration['destiny_remove_groups'];
 
-                $object->destiny_course_id = $destinycourseid;
-                $object->destiny_category_id = null;
-                $object->destiny_remove_activities = $configuration['destiny_remove_activities'];
-                $object->destiny_merge_activities = $configuration['destiny_merge_activities'];
-                $object->destiny_remove_enrols = $configuration['destiny_remove_enrols'];
-                $object->destiny_remove_groups = $configuration['destiny_remove_groups'];
+                    $object->error_code = null;
+                    $object->error_message = null;
 
-                $object->error_code = null;
-                $object->error_message = null;
+                    $object->userid = $res->id;
+                    $object->status = 10;
 
-                $object->userid = $res->id;
-                $object->status = 10;
-
-                $requestoriginid = coursetransfer_request::insert_or_update($object);
-
-                coursetransfer::create_task_backup_course($courseid, $res->id, $destinysite);
-                $data->origin_backup_size_estimated = $object->origin_backup_size_estimated;
-                $data->request_origin_id = $requestoriginid;
-                $success = true;
+                    $requestoriginid = coursetransfer_request::insert_or_update($object);
+                    coursetransfer::create_task_backup_course($courseid, $res->id, $verifydestiny['data'], $requestid);
+                    $data->origin_backup_size_estimated = $object->origin_backup_size_estimated;
+                    $data->request_origin_id = $requestoriginid;
+                    $success = true;
+                } else {
+                    $success = false;
+                    $errors[] = $verifydestiny['error'];
+                }
             } else {
                 $success = false;
                 $errors[] = $authres['error'];

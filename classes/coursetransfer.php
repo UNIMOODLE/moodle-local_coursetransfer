@@ -122,6 +122,49 @@ class coursetransfer {
     }
 
     /**
+     * @param string $destinysite
+     * @return array
+     */
+    public static function verify_destiny_site(string $destinysite) {
+        $res = new stdClass();
+        $res->host = $destinysite;
+        $founded = false;
+        $originsites = get_config('local_coursetransfer', 'origin_sites');
+        $originsites = explode(PHP_EOL, $originsites);
+        foreach ($originsites as $site) {
+            $site = explode(';', $site);
+            if ($destinysite === $site[0]) {
+                $res->token = $site[1];
+                $founded = true;
+                break;
+            }
+        }
+        if (!$founded) {
+            return
+                [
+                    'success' => false,
+                    'data' => new stdClass(),
+                    'error' =>
+                        [
+                            'code' => '34375',
+                            'msg' => 'Destiny site not founded'
+                        ]
+                ];
+        }
+
+        return
+            [
+                'success' => true,
+                'data' => $res,
+                'error' =>
+                    [
+                        'code' => '',
+                        'msg' => ''
+                    ]
+            ];
+    }
+
+    /**
      * @param string $field
      * @param string $value
      * @return array
@@ -290,12 +333,15 @@ class coursetransfer {
     }
 
     /**
-     * Create Task to Backup of Course.
+     * Create Task to back up of Course.
      *
      * @param int $courseid
      * @param int $userid
+     * @param stdClass $destinysite
+     * @param int $requestid
+     * @param stdClass $destinysite;
      */
-    public static function create_task_backup_course(int $courseid, int $userid, string $destinysite) {
+    public static function create_task_backup_course(int $courseid, int $userid, stdClass $destinysite, int $requestid) {
         $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
                 backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, backup::RELEASESESSION_NO);
         $bc->set_status(backup::STATUS_AWAITING);
@@ -304,7 +350,7 @@ class coursetransfer {
         $backupid = $bc->get_backupid();
         $asynctask = new create_backup_course_task();
         $asynctask->set_blocking(false);
-        $asynctask->set_custom_data(array('backupid' => $backupid));
+        $asynctask->set_custom_data(array('backupid' => $backupid, 'destinysite' => $destinysite, 'requesid' => $requestid));
         $asynctask->set_userid($userid);
         \core\task\manager::queue_adhoc_task($asynctask);
     }
@@ -318,7 +364,7 @@ class coursetransfer {
      * @throws file_exception
      * @throws stored_file_creation_exception
      */
-    public static function create_backupfile_url(int $courseid, stored_file $file): array {
+    public static function create_backupfile_url(int $courseid, stored_file $file): string {
         $context = context_course::instance($courseid);
         $fs = get_file_storage();
         $timestamp = time();
@@ -345,6 +391,6 @@ class coursetransfer {
                 $storedfile->get_filepath(),
                 $storedfile->get_filename()
         );
-        return array('url' => $fileurl->out(true));
+        return $fileurl->out(true);
     }
 }

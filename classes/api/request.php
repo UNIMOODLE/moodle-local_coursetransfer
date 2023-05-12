@@ -189,16 +189,27 @@ class request {
     /**
      * Origin back up course remote.
      *
-     * @param array $fileurl
+     * @param string $fileurl
+     * @param int $requestid
      * @return response
      * @throws dml_exception
      */
-    public function destiny_backup_course(array $fileurl): response {
+    public function destiny_backup_course(string $fileurl, int $requestid): response {
         global $USER;
+        $fileurl .= '?token=' . $this->token;
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
         $params['value'] = $USER->{$params['field']};
-        return $this->req('local_coursetransfer_origin_backup_course', $params);
+        $params['requestid'] = $requestid;
+        // TODO. Decidir si se llama a backup completado o a errores.
+        if ($fileurl) {
+            $params['backupsize'] = '320';
+            return $this->req('local_coursetransfer_destiny_backup_course_completed', $params);
+        }
+
+        $params['errorcode'] = '312313';
+        $params['errormsg'] = 'Url not valid';
+        return $this->req('local_coursetransfer_destiny_backup_course_errors', $params);
     }
 
 
