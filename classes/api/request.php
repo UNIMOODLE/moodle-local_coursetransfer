@@ -203,13 +203,15 @@ class request {
         $params['requestid'] = $requestid;
         // TODO. Decidir si se llama a backup completado o a errores.
         if ($fileurl) {
+            // TODO. Calcular backup size.
             $params['backupsize'] = '320';
+            $params['fileurl'] = $fileurl;
             return $this->req('local_coursetransfer_destiny_backup_course_completed', $params);
         }
 
         $params['errorcode'] = '312313';
         $params['errormsg'] = 'Url not valid';
-        return $this->req('local_coursetransfer_destiny_backup_course_errors', $params);
+        return $this->req('local_coursetransfer_destiny_backup_course_error', $params);
     }
 
 

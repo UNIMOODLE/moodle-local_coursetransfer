@@ -101,9 +101,6 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
         $requestid = $this->get_custom_data()->requestid;
         $request = new request($site);
         $request->destiny_backup_course($fileurl, $requestid);
-        // TODO. Request a Destino. local_coursetransfer_destiny_backup_course_completed
-        // local_coursetransfer_destiny_backup_course_error
-        // Cual es la URL de descarga con token.
         $this->log_finish("Course Transfer Backup Finishing...");
 
         $bc->destroy();
