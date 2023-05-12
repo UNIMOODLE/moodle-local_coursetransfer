@@ -26,6 +26,7 @@ namespace local_coursetransfer\api;
 
 use coding_exception;
 use dml_exception;
+use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use stdClass;
 
@@ -194,26 +195,36 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function destiny_backup_course(string $fileurl, int $requestid): response {
+    public function destiny_backup_course_completed(string $fileurl, int $requestid): response {
         global $USER;
         $fileurl .= '?token=' . $this->token;
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
         $params['value'] = $USER->{$params['field']};
         $params['requestid'] = $requestid;
-        // TODO. Decidir si se llama a backup completado o a errores.
-        if ($fileurl) {
-            // TODO. Calcular backup size.
-            $params['backupsize'] = '320';
-            $params['fileurl'] = $fileurl;
-            return $this->req('local_coursetransfer_destiny_backup_course_completed', $params);
-        }
-
-        $params['errorcode'] = '312313';
-        $params['errormsg'] = 'Url not valid';
-        return $this->req('local_coursetransfer_destiny_backup_course_error', $params);
+        $params['backupsize'] = coursetransfer::get_backup_size();
+        $params['fileurl'] = $fileurl;
+        return $this->req('local_coursetransfer_destiny_backup_course_completed', $params);
     }
 
+    /**
+     * Origin back up course remote.
+     *
+     * @param int $requestid
+     * @param array $result
+     * @return response
+     * @throws dml_exception
+     */
+    public function destiny_backup_course_error(int $requestid, array $result): response {
+        global $USER;
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params['field']};
+        $params['requestid'] = $requestid;
+        $params['errorcode'] = '312313';
+        $params['errormsg'] = json_encode($result);
+        return $this->req('local_coursetransfer_destiny_backup_course_error', $params);
+    }
 
     /**
      * Request.

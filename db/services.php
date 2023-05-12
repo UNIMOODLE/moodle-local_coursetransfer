@@ -115,6 +115,7 @@ $services = [
             'local_coursetransfer_new_origin_restore_course_step1',
             'local_coursetransfer_new_origin_restore_course_step5'
         ],
+        'downloadfiles' => 1,
         'restrictedusers' => 1,
         'enabled' => 1
     ]

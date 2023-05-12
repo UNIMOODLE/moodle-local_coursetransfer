@@ -29,6 +29,7 @@ use async_helper;
 use file_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use moodle_exception;
 use stdClass;
 use stored_file_creation_exception;
 
@@ -96,11 +97,21 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
         }
 
         $result  = $bc->get_results();
-        $fileurl = coursetransfer::create_backupfile_url($bc->get_courseid(), $result['backup_destination']);
         $site = $this->get_custom_data()->destinysite;
         $requestid = $this->get_custom_data()->requestid;
         $request = new request($site);
-        $request->destiny_backup_course($fileurl, $requestid);
+        try {
+            if ($status === \backup::STATUS_FINISHED_OK) {
+                $fileurl = coursetransfer::create_backupfile_url($bc->get_courseid(), $result['backup_destination']);
+                $res = $request->destiny_backup_course_completed($fileurl, $requestid);
+            } else {
+                $res = $request->destiny_backup_course_error($requestid, $result);
+            }
+            $this->log(json_encode($res));
+        } catch (moodle_exception $e) {
+            $this->log($e->getMessage());
+        }
+
         $this->log_finish("Course Transfer Backup Finishing...");
 
         $bc->destroy();

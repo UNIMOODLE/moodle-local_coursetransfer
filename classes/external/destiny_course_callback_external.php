@@ -83,7 +83,13 @@ class destiny_course_callback_external extends external_api {
         $errors = [];
 
         try {
-            // TODO. destiny_backup_course_completed logic
+            // TODO. destiny_backup_course_completed logic.
+            // Comprobar auth y destinisite
+            // Buscamos el request id
+            // si existe actualizar estado tabla request status = 30 si existen.
+            // errores de request id poner status 0 y actualizar error msg y error code.
+            // llamar tarea descargar curso create_download_course_task() llama a otra tarea
+            // si no existe: errores.
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] =
@@ -106,7 +112,6 @@ class destiny_course_callback_external extends external_api {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'message' => new external_value(PARAM_TEXT, 'Message'),
                 'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'code' => new external_value(PARAM_INT, 'Code'),
@@ -161,7 +166,11 @@ class destiny_course_callback_external extends external_api {
         $errors = [];
 
         try {
-            // TODO. destiny_backup_course_error logic
+            // TODO. destiny_backup_course_error logic.
+            // Comprobar auth y destinisite
+            // tenemos que actualizar la tabla de request. dbget_record para buscar la fila WHERE request id.
+            // si existe db->update_record actualizar status.
+            // si no existe request id not fount.
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] =
@@ -184,7 +193,6 @@ class destiny_course_callback_external extends external_api {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'message' => new external_value(PARAM_TEXT, 'Message'),
                 'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'code' => new external_value(PARAM_INT, 'Code'),

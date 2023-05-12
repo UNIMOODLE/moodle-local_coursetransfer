@@ -129,7 +129,7 @@ class coursetransfer {
         $res = new stdClass();
         $res->host = $destinysite;
         $founded = false;
-        $originsites = get_config('local_coursetransfer', 'origin_sites');
+        $originsites = get_config('local_coursetransfer', 'destiny_sites');
         $originsites = explode(PHP_EOL, $originsites);
         foreach ($originsites as $site) {
             $site = explode(';', $site);
@@ -259,6 +259,16 @@ class coursetransfer {
     }
 
     /**
+     * Get Backup Size Estimated
+     *
+     * @return int
+     */
+    public static function get_backup_size(): int {
+        // TODO: calcular tamaño del backup.
+        return 150;
+    }
+
+    /**
      * Get Sections With Activities
      *
      * @param int $courseid
@@ -350,7 +360,7 @@ class coursetransfer {
         $backupid = $bc->get_backupid();
         $asynctask = new create_backup_course_task();
         $asynctask->set_blocking(false);
-        $asynctask->set_custom_data(array('backupid' => $backupid, 'destinysite' => $destinysite, 'requesid' => $requestid));
+        $asynctask->set_custom_data(array('backupid' => $backupid, 'destinysite' => $destinysite, 'requestid' => $requestid));
         $asynctask->set_userid($userid);
         \core\task\manager::queue_adhoc_task($asynctask);
     }

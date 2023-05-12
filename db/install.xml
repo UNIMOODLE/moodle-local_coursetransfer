@@ -31,7 +31,7 @@
                 <FIELD NAME="error_code" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Code Error"/>
                 <FIELD NAME="error_message" SEQUENCE="false" TYPE="text" LENGTH="10" NOTNULL="false" COMMENT="Message Error"/>
                 <FIELD NAME="userid" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Creator User ID"/>
-                <FIELD NAME="status" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="0 = error, 1 = not_started, 10 = in_progress, 50 = incompleted (no apply en curso), 70 = download, 100 = completed"/>
+                <FIELD NAME="status" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="0 = error, 1 = not_started, 10 = in_progress, 30 = backup, 50 = download, 70 = downloaded, 80 = restore, 100 = completed"/>
                 <FIELD NAME="timemodified" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
                 <FIELD NAME="timecreated" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
             </FIELDS>
