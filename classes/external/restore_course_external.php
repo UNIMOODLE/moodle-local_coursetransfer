@@ -198,7 +198,8 @@ class restore_course_external extends external_api {
      */
     public static function new_origin_restore_course_step5(int $siteurl, int $courseid, int $destinyid,
                                                            array $configuration, array $sections): array {
-        global $USER;
+        global $USER, $CFG;
+
         self::validate_parameters(
             self::new_origin_restore_course_step5_parameters(),
             [
@@ -232,8 +233,9 @@ class restore_course_external extends external_api {
             $object->status = 1;
             $object->userid = $USER->id;
             $requestid = coursetransfer_request::insert_or_update($object);
+            $destinysite = $CFG->wwwroot;
             $request = new request($site);
-            $res = $request->origin_backup_course($requestid, $courseid, $destinyid, $configuration, $sections);
+            $res = $request->origin_backup_course($requestid, $courseid, $destinyid, $destinysite, $configuration, $sections);
             if ($res->success) {
                 $object->status = 30;
                 coursetransfer_request::insert_or_update($object, $requestid);

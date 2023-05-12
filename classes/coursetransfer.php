@@ -295,7 +295,7 @@ class coursetransfer {
      * @param int $courseid
      * @param int $userid
      */
-    public static function create_task_backup_course(int $courseid, int $userid) {
+    public static function create_task_backup_course(int $courseid, int $userid, string $destinysite) {
         $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
                 backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, backup::RELEASESESSION_NO);
         $bc->set_status(backup::STATUS_AWAITING);

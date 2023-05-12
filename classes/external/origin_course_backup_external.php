@@ -53,6 +53,7 @@ class origin_course_backup_external extends external_api {
                 'courseid' => new external_value(PARAM_INT, 'Course ID'),
                 'destinycourseid' => new external_value(PARAM_INT, 'Destiny Course ID'),
                 'requestid' => new external_value(PARAM_INT, 'Request ID'),
+                'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site'),
                 'configuration' => new external_single_structure(
                         array(
                                 'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
@@ -90,6 +91,7 @@ class origin_course_backup_external extends external_api {
      * @param int $courseid
      * @param int $destinycourseid
      * @param int $requestid
+     * @param string $destinysite
      * @param array $configuration
      * @param array $sections
      *
@@ -98,7 +100,7 @@ class origin_course_backup_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function origin_backup_course(string $field, string $value, int $courseid, int $destinycourseid,
-            int $requestid, array $configuration, array $sections = []): array {
+            int $requestid, string $destinysite, array $configuration, array $sections = []): array {
 
         global $CFG;
 
@@ -109,8 +111,9 @@ class origin_course_backup_external extends external_api {
                 'courseid' => $courseid,
                 'destinycourseid' => $destinycourseid,
                 'requestid' => $requestid,
+                'destinysite' => $destinysite,
                 'configuration' => $configuration,
-                'sections' => $sections
+                'sections' => $sections,
             ]
         );
 
@@ -123,6 +126,7 @@ class origin_course_backup_external extends external_api {
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
+                // TODO. Add verification that destinysite is in settings and grab token.
                 $res = $authres['data'];
                 $object = new stdClass();
                 $object->type = 0;
@@ -158,7 +162,7 @@ class origin_course_backup_external extends external_api {
 
                 $requestoriginid = coursetransfer_request::insert_or_update($object);
 
-                coursetransfer::create_task_backup_course($courseid, $res->id);
+                coursetransfer::create_task_backup_course($courseid, $res->id, $destinysite);
                 $data->origin_backup_size_estimated = $object->origin_backup_size_estimated;
                 $data->request_origin_id = $requestoriginid;
                 $success = true;

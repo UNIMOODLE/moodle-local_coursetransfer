@@ -114,20 +114,22 @@ class request {
      * @param int $requestid
      * @param int $courseid
      * @param int $destinycourseid
+     * @param array $destinysite
      * @param array $configuration
      * @param array $sections
      * @return response
      * @throws dml_exception
      */
     public function origin_backup_course(int $requestid, int $courseid, int $destinycourseid,
-            array $configuration, array $sections): response {
+                 string $destinysite, array $configuration, array $sections): response {
         global $USER;
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
         $params['value'] = $USER->{$params['field']};
-        $params['requestid'] = $requestid;
         $params['courseid'] = $courseid;
         $params['destinycourseid'] = $destinycourseid;
+        $params['requestid'] = $requestid;
+        $params['destinysite'] = $destinysite;
         $params = array_merge($params, $this->serialize_configuration($configuration));
         $params = array_merge($params, $this->serialize_sections($sections));
         return $this->req('local_coursetransfer_origin_backup_course', $params);
