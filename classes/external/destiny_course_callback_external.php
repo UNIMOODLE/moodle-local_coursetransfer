@@ -28,7 +28,10 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use local_coursetransfer\coursetransfer;
+use local_coursetransfer\task\download_file_course_task;
 use moodle_exception;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -38,6 +41,8 @@ require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
 class destiny_course_callback_external extends external_api {
+
+    const TABLE = 'local_coursetransfer_request';
 
     /**
      * @return external_function_parameters
@@ -69,6 +74,8 @@ class destiny_course_callback_external extends external_api {
      */
     public static function destiny_backup_course_completed(string $field, string $value, int $requestid, int $backupsize, string $fileurl): array {
 
+        global $DB;
+
         self::validate_parameters(
             self::destiny_backup_course_completed_parameters(), [
                 'field' => $field,
@@ -83,13 +90,37 @@ class destiny_course_callback_external extends external_api {
         $errors = [];
 
         try {
-            // TODO. destiny_backup_course_completed logic.
-            // Comprobar auth y destinisite
-            // Buscamos el request id
-            // si existe actualizar estado tabla request status = 30 si existen.
-            // errores de request id poner status 0 y actualizar error msg y error code.
+            // TODO. destiny_backup_course_completed logic. (destinysite, errors)
             // llamar tarea descargar curso create_download_course_task() llama a otra tarea
             // si no existe: errores.
+            $authres = coursetransfer::auth_user($field, $value);
+            if ($authres['success']) {
+                $request = $DB->get_record(self::TABLE, ['id' => $requestid]);
+                if ($request) {
+                    $obj = new stdClass();
+                    $obj->id = $requestid;
+                    if ($request->errors) {
+                        $obj->status = 0;
+                    } else {
+                        $obj->status = 30;
+                    }
+                    $DB->update_record(self::TABLE, $obj);
+                    $asynctask = new download_file_course_task();
+                    $asynctask->set_blocking(false);
+                    $asynctask->set_custom_data(array('requestid' => $requestid));
+                    \core\task\manager::queue_adhoc_task($asynctask);
+                } else {
+                    $success = false;
+                    $errors[] =
+                        [
+                            'code' => '471841',
+                            'string' => "REQUEST NOT FOUND"
+                        ];
+                }
+            } else {
+                $success = false;
+                $errors[] = $authres['error'];
+            }
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] =
