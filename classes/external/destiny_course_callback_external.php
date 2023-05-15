@@ -28,7 +28,9 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use local_coursetransfer\coursetransfer;
 use moodle_exception;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -161,16 +163,40 @@ class destiny_course_callback_external extends external_api {
             ]
         );
 
+        global $DB;
+        $table = 'local_coursetransfer_request';
         $success = true;
         $message = '';
         $errors = [];
 
         try {
-            // TODO. destiny_backup_course_error logic.
-            // Comprobar auth y destinisite
-            // tenemos que actualizar la tabla de request. dbget_record para buscar la fila WHERE request id.
-            // si existe db->update_record actualizar status.
-            // si no existe request id not fount.
+            // Comprobar destinisite
+            $authres = coursetransfer::auth_user($field, $value);
+            if ($authres['success']) {
+                $request = $DB->get_record($table, ['id' => $requestid]);
+                if ($request) {
+                    $obj = new stdClass();
+                    $obj->id = $requestid;
+                    $obj->error_code = $errorcode;
+                    $obj->error_message = $errormsg;
+                    $obj->status = 0;
+                    $DB->update_record($table, $obj);
+                } else {
+                    $success = false;
+                    $errors[] =
+                        [
+                            'code' => 'no_code',
+                            'msg' => 'Request id not found'
+                        ];
+                }
+            } else {
+                $success = false;
+                $errors[] =
+                    [
+                        'code' => 'no_code',
+                        'msg' => 'Could not authenticate the user'
+                    ];
+            }
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] =
