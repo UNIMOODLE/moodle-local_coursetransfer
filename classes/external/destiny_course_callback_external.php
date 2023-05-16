@@ -39,6 +39,7 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
+require_once($CFG->dirroot . '/local/coursetransfer/classes/task/download_file_course_task.php');
 
 class destiny_course_callback_external extends external_api {
 
@@ -97,6 +98,8 @@ class destiny_course_callback_external extends external_api {
             if ($authres['success']) {
                 $request = $DB->get_record(self::TABLE, ['id' => $requestid]);
                 if ($request) {
+                    $origintoken = coursetransfer::get_token_origin_site($fileurl);
+                    $finalurl = $fileurl . '?token=' . $origintoken;
                     $obj = new stdClass();
                     $obj->id = $requestid;
                     if ($request->errors) {
@@ -107,7 +110,7 @@ class destiny_course_callback_external extends external_api {
                     $DB->update_record(self::TABLE, $obj);
                     $asynctask = new download_file_course_task();
                     $asynctask->set_blocking(false);
-                    $asynctask->set_custom_data(array('requestid' => $requestid));
+                    $asynctask->set_custom_data(array('requestid' => $requestid, 'fileurl' => $fileurl));
                     \core\task\manager::queue_adhoc_task($asynctask);
                 } else {
                     $success = false;

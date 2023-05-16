@@ -248,6 +248,29 @@ class coursetransfer {
     }
 
     /**
+     * Get token Origin site
+     *
+     * @param string $originurl
+     * @return string
+     */
+    public static function get_token_origin_site(string $originurl): string {
+        $token = '';
+        $host = parse_url($originurl, PHP_URL_HOST);
+        $scheme = parse_url($originurl, PHP_URL_SCHEME);
+        $reshost = $scheme . '://' . $host;
+        $originsites = get_config('local_coursetransfer', 'origin_sites');
+        $originsites = explode(PHP_EOL, $originsites);
+        foreach ($originsites as $site) {
+            $site = explode(';', $site);
+            if ($site[0] === $reshost) {
+                $token = $site[1];
+                break;
+            }
+        }
+        return $token;
+    }
+
+    /**
      * Get Backup Size Estimated
      *
      * @param int $courseid

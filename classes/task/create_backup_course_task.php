@@ -101,7 +101,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
         $requestid = $this->get_custom_data()->requestid;
         $request = new request($site);
         try {
-            if ($status === \backup::STATUS_FINISHED_OK) {
+            if ($bc->get_status() === \backup::STATUS_FINISHED_OK) {
                 $fileurl = coursetransfer::create_backupfile_url($bc->get_courseid(), $result['backup_destination']);
                 $res = $request->destiny_backup_course_completed($fileurl, $requestid);
             } else {

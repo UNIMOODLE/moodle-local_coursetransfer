@@ -197,7 +197,6 @@ class request {
      */
     public function destiny_backup_course_completed(string $fileurl, int $requestid): response {
         global $USER;
-        $fileurl .= '?token=' . $this->token;
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
         $params['value'] = $USER->{$params['field']};
