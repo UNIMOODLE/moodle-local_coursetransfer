@@ -53,6 +53,11 @@ class download_file_course_task extends \core\task\adhoc_task {
 
         $this->log_start("Download File Course Starting...");
         // TODO. Call restore_course_task.
+        $asynctask = new restore_course_task();
+        $asynctask->set_blocking(false);
+        $asynctask->set_custom_data(array('backupdir' => 'path', 'courseid' => 4, 'adminid' => 4 , 'restoreoptions' => []));
+        $asynctask->set_userid(3);
+        \core\task\manager::queue_adhoc_task($asynctask);
         $this->log_finish("Download File Course Finishing...");
 
         mtrace('Download completed');
