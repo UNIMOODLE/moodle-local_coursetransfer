@@ -96,7 +96,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
 
         }
 
-        $result  = $bc->get_results();
+        $result = $bc->get_results();
         $site = $this->get_custom_data()->destinysite;
         $requestid = $this->get_custom_data()->requestid;
         $request = new request($site);

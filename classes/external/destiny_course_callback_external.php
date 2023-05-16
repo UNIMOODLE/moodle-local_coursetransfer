@@ -72,7 +72,8 @@ class destiny_course_callback_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function destiny_backup_course_completed(string $field, string $value, int $requestid, int $backupsize, string $fileurl): array {
+    public static function destiny_backup_course_completed(string $field, string $value, int $requestid,
+                                                           int $backupsize, string $fileurl): array {
 
         global $DB;
 
@@ -181,7 +182,8 @@ class destiny_course_callback_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function destiny_backup_course_error(string $field, string $value, int $requestid, int $errorcode, string $errormsg): array {
+    public static function destiny_backup_course_error(string $field, string $value, int $requestid,
+                                                       int $errorcode, string $errormsg): array {
         self::validate_parameters(
             self::destiny_backup_course_error_parameters(), [
                 'field' => $field,
