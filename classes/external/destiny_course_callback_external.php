@@ -111,7 +111,7 @@ class destiny_course_callback_external extends external_api {
                     $DB->update_record(self::TABLE, $obj);
                     $asynctask = new download_file_course_task();
                     $asynctask->set_blocking(false);
-                    $asynctask->set_custom_data(array('requestid' => $requestid, 'fileurl' => $fileurl));
+                    $asynctask->set_custom_data(array('requestid' => $requestid, 'fileurl' => $finalurl));
                     \core\task\manager::queue_adhoc_task($asynctask);
                 } else {
                     $success = false;
