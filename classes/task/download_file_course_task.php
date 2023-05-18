@@ -52,6 +52,8 @@ class download_file_course_task extends \core\task\adhoc_task {
         global $DB;
 
         $this->log_start("Download File Course Starting...");
+        // TODO. Download file from fileurl and store it somewhere.
+        // TODO. Get path of the stored path and pass it to the restore course task.
         // TODO. Call restore_course_task.
         $asynctask = new restore_course_task();
         $asynctask->set_blocking(false);
