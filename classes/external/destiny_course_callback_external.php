@@ -29,6 +29,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\task\download_file_course_task;
 use moodle_exception;
 use stdClass;
@@ -42,8 +43,6 @@ require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->dirroot . '/local/coursetransfer/classes/task/download_file_course_task.php');
 
 class destiny_course_callback_external extends external_api {
-
-    const TABLE = 'local_coursetransfer_request';
 
     /**
      * @return external_function_parameters
@@ -96,22 +95,17 @@ class destiny_course_callback_external extends external_api {
             // llamar tarea descargar curso create_download_course_task() llama a otra tarea
             // si no existe: errores.
             $authres = coursetransfer::auth_user($field, $value);
+            // TODO. comprobar que el origen es correcto.
             if ($authres['success']) {
-                $request = $DB->get_record(self::TABLE, ['id' => $requestid]);
+                $request = coursetransfer_request::get($requestid);
                 if ($request) {
                     $origintoken = coursetransfer::get_token_origin_site($fileurl);
                     $finalurl = $fileurl . '?token=' . $origintoken;
-                    $obj = new stdClass();
-                    $obj->id = $requestid;
-                    if ($request->errors) {
-                        $obj->status = 0;
-                    } else {
-                        $obj->status = 30;
-                    }
-                    $DB->update_record(self::TABLE, $obj);
+                    $request->status = 30;
+                    coursetransfer_request::insert_or_update($request);
                     $asynctask = new download_file_course_task();
                     $asynctask->set_blocking(false);
-                    $asynctask->set_custom_data(array('requestid' => $requestid, 'fileurl' => $finalurl));
+                    $asynctask->set_custom_data(array('request' => $request, 'fileurl' => $finalurl));
                     \core\task\manager::queue_adhoc_task($asynctask);
                 } else {
                     $success = false;

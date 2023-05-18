@@ -99,6 +99,7 @@ define([
             };
             Ajax.call([request])[0].done(function(response) {
                 if (response.success) {
+                    window.location.href = response.data.nexturl;
                 } else if (!response.success) {
                     self.renderErrors(response.errors, alertbox);
                 } else {

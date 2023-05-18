@@ -114,6 +114,7 @@ $string['list_desc_restoration'] = "Haz click aquí para restaurar un curso desd
 $string['status_error'] = "Error";
 $string['status_not_started'] = "Sin empezar";
 $string['status_in_progress'] = "En progreso";
+$string['status_in_backup'] = "Copía Seguridad";
 $string['status_incompleted'] = "Sin completar";
 $string['status_download'] = "Descargada";
 $string['status_completed'] = "Completada";

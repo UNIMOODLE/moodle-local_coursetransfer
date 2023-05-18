@@ -114,6 +114,7 @@ $string['list_desc_restoration'] = "Click here to restore a course from another 
 $string['status_error'] = "Error";
 $string['status_not_started'] = "Not started";
 $string['status_in_progress'] = "In progress";
+$string['status_in_backup'] = "In backup";
 $string['status_incompleted'] = "Incompleted";
 $string['status_download'] = "Download";
 $string['status_completed'] = "Completed";

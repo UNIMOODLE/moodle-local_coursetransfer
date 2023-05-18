@@ -125,9 +125,7 @@ class restore_course_external extends external_api {
                     array(
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ),
-                    PARAM_TEXT,
-                    'Errors'
+                    )
                 )),
                 'data' => new external_single_structure(
                     array(
@@ -137,9 +135,7 @@ class restore_course_external extends external_api {
                         'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
                         'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
                         'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
-                    ),
-                    PARAM_TEXT,
-                    'Data'
+                    )
                 )
             )
         );
@@ -213,6 +209,9 @@ class restore_course_external extends external_api {
 
         $success = false;
         $errors = [];
+        $data = new stdClass();
+        $nexturl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $destinyid]);
+        $data->nexturl = $nexturl->out(false);
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
@@ -241,10 +240,12 @@ class restore_course_external extends external_api {
                 coursetransfer_request::insert_or_update($object, $requestid);
                 $success = true;
             } else {
-                $errors[] = $res->errors;
+                $err = $res->errors;
+                $er = current($err);
+                $errors = array_merge($errors, $res->errors);
                 $object->status = 0;
-                $object->error_code = $errors[0]['code'];
-                $object->error_message = $errors[0]['msg'];
+                $object->error_code = $er->code;
+                $object->error_message = $er->msg;
                 coursetransfer_request::insert_or_update($object, $requestid);
                 $success = false;
             }
@@ -258,7 +259,8 @@ class restore_course_external extends external_api {
 
         return [
             'success' => $success,
-            'errors' => $errors
+            'errors' => $errors,
+            'data' => $data
         ];
     }
 
@@ -269,13 +271,16 @@ class restore_course_external extends external_api {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'data' => new external_single_structure(
+                        array(
+                                'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
+                        )
+                ),
                 'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ),
-                    PARAM_TEXT,
-                    'Errors'
+                    )
                 ))
             )
         );

@@ -41,17 +41,15 @@ class download_file_course_task extends \core\task\adhoc_task {
     // Use the logging trait to get some nice, juicy, logging.
     use \core\task\logging_trait;
 
-
     /**
      * Execute the task.
      *
-     * @throws file_exception
-     * @throws stored_file_creation_exception
      */
     public function execute() {
-        global $DB;
 
-        $this->log_start("Download File Course Starting...");
+        $this->log_start("Download File Backup Course Remote Starting...");
+        $this->log('FILE URL' . $this->get_custom_data()->fileurl);
+        $this->log('REQUEST' . json_encode($this->get_custom_data()->request));
         // TODO. Download file from fileurl and store it somewhere.
         // TODO. Get path of the stored path and pass it to the restore course task.
         // TODO. Call restore_course_task.
@@ -60,7 +58,7 @@ class download_file_course_task extends \core\task\adhoc_task {
         $asynctask->set_custom_data(array('backupdir' => 'path', 'courseid' => 4, 'adminid' => 4 , 'restoreoptions' => []));
         $asynctask->set_userid(3);
         \core\task\manager::queue_adhoc_task($asynctask);
-        $this->log_finish("Download File Course Finishing...");
+        $this->log_finish("Download File Backup Course Remote Finishing...");
 
         mtrace('Download completed');
     }

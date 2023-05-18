@@ -36,6 +36,18 @@ class coursetransfer_request {
     const TABLE = 'local_coursetransfer_request';
 
     /**
+     * Get.
+     *
+     * @param int $requestid
+     * @return false|mixed|stdClass
+     * @throws dml_exception
+     */
+    public static function get(int $requestid) {
+        global $DB;
+        return $DB->get_record(self::TABLE, ['id' => $requestid]);
+    }
+
+    /**
      * Insert or update row in table.
      *
      * @param stdClass $object
