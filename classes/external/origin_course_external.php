@@ -172,7 +172,6 @@ class origin_course_external extends external_api {
             ]
         );
 
-        $success = false;
         $errors = [];
         $data = [
             'id' => 0,
@@ -201,7 +200,6 @@ class origin_course_external extends external_api {
             $success = true;
         } catch (moodle_exception $e) {
             $success = false;
-            $message = $e->getMessage();
             $errors[] =
                 [
                     'code' => 129,

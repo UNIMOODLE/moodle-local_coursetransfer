@@ -17,7 +17,7 @@
 /**
  * This file defines an adhoc task to create a backup of the curse.
  *
- * @package    mod_forum
+ * @package    local_coursetransfer
  * @copyright  2023 3iPunt <https://www.tresipunt.com/>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,43 +26,56 @@
 namespace local_coursetransfer\task;
 
 use backup;
-use core\session\exception;
+use local_coursetransfer\coursetransfer_request;
+use moodle_exception;
 use restore_controller;
 
 class restore_course_task extends \core\task\adhoc_task {
 
+    // Use the logging trait to get some nice, juicy, logging.
+    use \core\task\logging_trait;
 
+    /**
+     * Execute.
+     *
+     * @throws moodle_exception
+     */
     public function execute() {
-        // TODO: Implement execute() method.
-        // Necesitamos el backup y saber a que curso vamos a restaurarlo.
-        $backupdir = $this->get_custom_data()->backupdir;
-        $courseid = $this->get_custom_data()->courseid;
-        $adminid = $this->get_custom_data()->adminid;
+
+        $this->log_start("Restore Backup Course Remote Starting...");
+
+        /** @var restore_controller $rc */
+        $rc = $this->get_custom_data()->controller;
+        $request = $this->get_custom_data()->request;
         $restoreoptions = $this->get_custom_data()->restoreoptions;
         try {
-            $controller = new restore_controller($backupdir, $courseid,
-                backup::INTERACTIVE_NO, backup::MODE_GENERAL, $adminid,
-                backup::TARGET_NEW_COURSE);
+
+            //$rc->get_plan()->get_setting('users')->set_value(true);
 
             foreach ($restoreoptions as $option => $value) {
-                $controller->get_plan()->get_setting($option)->set_value($value);
+                $rc->get_plan()->get_setting($option)->set_value($value);
             }
 
-            if ($controller->get_status() == backup::STATUS_REQUIRE_CONV) {
-                $controller->convert();
+            if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
+                $rc->convert();
             }
 
             // Execute restore.
-            $controller->execute_precheck();
-            $controller->execute_plan();
-            // $transaction->allow_commit();
-            $controller->destroy();
+            $rc->execute_precheck();
+            $rc->execute_plan();
+            $rc->destroy();
 
-            fulldelete($path);
+            $this->log('Restore Backup Cours Remote Success!');
 
-            return $courseid;
-        } catch (exception | \restore_controller_exception $e) {
-            var_dump($e);
+        } catch (\Exception $e) {
+            $this->log($e->getMessage());
+            $request->status = 0;
+            $request->error_code = '3332343';
+            $request->error_message = $e->getMessage();
+            coursetransfer_request::insert_or_update($request, $request->id);
         }
+
+        $this->log_finish("Restore Backup Cours Remote Finishing...");
+
     }
 }

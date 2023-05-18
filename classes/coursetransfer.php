@@ -33,8 +33,12 @@ use file_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\api\response;
 use local_coursetransfer\task\create_backup_course_task;
+use local_coursetransfer\task\download_file_course_task;
+use local_coursetransfer\task\restore_course_task;
 use moodle_exception;
 use moodle_url;
+use restore_controller;
+use restore_controller_exception;
 use stdClass;
 use stored_file;
 use stored_file_creation_exception;
@@ -44,6 +48,7 @@ defined('MOODLE_INTERNAL') || die;
 global $CFG;
 
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 require_once($CFG->dirroot . '/local/coursetransfer/classes/task/create_backup_course_task.php');
 
 class coursetransfer {
@@ -372,9 +377,10 @@ class coursetransfer {
      * @param int $userid
      * @param stdClass $destinysite
      * @param int $requestid
-     * @param stdClass $destinysite;
+     * @param int $requestoriginid
      */
-    public static function create_task_backup_course(int $courseid, int $userid, stdClass $destinysite, int $requestid) {
+    public static function create_task_backup_course(
+            int $courseid, int $userid, stdClass $destinysite, int $requestid, int $requestoriginid) {
         $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
                 backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, backup::RELEASESESSION_NO);
         $bc->set_status(backup::STATUS_AWAITING);
@@ -383,9 +389,68 @@ class coursetransfer {
         $backupid = $bc->get_backupid();
         $asynctask = new create_backup_course_task();
         $asynctask->set_blocking(false);
-        $asynctask->set_custom_data(array('backupid' => $backupid, 'destinysite' => $destinysite, 'requestid' => $requestid));
+        $asynctask->set_custom_data(
+                [
+                        'backupid' => $backupid,
+                        'destinysite' => $destinysite,
+                        'requestid' => $requestid,
+                        'requestoriginid' => $requestoriginid
+                ]);
         $asynctask->set_userid($userid);
         \core\task\manager::queue_adhoc_task($asynctask);
+    }
+
+    /**
+     * Create Task to dowload Course.
+     *
+     * @param stdClass $request
+     * @param string $fileurl
+     */
+    public static function create_task_download_course(stdClass $request, string $fileurl) {
+        $asynctask = new download_file_course_task();
+        $asynctask->set_blocking(false);
+        $asynctask->set_custom_data(
+                array('request' => $request, 'fileurl' => $fileurl)
+        );
+        \core\task\manager::queue_adhoc_task($asynctask);
+    }
+
+    /**
+     * Create Task to restore Course.
+     *
+     * @param stdClass $request
+     * @param stored_file $file
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function create_task_restore_course(stdClass $request, stored_file $file) {
+        try {
+            $courseid = $request->destiny_course_id;
+            $userid = $request->userid;
+            $rc = new restore_controller($file->get_filepath(), $courseid,
+                    backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid,
+                    backup::TARGET_CURRENT_ADDING);
+
+            $restoreoptions = [];
+            foreach ($restoreoptions as $option => $value) {
+                $rc->get_plan()->get_setting($option)->set_value($value);
+            }
+
+            if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
+                $rc->convert();
+            }
+
+            // Execute restore.
+            $rc->execute_precheck();
+            $rc->execute_plan();
+            $rc->destroy();
+            $rc->destroy();
+        } catch (\Exception $e) {
+            $request->status = 0;
+            $request->error_code = '1111';
+            $request->error_message = $e->getMessage();
+            coursetransfer_request::insert_or_update($request, $request->id);
+        }
     }
 
     /**

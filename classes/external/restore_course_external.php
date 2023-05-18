@@ -236,7 +236,7 @@ class restore_course_external extends external_api {
             $request = new request($site);
             $res = $request->origin_backup_course($requestid, $courseid, $destinyid, $destinysite, $configuration, $sections);
             if ($res->success) {
-                $object->status = 30;
+                $object->status = 10;
                 coursetransfer_request::insert_or_update($object, $requestid);
                 $success = true;
             } else {

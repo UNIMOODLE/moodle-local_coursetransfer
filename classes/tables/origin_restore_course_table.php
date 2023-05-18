@@ -25,6 +25,7 @@
 namespace local_coursetransfer\tables;
 
 use coding_exception;
+use core_user;
 use DateTime;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -222,7 +223,8 @@ class origin_restore_course_table extends table_sql {
      */
     public function col_userid(stdClass $row): string {
         $href = new moodle_url($row->siteurl . '/user/profile.php', ['id' => $row->userid]);
-        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->userid . '</a>';
+        $user = core_user::get_user($row->userid);
+        return '<a href="' . $href->out(false) . '" target="_blank">' . fullname($user) . '</a>';
     }
 
     /**

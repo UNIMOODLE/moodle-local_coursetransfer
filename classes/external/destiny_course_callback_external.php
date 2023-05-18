@@ -102,11 +102,8 @@ class destiny_course_callback_external extends external_api {
                     $origintoken = coursetransfer::get_token_origin_site($fileurl);
                     $finalurl = $fileurl . '?token=' . $origintoken;
                     $request->status = 30;
-                    coursetransfer_request::insert_or_update($request);
-                    $asynctask = new download_file_course_task();
-                    $asynctask->set_blocking(false);
-                    $asynctask->set_custom_data(array('request' => $request, 'fileurl' => $finalurl));
-                    \core\task\manager::queue_adhoc_task($asynctask);
+                    coursetransfer_request::insert_or_update($request, $requestid);
+                    coursetransfer::create_task_download_course($request, $finalurl);
                 } else {
                     $success = false;
                     $errors[] =
@@ -143,7 +140,7 @@ class destiny_course_callback_external extends external_api {
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
                     array(
-                        'code' => new external_value(PARAM_INT, 'Code'),
+                        'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message')
                     ), PARAM_TEXT, 'Errors'
                 )),

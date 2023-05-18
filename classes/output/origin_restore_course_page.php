@@ -91,7 +91,7 @@ class origin_restore_course_page implements renderable, templatable {
                     csr.destiny_merge_activities, csr.destiny_remove_enrols, csr.destiny_remove_groups, csr.origin_backup_size,
                     csr.error_code, csr.error_message, csr.userid, csr.timemodified, csr.timecreated';
         $from = '{local_coursetransfer_request} csr';
-        $where = 'destiny_course_id = :courseid';
+        $where = 'destiny_course_id = :courseid AND direction = 0';
         $params = ['courseid' => $this->course->id];
         $table->set_sql($select, $from, $where, $params);
         $table->sortable(true, 'timemodified', SORT_DESC);

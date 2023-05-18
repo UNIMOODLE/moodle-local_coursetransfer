@@ -26,12 +26,12 @@
 namespace local_coursetransfer\task;
 
 use async_helper;
-use file_exception;
+use dml_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
 use moodle_exception;
 use stdClass;
-use stored_file_creation_exception;
 
 /**
  * Create Backup Course Task
@@ -47,8 +47,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
     /**
      * Execute the task.
      *
-     * @throws file_exception
-     * @throws stored_file_creation_exception
+     * @throws dml_exception
      */
     public function execute() {
         global $DB;
@@ -101,11 +100,22 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
         $requestid = $this->get_custom_data()->requestid;
         $request = new request($site);
         try {
+            $requestorigin = coursetransfer_request::get($this->get_custom_data()->requestoriginid);
             if ($bc->get_status() === \backup::STATUS_FINISHED_OK) {
                 $fileurl = coursetransfer::create_backupfile_url($bc->get_courseid(), $result['backup_destination']);
+                if ($requestorigin) {
+                    $requestorigin->fileurl = $fileurl;
+                    coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                }
                 $res = $request->destiny_backup_course_completed($fileurl, $requestid);
             } else {
                 $res = $request->destiny_backup_course_error($requestid, $result);
+            }
+            if (!$res->success) {
+                $requestorigin->status = 0;
+                $requestorigin->error_code = $res->errors['code'];
+                $requestorigin->error_message = $res->errors['msg'];
+                coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
             }
             $this->log(json_encode($res));
         } catch (moodle_exception $e) {

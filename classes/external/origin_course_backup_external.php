@@ -161,7 +161,8 @@ class origin_course_backup_external extends external_api {
                     $object->status = 10;
 
                     $requestoriginid = coursetransfer_request::insert_or_update($object);
-                    coursetransfer::create_task_backup_course($courseid, $res->id, $verifydestiny['data'], $requestid);
+                    coursetransfer::create_task_backup_course(
+                            $courseid, $res->id, $verifydestiny['data'], $requestid, $requestoriginid);
                     $data->origin_backup_size_estimated = $object->origin_backup_size_estimated;
                     $data->request_origin_id = $requestoriginid;
                     $success = true;
