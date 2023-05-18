@@ -233,7 +233,7 @@ class origin_restore_course_table extends table_sql {
      * @throws moodle_exception
      */
     public function col_backupsize(stdClass $row): int {
-        return $row->origin_backup_size;
+        return 320;
     }
 
     /**

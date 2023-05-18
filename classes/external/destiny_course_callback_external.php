@@ -118,7 +118,7 @@ class destiny_course_callback_external extends external_api {
                     $errors[] =
                         [
                             'code' => '471841',
-                            'string' => "REQUEST NOT FOUND"
+                            'msg' => "REQUEST NOT FOUND"
                         ];
                 }
             } else {
@@ -130,7 +130,7 @@ class destiny_course_callback_external extends external_api {
             $errors[] =
                 [
                     'code' => 'no_code',
-                    'string' => $e->getMessage()
+                    'msg' => $e->getMessage()
                 ];
         }
 
