@@ -44,6 +44,40 @@ function local_coursetransfer_extend_navigation_course(navigation_node $navigati
 }
 
 /**
+ * Adds to the course admin menu.
+ *
+ * @param navigation_node $navigation The navigation node to extend
+ * @param context $context The context of the course
+ * @return void|null return null if we don't want to display the node.
+ */
+function local_coursetransfer_extend_navigation_category_settings(navigation_node $navigation, context_coursecat $context) {
+    global $PAGE;
+
+    $categoryid = $context->instanceid;
+
+    $category = core_course_category::get($categoryid, MUST_EXIST);
+
+    $url = new moodle_url('/local/coursetransfer/origin_restore_category.php', array('id' => $category->id));
+    $pluginname = 'local_coursetransfer';
+    $label = get_string('origin_restore_category', 'local_coursetransfer');
+
+    $node = navigation_node::create(
+            $label,
+            $url,
+            navigation_node::NODETYPE_LEAF,
+            'local_coursetransfer',
+            'local_coursetransfer',
+            new pix_icon('trash', $pluginname, 'tool_recyclebin')
+    );
+
+    if ($PAGE->url->compare($url, URL_MATCH_BASE)) {
+        $node->make_active();
+    }
+
+    $navigation->add_node($node);
+}
+
+/**
  * Defines custom file provider for downloading backup from remote site.
  *
  * @param stdClass $course the course object
@@ -54,8 +88,9 @@ function local_coursetransfer_extend_navigation_course(navigation_node $navigati
  * @param bool $forcedownload whether or not force download
  * @param array $options additional options affecting the file serving
  * @return bool false if the file not found, just send the file otherwise and do not return anything
+ * @throws coding_exception
  */
-function local_coursetransfer_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
+function local_coursetransfer_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()): bool {
     // Check that the filearea is sane.
     if ($filearea !== 'backup') {
         return false;

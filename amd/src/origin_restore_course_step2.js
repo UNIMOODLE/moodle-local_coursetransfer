@@ -62,9 +62,20 @@ define([
         restoreCourseStep2.prototype.clickNext = function(e) {
             let selectedcourse = $('tr.selected');
             let courseid = selectedcourse.find('#courseid').text();
+            let alertbox = this.node.find(".alert");
+            if (!courseid) {
+                this.renderError(alertbox);
+                return;
+            }
+            alertbox.addClass("hidden");
             let url = new URL(this.nextURL);
             url.searchParams.append('restoreid', courseid);
             window.location.href = url.href.replace(/&amp%3B/g, "&");
+        };
+
+        restoreCourseStep2.prototype.renderError = function(alertbox) {
+            alertbox.text("Error (x): Select a course");
+            alertbox.removeClass("hidden");
         };
 
         restoreCourseStep2.prototype.node = null;
