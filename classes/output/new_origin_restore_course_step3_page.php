@@ -24,20 +24,12 @@
 
 namespace local_coursetransfer\output;
 
-use coding_exception;
-use core_reportbuilder\local\aggregation\count;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
-use local_coursetransfer\forms\new_origin_restore_course_step1_form;
-use local_coursetransfer\forms\new_origin_restore_course_step2_form;
-use local_coursetransfer\tables\origin_courses_table;
-use local_coursetransfer\tables\origin_restore_course_table;
 use moodle_exception;
 use moodle_url;
-use renderable;
 use renderer_base;
 use stdClass;
-use templatable;
 
 /**
  * new_origin_restore_course_step3_page
@@ -46,19 +38,7 @@ use templatable;
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class new_origin_restore_course_step3_page implements renderable, templatable {
-
-    /** @var stdClass Course */
-    protected $course;
-
-    /**
-     *  constructor.
-     *
-     * @param stdClass $course
-     */
-    public function __construct(stdClass $course) {
-        $this->course = $course;
-    }
+class new_origin_restore_course_step3_page extends new_origin_restore_course_step_page {
 
     /**
      * Export for Template.

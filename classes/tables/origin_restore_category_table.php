@@ -25,6 +25,7 @@
 namespace local_coursetransfer\tables;
 
 use coding_exception;
+use core_course_category;
 use core_user;
 use DateTime;
 use local_coursetransfer\coursetransfer;
@@ -38,33 +39,32 @@ defined('MOODLE_INTERNAL') || die;
 require_once('../../lib/tablelib.php');
 
 /**
- * Class origin_restore_course_table
+ * Class origin_restore_category_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_course_table extends table_sql {
+class origin_restore_category_table extends table_sql {
 
     /** @var int PAGE SIZE */
     const PAGE_SIZE = 20;
 
-    /** @var stdClass Course */
-    protected $course;
+    /** @var core_course_category Course */
+    protected $category;
 
     /**
      * constructor.
      *
      * @param string $uniqueid
-     * @param stdClass $course
+     * @param core_course_category $category
      * @throws coding_exception
-     * @throws moodle_exception
      */
-    public function __construct(string $uniqueid, stdClass $course) {
+    public function __construct(string $uniqueid, core_course_category $category) {
 
         parent::__construct($uniqueid);
 
-        $this->course = $course;
+        $this->category = $category;
 
         $this->define_columns([
             'id', 'siteurl', 'origin_course_id', 'status', 'origin_activities',
@@ -158,8 +158,7 @@ class origin_restore_course_table extends table_sql {
             </button>
 
             <!-- Modal -->
-            <div class="modal fade bd-example-modal-lg" id="exampleModalActivities"
-            tabindex="-1" role="dialog" aria-labelledby="exampleModalActivitiesTitle" aria-hidden="true">
+            <div class="modal fade bd-example-modal-lg" id="exampleModalActivities" tabindex="-1" role="dialog" aria-labelledby="exampleModalActivitiesTitle" aria-hidden="true">
               <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                   <div class="modal-header">

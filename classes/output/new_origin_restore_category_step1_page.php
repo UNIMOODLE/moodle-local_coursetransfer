@@ -31,13 +31,13 @@ use renderer_base;
 use stdClass;
 
 /**
- * new_origin_restore_course_step1_page
+ * new_origin_restore_category_step1_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class new_origin_restore_course_step1_page extends new_origin_restore_course_step_page {
+class new_origin_restore_category_step1_page  extends new_origin_restore_category_step_page {
 
     /**
      * Export for Template.
@@ -47,23 +47,22 @@ class new_origin_restore_course_step1_page extends new_origin_restore_course_ste
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $backurl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
-        $tableurl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
+        $backurl = new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $this->category->id]);
+        $tableurl = new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $this->category->id]);
 
         $data = new stdClass();
         $data->button = true;
-        $data->courseid = $this->course->id;
         $data->steps = [ ["current" => true, "num" => 1], ["current" => false, "num" => 2],
             ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
         $data->back_url = $backurl->out(false);
         $data->table_url = $tableurl->out(false);
 
         $url = new moodle_url(
-            '/local/coursetransfer/origin_restore_course.php',
-            ['id' => $this->course->id, 'new' => 1, 'step' => 2 ]
+            '/local/coursetransfer/origin_restore_category.php',
+            ['id' => $this->category->id, 'new' => 1, 'step' => 2 ]
         );
-        $form = new new_origin_restore_course_step1_form($this->course, $url->out(false));
-        $data->form = $form->render();
+        //$form = new new_origin_restore_course_step1_form($this->category, $url->out(false));
+        //$data->form = $form->render();
         $data->next_url_disabled = false;
         return $data;
     }
