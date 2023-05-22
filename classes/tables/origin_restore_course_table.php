@@ -151,33 +151,10 @@ class origin_restore_course_table extends table_sql {
      * @throws moodle_exception
      */
     public function col_origin_activities(stdClass $row): string {
-        return
-            '
-            <button type="button" class="btn btn-dark origin-activity" data-toggle="modal" data-target="#exampleModalActivities">
-              Ver
-            </button>
-
-            <!-- Modal -->
-            <div class="modal fade bd-example-modal-lg" id="exampleModalActivities"
-            tabindex="-1" role="dialog" aria-labelledby="exampleModalActivitiesTitle" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Activities</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">'
-                    . $row->origin_activities .
-                  '</div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-        ';
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_coursetransfer');
+        $component = new \local_coursetransfer\output\activities_component($row->origin_activities);
+        return $output->render($component);
     }
 
     /**
@@ -188,31 +165,11 @@ class origin_restore_course_table extends table_sql {
      * @throws moodle_exception
      */
     public function col_configuration(stdClass $row): string {
-        return
-            '
-            <button type="button" class="btn btn-light configuration" data-toggle="modal" data-target="#exampleModalConfiguration">
-              Detalles
-            </button>
-            <!-- Modal -->
-            <div class="modal fade bd-example-modal-lg" id="exampleModalConfiguration" tabindex="-1" role="dialog"
-             aria-labelledby="exampleModalConfigurationTitle" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Configuration</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-        ';
+        global $PAGE;
+        $configuration = [$row->destiny_remove_activities, $row->destiny_merge_activities, $row->destiny_remove_enrols, $row->destiny_remove_groups];
+        $output = $PAGE->get_renderer('local_coursetransfer');
+        $component = new \local_coursetransfer\output\configuration_component($configuration);
+        return $output->render($component);
     }
 
     /**
