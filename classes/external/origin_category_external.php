@@ -174,27 +174,35 @@ class origin_category_external extends external_api {
         $errors = [];
         $data = [
             'id' => 0,
-            'fullname' => '',
-            'shortname' => '',
+            'name' => '',
             'idnumber' => 0,
-            'categoryid' => 0,
-            'categoryname' => '',
-            'backupsizeestimated' => 0,
-            'sections' => []
+            'parentid' => 0,
+            'parentname' => '',
+            'courses' => []
             ];
 
         try {
-            $course = get_course($courseid);
-            $category = core_course_category::get($course->category);
+            $category = core_course_category::get($categoryid);
+            $categoryparent = core_course_category::get($category->parent);
+            $courses = [];
+            foreach ($category->get_courses() as $c) {
+                $course = new stdClass();
+                $course->id = $c->id;
+                $course->fullname = $c->fullname;
+                $course->shortname = $c->shortname;
+                $course->idnumber = $c->idnumber;
+                $course->categoryid = $c->category;
+                $ccategory = core_course_category::get($c->category);
+                $course->categoryname = $ccategory->name;
+                $courses[] = $course;
+            }
             $data = [
-                'id' => $course->id,
-                'fullname' => $course->fullname,
-                'shortname' => $course->shortname,
-                'idnumber' => $course->idnumber,
-                'categoryid' => $course->category,
-                'categoryname' => $category->name,
-                'backupsizeestimated' => coursetransfer::get_backup_size_estimated($course->id),
-                'sections' => coursetransfer::get_sections_with_activities($course->id)
+                'id' => $category->id,
+                'name' => $category->name,
+                'idnumber' => $category->idnumber,
+                'parentid' => $category->parent,
+                'parentname' => $categoryparent->name,
+                'courses' => $courses
             ];
             $success = true;
         } catch (moodle_exception $e) {
@@ -228,29 +236,23 @@ class origin_category_external extends external_api {
                 )),
                 'data' => new external_single_structure(
                     array(
-                        'id' => new external_value(PARAM_INT, 'Course ID', VALUE_OPTIONAL),
-                        'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
-                        'shortname' => new external_value(PARAM_TEXT, 'Shortname', VALUE_OPTIONAL),
+                        'id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                        'name' => new external_value(PARAM_TEXT, 'Name', VALUE_OPTIONAL),
                         'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
-                        'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
-                        'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
-                        'backupsizeestimated' => new external_value(PARAM_INT, 'Backup Size Estimated', VALUE_OPTIONAL),
-                        'sections' => new external_multiple_structure(new external_single_structure(
+                        'parentid' => new external_value(PARAM_INT, 'Category Parent ID', VALUE_OPTIONAL),
+                        'parentname' => new external_value(PARAM_TEXT, 'Category ParentName', VALUE_OPTIONAL),
+                        'courses' => new external_multiple_structure(new external_single_structure(
                             array(
-                                'sectionnum' => new external_value(PARAM_INT, 'Section Number', VALUE_OPTIONAL),
-                                'sectionid' => new external_value(PARAM_INT, 'Section ID', VALUE_OPTIONAL),
-                                'sectionname' => new external_value(PARAM_TEXT, 'Section Name', VALUE_OPTIONAL),
-                                'activities' => new external_multiple_structure(new external_single_structure(
-                                    array(
-                                        'cmid' => new external_value(PARAM_INT, 'CMID', VALUE_OPTIONAL),
-                                        'name' => new external_value(PARAM_TEXT, 'Name', VALUE_OPTIONAL),
-                                        'instance' => new external_value(PARAM_INT, 'Instance', VALUE_OPTIONAL),
-                                        'modname' => new external_value(PARAM_TEXT, 'Module Name', VALUE_OPTIONAL)
-                                    )
-                                ))
+                                'id' => new external_value(PARAM_INT, 'Course ID', VALUE_OPTIONAL),
+                                'fullname' => new external_value(PARAM_TEXT, 'Course fullname', VALUE_OPTIONAL),
+                                'shortname' => new external_value(PARAM_TEXT, 'Course ShortName', VALUE_OPTIONAL),
+                                'idnumber' => new external_value(PARAM_TEXT, 'Course Idnumber', VALUE_OPTIONAL),
+                                'categoryid' => new external_value(PARAM_INT, 'Category Id', VALUE_OPTIONAL),
+                                'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
+                                )
                             )
-                        ))
-                    ), PARAM_TEXT
+                        )
+                    )
                 )
             )
         );

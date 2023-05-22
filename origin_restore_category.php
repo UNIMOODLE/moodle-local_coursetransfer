@@ -33,6 +33,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_coursetransfer\output\new_origin_restore_category_step1_page;
+use local_coursetransfer\output\new_origin_restore_category_step2_page;
+use local_coursetransfer\output\new_origin_restore_category_step3_page;
+use local_coursetransfer\output\new_origin_restore_category_step4_page;
+
 require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $USER;
@@ -61,19 +66,16 @@ if ($isnew) {
     $step = required_param('step', PARAM_INT);
     switch ($step) {
         case 1:
-            $page = new \local_coursetransfer\output\new_origin_restore_category_step1_page($category);
+            $page = new new_origin_restore_category_step1_page($category);
             break;
         case 2:
-            $page = new \local_coursetransfer\output\new_origin_restore_category_step2_page($category);
+            $page = new new_origin_restore_category_step2_page($category);
             break;
         case 3:
-            $page = new \local_coursetransfer\output\new_origin_restore_category_step3_page($category);
+            $page = new new_origin_restore_category_step3_page($category);
             break;
         case 4:
-            $page = new \local_coursetransfer\output\new_origin_restore_category_step4_page($category);
-            break;
-        case 5:
-            $page = new \local_coursetransfer\output\new_origin_restore_category_step5_page($category);
+            $page = new new_origin_restore_category_step4_page($category);
             break;
         default:
             throw new moodle_exception('STEP NOT VALID');

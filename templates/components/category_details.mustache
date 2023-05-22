@@ -1,0 +1,92 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+  }}
+{{!
+  @template local_coursetransfer/components/category_details
+
+  Example context (json):
+
+}}
+<div data-region="category_details">
+    <div class="category_details_header" data-category-sessionStorageId="{{category.sessionStorage_id}}">
+        <span class="text-white category-name" data-category-name="{{category.name}}">{{category.name}}</span>
+        <span class="text-white category-id">ID: {{category.id}}</span>
+        <span class="text-white category-id" hidden="hidden" data-category-idnumber="{{category.idnumber}}"></span>
+    </div>
+    <div class="category_details_body">
+        <div class="row-1">
+            <section>
+                <span class="section-tittle">{{#str}} category_details_name, local_coursetransfer {{/str}}</span>
+                <span class="data text-muted" data-category-shortname="{{category.name}}">{{category.name}}</span>
+            </section>
+            <section>
+                <span class="section-tittle">{{#str}} category_details_category_id, local_coursetransfer {{/str}}</span>
+                <span class="data text-muted" data-category-id="{{category.id}}">{{category.id}}</span>
+            </section>
+            <section>
+                <span class="section-tittle">{{#str}} category_details_parent_name, local_coursetransfer {{/str}}</span>
+                <span class="data text-muted" data-category-parentname="{{category.parentname}}">{{category.parentname}} (ID: {{category.parentid}})</span>
+            </section>
+        </div>
+    </div>
+</div>
+<style>
+    div[data-region='category_details'] {
+        width: 50%;
+        border: 1px solid black;
+        border-radius: 10px;
+        margin: 10px 0;
+    }
+    div[data-region='category_details'] div.category_details_header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #0c0c0c;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    div[data-region='category_details'] div.category_details_header span.course-name {
+        font-size: 18px;
+        font-weight: 600;
+        padding: 10px;
+    }
+    div[data-region='category_details'] div.category_details_header span.course-id {
+        font-size: 14px;
+        font-weight: 500;
+        padding: 10px;
+    }
+    div[data-region='category_details'] div.category_details_body div.row-1, div.category_details_body div.row-2 {
+        display: flex;
+        align-items: center;
+        height: 50%;
+    }
+    div[data-region='category_details'] div.category_details_body section {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: left;
+        width: 33%;
+        padding: 10px;
+    }
+    div[data-region='category_details'] div.category_details_body section span.section-tittle {
+        font-size: 14px;
+        font-weight: 600;
+    }
+    div[data-region='category_details'] div.category_details_body section span.data {
+        font-size: 14px;
+        font-weight: 500;
+    }
+</style>

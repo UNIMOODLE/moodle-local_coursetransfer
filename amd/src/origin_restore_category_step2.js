@@ -31,8 +31,8 @@ define([
         "use strict";
 
         let ACTIONS = {
-            COURSE_SELECT: '[data-action="select"]',
-            COURSE: '[data-action="course"]',
+            CATEGORY_SELECT: '[data-action="select"]',
+            CATEGORY: '[data-action="category"]',
             NEXT: '[data-action="next"]'
         };
 
@@ -45,14 +45,12 @@ define([
         function restoreCategoryStep2(region, nexturl) {
             this.node = $(region);
             this.nextURL = nexturl;
-            this.node.find(ACTIONS.COURSE_SELECT).on('click', this.selectCourse.bind(this));
+            this.node.find(ACTIONS.CATEGORY_SELECT).on('click', this.selectCategory.bind(this));
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         }
 
-        restoreCategoryStep2.prototype.selectCourse = function(e) {
-            // Remove selected class from all courses.
-            this.node.find(ACTIONS.COURSE).removeClass('selected');
-            // Add selected class to the course selected.
+        restoreCategoryStep2.prototype.selectCategory = function(e) {
+            this.node.find(ACTIONS.CATEGORY).removeClass('selected');
             let checked = $("input:checked");
             let td = checked.parent().addClass('selected');
             td.parent().addClass('selected');
@@ -60,11 +58,22 @@ define([
         };
 
         restoreCategoryStep2.prototype.clickNext = function(e) {
-            let selectedcourse = $('tr.selected');
-            let courseid = selectedcourse.find('#courseid').text();
+            let selectedcategory = $('tr.selected');
+            let categoryid = selectedcategory.find('#categoryid').text();
+            let alertbox = this.node.find(".alert");
+            if (!categoryid) {
+                this.renderError(alertbox);
+                return;
+            }
+            alertbox.addClass("hidden");
             let url = new URL(this.nextURL);
-            url.searchParams.append('restoreid', courseid);
+            url.searchParams.append('restoreid', categoryid);
             window.location.href = url.href.replace(/&amp%3B/g, "&");
+        };
+
+        restoreCategoryStep2.prototype.renderError = function(alertbox) {
+            alertbox.text("Error (x): Select a category");
+            alertbox.removeClass("hidden");
         };
 
         restoreCategoryStep2.prototype.node = null;
@@ -76,7 +85,6 @@ define([
              * @return {restoreCategoryStep2}
              */
             initRestoreCategoryStep2: function(region, nexturl) {
-                // eslint-disable-next-line babel/new-cap
                 return new restoreCategoryStep2(region, nexturl);
             }
         };

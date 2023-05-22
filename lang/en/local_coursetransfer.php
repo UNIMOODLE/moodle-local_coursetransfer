@@ -132,3 +132,15 @@ $string['step2_category_name'] = "Name";
 $string['step2_category_idnumber'] = "ID Number";
 $string['step2_category_parentname'] = "Parent Category";
 $string['step2_category_totalcourses'] = "Total courses";
+$string['step2_categories_list'] = "Origin categories list";
+$string['step3_restore_desc_cat'] = "Select the courses you want to restore from the chosen category";
+$string['step3_category_list'] = "List of courses from the source category:";
+$string['category_details_name'] = "Category Name";
+$string['category_details_category_id'] = "Category ID";
+$string['category_details_parent_name'] = "Category Parent";
+$string['step4_restore_desc_cat'] = "Configuration of the restoration of the category";
+$string['step4_restore_origin_site'] = "Origen site";
+$string['step4_restore_selected_category'] = "Category selected";
+$string['step4_courses_title_desc'] = "Courses selected";
+$string['execute_restore'] = "Execute restore";
+

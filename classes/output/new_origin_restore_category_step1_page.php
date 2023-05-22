@@ -53,7 +53,7 @@ class new_origin_restore_category_step1_page  extends new_origin_restore_categor
         $data = new stdClass();
         $data->button = true;
         $data->steps = [ ["current" => true, "num" => 1], ["current" => false, "num" => 2],
-            ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
+            ["current" => false, "num" => 3], ["current" => false, "num" => 4] ];
         $data->back_url = $backurl->out(false);
         $data->table_url = $tableurl->out(false);
         $data->categoryid = $this->category->id;

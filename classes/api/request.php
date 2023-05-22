@@ -125,12 +125,28 @@ class request {
     }
 
     /**
+     * Origen Get category detail.
+     *
+     * @param int $categoryid
+     * @return response
+     * @throws dml_exception
+     */
+    public function origin_get_category_detail(int $categoryid): response {
+        global $USER;
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params['field']};
+        $params['categoryid'] = $categoryid;
+        return $this->req('local_coursetransfer_origin_get_category_detail', $params);
+    }
+
+    /**
      * Origin back up course remote.
      *
      * @param int $requestid
      * @param int $courseid
      * @param int $destinycourseid
-     * @param array $destinysite
+     * @param string $destinysite
      * @param array $configuration
      * @param array $sections
      * @return response

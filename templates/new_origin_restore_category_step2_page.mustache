@@ -33,7 +33,7 @@
     {{/ haserrors }}
 
     {{^ haserrors }}
-        <h3 class="h2">{{#str}} step2_course_list, local_coursetransfer {{/str}}</h3>
+        <h3 class="h2">{{#str}} step2_categories_list, local_coursetransfer {{/str}}</h3>
         <table>
             <thead>
                 <tr>
@@ -47,7 +47,7 @@
             </thead>
             <tbody>
                 {{# categories }}
-                    <tr data-action="course">
+                    <tr data-action="category">
                         <td><input type="radio" name="radiogroup" data-action="select"></td>
                         <td id="categoryid">{{ id }}</td>
                         <td><a href="{{ siteurl }}/course/index.php?categoryid={{id}}">{{ name }}</a></td>

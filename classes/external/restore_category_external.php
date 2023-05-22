@@ -50,7 +50,7 @@ class restore_category_external extends external_api {
         return new external_function_parameters(
             array(
                 'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                'courseid' => new external_value(PARAM_INT, 'Course ID')
+                'categoryid' => new external_value(PARAM_INT, 'Category ID')
             )
         );
     }
@@ -59,18 +59,18 @@ class restore_category_external extends external_api {
      *
      *
      * @param int $siteurl
-     * @param int $courseid
+     * @param int $categoryid
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function new_origin_restore_category_step1(int $siteurl, int $courseid): array {
+    public static function new_origin_restore_category_step1(int $siteurl, int $categoryid): array {
         self::validate_parameters(
             self::new_origin_restore_category_step1_parameters(),
             [
                 'siteurl' => $siteurl,
-                'courseid' => $courseid
+                'categoryid' => $categoryid
             ]
         );
 
@@ -92,7 +92,7 @@ class restore_category_external extends external_api {
                 $data = $res->data;
                 $nexturl = new moodle_url(
                     '/local/coursetransfer/origin_restore_category.php',
-                    ['id' => $courseid, 'new' => 1, 'step' => 2, 'site' => $siteurl]
+                    ['id' => $categoryid, 'new' => 1, 'step' => 2, 'site' => $siteurl]
                 );
                 $data->nexturl = $nexturl->out(false);
                 $success = true;
