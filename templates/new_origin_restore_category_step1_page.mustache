@@ -26,7 +26,7 @@
 
     <h3 class="h3">{{#str}} steps_restore_title_cat, local_coursetransfer {{/str}}</h3>
 
-    <p>{{#str}} step1_restore_cat_desc, local_coursetransfer {{/str}}</p>
+    <p>{{#str}} step1_restore_desc_cat, local_coursetransfer {{/str}}</p>
 
     {{{ form }}}
 
@@ -85,7 +85,7 @@
 
 
 {{#js}}
-    require(['local_coursetransfer/origin_restore_course_step1'], function(restoreCourseStep1) {
-        restoreCourseStep1.initRestoreCourseStep1('[data-region="new_origin_restore_course_step1_page"]', {{ courseid }});
+    require(['local_coursetransfer/origin_restore_category_step1'], function(restoreCategoryStep1) {
+        restoreCategoryStep1.initRestoreCategoryStep1('[data-region="new_origin_restore_category_step1_page"]', {{ categoryid }});
     });
 {{/js}}

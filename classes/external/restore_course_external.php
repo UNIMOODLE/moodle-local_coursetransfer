@@ -43,6 +43,7 @@ require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
 class restore_course_external extends external_api {
+
     /**
      * @return external_function_parameters
      */
@@ -56,7 +57,7 @@ class restore_course_external extends external_api {
     }
 
     /**
-     * Check if user exists
+     *
      *
      * @param int $siteurl
      * @param int $courseid
@@ -180,7 +181,7 @@ class restore_course_external extends external_api {
     }
 
     /**
-     * Check if user exists
+     *
      *
      * @param int $siteurl
      * @param int $courseid

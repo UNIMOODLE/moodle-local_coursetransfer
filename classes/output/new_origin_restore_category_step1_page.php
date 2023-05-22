@@ -56,13 +56,15 @@ class new_origin_restore_category_step1_page  extends new_origin_restore_categor
             ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
         $data->back_url = $backurl->out(false);
         $data->table_url = $tableurl->out(false);
+        $data->categoryid = $this->category->id;
+
 
         $url = new moodle_url(
             '/local/coursetransfer/origin_restore_category.php',
             ['id' => $this->category->id, 'new' => 1, 'step' => 2 ]
         );
-        //$form = new new_origin_restore_course_step1_form($this->category, $url->out(false));
-        //$data->form = $form->render();
+        $form = new new_origin_restore_course_step1_form($url->out(false));
+        $data->form = $form->render();
         $data->next_url_disabled = false;
         return $data;
     }

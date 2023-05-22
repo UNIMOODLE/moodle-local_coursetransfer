@@ -37,17 +37,6 @@ require_once($CFG->libdir . '/formslib.php');
 class new_origin_restore_course_step1_form extends moodleform {
 
     /**
-     * course_form constructor.
-     *
-     * @param stdClass $course
-     * @param string|null $action
-     */
-    public function __construct(stdClass $course, string $action = null) {
-        $this->course = $course;
-        parent::__construct($action);
-    }
-
-    /**
      * Definition
      *
      * @throws coding_exception

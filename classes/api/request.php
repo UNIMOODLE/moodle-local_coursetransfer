@@ -85,6 +85,21 @@ class request {
      * @return response
      * @throws dml_exception
      */
+    public function origin_get_categories(): response {
+        global $USER;
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params['field']};
+        return $this->req('local_coursetransfer_origin_get_categories', $params);
+    }
+
+
+    /**
+     * Origen Get courses.
+     *
+     * @return response
+     * @throws dml_exception
+     */
     public function origin_get_courses(): response {
         global $USER;
         $params = [];

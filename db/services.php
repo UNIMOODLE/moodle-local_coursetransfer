@@ -20,9 +20,11 @@
  */
 
 use local_coursetransfer\external\destiny_course_callback_external;
+use local_coursetransfer\external\origin_category_external;
 use local_coursetransfer\external\origin_course_backup_external;
 use local_coursetransfer\external\origin_course_external;
 use local_coursetransfer\external\origin_user_external;
+use local_coursetransfer\external\restore_category_external;
 use local_coursetransfer\external\restore_course_external;
 
 defined('MOODLE_INTERNAL') || die();
@@ -47,10 +49,28 @@ $functions = [
         'loginrequired' => false
     ],
 
+    'local_coursetransfer_origin_get_categories' => [
+        'classname' => origin_category_external::class,
+        'methodname' => 'origin_get_categories',
+        'description' => 'Get all categories from user',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => false
+    ],
+
     'local_coursetransfer_origin_get_course_detail' => [
         'classname' => origin_course_external::class,
         'methodname' => 'origin_get_course_detail',
         'description' => 'Get specific course details',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => false
+    ],
+
+    'local_coursetransfer_origin_get_category_detail' => [
+        'classname' => origin_category_external::class,
+        'methodname' => 'origin_get_category_detail',
+        'description' => 'Get specific category details',
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => false
@@ -101,6 +121,15 @@ $functions = [
         'loginrequired' => false
     ],
 
+    'local_coursetransfer_new_origin_restore_category_step1' => [
+            'classname' => restore_category_external::class,
+            'methodname' => 'new_origin_restore_category_step1',
+            'description' => 'Verify that user exists in origin and check if it has courses as a teacher',
+            'type' => 'read',
+            'ajax' => true,
+            'loginrequired' => false
+    ],
+
 ];
 
 $services = [
@@ -108,12 +137,15 @@ $services = [
         'functions' => [
             'local_coursetransfer_origin_has_user',
             'local_coursetransfer_origin_get_courses',
+            'local_coursetransfer_origin_get_categories',
             'local_coursetransfer_origin_get_course_detail',
+            'local_coursetransfer_origin_get_category_detail',
             'local_coursetransfer_origin_backup_course',
             'local_coursetransfer_destiny_backup_course_completed',
             'local_coursetransfer_destiny_backup_course_error',
             'local_coursetransfer_new_origin_restore_course_step1',
-            'local_coursetransfer_new_origin_restore_course_step5'
+            'local_coursetransfer_new_origin_restore_course_step5',
+            'local_coursetransfer_new_origin_restore_category_step1'
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,
