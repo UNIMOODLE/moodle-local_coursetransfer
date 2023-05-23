@@ -115,7 +115,7 @@ $functions = [
     'local_coursetransfer_new_origin_restore_course_step5' => [
         'classname' => restore_course_external::class,
         'methodname' => 'new_origin_restore_course_step5',
-        'description' => 'Execute restauration from moodle remote in step5',
+        'description' => 'Execute course restauration from moodle remote in step5',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => false
@@ -126,6 +126,15 @@ $functions = [
             'methodname' => 'new_origin_restore_category_step1',
             'description' => 'Verify that user exists in origin and check if it has courses as a teacher',
             'type' => 'read',
+            'ajax' => true,
+            'loginrequired' => false
+    ],
+
+    'local_coursetransfer_new_origin_restore_category_step4' => [
+            'classname' => restore_category_external::class,
+            'methodname' => 'new_origin_restore_category_step4',
+            'description' => 'Execute category restauration from moodle remote in step4',
+            'type' => 'write',
             'ajax' => true,
             'loginrequired' => false
     ],
@@ -145,7 +154,8 @@ $services = [
             'local_coursetransfer_destiny_backup_course_error',
             'local_coursetransfer_new_origin_restore_course_step1',
             'local_coursetransfer_new_origin_restore_course_step5',
-            'local_coursetransfer_new_origin_restore_category_step1'
+            'local_coursetransfer_new_origin_restore_category_step1',
+            'local_coursetransfer_new_origin_restore_category_step4'
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,

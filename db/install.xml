@@ -19,6 +19,7 @@
                 <FIELD NAME="origin_schedule_datetime" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Schedule datetime"/>
                 <FIELD NAME="origin_remove_activities" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="Course Module separate by commas"/>
                 <FIELD NAME="origin_activities" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="JSON of sections with activities"/>
+                <FIELD NAME="origin_category_courses" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="Course Id separated by commas to restore in category request"/>
                 <FIELD NAME="origin_backup_size" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Final Backup size"/>
                 <FIELD NAME="origin_backup_size_estimated" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Estimated Backup size"/>
                 <FIELD NAME="origin_backup_url" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="URL Backup"/>

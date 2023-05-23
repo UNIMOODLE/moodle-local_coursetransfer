@@ -98,7 +98,7 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
         }
         $data->button = true;
         $data->next_url_disabled = true;
-        $data->category->sessionStorage_id = "local_coursetransfer_".$this->category->id."_".$data->category->id;
+        $data->category->sessionStorage_id = "local_coursetransfer_".$this->category->id."_".$restoreid;
 
         return $data;
     }

@@ -146,25 +146,45 @@ class request {
      * @param int $requestid
      * @param int $courseid
      * @param int $destinycourseid
-     * @param string $destinysite
      * @param array $configuration
      * @param array $sections
      * @return response
      * @throws dml_exception
      */
     public function origin_backup_course(int $requestid, int $courseid, int $destinycourseid,
-                 string $destinysite, array $configuration, array $sections): response {
-        global $USER;
+                 array $configuration, array $sections): response {
+        global $USER, $CFG;
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
         $params['value'] = $USER->{$params['field']};
         $params['courseid'] = $courseid;
         $params['destinycourseid'] = $destinycourseid;
         $params['requestid'] = $requestid;
-        $params['destinysite'] = $destinysite;
+        $params['destinysite'] = $CFG->wwwroot;
         $params = array_merge($params, $this->serialize_configuration($configuration));
         $params = array_merge($params, $this->serialize_sections($sections));
         return $this->req('local_coursetransfer_origin_backup_course', $params);
+    }
+
+    /**
+     * Origin back up category course remote.
+     *
+     * @param int $requestid
+     * @param int $courseid
+     * @param int $destinycategoryid
+     * @return response
+     * @throws dml_exception
+     */
+    public function origin_backup_category_course(int $requestid, int $courseid, int $destinycategoryid): response {
+        global $USER, $CFG;
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params['field']};
+        $params['courseid'] = $courseid;
+        $params['destinycategoryid'] = $destinycategoryid;
+        $params['requestid'] = $requestid;
+        $params['destinysite'] = $CFG->wwwroot;
+        return $this->req('local_coursetransfer_origin_backup_category_course', $params);
     }
 
     /**

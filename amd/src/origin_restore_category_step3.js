@@ -79,10 +79,10 @@ define([
                 };
                 data.category.courses.push(course);
             });
+            let storageid = this.node.find('[data-region="session-storage"]');
+            sessionStorage.removeItem(storageid.data('session'));
             if (data.category.courses.length > 0) {
-                this.data = data;
-                sessionStorage.setItem($("[data-category-sessionStorageId]")
-                    .attr("data-category-sessionStorageId"), JSON.stringify(this.data));
+                sessionStorage.setItem(storageid.data('session'), JSON.stringify(data));
                 let url = new URL(this.nextURL);
                 url = url.href.replaceAll('&amp;', "&");
                 window.location.href = url;

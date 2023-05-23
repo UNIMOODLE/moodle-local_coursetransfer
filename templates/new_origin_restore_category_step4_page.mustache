@@ -58,7 +58,7 @@
             <tbody>
             {{# category.courses }}
                 <tr data-action="course">
-                    <td><input type="checkbox" name="radiogroup" data-action="select" disabled></td>
+                    <td><input type="checkbox" name="radiogroup" data-action="select"  data-courseid="{{ id }}" disabled></td>
                     <td id="courseid">{{ id }}</td>
                     <td>{{ fullname }}</td>
                     <td>{{ shortname }}</td>

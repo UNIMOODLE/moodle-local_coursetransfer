@@ -90,7 +90,7 @@ class new_origin_restore_category_step4_page extends new_origin_restore_category
             $errors[] = ['code' => 140, 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
-        $data->category->sessionStorage_id = "local_coursetransfer_".$this->category->id."_".$data->restoreid->id;
+        $data->category->sessionStorage_id = "local_coursetransfer_".$this->category->id."_".$data->restoreid;
         return $data;
     }
 

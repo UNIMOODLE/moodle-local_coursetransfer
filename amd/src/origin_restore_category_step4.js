@@ -48,15 +48,16 @@ define([
             this.destinyid = $("[data-destinyid]").attr("data-destinyid");
             this.site = site;
             this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
-            // TODO.
-            let sessiondata = JSON.parse(sessionStorage.getItem("data-category-sessionStorageId"));
+            let storageid = this.node.find('[data-region="session-storage"]');
+            let sessiondata = JSON.parse(sessionStorage.getItem(storageid.data('session')));
             let courses = sessiondata.category.courses;
-            $('input[type="checkbox"]').prop('disabled', true);
+            let courseinputs = $('input[type="checkbox"]');
+            courseinputs.prop('disabled', true);
+            courseinputs.prop('checked', false);
             courses.forEach(function(course) {
-                if (course.selected) {
-                    let courserow = $("#course-" + course.id);
-                    courserow.addClass('selected');
-                }
+                let selector = '[data-courseid="' + course.id + '"]';
+                let courserow = $(selector);
+                courserow.prop('checked', true);
             });
         }
 
@@ -64,22 +65,14 @@ define([
             let self = this; // Store the reference of this.
             let alertbox = this.node.find(".alert");
             let siteurl = this.site;
-            let courseid = this.restoreid;
+            let categoryid = this.restoreid;
             let destinyid = this.destinyid;
-            let sessiondata = JSON.parse(sessionStorage.getItem($("[data-course-sessionStorageId]")
-                .attr("data-course-sessionStorageId")));
-            let configuration = {};
-            sessiondata.course.configuration.forEach(function(config) {
-                configuration[config.name] = config.selected;
-            });
             const request = {
                 methodname: SERVICES.RESTORE_CATEGORY_STEP4,
                 args: {
                     siteurl: siteurl,
-                    courseid: courseid,
+                    categoryid: categoryid,
                     destinyid: destinyid,
-                    configuration: configuration,
-                    sections: sessiondata.course.sections,
                 }
             };
             Ajax.call([request])[0].done(function(response) {

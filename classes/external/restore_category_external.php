@@ -30,6 +30,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -138,6 +139,136 @@ class restore_category_external extends external_api {
                     )
                 )
             )
+        );
+    }
+
+    /**
+     * @return external_function_parameters
+     */
+    public static function new_origin_restore_category_step4_parameters(): external_function_parameters {
+        return new external_function_parameters(
+                array(
+                        'siteurl' => new external_value(PARAM_INT, 'Site Url'),
+                        'categoryid' => new external_value(PARAM_INT, 'Category ID'),
+                        'destinyid' => new external_value(PARAM_INT, 'Category Destiny ID'),
+                        'courses' => new external_multiple_structure(new external_single_structure(
+                                array(
+                                        'id' => new external_value(PARAM_INT, 'Course ID'),
+                                )
+                        ))
+                )
+        );
+    }
+
+    /**
+     *
+     * @param int $siteurl
+     * @param int $categoryid
+     * @param int $destinyid
+     * @param array $courses
+     * @return array
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     */
+    public static function new_origin_restore_category_step4(
+            int $siteurl, int $categoryid, int $destinyid, array $courses): array {
+        global $USER, $CFG;
+
+        self::validate_parameters(
+                self::new_origin_restore_category_step4_parameters(),
+                [
+                        'siteurl' => $siteurl,
+                        'categoryid' => $categoryid,
+                        'destinyid' => $destinyid,
+                        'courses' => $courses
+                ]
+        );
+
+        $success = false;
+        $errors = [];
+        $data = new stdClass();
+        $nexturl = new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $destinyid]);
+        $data->nexturl = $nexturl->out(false);
+
+        try {
+            $site = coursetransfer::get_site_by_position($siteurl);
+            $object = new stdClass();
+            $object->type = 1;
+            $object->siteurl = $site->host;
+            $object->direction = 0;
+            $object->destiny_request_id = $destinyid;
+            $object->origin_category_id = $categoryid;
+            $object->origin_enrolusers = 0; // Revisar pliego, posiblemente esto sea 0, pq el profesor no puede.
+            $object->origin_remove_course = 0; // No está en configuración, es configuración de origen?
+            $object->origin_activities = json_encode([]);
+            $origincategorycourses = '';
+            foreach ($courses as $course) {
+                $origincategorycourses .= $course->id . ',';
+            }
+            $object->origin_category_courses = $origincategorycourses;
+            $object->destiny_remove_activities = 0;
+            $object->destiny_merge_activities = 0;
+            $object->destiny_remove_enrols = 0;
+            $object->destiny_remove_groups = 0;
+            $object->origin_backup_size_estimated = 0;
+            $object->status = 1;
+            $object->userid = $USER->id;
+            $requestcategoryid = coursetransfer_request::insert_or_update($object);
+
+            foreach ($courses as $course) {
+                $request = new request($site);
+                $res = $request->origin_backup_category_course($requestcategoryid, $course->id, $destinyid);
+                if ($res->success) {
+                    $object->status = 10;
+                    coursetransfer_request::insert_or_update($object, $requestid);
+                    $success = true;
+                } else {
+                    $err = $res->errors;
+                    $er = current($err);
+                    $errors = array_merge($errors, $res->errors);
+                    $object->status = 0;
+                    $object->error_code = $er->code;
+                    $object->error_message = $er->msg;
+                    coursetransfer_request::insert_or_update($object, $requestid);
+                    $success = false;
+                }
+
+            }
+
+        } catch (moodle_exception $e) {
+            $errors[] =
+                    [
+                            'code' => '030340',
+                            'msg' => $e->getMessage()
+                    ];
+        }
+
+        return [
+                'success' => $success,
+                'errors' => $errors,
+                'data' => $data
+        ];
+    }
+
+    /**
+     * @return external_single_structure
+     */
+    public static function new_origin_restore_category_step4_returns(): external_single_structure {
+        return new external_single_structure(
+                array(
+                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                        'data' => new external_single_structure(
+                                array(
+                                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
+                                )
+                        ),
+                        'errors' => new external_multiple_structure(new external_single_structure(
+                                array(
+                                        'code' => new external_value(PARAM_TEXT, 'Code'),
+                                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                                )
+                        ))
+                )
         );
     }
 
