@@ -107,6 +107,7 @@ class renderer extends plugin_renderer_base {
         $data = $page->export_for_template($this);
         return parent::render_from_template('local_coursetransfer/new_origin_restore_course_step5_page', $data);
     }
+
     /**
      * Defer to template.
      *
@@ -117,6 +118,18 @@ class renderer extends plugin_renderer_base {
     public function render_activities_component(activities_component $component) {
         $data = $component->export_for_template($this);
         return parent::render_from_template('local_coursetransfer/table_activities_component', $data);
+    }
+
+    /**
+     * Defer to template.
+     *
+     * @param category_course_component $component
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_category_course_component(category_course_component $component) {
+        $data = $component->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/table_category_course_component', $data);
     }
 
     /**

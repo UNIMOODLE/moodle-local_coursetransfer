@@ -86,12 +86,12 @@ class origin_restore_course_page implements renderable, templatable {
         $table = new origin_restore_course_table($uniqid, $this->course);
         $table->is_downloadable(false);
         $table->pageable(false);
-        $select = 'csr.id, csr.siteurl, csr.origin_course_id, csr.origin_course_id, csr.status,
+        $select = 'csr.id, csr.siteurl, csr.origin_course_id, csr.status,
                     csr.origin_activities, csr.destiny_remove_activities,
                     csr.destiny_merge_activities, csr.destiny_remove_enrols, csr.destiny_remove_groups, csr.origin_backup_size,
                     csr.error_code, csr.error_message, csr.userid, csr.timemodified, csr.timecreated';
         $from = '{local_coursetransfer_request} csr';
-        $where = 'destiny_course_id = :courseid AND direction = 0';
+        $where = 'destiny_request_id = :courseid AND direction = 0 AND type = 0';
         $params = ['courseid' => $this->course->id];
         $table->set_sql($select, $from, $where, $params);
         $table->sortable(true, 'timemodified', SORT_DESC);

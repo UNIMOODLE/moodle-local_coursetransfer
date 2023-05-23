@@ -85,6 +85,15 @@ $functions = [
         'loginrequired' => false
     ],
 
+    'local_coursetransfer_origin_backup_category_course' => [
+        'classname' => origin_course_backup_external::class,
+        'methodname' => 'origin_backup_course',
+        'description' => 'Asks origin to make a backup of the course',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => false
+    ],
+
     'local_coursetransfer_destiny_backup_course_completed' => [
         'classname' => destiny_course_callback_external::class,
         'methodname' => 'destiny_backup_course_completed',

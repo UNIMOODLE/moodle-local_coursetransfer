@@ -67,18 +67,16 @@ class origin_restore_category_table extends table_sql {
         $this->category = $category;
 
         $this->define_columns([
-            'id', 'siteurl', 'origin_course_id', 'status', 'origin_activities',
-                    'configuration', 'backupsize', 'userid', 'timemodified', 'timecreated'
+            'id', 'siteurl', 'origin_category_id', 'status', 'origin_category_courses',
+                    'userid', 'timemodified', 'timecreated'
         ]);
 
         $this->define_headers([
                 get_string('request_id', 'local_coursetransfer'),
                 get_string('siteurl', 'local_coursetransfer'),
-                get_string('origin_course_id', 'local_coursetransfer'),
+                get_string('origin_category_id', 'local_coursetransfer'),
                 get_string('status', 'local_coursetransfer'),
-                get_string('origin_activities', 'local_coursetransfer'),
-                get_string('configuration', 'local_coursetransfer'),
-                get_string('backupsize', 'local_coursetransfer'),
+                get_string('origin_category_courses', 'local_coursetransfer'),
                 get_string('userid', 'local_coursetransfer'),
                 get_string('timemodified', 'local_coursetransfer'),
                 get_string('timecreated', 'local_coursetransfer'),
@@ -87,7 +85,6 @@ class origin_restore_category_table extends table_sql {
         $this->sortable(false);
 
         $this->column_style('id', 'text-align', 'center');
-        $this->column_style('configuration', 'text-align', 'center');
     }
 
     /**
@@ -111,15 +108,15 @@ class origin_restore_category_table extends table_sql {
     }
 
     /**
-     * Col Origin Course ID
+     * Col Origin Category ID
      *
      * @param stdClass $row Full data of the current row.
      * @return string
      * @throws moodle_exception
      */
-    public function col_origin_course_id(stdClass $row): string {
-        $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->origin_course_id]);
-        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_course_id . '</a>';
+    public function col_origin_category_id(stdClass $row): string {
+        $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->origin_category_id]);
+        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_category_id . '</a>';
     }
 
     /**
@@ -150,68 +147,11 @@ class origin_restore_category_table extends table_sql {
      * @return string
      * @throws moodle_exception
      */
-    public function col_origin_activities(stdClass $row): string {
-        return
-            '
-            <button type="button" class="btn btn-dark origin-activity" data-toggle="modal" data-target="#exampleModalActivities">
-              Ver
-            </button>
-
-            <!-- Modal -->
-            <div class="modal fade bd-example-modal-lg" id="exampleModalActivities" tabindex="-1" role="dialog" aria-labelledby="exampleModalActivitiesTitle" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Activities</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">'
-                    . $row->origin_activities .
-                  '</div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-        ';
-    }
-
-    /**
-     * Col Configuration
-     *
-     * @param stdClass $row Full data of the current row.
-     * @return string
-     * @throws moodle_exception
-     */
-    public function col_configuration(stdClass $row): string {
-        return
-            '
-            <button type="button" class="btn btn-light configuration" data-toggle="modal" data-target="#exampleModalConfiguration">
-              Detalles
-            </button>
-            <!-- Modal -->
-            <div class="modal fade bd-example-modal-lg" id="exampleModalConfiguration" tabindex="-1" role="dialog"
-             aria-labelledby="exampleModalConfigurationTitle" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Configuration</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-        ';
+    public function col_origin_category_courses(stdClass $row): string {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_coursetransfer');
+        $component = new \local_coursetransfer\output\category_course_component($row->origin_category_courses);
+        return $output->render($component);
     }
 
     /**
@@ -225,16 +165,6 @@ class origin_restore_category_table extends table_sql {
         $href = new moodle_url($row->siteurl . '/user/profile.php', ['id' => $row->userid]);
         $user = core_user::get_user($row->userid);
         return '<a href="' . $href->out(false) . '" target="_blank">' . fullname($user) . '</a>';
-    }
-
-    /**
-     * Col Size
-     *
-     * @param stdClass $row Full data of the current row.
-     * @return int
-     */
-    public function col_backupsize(stdClass $row): int {
-        return !is_null($row->origin_backup_size) ? $row->origin_backup_size : 0;
     }
 
     /**

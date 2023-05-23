@@ -49,8 +49,8 @@ define([
             this.site = site;
             this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
             let storageid = this.node.find('[data-region="session-storage"]');
-            let sessiondata = JSON.parse(sessionStorage.getItem(storageid.data('session')));
-            let courses = sessiondata.category.courses;
+            this.sessiondata = JSON.parse(sessionStorage.getItem(storageid.data('session')));
+            let courses = this.sessiondata.category.courses;
             let courseinputs = $('input[type="checkbox"]');
             courseinputs.prop('disabled', true);
             courseinputs.prop('checked', false);
@@ -73,6 +73,7 @@ define([
                     siteurl: siteurl,
                     categoryid: categoryid,
                     destinyid: destinyid,
+                    courses: this.sessiondata.category.courses,
                 }
             };
             Ajax.call([request])[0].done(function(response) {

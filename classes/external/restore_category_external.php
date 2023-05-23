@@ -172,7 +172,7 @@ class restore_category_external extends external_api {
      */
     public static function new_origin_restore_category_step4(
             int $siteurl, int $categoryid, int $destinyid, array $courses): array {
-        global $USER, $CFG;
+        global $USER;
 
         self::validate_parameters(
                 self::new_origin_restore_category_step4_parameters(),
@@ -215,30 +215,32 @@ class restore_category_external extends external_api {
             $object->userid = $USER->id;
             $requestcategoryid = coursetransfer_request::insert_or_update($object);
 
-            foreach ($courses as $course) {
-                $request = new request($site);
-                $res = $request->origin_backup_category_course($requestcategoryid, $course->id, $destinyid);
-                if ($res->success) {
-                    $object->status = 10;
-                    coursetransfer_request::insert_or_update($object, $requestid);
-                    $success = true;
-                } else {
-                    $err = $res->errors;
-                    $er = current($err);
-                    $errors = array_merge($errors, $res->errors);
-                    $object->status = 0;
-                    $object->error_code = $er->code;
-                    $object->error_message = $er->msg;
-                    coursetransfer_request::insert_or_update($object, $requestid);
-                    $success = false;
-                }
+            var_dump($requestcategoryid);
 
-            }
+            //foreach ($courses as $course) {
+            //    $request = new request($site);
+            //    $res = $request->origin_backup_category_course($requestcategoryid, $course->id, $destinyid);
+            //    if ($res->success) {
+            //        $object->status = 10;
+            //        coursetransfer_request::insert_or_update($object, $requestcategoryid);
+            //        $success = true;
+            //    } else {
+            //        $err = $res->errors;
+            //        $er = current($err);
+            //        $errors = array_merge($errors, $res->errors);
+            //        $object->status = 0;
+            //        $object->error_code = $er->code;
+            //        $object->error_message = $er->msg;
+            //        coursetransfer_request::insert_or_update($object, $requestcategoryid);
+            //        $success = false;
+            //    }
+//
+            //}
 
         } catch (moodle_exception $e) {
             $errors[] =
                     [
-                            'code' => '030340',
+                            'code' => '030363',
                             'msg' => $e->getMessage()
                     ];
         }

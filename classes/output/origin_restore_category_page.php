@@ -87,12 +87,11 @@ class origin_restore_category_page implements renderable, templatable {
         $table = new origin_restore_category_table($uniqid, $this->category);
         $table->is_downloadable(false);
         $table->pageable(false);
-        $select = 'csr.id, csr.siteurl, csr.origin_course_id, csr.origin_course_id, csr.status,
-                    csr.origin_activities, csr.destiny_remove_activities,
-                    csr.destiny_merge_activities, csr.destiny_remove_enrols, csr.destiny_remove_groups, csr.origin_backup_size,
-                    csr.error_code, csr.error_message, csr.userid, csr.timemodified, csr.timecreated';
+        $select = 'csr.id, csr.siteurl, csr.origin_course_id, csr.origin_category_id, csr.status,
+                    csr.origin_category_courses, csr.error_code, csr.error_message, csr.userid,
+                    csr.timemodified, csr.timecreated';
         $from = '{local_coursetransfer_request} csr';
-        $where = 'destiny_category_id = :categoryid AND direction = 0';
+        $where = 'destiny_request_id = :categoryid AND direction = 0 AND type = 1';
         $params = ['categoryid' => $this->category->id];
         $table->set_sql($select, $from, $where, $params);
         $table->sortable(true, 'timemodified', SORT_DESC);
