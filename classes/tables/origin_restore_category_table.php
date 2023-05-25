@@ -115,7 +115,7 @@ class origin_restore_category_table extends table_sql {
      * @throws moodle_exception
      */
     public function col_origin_category_id(stdClass $row): string {
-        $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->origin_category_id]);
+        $href = new moodle_url($row->siteurl . '/course/index.php', ['categoryid' => $row->origin_category_id]);
         return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_category_id . '</a>';
     }
 

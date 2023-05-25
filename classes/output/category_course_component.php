@@ -24,7 +24,6 @@
 
 namespace local_coursetransfer\output;
 
-use moodle_exception;
 use renderable;
 use renderer_base;
 use stdClass;

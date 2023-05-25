@@ -101,7 +101,7 @@ class origin_category_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => 'no_code',
+                    'code' => '200041',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -209,7 +209,7 @@ class origin_category_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => 129,
+                    'code' => 200042,
                     'msg' => $e->getMessage()
                 ];
         }

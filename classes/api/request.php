@@ -196,7 +196,7 @@ class request {
     public function serialize_configuration(array $configuration): array {
         $res = [];
         foreach ($configuration as $key => $config) {
-            $res['configuration['.$key.']'] = (string)(int)$config;
+            $res['configuration['.$key.']'] = (int)$config;
         }
         return $res;
     }
@@ -271,7 +271,7 @@ class request {
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
         $params['value'] = $USER->{$params['field']};
         $params['requestid'] = $requestid;
-        $params['errorcode'] = '312313';
+        $params['errorcode'] = '200001';
         $params['errormsg'] = json_encode($result);
         return $this->req('local_coursetransfer_destiny_backup_course_error', $params);
     }
@@ -313,10 +313,10 @@ class request {
                 } else {
                     $message = get_string('error_not_controlled', 'local_coursetransfer');
                 }
-                return new response(false, null, ['code' => '12344', 'msg' => $message]);
+                return new response(false, null, ['code' => '200002', 'msg' => $message]);
             }
         } catch (\Exception $e) {
-            return new response(false, null, ['code' => '1561343', 'msg' => $e->getMessage()]);
+            return new response(false, null, ['code' => '200003', 'msg' => $e->getMessage()]);
         }
     }
 }

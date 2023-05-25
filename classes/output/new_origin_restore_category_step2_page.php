@@ -82,7 +82,7 @@ class new_origin_restore_category_step2_page  extends new_origin_restore_categor
                 $data->haserrors = true;
             }
         } catch (moodle_exception $e) {
-            $data->errors = ['code' => '234321', 'msg' => $e->getMessage()];
+            $data->errors = ['code' => '200100', 'msg' => $e->getMessage()];
             $data->haserrors = true;
         }
         $data->button = true;

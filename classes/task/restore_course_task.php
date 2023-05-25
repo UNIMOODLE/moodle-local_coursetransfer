@@ -70,7 +70,7 @@ class restore_course_task extends \core\task\adhoc_task {
         } catch (\Exception $e) {
             $this->log($e->getMessage());
             $request->status = 0;
-            $request->error_code = '3332343';
+            $request->error_code = '200210';
             $request->error_message = $e->getMessage();
             coursetransfer_request::insert_or_update($request, $request->id);
         }

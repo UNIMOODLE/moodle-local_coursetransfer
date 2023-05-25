@@ -108,7 +108,7 @@ class destiny_course_callback_external extends external_api {
                     $success = false;
                     $errors[] =
                         [
-                            'code' => '471841',
+                            'code' => '200011',
                             'msg' => "REQUEST NOT FOUND"
                         ];
                 }
@@ -120,7 +120,7 @@ class destiny_course_callback_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => 'no_code',
+                    'code' => '200012',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -210,7 +210,7 @@ class destiny_course_callback_external extends external_api {
                     $success = false;
                     $errors[] =
                         [
-                            'code' => 'no_code',
+                            'code' => '200013',
                             'msg' => 'Request id not found'
                         ];
                 }
@@ -218,7 +218,7 @@ class destiny_course_callback_external extends external_api {
                 $success = false;
                 $errors[] =
                     [
-                        'code' => 'no_code',
+                        'code' => '200014',
                         'msg' => 'Could not authenticate the user'
                     ];
             }
@@ -226,7 +226,7 @@ class destiny_course_callback_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => 'no_code',
+                    'code' => '200015',
                     'msg' => $e->getMessage()
                 ];
         }

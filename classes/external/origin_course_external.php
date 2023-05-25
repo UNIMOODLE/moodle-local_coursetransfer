@@ -100,7 +100,7 @@ class origin_course_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => 'no_code',
+                    'code' => '200061',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -202,7 +202,7 @@ class origin_course_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => 129,
+                    'code' => 200062,
                     'msg' => $e->getMessage()
                 ];
         }

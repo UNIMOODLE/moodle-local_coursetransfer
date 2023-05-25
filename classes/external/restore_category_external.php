@@ -103,7 +103,7 @@ class restore_category_external extends external_api {
         } catch (moodle_exception $e) {
             $errors[] =
                 [
-                    'code' => '030352',
+                    'code' => '200081',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -192,50 +192,9 @@ class restore_category_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
-            $object = new stdClass();
-            $object->type = 1;
-            $object->siteurl = $site->host;
-            $object->direction = 0;
-            $object->destiny_request_id = $destinyid;
-            $object->origin_category_id = $categoryid;
-            $object->origin_enrolusers = 0; // Revisar pliego, posiblemente esto sea 0, pq el profesor no puede.
-            $object->origin_remove_course = 0; // No está en configuración, es configuración de origen?
-            $object->origin_activities = json_encode([]);
-            $origincategorycourses = '';
-            foreach ($courses as $course) {
-                $origincategorycourses .= $course->id . ',';
-            }
-            $object->origin_category_courses = $origincategorycourses;
-            $object->destiny_remove_activities = 0;
-            $object->destiny_merge_activities = 0;
-            $object->destiny_remove_enrols = 0;
-            $object->destiny_remove_groups = 0;
-            $object->origin_backup_size_estimated = 0;
-            $object->status = 1;
-            $object->userid = $USER->id;
-            $requestcategoryid = coursetransfer_request::insert_or_update($object);
-
-            var_dump($requestcategoryid);
-
-            //foreach ($courses as $course) {
-            //    $request = new request($site);
-            //    $res = $request->origin_backup_category_course($requestcategoryid, $course->id, $destinyid);
-            //    if ($res->success) {
-            //        $object->status = 10;
-            //        coursetransfer_request::insert_or_update($object, $requestcategoryid);
-            //        $success = true;
-            //    } else {
-            //        $err = $res->errors;
-            //        $er = current($err);
-            //        $errors = array_merge($errors, $res->errors);
-            //        $object->status = 0;
-            //        $object->error_code = $er->code;
-            //        $object->error_message = $er->msg;
-            //        coursetransfer_request::insert_or_update($object, $requestcategoryid);
-            //        $success = false;
-            //    }
-//
-            //}
+            $res = coursetransfer::restore_category($site, $destinyid, $categoryid, $configuration);
+            $errors = array_merge($errors, $res['errors']);
+            $success = $res['success'];
 
         } catch (moodle_exception $e) {
             $errors[] =

@@ -78,7 +78,6 @@ class origin_categories_external extends external_api {
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
-                global $DB;
                 $res = $authres['data'];
                 $courses = enrol_get_users_courses($res->id);
                 foreach ($courses as $course) {
@@ -100,7 +99,7 @@ class origin_categories_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => 'no_code',
+                    'code' => '200021',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -202,7 +201,7 @@ class origin_categories_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => 129,
+                    'code' => '200022',
                     'msg' => $e->getMessage()
                 ];
         }

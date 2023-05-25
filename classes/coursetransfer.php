@@ -26,6 +26,7 @@ namespace local_coursetransfer;
 
 use backup;
 use backup_controller;
+use coding_exception;
 use context_course;
 use course_modinfo;
 use dml_exception;
@@ -34,11 +35,9 @@ use local_coursetransfer\api\request;
 use local_coursetransfer\api\response;
 use local_coursetransfer\task\create_backup_course_task;
 use local_coursetransfer\task\download_file_course_task;
-use local_coursetransfer\task\restore_course_task;
 use moodle_exception;
 use moodle_url;
 use restore_controller;
-use restore_controller_exception;
 use stdClass;
 use stored_file;
 use stored_file_creation_exception;
@@ -81,19 +80,10 @@ class coursetransfer {
     }
 
     /**
-     * Set Request.
-     *
-     * @param string $site
-     * @param string $token
-     */
-    public function set_request(string $site, string $token) {
-        $this->request = new request($site, $token);
-    }
-
-    /**
      * Get Origin Sites.
      *
      * @return array
+     * @throws dml_exception
      */
     public static function get_origin_sites(): array {
         $items = [];
@@ -109,9 +99,8 @@ class coursetransfer {
     /**
      * Origin Has User?.
      *
-     * @param string $site
-     * @param string $token
      * @return response
+     * @throws dml_exception
      */
     public function origin_has_user(): response {
         return $this->request->origin_has_user();
@@ -121,6 +110,7 @@ class coursetransfer {
      * Origin Get Courses?.
      *
      * @return response
+     * @throws dml_exception
      */
     public function origin_get_courses(): response {
         return $this->request->origin_get_courses();
@@ -130,7 +120,7 @@ class coursetransfer {
      * @param string $destinysite
      * @return array
      */
-    public static function verify_destiny_site(string $destinysite) {
+    public static function verify_destiny_site(string $destinysite): array {
         $res = new stdClass();
         $res->host = $destinysite;
         $founded = false;
@@ -151,7 +141,7 @@ class coursetransfer {
                     'data' => new stdClass(),
                     'error' =>
                         [
-                            'code' => '34375',
+                            'code' => '200300',
                             'msg' => 'Destiny site not founded'
                         ]
                 ];
@@ -170,9 +160,13 @@ class coursetransfer {
     }
 
     /**
+     * Auth User.
+     *
      * @param string $field
      * @param string $value
      * @return array
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function auth_user(string $field, string $value): array {
         global $DB;
@@ -208,7 +202,7 @@ class coursetransfer {
                             'data' => new stdClass(),
                             'error' =>
                                 [
-                                    'code' => '030343',
+                                    'code' => '200310',
                                     'msg' => get_string('user_does_not_have_courses', 'local_coursetransfer')
                                 ]
                         ];
@@ -221,7 +215,7 @@ class coursetransfer {
                         'data' => new stdClass(),
                         'error' =>
                             [
-                                'code' => '030341',
+                                'code' => '200311',
                                 'msg' => get_string('user_not_found', 'local_coursetransfer')
                             ]
                     ];
@@ -234,7 +228,7 @@ class coursetransfer {
                     'data' => new stdClass(),
                     'error' =>
                         [
-                            'code' => '030342',
+                            'code' => '200312',
                             'msg' => get_string('field_not_valid', 'local_coursetransfer')
                         ]
                 ];
@@ -257,6 +251,7 @@ class coursetransfer {
      *
      * @param string $originurl
      * @return string
+     * @throws dml_exception
      */
     public static function get_token_origin_site(string $originurl): string {
         $token = '';
@@ -371,6 +366,32 @@ class coursetransfer {
     }
 
     /**
+     * Get site by URL
+     *
+     * @param string $url
+     * @return stdClass
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_site_by_url(string $url): stdClass {
+        $originsites = get_config('local_coursetransfer', 'origin_sites');
+        $originsites = explode(PHP_EOL, $originsites);
+        $res = new stdClass();
+        foreach ($originsites as $originsite) {
+            $site = explode(';', $originsite);
+            if ($site[0] === $url) {
+                $res->host = $site[0];
+                $res->token = $site[1];
+            }
+            break;
+        }
+        if (empty($res->host) || empty($res->token)) {
+            throw new moodle_exception('SITE NOT VALID');
+        }
+        return $res;
+    }
+
+    /**
      * Create Task to back up of Course.
      *
      * @param int $courseid
@@ -472,7 +493,7 @@ class coursetransfer {
             error_log('pasa por la excepción');
             error_log($e->getMessage());
             $request->status = 0;
-            $request->error_code = '1111';
+            $request->error_code = '200320';
             $request->error_message = $e->getMessage();
             coursetransfer_request::insert_or_update($request, $request->id);
         }
@@ -515,5 +536,176 @@ class coursetransfer {
                 $storedfile->get_filename()
         );
         return $fileurl->out(true);
+    }
+
+    /**
+     * Restore Course.
+     *
+     * @param stdClass $site
+     * @param int $destinyid
+     * @param int $courseid
+     * @param array $configuration
+     *          destiny_remove_activities
+     *          destiny_merge_activities
+     *          destiny_remove_enrols
+     *          destiny_remove_groups
+     *          origin_remove_course
+     *          destiny_notremove_activities
+     * @param array|null $sections
+     * @return array
+     */
+    public static function restore_course(
+            stdClass $site, int $destinyid, int $courseid, array $configuration, array $sections = []): array {
+        global $USER;
+
+        try {
+            $errors = [];
+
+            $object = new stdClass();
+            $object->type = 0;
+            $object->siteurl = $site->host;
+            $object->direction = 0;
+            $object->destiny_course_id = $destinyid;
+            $object->origin_course_id = $courseid;
+            $object->origin_enrolusers = 0;
+            $object->origin_activities = json_encode($sections);
+
+            $object->destiny_remove_activities = isset($configuration['destiny_remove_activities']) ?
+                    $configuration['destiny_remove_activities'] : 0;
+            $object->destiny_merge_activities = isset($configuration['destiny_merge_activities']) ?
+                    $configuration['destiny_merge_activities'] : 0;
+            $object->destiny_remove_enrols = isset($configuration['destiny_remove_enrols']) ?
+                    $configuration['destiny_remove_enrols'] : 0;
+            $object->destiny_remove_groups = isset($configuration['destiny_remove_groups']) ?
+                    $configuration['destiny_remove_groups'] : 0;
+            $object->origin_remove_course = isset($configuration['origin_remove_course']) ?
+                    $configuration['origin_remove_course'] : 0;
+            $object->destiny_notremove_activities = isset($configuration['destiny_notremove_activities']) ?
+                    $configuration['destiny_notremove_activities'] : null;
+
+            $object->origin_backup_size_estimated = self::get_backup_size_estimated($courseid);
+            $object->status = 1;
+            $object->userid = $USER->id;
+            $requestid = coursetransfer_request::insert_or_update($object);
+            $request = new request($site);
+            $res = $request->origin_backup_course($requestid, $courseid, $destinyid, $configuration, $sections);
+            if ($res->success) {
+                $object->status = 10;
+                coursetransfer_request::insert_or_update($object, $requestid);
+                $success = true;
+            } else {
+                $err = $res->errors;
+                $er = current($err);
+                $errors = array_merge($errors, $res->errors);
+                $object->status = 0;
+                $object->error_code = $er->code;
+                $object->error_message = $er->msg;
+                coursetransfer_request::insert_or_update($object, $requestid);
+                $success = false;
+            }
+            return [
+                    'success' => $success,
+                    'errors' => $errors
+            ];
+        } catch (moodle_exception $e) {
+            $error = [
+                    'code' => '200330',
+                    'msg' => $e->getMessage()
+            ];
+            $errors[] = $error;
+            return [
+                    'success' => false,
+                    'errors' => $errors
+            ];
+        }
+    }
+
+    /**
+     * Restore Category.
+     *
+     * @param stdClass $site
+     * @param int $destinyid
+     * @param int $categoryid
+     * @param array $configuration
+     *          destiny_remove_activities
+     *          destiny_merge_activities
+     *          destiny_remove_enrols
+     *          destiny_remove_groups
+     *          origin_remove_course
+     *          destiny_notremove_activities
+     * @return array
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function restore_category(
+            stdClass $site, int $destinyid, int $categoryid, array $configuration): array {
+        global $USER;
+
+        try {
+            $object = new stdClass();
+            $object->type = 1;
+            $object->siteurl = $site->host;
+            $object->direction = 0;
+            $object->destiny_category_id = $destinyid;
+            $object->origin_category_id = $categoryid;
+            $object->origin_enrolusers = 0;
+            $object->origin_remove_course = 0;
+            $object->origin_activities = '[]';
+
+            $object->destiny_remove_activities = isset($configuration['destiny_remove_activities']) ?
+                    $configuration['destiny_remove_activities'] : null;
+            $object->destiny_merge_activities = isset($configuration['destiny_merge_activities']) ?
+                    $configuration['destiny_merge_activities'] : null;
+            $object->destiny_remove_enrols = isset($configuration['destiny_remove_enrols']) ?
+                    $configuration['destiny_remove_enrols'] : null;
+            $object->destiny_remove_groups = isset($configuration['destiny_remove_groups']) ?
+                    $configuration['destiny_remove_groups'] : null;
+            $object->origin_remove_course = isset($configuration['origin_remove_course']) ?
+                    $configuration['origin_remove_course'] : null;
+            $object->destiny_notremove_activities = isset($configuration['destiny_notremove_activities']) ?
+                    $configuration['destiny_notremove_activities'] : null;
+
+            $object->origin_backup_size_estimated = null;
+            $object->status = 1;
+            $object->userid = $USER->id;
+
+            var_dump($object);
+            $requestid = coursetransfer_request::insert_or_update($object);
+
+            $success = true;
+            $errors = [];
+
+            //$request = new request($site);
+            //$res = $request->origin_backup_course($requestid, $courseid, $destinyid, $configuration, $sections);
+            //if ($res->success) {
+            //    $object->status = 10;
+            //    coursetransfer_request::insert_or_update($object, $requestid);
+            //    $success = true;
+            //} else {
+            //    $err = $res->errors;
+            //    $er = current($err);
+            //    $errors = array_merge($errors, $res->errors);
+            //    $object->status = 0;
+            //    $object->error_code = $er->code;
+            //    $object->error_message = $er->msg;
+            //    coursetransfer_request::insert_or_update($object, $requestid);
+            //    $success = false;
+            //}
+
+            return [
+                    'success' => $success,
+                    'errors' => $errors
+            ];
+        } catch (moodle_exception $e) {
+            $error = [
+                    'code' => '200340',
+                    'msg' => $e->getMessage()
+            ];
+            $errors[] = $error;
+            return [
+                    'success' => false,
+                    'errors' => $errors
+            ];
+        }
     }
 }

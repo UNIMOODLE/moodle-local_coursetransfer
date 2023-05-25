@@ -82,11 +82,11 @@ define([
                 } else if (!response.success) {
                     self.renderErrors(response.errors, alertbox);
                 } else {
-                    let errors = [{'code': '064893', 'msg': 'error_not_controlled'}];
+                    let errors = [{'code': '100011', 'msg': 'error_not_controlled'}];
                     self.renderErrors(errors, alertbox);
                 }
             }).fail(function(fail) {
-                let errors = [{'code': '064896', 'msg': fail.message}];
+                let errors = [{'code': '100012', 'msg': fail.message}];
                 self.renderErrors(errors, alertbox);
             });
         };

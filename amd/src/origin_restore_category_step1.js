@@ -66,11 +66,11 @@ define([
                 } else if (!response.success) {
                     self.renderErrors(response.errors, alertbox);
                 } else {
-                    let errors = [{'code': '065234', 'msg': 'error_not_controlled'}];
+                    let errors = [{'code': '100001', 'msg': 'error_not_controlled'}];
                     self.renderErrors(errors, alertbox);
                 }
             }).fail(function(fail) {
-                let errors = [{'code': '1234234', 'msg': fail.message}];
+                let errors = [{'code': '100002', 'msg': fail.message}];
                 self.renderErrors(errors, alertbox);
             });
         };

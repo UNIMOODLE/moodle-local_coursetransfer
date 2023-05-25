@@ -23,23 +23,22 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define('CLI_SCRIPT', true);
+use local_coursetransfer\coursetransfer;
+use local_coursetransfer\tables\origin_restore_course_table;
 
-//defined('MOODLE_INTERNAL') || die();
+define('CLI_SCRIPT', 1);
 
+require(__DIR__.'/../../../config.php');
 global $CFG;
+require_once($CFG->libdir . '/clilib.php');
 
-require(__DIR__.'/../../config.php');
-require_once($CFG->libdir.'/clilib.php');
-require(__DIR__.'/classes/test/test.php');
-
-
-$usage = 'CLI para ver logs del curso de destino.
+$usage = 'CLI para ver los logs de restauraciones en un curso.
 
 Usage:
-    # php view_log_destiny_course.php --courseid=<courseid>
+    # php view_log_destiny_course.php
+        --course_id=<courseid>
 
-    --courseid=<courseid>  Course ID (int).
+    --course_id=<courseid>  Destinty Course ID (int)
 
 Options:
     -h --help                   Print this help.
@@ -48,14 +47,14 @@ Description.
 
 Examples:
 
-    # php local/coursetransfer/view_log_destiny_course.php --courseid=1
+    # php local/coursetransfer/cli/view_log_destiny_course.php --course_id=3
 ';
 
 list($options, $unrecognised) = cli_get_params([
-    'help' => false,
-    'courseid' => null,
+        'help' => false,
+        'courseid' => null,
 ], [
-    'h' => 'help'
+        'h' => 'help'
 ]);
 
 if ($unrecognised) {
@@ -68,28 +67,38 @@ if ($options['help']) {
     exit(2);
 }
 
-// TODO. Validar parametros, tipados y permisos de usuario
-if ($options['courseid'] === null)  {
-    cli_writeln(get_string('courseid_require','local_coursetransfer'));
+$courseid = (int) $options['courseid'];
+
+if ( $courseid === null ) {
+    cli_writeln( get_string('courseid_require', 'local_coursetransfer') );
     exit(128);
-} else if( gettype( $options['courseid']) !== 'integer' ) {
-    cli_writeln(get_string('courseid_integer','local_coursetransfer'));
+} else if ( $courseid <= 0 ) {
+    cli_writeln( get_string('courseid_integer', 'local_coursetransfer') );
     exit(128);
 }
 
-$destinysites = get_config('local_coursetransfer', 'destiny_sites');
-$destinysites = explode(PHP_EOL ,$destinysites);
+try {
 
-$destinies = [];
+    $user = core_user::get_user_by_username('admin');
+    complete_user_login($user);
 
-foreach($destinysites as $destiny) {
-    $destiny = explode(',', $destiny);
-    $item = [];
-    $item['host'] = trim($destiny[0]);
-    $item['token'] = trim($destiny[1]);
-    $destinies[] = $item;
+    $destiny = get_course($courseid);
+
+    $mask = "|%12.15s |%-30.30s | %-20.20s  | %-7.7s  | %-50.50s  | %-7.7s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
+    printf($mask,
+            'Request ID', 'Origin Site', 'Origin Course ID', 'Status', 'Error', 'Size', 'UserID', 'TimeModified', 'TimeCreated');
+
+    foreach (\local_coursetransfer\coursetransfer_request::get_by_destiny_course_id($destiny->id) as $item) {
+        printf($mask,
+                $item->id, $item->siteurl, $item->origin_course_id,
+                get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
+                $item->error_code . ': ' . $item->error_message,
+                $item->origin_backup_size, $item->userid, $item->timemodified, $item->timecreated);
+    }
+    exit(0);
+
+} catch (moodle_exception $e) {
+    cli_writeln('200600: ' . $e->getMessage());
+    exit(1);
 }
-var_dump($destinies);
 
-// Step 1: Recuperar curso
-//\local_coursetransfer\test\test::execute();

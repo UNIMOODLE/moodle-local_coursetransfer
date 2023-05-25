@@ -25,17 +25,11 @@
 
 namespace local_coursetransfer\task;
 
-use async_helper;
 use context_course;
 use dml_exception;
-use file_exception;
-use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
-use Matrix\Exception;
 use moodle_exception;
-use stdClass;
-use stored_file_creation_exception;
 
 /**
  * Create Backup Course Task
@@ -87,7 +81,7 @@ class download_file_course_task extends \core\task\adhoc_task {
         } catch (\Exception $e) {
             $this->log($e->getMessage());
             $request->status = 0;
-            $request->error_code = '3242343';
+            $request->error_code = '200200';
             $request->error_message = $e->getMessage();
             coursetransfer_request::insert_or_update($request, $request->id);
         }

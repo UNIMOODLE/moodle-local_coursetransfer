@@ -88,12 +88,12 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
                     $data->haserrors = true;
                 }
             } catch (moodle_exception $e) {
-                $data->errors = ['code' => '234653', 'msg' => $e->getMessage()];
+                $data->errors = ['code' => '200110', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {
             $data->haserrors = true;
-            $errors[] = ['code' => 140, 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $errors[] = ['code' => '200111', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
         $data->button = true;

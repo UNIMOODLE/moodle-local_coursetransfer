@@ -82,12 +82,12 @@ class new_origin_restore_category_step4_page extends new_origin_restore_category
                     $data->haserrors = true;
                 }
             } catch (moodle_exception $e) {
-                $data->errors = ['code' => '234341', 'msg' => $e->getMessage()];
+                $data->errors = ['code' => '200121', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {
             $data->haserrors = true;
-            $errors[] = ['code' => 140, 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $errors[] = ['code' => '200122', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
         $data->category->sessionStorage_id = "local_coursetransfer_".$this->category->id."_".$data->restoreid;

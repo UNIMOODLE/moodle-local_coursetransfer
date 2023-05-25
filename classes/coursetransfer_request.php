@@ -48,6 +48,19 @@ class coursetransfer_request {
     }
 
     /**
+     * Get by Destiny Course Id.
+     *
+     * @param int $destinycourseid
+     * @return false|mixed|stdClass
+     * @throws dml_exception
+     */
+    public static function get_by_destiny_course_id(int $destinycourseid) {
+        global $DB;
+        return $DB->get_records(self::TABLE,
+                ['destiny_course_id' => $destinycourseid, 'type' => 0, 'direction' => 0]);
+    }
+
+    /**
      * Insert or update row in table.
      *
      * @param stdClass $object
@@ -68,22 +81,22 @@ class coursetransfer_request {
             throw new moodle_exception('DIRECTION IS NOT VALID');
         }
         if (!in_array($object->origin_enrolusers, [0, 1])) {
-            throw new moodle_exception('ENROL USERS IS NOT VALID');
+            throw new moodle_exception('ORIGIN ENROL USERS IS NOT VALID');
         }
         if (!in_array($object->origin_remove_course, [0, 1])) {
-            throw new moodle_exception('REMOVE COURSE IS NOT VALID');
+            throw new moodle_exception('ORIGIN REMOVE COURSE IS NOT VALID');
         }
         if (!in_array($object->destiny_remove_activities, [0, 1])) {
-            throw new moodle_exception('REMOVE ACTIVITIES IS NOT VALID');
+            throw new moodle_exception('DESTINY REMOVE ACTIVITIES IS NOT VALID');
         }
         if (!in_array($object->destiny_merge_activities, [0, 1])) {
-            throw new moodle_exception('MERGE ACTIVITIES IS NOT VALID');
+            throw new moodle_exception('DESTINY MERGE ACTIVITIES IS NOT VALID');
         }
         if (!in_array($object->destiny_remove_enrols, [0, 1])) {
-            throw new moodle_exception('REMOVE ENROLS IS NOT VALID');
+            throw new moodle_exception('DESTINY REMOVE ENROLS IS NOT VALID');
         }
         if (!in_array($object->destiny_remove_groups, [0, 1])) {
-            throw new moodle_exception('REMOVE GROUPS IS NOT VALID');
+            throw new moodle_exception('DESTINY REMOVE GROUPS IS NOT VALID');
         }
         $object->timemodified = time();
         if (is_null($id)) {

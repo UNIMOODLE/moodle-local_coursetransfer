@@ -84,7 +84,7 @@ class new_origin_restore_course_step4_page extends new_origin_restore_course_ste
             }
         } else {
             $data->haserrors = true;
-            $errors[] = ['code' => 140, 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $errors[] = ['code' => '200150', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
         $data->next_url_disabled = false;

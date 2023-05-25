@@ -153,7 +153,7 @@ class origin_category_course_backup_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '056465',
+                    'code' => '200031',
                     'msg' => $e->getMessage()
                 ];
         }

@@ -30,7 +30,6 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
-use local_coursetransfer\coursetransfer_request;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -103,7 +102,7 @@ class restore_course_external extends external_api {
         } catch (moodle_exception $e) {
             $errors[] =
                 [
-                    'code' => '030340',
+                    'code' => '200091',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -195,8 +194,6 @@ class restore_course_external extends external_api {
      */
     public static function new_origin_restore_course_step5(int $siteurl, int $courseid, int $destinyid,
                                                            array $configuration, array $sections): array {
-        global $USER, $CFG;
-
         self::validate_parameters(
             self::new_origin_restore_course_step5_parameters(),
             [
@@ -216,43 +213,13 @@ class restore_course_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
-            $object = new stdClass();
-            $object->type = 0;
-            $object->siteurl = $site->host;
-            $object->direction = 0;
-            $object->destiny_course_id = $destinyid;
-            $object->origin_course_id = $courseid;
-            $object->origin_enrolusers = 0; // Revisar pliego, posiblemente esto sea 0, pq el profesor no puede.
-            $object->origin_remove_course = 0; // No está en configuración, es configuración de origen?
-            $object->origin_activities = json_encode($sections);
-            $object->destiny_remove_activities = $configuration['destiny_remove_activities'];
-            $object->destiny_merge_activities = $configuration['destiny_merge_activities'];
-            $object->destiny_remove_enrols = $configuration['destiny_remove_enrols'];
-            $object->destiny_remove_groups = $configuration['destiny_remove_groups'];
-            $object->origin_backup_size_estimated = coursetransfer::get_backup_size_estimated($courseid);
-            $object->status = 1;
-            $object->userid = $USER->id;
-            $requestid = coursetransfer_request::insert_or_update($object);
-            $request = new request($site);
-            $res = $request->origin_backup_course($requestid, $courseid, $destinyid, $configuration, $sections);
-            if ($res->success) {
-                $object->status = 10;
-                coursetransfer_request::insert_or_update($object, $requestid);
-                $success = true;
-            } else {
-                $err = $res->errors;
-                $er = current($err);
-                $errors = array_merge($errors, $res->errors);
-                $object->status = 0;
-                $object->error_code = $er->code;
-                $object->error_message = $er->msg;
-                coursetransfer_request::insert_or_update($object, $requestid);
-                $success = false;
-            }
+            $res = coursetransfer::restore_course($site, $destinyid, $courseid, $configuration, $sections);
+            $errors = array_merge($errors, $res['errors']);
+            $success = $res['success'];
         } catch (moodle_exception $e) {
             $errors[] =
                 [
-                    'code' => '030340',
+                    'code' => '200092',
                     'msg' => $e->getMessage()
                 ];
         }
