@@ -158,6 +158,31 @@ class coursetransfer_request {
     }
 
     /**
+     * Update status request category.
+     *
+     * @param int $requestid
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function update_status_request_cat(int $requestid) {
+        global $DB;
+
+        $reqcat = $DB->get_record(self::TABLE, ['id' => $requestid]);
+        $courses = $DB->get_records(self::TABLE,
+                ['request_category_id' => $requestid, 'type' => 0, 'direction' => 0]);
+
+        $completed = 1;
+        foreach ($courses as $course) {
+            if ($course->status < 100) {
+                $completed = 0;
+                break;
+            }
+        }
+        $reqcat->status = $completed === 1 ? 100 : 50;
+        self::insert_or_update($reqcat, $requestid);
+    }
+
+    /**
      * Insert or update row in table.
      *
      * @param stdClass $object

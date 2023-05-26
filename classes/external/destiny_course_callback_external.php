@@ -88,9 +88,6 @@ class destiny_course_callback_external extends external_api {
         $errors = [];
 
         try {
-            // TODO. destiny_backup_course_completed logic. (destinysite, errors)
-            // llamar tarea descargar curso create_download_course_task() llama a otra tarea
-            // si no existe: errores.
             $authres = coursetransfer::auth_user($field, $value);
             // TODO. comprobar que el origen es correcto.
             if ($authres['success']) {

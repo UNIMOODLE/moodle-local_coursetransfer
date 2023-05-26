@@ -691,7 +691,7 @@ class coursetransfer {
                 $object->siteurl = $site->host;
                 $object->direction = 0;
                 $object->request_category_id = $requestcatid;
-                $object->destiny_course_id = $destinyid;
+                $object->destiny_course_id = self::create_new_course($destinyid, $course->fullname, $course->shortname);
                 $object->origin_course_id = $course->id;
                 $object->origin_activities = json_encode([]);
 
@@ -773,5 +773,24 @@ class coursetransfer {
             }
         }
         return $items;
+    }
+
+    /**
+     * Create new course in category.
+     *
+     * @param int $categoryid
+     * @param string $fullname
+     * @param string $shortname
+     * @return int
+     * @throws moodle_exception
+     */
+    public static function create_new_course(int $categoryid, string $fullname, string $shortname): int {
+        $datacourse = new \stdClass();
+        $datacourse->category = $categoryid;
+        $datacourse->shortname = $shortname . uniqid();
+        $datacourse->fullname = $fullname;
+        $datacourse->visible = 1;
+        $course = create_course($datacourse);
+        return $course->id;
     }
 }

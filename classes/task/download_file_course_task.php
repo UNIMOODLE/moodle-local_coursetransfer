@@ -52,6 +52,11 @@ class download_file_course_task extends \core\task\adhoc_task {
         $request = $this->get_custom_data()->request;
 
         try {
+
+            if (is_null($request->destiny_course_id)) {
+                var_dump('CURSO NULO');
+            }
+
             $filecontent = file_get_contents($fileurle);
 
             $this->log('Backup File Dowload Success!');
@@ -81,6 +86,11 @@ class download_file_course_task extends \core\task\adhoc_task {
             $this->log('Restore in Moodle Success!');
             $request->status = 100;
             coursetransfer_request::insert_or_update($request, $request->id);
+
+            if (!is_null($request->request_category_id)) {
+                $this->log('** Course of Category Request **');
+                coursetransfer_request::update_status_request_cat($request->request_category_id);
+            }
 
         } catch (\Exception $e) {
             $this->log($e->getMessage());
