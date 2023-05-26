@@ -305,8 +305,6 @@ class request {
             if (isset($response->success) && isset($response->data) && isset($response->errors)) {
                 return new response($response->success, $response->data, $response->errors);
             } else {
-                var_dump($params);
-                var_dump($response);
                 if (!empty($response->message)) {
                     $message = $response->message;
                 } else {
