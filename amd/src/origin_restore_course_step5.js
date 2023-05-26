@@ -52,6 +52,7 @@ define([
                 .attr("data-course-sessionStorageId")));
             let sections = sessiondata.course.sections;
             $('input[type="checkbox"]').prop('disabled', true);
+            $('input[type="radio"]').prop('disabled', true);
             sections.forEach(function(section) {
                 if (section.selected) {
                     let sectionrow = $("#section-" + section.sectionid);

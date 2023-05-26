@@ -52,9 +52,9 @@ Usage:
     --origin_course_id=<courseid>  Origin Course ID (int).
     --destiny_course_id=<courseid>  Destiny Course ID (int). (Optional)
     --destiny_category_id=<categoryid>  Category ID (int). (Optional)
-    --origin_enrolusers=<enrolusers>    Enrol users (Boolean).
+    --origin_enrolusers=<enrolusers>  Include enrolled users (Boolean).
     --destiny_remove_activities=<destiny_remove_activities> Remove Activities (Boolean).
-    --destiny_merge_activities=<destiny_merge_activities>   Merge Activities (Boolean).
+    --destiny_merge_activities=<destiny_merge_activities>  Merge the backup course into this course (Boolean).
     --destiny_remove_enrols=<destiny_remove_enrols> Remove Enrols (Boolean).
     --destiny_remove_groups=<destiny_remove_groups> Remove Groups (Boolean).
     --origin_remove_course=<origin_remove_course>   Remove Course (Boolean).

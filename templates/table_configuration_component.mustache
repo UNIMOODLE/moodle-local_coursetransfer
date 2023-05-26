@@ -36,21 +36,39 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    <h5>{{#str}} restoretocurrentcourse, backup {{/str}}</h5>
                     <ul class="configuration-list">
                         <li class="configuration-group">
                             <div class="checkbox">
                                 {{#destiny_merge_activities}}
-                                <input class="configuration-checkbox" id="destiny_merge_activities" type="checkbox" disabled checked>
+                                <input class="configuration-checkbox" id="destiny_merge_activities" type="radio" disabled checked>
                                 {{/destiny_merge_activities}}
                                 {{^destiny_merge_activities}}
-                                    <input class="configuration-checkbox" id="destiny_merge_activities" type="checkbox" disabled>
+                                    <input class="configuration-checkbox" id="destiny_merge_activities" type="radio" disabled>
                                 {{/destiny_merge_activities}}
                             </div>
                             <div class="config-info">
                                 <div class="config-title">{{#str}} config_destiny_merge_activities, local_coursetransfer {{/str}}</div>
-                                <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
+                                <div class="config-desc">{{#str}} config_destiny_merge_activities_desc, local_coursetransfer {{/str}}.</div>
                             </div>
                         </li>
+                        <li class="configuration-group">
+                            <div class="checkbox">
+                                {{#destiny_remove_activities}}
+                                    <input class="configuration-checkbox" id="destiny_remove_activities" type="radio" disabled checked>
+                                {{/destiny_remove_activities}}
+                                {{^destiny_remove_activities}}
+                                    <input class="configuration-checkbox" id="destiny_remove_activities" type="radio" disabled>
+                                {{/destiny_remove_activities}}
+                            </div>
+                            <div class="config-info">
+                                <div class="config-title">{{#str}} config_destiny_remove_activities, local_coursetransfer {{/str}}</div>
+                                <div class="config-desc">{{#str}} config_destiny_remove_groups_desc, local_coursetransfer {{/str}}</div>
+                            </div>
+                        </li>
+                    </ul>
+                    <h5>{{#str}} deleteindestiny, local_coursetransfer {{/str}}</h5>
+                    <ul class="configuration-list">
                         <li class="configuration-group">
                             <div class="checkbox">
                                 {{#destiny_remove_enrols}}
@@ -62,7 +80,7 @@
                             </div>
                             <div class="config-info">
                                 <div class="config-title">{{#str}} config_destiny_remove_enrols, local_coursetransfer {{/str}}</div>
-                                <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
+                                <div class="config-desc">{{#str}} config_destiny_remove_enrols_desc, local_coursetransfer {{/str}}</div>
                             </div>
                         </li>
                         <li class="configuration-group">
@@ -76,21 +94,7 @@
                             </div>
                             <div class="config-info">
                                 <div class="config-title">{{#str}} config_destiny_remove_groups, local_coursetransfer {{/str}}</div>
-                                <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
-                            </div>
-                        </li>
-                        <li class="configuration-group">
-                            <div class="checkbox">
-                                {{#destiny_remove_activities}}
-                                    <input class="configuration-checkbox" id="destiny_remove_activities" type="checkbox" disabled checked>
-                                {{/destiny_remove_activities}}
-                                {{^destiny_remove_activities}}
-                                    <input class="configuration-checkbox" id="destiny_remove_activities" type="checkbox" disabled>
-                                {{/destiny_remove_activities}}
-                            </div>
-                            <div class="config-info">
-                                <div class="config-title">{{#str}} config_destiny_remove_activities, local_coursetransfer {{/str}}</div>
-                                <div class="config-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In placerat ipsum eros, nec vulputate libero egestas eu. Donec nisi nunc, tempor at nisi quis, venenatis tristique ipsum.</div>
+                                <div class="config-desc">{{#str}} config_destiny_remove_groups_desc, local_coursetransfer {{/str}}</div>
                             </div>
                         </li>
                     </ul>
@@ -118,7 +122,6 @@
     }
     div[data-region='table_configuration_component'] li.configuration-group {
         display: flex;
-        justify-content: center;
         margin: 20px 0;
     }
     div[data-region='table_configuration_component'] div.checkbox {
