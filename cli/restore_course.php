@@ -36,10 +36,10 @@ $usage = 'CLI de restauracion de cursos.
 Usage:
     # php restore_course.php
         --site_url=<site_url>
-        --origin_course_id=<courseid>
-        --destiny_course_id=<courseid>
-        --destiny_category_id=<categoryid>
-        --origin_enrolusers=<enrolusers>
+        --origin_course_id=<origin_course_id>
+        --destiny_course_id=<destiny_course_id>
+        --destiny_category_id=<destiny_category_id>
+        --origin_enrolusers=<origin_enrolusers>
         --destiny_remove_activities=<destiny_remove_activities>
         --destiny_merge_activities=<destiny_merge_activities>
         --destiny_remove_enrols=<destiny_remove_enrols>
@@ -49,15 +49,15 @@ Usage:
         --destiny_not_remove_activities=<destiny_not_remove_activities>
 
     --site_url=<site_url> Origin Site URL (string)
-    --origin_course_id=<courseid>  Origin Course ID (int).
-    --destiny_course_id=<courseid>  Destiny Course ID (int). (Optional)
-    --destiny_category_id=<categoryid>  Category ID (int). (Optional)
-    --origin_enrolusers=<enrolusers>  Include enrolled users (Boolean).
-    --destiny_remove_activities=<destiny_remove_activities> Remove Activities (Boolean).
+    --origin_course_id=<origin_course_id>  Origin Course ID (int).
+    --destiny_course_id=<destiny_course_id>  Destiny Course ID (int). (Optional - New Course)
+    --destiny_category_id=<destiny_category_id>  Category ID (int). (Optional - Superior Category)
+    --origin_enrolusers=<origin_enrolusers>  Include enrolled users data (Boolean).
+    --destiny_remove_activities=<destiny_remove_activities> Remove Content (Section & Activities) (Boolean).
     --destiny_merge_activities=<destiny_merge_activities>  Merge the backup course into this course (Boolean).
     --destiny_remove_enrols=<destiny_remove_enrols> Remove Enrols (Boolean).
     --destiny_remove_groups=<destiny_remove_groups> Remove Groups (Boolean).
-    --origin_remove_course=<origin_remove_course>   Remove Course (Boolean).
+    --origin_remove_course=<origin_remove_course>   Remove Origin Course (Boolean).
     --origin_schedule_datetime=<origin_schedule_datetime>   Date in UNIX timestamp (int).
     --destiny_not_remove_activities=<destiny_not_remove_activities> cmids separated by coma (string).
 
@@ -190,8 +190,6 @@ $configuration = [
 
 $errors = [];
 
-
-
 try {
 
     $user = core_user::get_user_by_username('admin');
@@ -204,7 +202,8 @@ try {
     $errors = array_merge($errors, $res['errors']);
     $success = $res['success'];
     if ($success) {
-        cli_writeln('THE RESTORATION HAS BEGUN');
+        cli_writeln('THE RESTORATION HAS BEGUN - VIEW LOG IN: view_log_request.php --requestid=' .
+                $res['data']['requestid']);
         exit(0);
     } else {
         if (isset($errors[0])) {
@@ -221,5 +220,3 @@ try {
     cli_writeln('300500: ' . $e->getMessage());
     exit(1);
 }
-
-

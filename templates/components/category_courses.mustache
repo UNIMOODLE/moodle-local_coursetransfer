@@ -35,11 +35,11 @@
     <tbody>
     {{# category.courses }}
         <tr data-action="course">
-            <td>{{# selectable }}<input type="checkbox"
+            <td><input type="checkbox"
                        name="radiogroup"
                        data-action="select"
                        data-courseid="{{ id }}"
-                       {{# disabled }}disabled{{/ disabled }}>{{/ selectable }}</td>
+                       {{# disabled }}disabled{{/ disabled }}></td>
             <td id="courseid"><a href="{{ url }}" target="_blank">{{ id }}</a></td>
             <td>{{ fullname }}</td>
             <td>{{ shortname }}</td>

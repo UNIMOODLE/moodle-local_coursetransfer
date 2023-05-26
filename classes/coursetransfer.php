@@ -605,7 +605,10 @@ class coursetransfer {
             }
             return [
                     'success' => $success,
-                    'errors' => $errors
+                    'errors' => $errors,
+                    'data' => [
+                            'requestid' => $requestid
+                    ]
             ];
         } catch (moodle_exception $e) {
             $error = [
@@ -693,7 +696,10 @@ class coursetransfer {
 
             return [
                     'success' => $success,
-                    'errors' => $errors
+                    'errors' => $errors,
+                    'data' => [
+                        'requestid' => $requestid
+                    ]
             ];
         } catch (moodle_exception $e) {
             $error = [
