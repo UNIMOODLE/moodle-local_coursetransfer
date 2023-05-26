@@ -47,7 +47,7 @@ class download_file_course_task extends \core\task\adhoc_task {
      */
     public function execute() {
 
-        $this->log_start("Download File Backup Course Remote Starting...");
+        $this->log_start("Download File Backup Course Remote and Restore Starting...");
         $fileurle = $this->get_custom_data()->fileurl;
         $request = $this->get_custom_data()->request;
 
@@ -90,7 +90,7 @@ class download_file_course_task extends \core\task\adhoc_task {
             coursetransfer_request::insert_or_update($request, $request->id);
         }
 
-        $this->log_finish("Download File Backup Course Remote Finishing...");
+        $this->log_finish("Download File Backup Course Remote and Restore Finishing...");
 
     }
 

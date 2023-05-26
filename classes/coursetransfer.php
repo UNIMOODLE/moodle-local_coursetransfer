@@ -27,6 +27,7 @@ namespace local_coursetransfer;
 use backup;
 use backup_controller;
 use coding_exception;
+use context;
 use context_course;
 use course_modinfo;
 use dml_exception;
@@ -38,6 +39,8 @@ use local_coursetransfer\task\download_file_course_task;
 use moodle_exception;
 use moodle_url;
 use restore_controller;
+use restore_controller_exception;
+use restore_ui_exception;
 use stdClass;
 use stored_file;
 use stored_file_creation_exception;
@@ -385,8 +388,8 @@ class coursetransfer {
             if ($site[0] === $url) {
                 $res->host = $site[0];
                 $res->token = $site[1];
+                break;
             }
-            break;
         }
         if (empty($res->host) || empty($res->token)) {
             throw new moodle_exception('SITE NOT VALID');
@@ -458,7 +461,13 @@ class coursetransfer {
                 throw new \restore_controller_exception('cannot_create_backup_temp_dir');
             }
 
-            $rc = new restore_controller('f2063354d1b36b5c6ff72877e75ffca2', $courseid,
+            $filepath = restore_controller::get_tempdir_name($file->get_contextid(), $userid);
+            $backuptempdir = make_backup_temp_directory('', false);
+            $fb = get_file_packer('application/vnd.moodle.backup');
+
+            $fb->extract_to_pathname($file, $backuptempdir . '/' . $filepath . '/');
+
+            $rc = new restore_controller($filepath, $courseid,
                     backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid,
                     backup::TARGET_CURRENT_ADDING);
 
