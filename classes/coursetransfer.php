@@ -575,14 +575,26 @@ class coursetransfer {
             $object->origin_remove_course = isset($configuration['origin_remove_course']) ?
                     $configuration['origin_remove_course'] : 0;
             $object->destiny_notremove_activities = isset($configuration['destiny_notremove_activities']) ?
-                    $configuration['destiny_notremove_activities'] : null;
+                    $configuration['destiny_notremove_activities'] : '';
+            $configuration['origin_remove_course'] = isset($configuration['origin_remove_course']) ?
+                    $configuration['origin_remove_course'] : 0;
+
+            $configuration['destiny_notremove_activities'] = isset($configuration['destiny_notremove_activities']) ?
+                    $configuration['destiny_notremove_activities'] : '';
+
+            $config['destiny_merge_activities'] = 0;
+            $config['destiny_remove_enrols'] = 0;
+            $config['destiny_remove_groups'] = 0;
+            $config['destiny_remove_activities'] = 0;
+            $config['origin_remove_course'] = 0;
+            $config['destiny_notremove_activities'] = '';
 
             $object->origin_backup_size_estimated = self::get_backup_size_estimated($courseid);
             $object->status = 1;
             $object->userid = $USER->id;
             $requestid = coursetransfer_request::insert_or_update($object);
             $request = new request($site);
-            $res = $request->origin_backup_course($requestid, $courseid, $destinyid, $configuration, $sections);
+            $res = $request->origin_backup_course($requestid, $courseid, $destinyid, $config, $sections);
             if ($res->success) {
                 $object->status = 10;
                 coursetransfer_request::insert_or_update($object, $requestid);
