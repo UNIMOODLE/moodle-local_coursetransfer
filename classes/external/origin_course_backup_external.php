@@ -57,16 +57,14 @@ class origin_course_backup_external extends external_api {
                 'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site'),
                 'configuration' => new external_single_structure(
                         array(
-                                'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
-                                'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
-                                'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
-                                'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
-                                'origin_remove_course' =>
-                                        new external_value(PARAM_BOOL,
-                                                'Destiny Remove Course', VALUE_DEFAULT, false),
-                                'destiny_notremove_activities' =>
-                                        new external_value(PARAM_TEXT,
-                                                'Destiny Not Remove Activities by commas', VALUE_DEFAULT, '')
+                               'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
+                               'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
+                               'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
+                               'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
+                               'origin_remove_course' => new external_value(PARAM_BOOL,
+                                               'Destiny Remove Course', VALUE_DEFAULT, false),
+                               'destiny_notremove_activities' => new external_value(PARAM_TEXT,
+                                               'Destiny Not Remove Activities by commas', VALUE_DEFAULT, '')
                         )
                 ),
                 'sections' => new external_multiple_structure(new external_single_structure(
