@@ -626,6 +626,7 @@ class coursetransfer {
      * @param stdClass $site
      * @param int $destinyid
      * @param int $categoryid
+     * @param array $courses
      * @param array $configuration
      *          destiny_remove_activities
      *          destiny_merge_activities
@@ -634,11 +635,9 @@ class coursetransfer {
      *          origin_remove_course
      *          destiny_notremove_activities
      * @return array
-     * @throws dml_exception
-     * @throws moodle_exception
      */
     public static function restore_category(
-            stdClass $site, int $destinyid, int $categoryid, array $configuration): array {
+            stdClass $site, int $destinyid, int $categoryid, array $courses = [], array $configuration = []): array {
         global $USER;
 
         try {
@@ -651,17 +650,18 @@ class coursetransfer {
             $object->origin_enrolusers = 0;
             $object->origin_remove_course = 0;
             $object->origin_activities = '[]';
+            $object->origin_category_courses = json_encode(self::get_courses_detail($site, $courses));
 
             $object->destiny_remove_activities = isset($configuration['destiny_remove_activities']) ?
-                    $configuration['destiny_remove_activities'] : null;
+                    $configuration['destiny_remove_activities'] : 0;
             $object->destiny_merge_activities = isset($configuration['destiny_merge_activities']) ?
-                    $configuration['destiny_merge_activities'] : null;
+                    $configuration['destiny_merge_activities'] : 0;
             $object->destiny_remove_enrols = isset($configuration['destiny_remove_enrols']) ?
-                    $configuration['destiny_remove_enrols'] : null;
+                    $configuration['destiny_remove_enrols'] : 0;
             $object->destiny_remove_groups = isset($configuration['destiny_remove_groups']) ?
-                    $configuration['destiny_remove_groups'] : null;
+                    $configuration['destiny_remove_groups'] : 0;
             $object->origin_remove_course = isset($configuration['origin_remove_course']) ?
-                    $configuration['origin_remove_course'] : null;
+                    $configuration['origin_remove_course'] : 0;
             $object->destiny_notremove_activities = isset($configuration['destiny_notremove_activities']) ?
                     $configuration['destiny_notremove_activities'] : null;
 
@@ -669,7 +669,6 @@ class coursetransfer {
             $object->status = 1;
             $object->userid = $USER->id;
 
-            var_dump($object);
             $requestid = coursetransfer_request::insert_or_update($object);
 
             $success = true;
@@ -707,5 +706,28 @@ class coursetransfer {
                     'errors' => $errors
             ];
         }
+    }
+
+    /**
+     * Get Courses Detail.
+     *
+     * @param stdClass $site
+     * @param array $courses
+     * @return array
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_courses_detail(stdClass $site, array $courses): array {
+        $request = new request($site);
+        $items = [];
+        foreach ($courses as $course) {
+            $res = $request->origin_get_course_detail($course['id']);
+            if ($res->success) {
+                $items[] = $res->data;
+            } else {
+                throw new moodle_exception(json_encode($res->errors));
+            }
+        }
+        return $items;
     }
 }

@@ -50,14 +50,40 @@ class coursetransfer_request {
     /**
      * Get by Destiny Course Id.
      *
-     * @param int $destinycourseid
+     * @param int $courseid
      * @return false|mixed|stdClass
      * @throws dml_exception
      */
-    public static function get_by_destiny_course_id(int $destinycourseid) {
+    public static function get_by_destiny_course_id(int $courseid) {
         global $DB;
         return $DB->get_records(self::TABLE,
-                ['destiny_course_id' => $destinycourseid, 'type' => 0, 'direction' => 0]);
+                ['destiny_course_id' => $courseid, 'type' => 0, 'direction' => 0]);
+    }
+
+    /**
+     * Get by Destiny Category Id.
+     *
+     * @param int $catid
+     * @return false|mixed|stdClass
+     * @throws dml_exception
+     */
+    public static function get_by_destiny_category_id(int $catid) {
+        global $DB;
+        return $DB->get_records(self::TABLE,
+                ['destiny_category_id' => $catid, 'type' => 1, 'direction' => 0]);
+    }
+
+    /**
+     * Get by Origin Course Id.
+     *
+     * @param int $courseid
+     * @return false|mixed|stdClass
+     * @throws dml_exception
+     */
+    public static function get_by_origin_course_id(int $courseid) {
+        global $DB;
+        return $DB->get_records(self::TABLE,
+                ['origin_course_id' => $courseid, 'type' => 0, 'direction' => 1]);
     }
 
     /**

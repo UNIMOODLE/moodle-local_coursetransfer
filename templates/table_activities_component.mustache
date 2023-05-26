@@ -21,16 +21,16 @@
 
 }}
 <div data-region="table_activities_component">
-    <button type="button" class="btn btn-dark origin-activity" data-toggle="modal" data-target="#exampleModalActivities">
+    <button type="button" class="btn btn-dark origin-activity" data-toggle="modal" data-target="#ModalActivities-{{ id }}">
         Ver
     </button>
 
     <!-- Modal -->
-    <div class="modal fade bd-example-modal-lg" id="exampleModalActivities" tabindex="-1" role="dialog" aria-labelledby="exampleModalActivitiesTitle" aria-hidden="true">
+    <div class="modal fade bd-example-modal-lg" id="ModalActivities-{{ id }}" tabindex="-1" role="dialog" aria-labelledby="ModalActivities-{{ id }}Title" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Activities</h5>
+                    <h5 class="modal-title" id="ModalActivities-{{ id }}LongTitle">{{#str}} activities {{/str}}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

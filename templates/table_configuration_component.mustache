@@ -21,16 +21,16 @@
 
 }}
 <div data-region="table_configuration_component">
-    <button type="button" class="btn btn-light configuration" data-toggle="modal" data-target="#exampleModalConfiguration">
+    <button type="button" class="btn btn-light configuration" data-toggle="modal" data-target="#ModalConfiguration-{{ id }}">
         Detalles
     </button>
     <!-- Modal -->
-    <div class="modal fade bd-example-modal-lg" id="exampleModalConfiguration" tabindex="-1" role="dialog"
-         aria-labelledby="exampleModalConfigurationTitle" aria-hidden="true">
+    <div class="modal fade bd-example-modal-lg" id="ModalConfiguration-{{ id }}" tabindex="-1" role="dialog"
+         aria-labelledby="ModalConfiguration-{{ id }}Title" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Configuration</h5>
+                    <h5 class="modal-title" id="ModalConfiguration-{{ id }}LongTitle">Configuration</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

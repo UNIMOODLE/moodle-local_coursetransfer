@@ -141,7 +141,7 @@ class origin_restore_category_table extends table_sql {
     }
 
     /**
-     * Col Origin Activities
+     * Col Origin Category Courses selected
      *
      * @param stdClass $row Full data of the current row.
      * @return string
@@ -150,7 +150,8 @@ class origin_restore_category_table extends table_sql {
     public function col_origin_category_courses(stdClass $row): string {
         global $PAGE;
         $output = $PAGE->get_renderer('local_coursetransfer');
-        $component = new \local_coursetransfer\output\category_course_component($row->origin_category_courses);
+        $origincategorycourses = !empty($row->origin_category_courses) ? $row->origin_category_courses : '';
+        $component = new \local_coursetransfer\output\category_course_component($origincategorycourses, $row->siteurl, $row->id);
         return $output->render($component);
     }
 

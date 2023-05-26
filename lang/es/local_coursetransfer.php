@@ -150,3 +150,5 @@ $string['origin_category_courses'] = "Cursos a restaurar";
 $string['destiny_course_id_integer'] = "ID Curso de Destino debe ser entero";
 $string['destiny_category_id_require'] = "ID Categoría de Destino es obligatoria";
 $string['destiny_category_id_integer'] = "ID Categoría de Destino debe ser entero";
+$string['not_activities'] = "No se han encontrado actividades";
+$string['not_courses'] = "No se han encontrado cursos";

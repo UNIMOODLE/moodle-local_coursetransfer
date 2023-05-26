@@ -39,13 +39,21 @@ use templatable;
  */
 class activities_component implements renderable, templatable {
 
+    /** @var string Activities */
+    protected $activities;
+
+    /** @var int ID */
+    protected $id;
+
     /**
      *  constructor.
      *
      * @param string $activities
+     * @param int $id
      */
-    public function __construct(string $activities) {
+    public function __construct(string $activities, int $id) {
         $this->activities = $activities;
+        $this->id = $id;
     }
 
     /**
@@ -57,6 +65,7 @@ class activities_component implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();
+        $data->id = $this->id;
         $data->sections = json_decode($this->activities);
         if (isset($data->sections)) {
             for ($i = 0; $i < count($data->sections); $i++) {

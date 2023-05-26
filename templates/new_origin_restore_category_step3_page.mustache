@@ -36,32 +36,9 @@
         {{> local_coursetransfer/components/category_details }}
 
         <h3 class="h2">{{#str}} step3_category_list, local_coursetransfer {{/str}}{{ categoryname }}</h3>
-        <table>
-            <thead>
-            <tr>
-                <th></th>
-                <th>{{#str}} step2_course_id, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_name, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_shortname, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {{# category.courses }}
-                <tr data-action="course">
-                    <td><input type="checkbox" name="radiogroup" data-action="select"></td>
-                    <td id="courseid">{{ id }}</td>
-                    <td>{{ fullname }}</td>
-                    <td>{{ shortname }}</td>
-                    <td>{{ idnumber }}</td>
-                    <td>{{ categoryid }}</td>
-                    <td>{{ categoryname }}</td>
-                </tr>
-            {{/ category.courses }}
-            </tbody>
-        </table>
+
+        {{> local_coursetransfer/components/category_courses }}
+
         <div class="alert alert-danger hidden" role="alert"></div>
     {{/ haserrors }}
 

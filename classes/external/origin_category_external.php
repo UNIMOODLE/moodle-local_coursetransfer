@@ -31,6 +31,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
+use moodle_url;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -186,8 +187,10 @@ class origin_category_external extends external_api {
             $categoryparent = core_course_category::get($category->parent);
             $courses = [];
             foreach ($category->get_courses() as $c) {
+                $courseurl = new moodle_url('/course/view.php', ['id' => $c->id]);
                 $course = new stdClass();
                 $course->id = $c->id;
+                $course->url = $courseurl->out(false);
                 $course->fullname = $c->fullname;
                 $course->shortname = $c->shortname;
                 $course->idnumber = $c->idnumber;
@@ -196,12 +199,13 @@ class origin_category_external extends external_api {
                 $course->categoryname = $ccategory->name;
                 $courses[] = $course;
             }
+            $parentname = !empty($categoryparent->name) ? $categoryparent->name : get_string('top');
             $data = [
                 'id' => $category->id,
                 'name' => $category->name,
                 'idnumber' => $category->idnumber,
                 'parentid' => $category->parent,
-                'parentname' => $categoryparent->name,
+                'parentname' => $parentname,
                 'courses' => $courses
             ];
             $success = true;
@@ -244,6 +248,7 @@ class origin_category_external extends external_api {
                         'courses' => new external_multiple_structure(new external_single_structure(
                             array(
                                 'id' => new external_value(PARAM_INT, 'Course ID', VALUE_OPTIONAL),
+                                'url' => new external_value(PARAM_RAW, 'Course URL', VALUE_OPTIONAL),
                                 'fullname' => new external_value(PARAM_TEXT, 'Course fullname', VALUE_OPTIONAL),
                                 'shortname' => new external_value(PARAM_TEXT, 'Course ShortName', VALUE_OPTIONAL),
                                 'idnumber' => new external_value(PARAM_TEXT, 'Course Idnumber', VALUE_OPTIONAL),

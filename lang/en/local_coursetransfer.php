@@ -136,7 +136,7 @@ $string['step2_category_parentname'] = "Parent Category";
 $string['step2_category_totalcourses'] = "Total courses";
 $string['step2_categories_list'] = "Origin categories list";
 $string['step3_restore_desc_cat'] = "Select the courses you want to restore from the chosen category";
-$string['step3_category_list'] = "List of courses from the source category:";
+$string['step3_category_list'] = "List of courses from the origin category:";
 $string['category_details_name'] = "Category Name";
 $string['category_details_category_id'] = "Category ID";
 $string['category_details_parent_name'] = "Category Parent";
@@ -150,4 +150,6 @@ $string['origin_category_courses'] = "Courses to restore";
 $string['destiny_course_id_integer'] = "Destiny Course ID is integer";
 $string['destiny_category_id_require'] = "Destiny Category ID is required";
 $string['destiny_category_id_integer'] = "Destiny Category ID is integer";
+$string['not_activities'] = "No Activities found";
+$string['not_courses'] = "No courses found";
 

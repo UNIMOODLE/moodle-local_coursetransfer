@@ -24,7 +24,6 @@
  */
 
 use local_coursetransfer\coursetransfer;
-use local_coursetransfer\tables\origin_restore_course_table;
 
 define('CLI_SCRIPT', 1);
 
@@ -32,13 +31,13 @@ require(__DIR__.'/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 
-$usage = 'CLI para ver los logs de restauraciones en un curso.
+$usage = 'CLI para ver los logs de restauraciones en un curso a partir de un curso desde otro Moodle.
 
 Usage:
     # php view_log_destiny_course.php
-        --course_id=<courseid>
+        --courseid=<courseid>
 
-    --course_id=<courseid>  Destinty Course ID (int)
+    --courseid=<courseid>  Destiny Course ID (int)
 
 Options:
     -h --help                   Print this help.
@@ -47,7 +46,7 @@ Description.
 
 Examples:
 
-    # php local/coursetransfer/cli/view_log_destiny_course.php --course_id=3
+    # php local/coursetransfer/cli/view_log_destiny_course.php --courseid=3
 ';
 
 list($options, $unrecognised) = cli_get_params([
@@ -79,18 +78,14 @@ if ( $courseid === null ) {
 
 try {
 
-    $user = core_user::get_user_by_username('admin');
-    complete_user_login($user);
-
-    $destiny = get_course($courseid);
-
-    $mask = "|%12.15s |%-30.30s | %-20.20s  | %-7.7s  | %-50.50s  | %-7.7s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
+    $mask = "| %12.15s |%-35.35s | %-14.14s | %-14.14s  | %-7.7s | %-50.50s  | %-8.8s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
     printf($mask,
-            'Request ID', 'Origin Site', 'Origin Course ID', 'Status', 'Error', 'Size', 'UserID', 'TimeModified', 'TimeCreated');
+            'Request ID', 'Destiny Site', 'Dest Course', 'Orig Course',
+            'Status', 'Error', 'Size', 'UserID', 'TimeModified', 'TimeCreated');
 
-    foreach (\local_coursetransfer\coursetransfer_request::get_by_destiny_course_id($destiny->id) as $item) {
+    foreach (\local_coursetransfer\coursetransfer_request::get_by_destiny_course_id($courseid) as $item) {
         printf($mask,
-                $item->id, $item->siteurl, $item->origin_course_id,
+                $item->id, $item->siteurl, $item->destiny_course_id, $item->origin_course_id,
                 get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
                 $item->error_code . ': ' . $item->error_message,
                 $item->origin_backup_size, $item->userid, $item->timemodified, $item->timecreated);

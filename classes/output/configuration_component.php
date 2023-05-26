@@ -39,13 +39,21 @@ use templatable;
  */
 class configuration_component implements renderable, templatable {
 
+    /** @var array Configuration */
+    protected $configuration;
+
+    /** @var int ID */
+    protected $id;
+
     /**
      *  constructor.
      *
      * @param array $configuration
+     * @param int $id
      */
-    public function __construct(array $configuration) {
+    public function __construct(array $configuration, int $id) {
         $this->configuration = $configuration;
+        $this->id = $id;
     }
 
     /**
@@ -53,10 +61,10 @@ class configuration_component implements renderable, templatable {
      *
      * @param renderer_base $output
      * @return stdClass
-     * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();
+        $data->id = $this->id;
         $data->destiny_remove_activities = $this->configuration[0];
         $data->destiny_merge_activities = $this->configuration[1];
         $data->destiny_remove_enrols = $this->configuration[2];

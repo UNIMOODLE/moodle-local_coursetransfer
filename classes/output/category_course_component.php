@@ -38,16 +38,26 @@ use templatable;
  */
 class category_course_component implements renderable, templatable {
 
-    /** @var string Courses separted by commas */
+    /** @var int ID */
+    protected $id;
+
+    /** @var string Courses JSON details */
     protected $courses;
+
+    /** @var string Origin Site URL */
+    protected $siteurl;
 
     /**
      *  constructor.
      *
      * @param string $courses
+     * @param string $siteurl
+     * @param int $id
      */
-    public function __construct(string $courses) {
+    public function __construct(string $courses, string $siteurl, int $id) {
+        $this->id = $id;
         $this->courses = $courses;
+        $this->siteurl = $siteurl;
     }
 
     /**
@@ -57,7 +67,24 @@ class category_course_component implements renderable, templatable {
      * @return stdClass
      */
     public function export_for_template(renderer_base $output): stdClass {
+        $category = new stdClass();
+        $category->courses = $this->get_courses_data();
         $data = new stdClass();
+        $data->id = $this->id;
+        $data->category = $category;
         return $data;
+    }
+
+    /**
+     * Get Courses Data.
+     *
+     * @return array
+     */
+    protected function get_courses_data(): array {
+        if (!empty($this->courses)) {
+            return json_decode($this->courses);
+        } else {
+            return [];
+        }
     }
 }

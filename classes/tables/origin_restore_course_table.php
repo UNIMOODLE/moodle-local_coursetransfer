@@ -153,7 +153,7 @@ class origin_restore_course_table extends table_sql {
     public function col_origin_activities(stdClass $row): string {
         global $PAGE;
         $output = $PAGE->get_renderer('local_coursetransfer');
-        $component = new \local_coursetransfer\output\activities_component($row->origin_activities);
+        $component = new \local_coursetransfer\output\activities_component($row->origin_activities, $row->id);
         return $output->render($component);
     }
 
@@ -166,9 +166,14 @@ class origin_restore_course_table extends table_sql {
      */
     public function col_configuration(stdClass $row): string {
         global $PAGE;
-        $configuration = [$row->destiny_remove_activities, $row->destiny_merge_activities, $row->destiny_remove_enrols, $row->destiny_remove_groups];
+        $configuration = [
+                $row->destiny_remove_activities,
+                $row->destiny_merge_activities,
+                $row->destiny_remove_enrols,
+                $row->destiny_remove_groups
+        ];
         $output = $PAGE->get_renderer('local_coursetransfer');
-        $component = new \local_coursetransfer\output\configuration_component($configuration);
+        $component = new \local_coursetransfer\output\configuration_component($configuration, $row->id);
         return $output->render($component);
     }
 
