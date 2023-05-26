@@ -24,7 +24,6 @@
 
 namespace local_coursetransfer\output;
 
-use moodle_exception;
 use renderable;
 use renderer_base;
 use stdClass;
@@ -61,7 +60,6 @@ class activities_component implements renderable, templatable {
      *
      * @param renderer_base $output
      * @return stdClass
-     * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();

@@ -50,8 +50,6 @@ class restore_course_task extends \core\task\adhoc_task {
         $restoreoptions = $this->get_custom_data()->restoreoptions;
         try {
 
-            //$rc->get_plan()->get_setting('users')->set_value(true);
-
             foreach ($restoreoptions as $option => $value) {
                 $rc->get_plan()->get_setting($option)->set_value($value);
             }

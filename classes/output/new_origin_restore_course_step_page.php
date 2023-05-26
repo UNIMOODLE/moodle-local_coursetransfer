@@ -24,7 +24,6 @@
 
 namespace local_coursetransfer\output;
 
-use core_course_category;
 use renderable;
 use renderer_base;
 use stdClass;

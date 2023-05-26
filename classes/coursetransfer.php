@@ -117,8 +117,11 @@ class coursetransfer {
     }
 
     /**
+     * Verify Destiny Site.
+     *
      * @param string $destinysite
      * @return array
+     * @throws dml_exception
      */
     public static function verify_destiny_site(string $destinysite): array {
         $res = new stdClass();
@@ -441,12 +444,10 @@ class coursetransfer {
      *
      * @param stdClass $request
      * @param stored_file $file
-     * @param string $tmpdir
      * @throws dml_exception
      * @throws moodle_exception
      */
     public static function create_task_restore_course(stdClass $request, stored_file $file) {
-        global $CFG;
         try {
             $courseid = $request->destiny_course_id;
             $userid = $request->userid;
@@ -457,15 +458,7 @@ class coursetransfer {
                 throw new \restore_controller_exception('cannot_create_backup_temp_dir');
             }
 
-            make_temp_directory($backuptmpdir);
-
-            $targetfilename = \restore_controller::get_tempdir_name($courseid, $userid);
-
-            $target = $backuptmpdir . DIRECTORY_SEPARATOR . $targetfilename;
-
-            $file->copy_content_to_temp($target);
-
-            $rc = new restore_controller($target, $courseid,
+            $rc = new restore_controller('f2063354d1b36b5c6ff72877e75ffca2', $courseid,
                     backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid,
                     backup::TARGET_CURRENT_ADDING);
 
@@ -475,23 +468,15 @@ class coursetransfer {
             }
 
             if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
-
-                error_log('por aki 5');
                 $rc->convert();
 
             }
 
-            error_log('por aki 6');
-
             // Execute restore.
             $rc->execute_precheck();
-            error_log('por aki 7');
             $rc->execute_plan();
-            error_log('por aki 8');
             $rc->destroy();
         } catch (\Exception $e) {
-            error_log('pasa por la excepción');
-            error_log($e->getMessage());
             $request->status = 0;
             $request->error_code = '200320';
             $request->error_message = $e->getMessage();
@@ -504,7 +489,7 @@ class coursetransfer {
      *
      * @param int $courseid
      * @param stored_file $file
-     * @return array
+     * @return string
      * @throws file_exception
      * @throws stored_file_creation_exception
      */

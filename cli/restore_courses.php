@@ -49,7 +49,8 @@ Usage:
 
     --site_url=<site_url> Origin Site URL (string)
     --origin_courses_id=<origin_courses_id>  Origin Courses ID separated by commas (string).
-    --destiny_courses_id=<destiny_courses_id>  Destiny Courses ID separeted by commas (string). (Optional - New Course in New Category)
+    --destiny_courses_id=<destiny_courses_id>  Destiny Courses ID separeted by commas (string).
+                                                (Optional - New Course in New Category)
     --origin_enrolusers=<enrolusers>  Include enrolled users data (Boolean).
     --destiny_remove_activities=<destiny_remove_activities> Remove Content (Section & Activities) (Boolean).
     --destiny_merge_activities=<destiny_merge_activities>  Merge the backup course into this course (Boolean).

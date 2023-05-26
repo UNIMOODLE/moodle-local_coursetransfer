@@ -30,7 +30,6 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
-use local_coursetransfer\coursetransfer_request;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -172,7 +171,6 @@ class restore_category_external extends external_api {
      */
     public static function new_origin_restore_category_step4(
             int $siteurl, int $categoryid, int $destinyid, array $courses): array {
-        global $USER;
 
         self::validate_parameters(
                 self::new_origin_restore_category_step4_parameters(),

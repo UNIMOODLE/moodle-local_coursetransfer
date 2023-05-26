@@ -30,7 +30,6 @@ use coding_exception;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use moodleform;
-use stdClass;
 
 require_once($CFG->libdir . '/formslib.php');
 

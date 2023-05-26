@@ -67,7 +67,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
             mtrace('Bad backup controller status, invalid controller, ending backup execution.');
             return;
         }
-        $bc = \backup_controller::load_controller($backupid);
+
         $bc->set_progress(new \core\progress\db_updater($backuprecord->id, 'backup_controllers', 'progress'));
 
         // Do some preflight checks on the backup.

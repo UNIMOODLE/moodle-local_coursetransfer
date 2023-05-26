@@ -78,6 +78,10 @@ class download_file_course_task extends \core\task\adhoc_task {
 
             coursetransfer::create_task_restore_course($request, $file);
 
+            $this->log('Restore in Moodle Success!');
+            $request->status = 100;
+            coursetransfer_request::insert_or_update($request, $request->id);
+
         } catch (\Exception $e) {
             $this->log($e->getMessage());
             $request->status = 0;

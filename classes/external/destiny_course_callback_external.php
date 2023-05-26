@@ -30,7 +30,6 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
-use local_coursetransfer\task\download_file_course_task;
 use moodle_exception;
 use stdClass;
 
@@ -74,8 +73,6 @@ class destiny_course_callback_external extends external_api {
      */
     public static function destiny_backup_course_completed(string $field, string $value, int $requestid,
                                                            int $backupsize, string $fileurl): array {
-
-        global $DB;
 
         self::validate_parameters(
             self::destiny_backup_course_completed_parameters(), [
@@ -195,7 +192,6 @@ class destiny_course_callback_external extends external_api {
         $errors = [];
 
         try {
-            // Comprobar destinisite
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $request = $DB->get_record($table, ['id' => $requestid]);

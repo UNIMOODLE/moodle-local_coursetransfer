@@ -24,10 +24,7 @@
 
 namespace local_coursetransfer;
 
-use course_modinfo;
 use dml_exception;
-use local_coursetransfer\api\request;
-use local_coursetransfer\api\response;
 use moodle_exception;
 use stdClass;
 
