@@ -53,10 +53,6 @@ class download_file_course_task extends \core\task\adhoc_task {
 
         try {
 
-            if (is_null($request->destiny_course_id)) {
-                var_dump('CURSO NULO');
-            }
-
             $filecontent = file_get_contents($fileurle);
 
             $this->log('Backup File Dowload Success!');
