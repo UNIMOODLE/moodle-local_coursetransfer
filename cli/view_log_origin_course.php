@@ -31,7 +31,7 @@ require(__DIR__.'/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 
-$usage = 'CLI para ver los logs de peticiones de restauraciones de un curso desde otro Moodle.
+$usage = 'CLI para ver los logs de peticiones de restauraciones de un curso para restaurarla a otro Moodle.
 
 Usage:
     # php view_log_origin_course.php
@@ -78,22 +78,23 @@ if ( $courseid === null ) {
 
 try {
 
-    $mask = "| %12.15s |%-35.35s | %-14.14s | %-14.14s  | %-7.7s | %-50.50s  | %-8.8s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
+    $mask = "| %10.10s |%-12.12s |%-35.35s | %-14.14s | %-14.14s  | %-7.7s | %-50.50s  | %-8.8s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
     printf($mask,
-            'Request ID', 'Destiny Site', 'Dest Course', 'Orig Course',
+            'Request', 'Destiny Req', 'Destiny Site', 'Dest Course', 'Orig Course',
             'Status', 'Error', 'Size', 'UserID', 'TimeModified', 'TimeCreated');
 
-    foreach (\local_coursetransfer\coursetransfer_request::get_by_origin_course_id($courseid) as $item) {
+    $items = \local_coursetransfer\coursetransfer_request::get_by_origin_course_id($courseid);
+    foreach ($items as $item) {
+        $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
         printf($mask,
-                $item->id, $item->siteurl, $item->destiny_course_id, $item->origin_course_id,
+                $item->id, $item->destiny_request_id, $item->siteurl, $item->destiny_course_id, $item->origin_course_id,
                 get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
-                $item->error_code . ': ' . $item->error_message,
-                $item->origin_backup_size, $item->userid, $item->timemodified, $item->timecreated);
+                $error, $item->origin_backup_size, $item->userid, $item->timemodified, $item->timecreated);
     }
     exit(0);
 
 } catch (moodle_exception $e) {
-    cli_writeln('200700: ' . $e->getMessage());
+    cli_writeln('300700: ' . $e->getMessage());
     exit(1);
 }
 

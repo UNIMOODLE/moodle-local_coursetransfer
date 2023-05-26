@@ -84,16 +84,16 @@ try {
             'Status', 'Error', 'Size', 'UserID', 'TimeModified', 'TimeCreated');
 
     foreach (\local_coursetransfer\coursetransfer_request::get_by_destiny_course_id($courseid) as $item) {
+        $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
         printf($mask,
                 $item->id, $item->siteurl, $item->destiny_course_id, $item->origin_course_id,
                 get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
-                $item->error_code . ': ' . $item->error_message,
-                $item->origin_backup_size, $item->userid, $item->timemodified, $item->timecreated);
+                $error, $item->origin_backup_size, $item->userid, $item->timemodified, $item->timecreated);
     }
     exit(0);
 
 } catch (moodle_exception $e) {
-    cli_writeln('200600: ' . $e->getMessage());
+    cli_writeln('300600: ' . $e->getMessage());
     exit(1);
 }
 

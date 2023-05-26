@@ -78,22 +78,31 @@ if ( $categoryid === null ) {
 
 try {
 
-    $mask = "| %12.15s |%-35.35s | %-14.14s | %-14.14s  | %-7.7s | %-50.50s  | %-8.8s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
+    $mask = "| %12.15s |%-35.35s | %-14.14s | %-14.14s  | %-14.14s | %-30.30s  | %-30.30s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
     printf($mask,
-            'Request ID', 'Destiny Site', 'Dest Course', 'Orig Course',
-            'Status', 'Error', 'Size', 'UserID', 'TimeModified', 'TimeCreated');
+            'Request ID', 'Destiny Site', 'Dest Category', 'Orig Category',
+            'Status', 'Courses Selected', 'Error', 'UserID', 'TimeModified', 'TimeCreated');
 
-    foreach (\local_coursetransfer\coursetransfer_request::get_by_destiny_course_id($categoryid) as $item) {
+    foreach (\local_coursetransfer\coursetransfer_request::get_by_destiny_category_id($categoryid) as $item) {
+        $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
+        $courses = json_decode($item->origin_category_courses);
+        $coursesid = '';
+        foreach ($courses as $course) {
+            if (empty($coursesid)) {
+                $coursesid .= $course->id;
+            } else {
+                $coursesid .= '-'. $course->id;
+            }
+        }
         printf($mask,
-                $item->id, $item->siteurl, $item->destiny_course_id, $item->origin_course_id,
+                $item->id, $item->siteurl, $item->destiny_category_id, $item->origin_category_id,
                 get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
-                $item->error_code . ': ' . $item->error_message,
-                $item->origin_backup_size, $item->userid, $item->timemodified, $item->timecreated);
+                $coursesid, $error, $item->userid, $item->timemodified, $item->timecreated);
     }
     exit(0);
 
 } catch (moodle_exception $e) {
-    cli_writeln('200600: ' . $e->getMessage());
+    cli_writeln('300800: ' . $e->getMessage());
     exit(1);
 }
 

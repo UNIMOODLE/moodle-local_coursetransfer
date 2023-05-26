@@ -23,26 +23,38 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define('CLI_SCRIPT', true);
+use local_coursetransfer\coursetransfer;
 
-//defined('MOODLE_INTERNAL') || die();
+define('CLI_SCRIPT', 1);
 
+require(__DIR__.'/../../../config.php');
 global $CFG;
+require_once($CFG->libdir . '/clilib.php');
 
-require(__DIR__.'/../../config.php');
-require_once($CFG->libdir.'/clilib.php');
-require(__DIR__.'/classes/test/test.php');
-
-
-$usage = 'CLI para ver logs.
+$usage = 'CLI para ver los logs de peticiones y respuestas filtrando por estados y fecha.
 
 Usage:
-    # php view_logs.php --status=<status> --from=<fromtimestamp> --to=<totimestamp> --userid=<userid>
+    # php view_logs.php
+        --type=<type>
+        --direction=<direction>
+        --status=<status>
+        --from=<from>
+        --to=<to>
+        --userid=<userid>
 
-    --status=<status>  Status de la petición (int).
-    --from=<fromtimestamp>  Timestamp del momento donde empezar a buscar (UNIX timestamp -> int).
-    --to=<totimestamp>  Timestamp del momento donde acabar a buscar  (UNIX timestamp -> int).
-    --userid=<userid>   User ID (int). Default es el del usuario actual.
+    --type=<type>  Type (int) - (0) restore course, (1) restore category
+    --direction=<direction>  Direction (int) - (0) request as destiny, (1) answer as origin
+    --status=<status>  Status (int)
+                * (0) Error
+                * (1) Not started
+                * (10) In Progress
+                * (30) In Backup
+                * (50) Incompleted (category)
+                * (70) Download
+                * (100) Completed
+    --from=<from>  From date (int timestamp)
+    --to=<to>  To date (int timestamp)
+    --userid=<userid>  User ID (int)
 
 Options:
     -h --help                   Print this help.
@@ -51,18 +63,19 @@ Description.
 
 Examples:
 
-    # php local/coursetransfer/view_logs.php
-    # php local/coursetransfer/view_logs.php --status=0
+    # php local/coursetransfer/cli/view_logs.php --type=0 --direction=0 --status=100 --from=1685075232 --to=1685075800 --userid=3
 ';
 
 list($options, $unrecognised) = cli_get_params([
-    'help' => false,
-    'status' => 0,
-    'from' => null,
-    'to' => null,
-    'userid' => 0
+        'help' => false,
+        'type' => null,
+        'direction' => null,
+        'status' => null,
+        'from' => null,
+        'to' => null,
+        'userid' => null,
 ], [
-    'h' => 'help'
+        'h' => 'help'
 ]);
 
 if ($unrecognised) {
@@ -74,45 +87,52 @@ if ($options['help']) {
     cli_writeln($usage);
     exit(2);
 }
-// TODO: Validacion de los valores de status
-if( gettype( $options['status']) !== 'integer' ){
-    cli_writeln( get_string('status_integer','local_coursetransfer') );
-    exit(128);
-}
 
-if( $options['from'] !== null ){
-    if( gettype( $options['from']) !== 'integer' ){
-        cli_writeln( get_string('from_integer','local_coursetransfer') );
-        exit(128);
+$type = isset($options['type']) ? (int) $options['type'] : null;
+$direction = isset($options['direction']) ? (int) $options['direction'] : null;
+$status = isset($options['status']) ? (int) $options['status'] : null;
+$from = isset($options['from']) ? (int) $options['from'] : null;
+$to = isset($options['to']) ? (int) $options['to'] : null;
+$userid = isset($options['userid']) ? (int) $options['userid'] : null;
+
+
+try {
+
+    $mask = "| %8.8s | %-5.5s | %-5.5s | %-30.30s | %-10.10s | %-10.10s | %-10.10s | %-10.10s | %-14.14s | %-7.7s | %-13.13s  | %-13.13s | %-40.40s \n";
+    printf($mask,
+            'Req ID', 'Type', 'Dir', 'Site URL', 'Dest Course', 'Orig Course', 'Dest Cat', 'Orig Cat',
+            'Status', 'UserID', 'TimeModified', 'TimeCreated', 'Error');
+
+    $filters = [
+            'type' => $type,
+            'direction' => $direction,
+            'status' => $status,
+            'from' => $from,
+            'to' => $to,
+            'userid' => $userid,
+    ];
+
+    $items = \local_coursetransfer\coursetransfer_request::filters($filters);
+
+
+    foreach ($items as $item) {
+        $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
+        printf($mask,
+                $item->id, $item->type, $item->direction, $item->siteurl, $item->destiny_course_id, $item->origin_course_id,
+                $item->destiny_category_id, $item->origin_category_id,
+                get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
+                $item->userid, $item->timemodified, $item->timecreated, $error);
     }
-}
 
-if( $options['to'] !== null ){
-    if( gettype( $options['to']) !== 'integer' ){
-        cli_writeln( get_string('to_integer','local_coursetransfer') );
-        exit(128);
+    if (count($items) > 200) {
+        cli_writeln('****************************');
+        cli_writeln('EXISTEN MÁS DE 200 RESULTADOS');
+        cli_writeln('****************************');
     }
+    exit(0);
+
+} catch (moodle_exception $e) {
+    cli_writeln('300600: ' . $e->getMessage());
+    exit(1);
 }
-// TODO: Si es 0 coger id del Usuario actual
-if( gettype( $options['userid']) !== 'integer' ) {
-    cli_writeln( get_string('userid_integer','local_coursetransfer') );
-    exit(128);
-}
-
-$destinysites = get_config('local_coursetransfer', 'destiny_sites');
-$destinysites = explode(PHP_EOL ,$destinysites);
-
-$destinies = [];
-
-foreach($destinysites as $destiny) {
-    $destiny = explode(',', $destiny);
-    $item = [];
-    $item['host'] = trim($destiny[0]);
-    $item['token'] = trim($destiny[1]);
-    $destinies[] = $item;
-}
-var_dump($destinies);
-
-// Step 1: Recuperar curso
-//\local_coursetransfer\test\test::execute();
 

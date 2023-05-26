@@ -31,10 +31,10 @@ require(__DIR__.'/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 
-$usage = 'CLI para ver los logs de una petición.
+$usage = 'CLI para ver los logs detallados de una petición con las actividades seleccionadas. 
 
 Usage:
-    # php view_log_request.php
+    # php view_log_request_activities_detail.php
         --requestid=<requestid>
 
     --requestid=<requestid>  Request ID (int)
@@ -46,7 +46,7 @@ Description.
 
 Examples:
 
-    # php local/coursetransfer/cli/view_log_request.php --requestid=3
+    # php local/coursetransfer/cli/view_log_request_activities_detail.php --requestid=3
 ';
 
 list($options, $unrecognised) = cli_get_params([
@@ -80,35 +80,7 @@ try {
 
     $request = \local_coursetransfer\coursetransfer_request::get($requestid);
     if ($request) {
-        foreach ($request as $key => $item) {
-            if ($key === 'origin_category_courses') {
-                $courses = json_decode($item);
-                $coursesid = '';
-                foreach ($courses as $course) {
-                    if (empty($coursesid)) {
-                        $coursesid .= $course->id;
-                    } else {
-                        $coursesid .= '-'. $course->id;
-                    }
-                }
-                cli_writeln( $key . ': ' . $coursesid);
-            } else if ($key === 'type') {
-                $type = $item === 1 ? 'restore course' : 'restore category';
-                cli_writeln( $key . ': ' . $type);
-            } else if ($key === 'direction') {
-                $type = $item === 1 ? 'request' : 'answer';
-                cli_writeln( $key . ': ' . $type);
-            } else if ($key === 'origin_activities') {
-                cli_writeln( $key . ': ' . 'view more details in view_log_request_activities_detail');
-            } else if ($key === 'timemodified' || $key === 'timecreated' ) {
-                cli_writeln( $key . ': ' . userdate($item));
-            } else if ($key === 'status') {
-                cli_writeln( $key . ': ' . get_string('status_' .
-                                coursetransfer::STATUS[$item]['shortname'], 'local_coursetransfer'));
-            } else {
-                cli_writeln( $key . ': ' . $item );
-            }
-        }
+        cli_writeln(json_encode(json_decode($request->origin_activities), JSON_PRETTY_PRINT));
     } else {
         cli_writeln( get_string('request_not_found', 'local_coursetransfer') );
     }

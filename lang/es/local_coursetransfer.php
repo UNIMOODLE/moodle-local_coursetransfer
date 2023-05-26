@@ -152,3 +152,4 @@ $string['destiny_category_id_require'] = "ID Categoría de Destino es obligatori
 $string['destiny_category_id_integer'] = "ID Categoría de Destino debe ser entero";
 $string['not_activities'] = "No se han encontrado actividades";
 $string['not_courses'] = "No se han encontrado cursos";
+$string['request_not_found'] = "No se ha encontrado la petición";

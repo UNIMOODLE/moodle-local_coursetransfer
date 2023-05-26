@@ -87,6 +87,80 @@ class coursetransfer_request {
     }
 
     /**
+     * Get by Origin Category Id.
+     *
+     * @param int $catid
+     * @return false|mixed|stdClass
+     * @throws dml_exception
+     */
+    public static function get_by_origin_category_id(int $catid) {
+        global $DB;
+        return $DB->get_records(self::TABLE,
+                ['origin_category_id' => $catid, 'type' => 1, 'direction' => 1]);
+    }
+
+    /**
+     * Filters
+     *
+     * @param array $filters
+     * @return false|mixed|stdClass
+     * @throws dml_exception
+     */
+    public static function filters(array $filters) {
+        global $DB;
+        $where = '';
+        if (isset($filters['type'])) {
+            if (empty($where)) {
+                $where .= 'WHERE type = ' . $filters['type'];
+            } else {
+                $where .= ' AND type = ' . $filters['type'];
+            }
+        }
+        if (isset($filters['direction'])) {
+            if (empty($where)) {
+                $where .= 'WHERE direction = ' . $filters['direction'];
+            } else {
+                $where .= ' AND direction = ' . $filters['direction'];
+            }
+        }
+        if (isset($filters['status'])) {
+            if (empty($where)) {
+                $where .= 'WHERE status = ' . $filters['status'];
+            } else {
+                $where .= ' AND status = ' . $filters['status'];
+            }
+        }
+        if (isset($filters['userid'])) {
+            if (empty($where)) {
+                $where .= 'WHERE userid = ' . $filters['userid'];
+            } else {
+                $where .= ' AND userid = ' . $filters['userid'];
+            }
+        }
+        if (isset($filters['from'])) {
+            if (empty($where)) {
+                $where .= 'WHERE timemodified >= ' . $filters['from'];
+            } else {
+                $where .= ' AND timemodified >= ' . $filters['from'];
+            }
+        }
+        if (isset($filters['to'])) {
+            if (empty($where)) {
+                $where .= 'WHERE timemodified <= ' . $filters['to'];
+            } else {
+                $where .= ' AND timemodified <= ' . $filters['to'];
+            }
+        }
+
+        $sql = 'SELECT *
+                FROM {' . self::TABLE . '}
+                ' . $where . '
+                LIMIT 201';
+
+        return $DB->get_records_sql($sql);
+    }
+
+    /**
      * Insert or update row in table.
      *
      * @param stdClass $object

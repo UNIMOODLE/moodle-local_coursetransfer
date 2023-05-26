@@ -152,4 +152,5 @@ $string['destiny_category_id_require'] = "Destiny Category ID is required";
 $string['destiny_category_id_integer'] = "Destiny Category ID is integer";
 $string['not_activities'] = "No Activities found";
 $string['not_courses'] = "No courses found";
+$string['request_not_found'] = "Request not found";
 

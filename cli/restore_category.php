@@ -195,7 +195,7 @@ try {
     }
 
 } catch (moodle_exception $e) {
-    cli_writeln('200510: ' . $e->getMessage());
+    cli_writeln('300510: ' . $e->getMessage());
     exit(1);
 }
 
