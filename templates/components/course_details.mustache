@@ -1,0 +1,102 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+  }}
+{{!
+  @template local_coursetransfer/components/stepbystep
+
+  Example context (json):
+
+}}
+<div data-region="course_details">
+    <div class="course_details_header" data-course-sessionStorageId="{{course.sessionStorage_id}}">
+        <span class="text-white course-name" data-course-fullname="{{course.fullname}}">{{course.fullname}}</span>
+        <span class="text-white course-id">ID: {{course.id}}</span>
+        <span class="text-white course-id" hidden="hidden" data-course-idnumber="{{course.idnumber}}"></span>
+    </div>
+    <div class="course_details_body">
+        <div class="row-1">
+            <section>
+                <span class="section-tittle">{{#str}} course_details_shortname, local_coursetransfer {{/str}}</span>
+                <span class="data text-muted" data-course-shortname="{{course.shortname}}">{{course.shortname}}</span>
+            </section>
+            <section>
+                <span class="section-tittle">{{#str}} course_details_course_id, local_coursetransfer {{/str}}</span>
+                <span class="data text-muted" data-course-idnumber="{{course.idnumber}}">{{course.idnumber}}</span>
+            </section>
+            <section>
+                <span class="section-tittle">{{#str}} course_details_category_name, local_coursetransfer {{/str}}</span>
+                <span class="data text-muted" data-course-categoryname="{{course.categoryname}}">{{course.categoryname}}</span>
+            </section>
+        </div>
+        <div class="row-2">
+            <section>
+                <span class="section-tittle">{{#str}} course_details_category_id, local_coursetransfer {{/str}}</span>
+                <span class="data text-muted" data-course-categoryid="{{course.categoryid}}">{{course.categoryid}}</span>
+            </section>
+            <section>
+                <span class="section-tittle">{{#str}} course_details_backup_size, local_coursetransfer {{/str}}</span>
+                <span class="data text-muted" data-course-backupsizeestimated="{{course.backupsizeestimated}}">{{course.backupsizeestimated}} MB</span>
+            </section>
+        </div>
+    </div>
+</div>
+<style>
+    div[data-region='course_details'] {
+        width: 50%;
+        border: 1px solid black;
+        border-radius: 10px;
+        margin: 10px 0;
+    }
+    div[data-region='course_details'] div.course_details_header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #0c0c0c;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    div[data-region='course_details'] div.course_details_header span.course-name {
+        font-size: 18px;
+        font-weight: 600;
+        padding: 10px;
+    }
+    div[data-region='course_details'] div.course_details_header span.course-id {
+        font-size: 14px;
+        font-weight: 500;
+        padding: 10px;
+    }
+    div[data-region='course_details'] div.course_details_body div.row-1, div.course_details_body div.row-2 {
+        display: flex;
+        align-items: center;
+        height: 50%;
+    }
+    div[data-region='course_details'] div.course_details_body section {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: left;
+        width: 33%;
+        padding: 10px;
+    }
+    div[data-region='course_details'] div.course_details_body section span.section-tittle {
+        font-size: 14px;
+        font-weight: 600;
+    }
+    div[data-region='course_details'] div.course_details_body section span.data {
+        font-size: 14px;
+        font-weight: 500;
+    }
+</style>

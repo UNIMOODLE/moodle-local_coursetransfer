@@ -1,0 +1,144 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+  }}
+{{!
+  @template local_coursetransfer/components/stepbystep
+
+  Example context (json):
+
+}}
+<div data-region="table_configuration_component">
+    <button type="button" class="btn btn-light configuration" data-toggle="modal" data-target="#ModalConfiguration-{{ id }}">
+        Detalles
+    </button>
+    <!-- Modal -->
+    <div class="modal fade bd-example-modal-lg" id="ModalConfiguration-{{ id }}" tabindex="-1" role="dialog"
+         aria-labelledby="ModalConfiguration-{{ id }}Title" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalConfiguration-{{ id }}LongTitle">Configuration</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5>{{#str}} restoretocurrentcourse, backup {{/str}}</h5>
+                    <ul class="configuration-list">
+                        <li class="configuration-group">
+                            <div class="checkbox">
+                                {{#destiny_merge_activities}}
+                                <input class="configuration-checkbox" id="destiny_merge_activities" type="radio" disabled checked>
+                                {{/destiny_merge_activities}}
+                                {{^destiny_merge_activities}}
+                                    <input class="configuration-checkbox" id="destiny_merge_activities" type="radio" disabled>
+                                {{/destiny_merge_activities}}
+                            </div>
+                            <div class="config-info">
+                                <div class="config-title">{{#str}} config_destiny_merge_activities, local_coursetransfer {{/str}}</div>
+                                <div class="config-desc">{{#str}} config_destiny_merge_activities_desc, local_coursetransfer {{/str}}.</div>
+                            </div>
+                        </li>
+                        <li class="configuration-group">
+                            <div class="checkbox">
+                                {{#destiny_remove_activities}}
+                                    <input class="configuration-checkbox" id="destiny_remove_activities" type="radio" disabled checked>
+                                {{/destiny_remove_activities}}
+                                {{^destiny_remove_activities}}
+                                    <input class="configuration-checkbox" id="destiny_remove_activities" type="radio" disabled>
+                                {{/destiny_remove_activities}}
+                            </div>
+                            <div class="config-info">
+                                <div class="config-title">{{#str}} config_destiny_remove_activities, local_coursetransfer {{/str}}</div>
+                                <div class="config-desc">{{#str}} config_destiny_remove_groups_desc, local_coursetransfer {{/str}}</div>
+                            </div>
+                        </li>
+                    </ul>
+                    <h5>{{#str}} deleteindestiny, local_coursetransfer {{/str}}</h5>
+                    <ul class="configuration-list">
+                        <li class="configuration-group">
+                            <div class="checkbox">
+                                {{#destiny_remove_enrols}}
+                                    <input class="configuration-checkbox" id="destiny_remove_enrols" type="checkbox" disabled checked>
+                                {{/destiny_remove_enrols}}
+                                {{^destiny_remove_enrols}}
+                                    <input class="configuration-checkbox" id="destiny_remove_enrols" type="checkbox" disabled>
+                                {{/destiny_remove_enrols}}
+                            </div>
+                            <div class="config-info">
+                                <div class="config-title">{{#str}} config_destiny_remove_enrols, local_coursetransfer {{/str}}</div>
+                                <div class="config-desc">{{#str}} config_destiny_remove_enrols_desc, local_coursetransfer {{/str}}</div>
+                            </div>
+                        </li>
+                        <li class="configuration-group">
+                            <div class="checkbox">
+                                {{#destiny_remove_groups}}
+                                    <input class="configuration-checkbox" id="destiny_remove_groups" type="checkbox" disabled checked>
+                                {{/destiny_remove_groups}}
+                                {{^destiny_remove_groups}}
+                                    <input class="configuration-checkbox" id="destiny_remove_groups" type="checkbox" disabled>
+                                {{/destiny_remove_groups}}
+                            </div>
+                            <div class="config-info">
+                                <div class="config-title">{{#str}} config_destiny_remove_groups, local_coursetransfer {{/str}}</div>
+                                <div class="config-desc">{{#str}} config_destiny_remove_groups_desc, local_coursetransfer {{/str}}</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    div[data-region='table_configuration_component'] .modal-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        text-align: left;
+    }
+    div[data-region='table_configuration_component'] ul.configuration-list {
+        list-style-type: none;
+        padding: 0;
+        width: 100%;
+    }
+    div[data-region='table_configuration_component'] li.configuration-group {
+        display: flex;
+        margin: 20px 0;
+    }
+    div[data-region='table_configuration_component'] div.checkbox {
+        padding: 0 5%;
+    }
+    div[data-region='table_configuration_component'] div.config-title {
+        padding-bottom: 5px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+    div[data-region='table_configuration_component'] div.config-desc {
+        padding-bottom: 5px;
+        padding-right: 10px;
+        font-size: 12px;
+        font-weight: 400;
+    }
+    div[data-region='table_configuration_component'] input[type="checkbox"]:checked, input[type="checkbox"]:active, input[type="checkbox"]:disabled {
+        box-shadow: none;
+    }
+</style>

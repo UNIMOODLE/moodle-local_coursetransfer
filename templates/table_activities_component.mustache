@@ -1,0 +1,152 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+  }}
+{{!
+  @template local_coursetransfer/components/stepbystep
+
+  Example context (json):
+
+}}
+<div data-region="table_activities_component">
+    <button type="button" class="btn btn-dark origin-activity" data-toggle="modal" data-target="#ModalActivities-{{ id }}">
+        Ver
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade bd-example-modal-lg" id="ModalActivities-{{ id }}" tabindex="-1" role="dialog" aria-labelledby="ModalActivities-{{ id }}Title" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalActivities-{{ id }}LongTitle">{{#str}} activities {{/str}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="sections-table">
+                    <div class="sections-table-header">
+                        <div class="ckeckbox"></div>
+                        <div class="section-data">{{#str}} sections_table_name, local_coursetransfer {{/str}}</div>
+                        <div class="section-data">{{#str}} sections_table_id, local_coursetransfer {{/str}}</div>
+                        <div class="section-data">{{#str}} sections_table_number, local_coursetransfer {{/str}}</div>
+                    </div>
+                    {{#sections}}
+                        <div id="section-{{sectionid}}" class="section-row" data-section-sectionname="{{sectionname}}"
+                             data-section-sectionid="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
+                            <div class="section-info">
+                                {{# selected }}
+                                    <div class="ckeckbox"><input type="checkbox" data-action="check" disabled checked></div>
+                                {{/ selected }}
+                                {{^ selected }}
+                                    <div class="ckeckbox"><input type="checkbox" data-action="check" disabled></div>
+                                {{/ selected }}
+                                <div class="section-data">{{sectionname}}</div>
+                                <div class="section-data">{{sectionid}}</div>
+                                <div class="section-data">{{sectionnum}}</div>
+                            </div>
+                            {{#hasactivities}}
+                                <div class="center-div">
+                                    <div class="activities-table">
+                                        <div class="activities-table-header">
+                                            <div class="ckeckbox"></div>
+                                            <div class="activities-data">{{#str}} activities_table_name, local_coursetransfer {{/str}}</div>
+                                            <div class="activities-data">{{#str}} activities_table_type, local_coursetransfer {{/str}}</div>
+                                        </div>
+                                        {{#activities}}
+                                            <div id="activity-{{cmid}}" class="activities-row" data-activity-cmid="{{cmid}}" data-activity-name="{{name}}" data-activity-modname="{{modname}}" data-activity-instance="{{instance}}">
+                                                {{# selected }}
+                                                    <div class="ckeckbox" ><input type="checkbox" data-action="act-check" disabled checked></div>
+                                                {{/ selected }}
+                                                {{^ selected }}
+                                                    <div class="ckeckbox" ><input type="checkbox" data-action="act-check" disabled></div>
+                                                {{/ selected }}
+                                                <div class="activities-data">{{name}}</div>
+                                                <div class="activities-data">{{modname}}</div>
+                                            </div>
+                                        {{/activities}}
+                                    </div>
+                                </div>
+                            {{/hasactivities}}
+                        </div>
+                    {{/sections}}
+                </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    div[data-region='table_activities_component'] div.sections-table-header {
+        display: flex;
+        border-bottom: 2px solid #9396AA;
+        padding: 5px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    div[data-region='table_activities_component'] div.section-info {
+        display: flex;
+        border-bottom: 1px solid #D7D8E2;
+        padding: 10px;
+        font-size: 14px;
+        font-weight: 400;
+    }
+    div[data-region='table_activities_component'] div.section-row {
+        display: flex;
+        flex-direction: column;
+    }
+    div[data-region='table_activities_component'] div.activities-table {
+        width: 90%;
+    }
+    div[data-region='table_activities_component'] div.center-div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+    div[data-region='table_activities_component'] div.activities-table-header {
+        display: flex;
+        border-bottom: 2px solid #9396AA;
+        padding: 5px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    div[data-region='table_activities_component'] div.activities-data {
+        width: 45%;
+    }
+    div[data-region='table_activities_component'] div.ckeckbox {
+        width: 10%;
+    }
+    div[data-region='table_activities_component'] div.activities-row {
+        display: flex;
+        border-bottom: 1px solid #D7D8E2;
+        padding: 5px;
+        font-size: 13px;
+        font-weight: 400;
+    }
+    div[data-region='table_activities_component'] .selected {
+        background-color: #F7F9FC;
+    }
+    div[data-region='table_activities_component'] div.ckeckbox {
+        width: 10%;
+    }
+    div[data-region='table_activities_component'] div.section-data {
+        width: 30%;
+    }
+</style>
