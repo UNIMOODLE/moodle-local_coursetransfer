@@ -66,7 +66,7 @@ class origin_course_backup_external extends external_api {
                                                 'Destiny Remove Course', VALUE_DEFAULT, false),
                                 'destiny_notremove_activities' =>
                                         new external_value(PARAM_TEXT,
-                                                'Destiny Not Remove Activities by commas', VALUE_DEFAULT, 'false')
+                                                'Destiny Not Remove Activities by commas', VALUE_DEFAULT, '')
                         )
                 ),
                 'sections' => new external_multiple_structure(new external_single_structure(

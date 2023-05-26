@@ -171,6 +171,8 @@ $configuration = [
         'destiny_remove_enrols' => $destinyremoveenrols,
         'destiny_remove_groups' => $destinyremovegroups,
         'origin_remove_course' => $originremovecourse,
+        'origin_enrolusers' => $originenrolusers,
+        'destiny_notremove_activities' => ''
 ];
 
 $errors = [];

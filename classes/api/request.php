@@ -194,7 +194,7 @@ class request {
     public function serialize_configuration(array $configuration): array {
         $res = [];
         foreach ($configuration as $key => $config) {
-            $res['configuration['.$key.']'] = (int)$config;
+            $res['configuration['.$key.']'] = $config;
         }
         return $res;
     }
@@ -298,7 +298,6 @@ class request {
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => $params,
         ));
-
         $response = curl_exec($curl);
         try {
             $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
@@ -306,6 +305,8 @@ class request {
             if (isset($response->success) && isset($response->data) && isset($response->errors)) {
                 return new response($response->success, $response->data, $response->errors);
             } else {
+                var_dump($params);
+                var_dump($response);
                 if (!empty($response->message)) {
                     $message = $response->message;
                 } else {

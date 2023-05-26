@@ -638,16 +638,27 @@ class coursetransfer {
         global $USER;
 
         try {
+
+            $request = new request($site);
+            if (count($courses) === 0) {
+                $res = $request->origin_get_category_detail($categoryid);
+                if ($res->success) {
+                    $courses = $res->data->courses;
+                } else {
+                    throw new moodle_exception(json_encode($res->errors));
+                }
+            } else {
+                $courses = self::get_courses_detail($site, $courses);
+            }
+
             $object = new stdClass();
             $object->type = 1;
             $object->siteurl = $site->host;
             $object->direction = 0;
             $object->destiny_category_id = $destinyid;
             $object->origin_category_id = $categoryid;
-            $object->origin_enrolusers = 0;
-            $object->origin_remove_course = 0;
             $object->origin_activities = '[]';
-            $object->origin_category_courses = json_encode(self::get_courses_detail($site, $courses));
+            $object->origin_category_courses = json_encode($courses);
 
             $object->destiny_remove_activities = isset($configuration['destiny_remove_activities']) ?
                     $configuration['destiny_remove_activities'] : 0;
@@ -661,38 +672,71 @@ class coursetransfer {
                     $configuration['origin_remove_course'] : 0;
             $object->destiny_notremove_activities = isset($configuration['destiny_notremove_activities']) ?
                     $configuration['destiny_notremove_activities'] : null;
+            $object->origin_enrolusers = isset($configuration['origin_enrolusers']) ?
+                    $configuration['origin_enrolusers'] : 0;
 
             $object->origin_backup_size_estimated = null;
             $object->status = 1;
             $object->userid = $USER->id;
 
-            $requestid = coursetransfer_request::insert_or_update($object);
+            $requestcatid = coursetransfer_request::insert_or_update($object);
 
             $success = true;
             $errors = [];
 
-            //$request = new request($site);
-            //$res = $request->origin_backup_course($requestid, $courseid, $destinyid, $configuration, $sections);
-            //if ($res->success) {
-            //    $object->status = 10;
-            //    coursetransfer_request::insert_or_update($object, $requestid);
-            //    $success = true;
-            //} else {
-            //    $err = $res->errors;
-            //    $er = current($err);
-            //    $errors = array_merge($errors, $res->errors);
-            //    $object->status = 0;
-            //    $object->error_code = $er->code;
-            //    $object->error_message = $er->msg;
-            //    coursetransfer_request::insert_or_update($object, $requestid);
-            //    $success = false;
-            //}
+            foreach ($courses as $course) {
+
+                $object = new stdClass();
+                $object->type = 0;
+                $object->siteurl = $site->host;
+                $object->direction = 0;
+                $object->request_category_id = $requestcatid;
+                $object->destiny_course_id = $destinyid;
+                $object->origin_course_id = $course->id;
+                $object->origin_activities = json_encode([]);
+
+                $object->destiny_remove_activities = isset($configuration['destiny_remove_activities']) ?
+                        $configuration['destiny_remove_activities'] : 0;
+                $object->destiny_merge_activities = isset($configuration['destiny_merge_activities']) ?
+                        $configuration['destiny_merge_activities'] : 0;
+                $object->destiny_remove_enrols = isset($configuration['destiny_remove_enrols']) ?
+                        $configuration['destiny_remove_enrols'] : 0;
+                $object->destiny_remove_groups = isset($configuration['destiny_remove_groups']) ?
+                        $configuration['destiny_remove_groups'] : 0;
+                $object->origin_remove_course = isset($configuration['origin_remove_course']) ?
+                        $configuration['origin_remove_course'] : 0;
+                $object->destiny_notremove_activities = isset($configuration['destiny_notremove_activities']) ?
+                        $configuration['destiny_notremove_activities'] : null;
+                $object->origin_enrolusers = isset($configuration['origin_enrolusers']) ?
+                        $configuration['origin_enrolusers'] : 0;
+
+                $object->origin_backup_size_estimated = self::get_backup_size_estimated($course->id);
+                $object->status = 1;
+                $object->userid = $USER->id;
+                $requestid = coursetransfer_request::insert_or_update($object);
+
+                $res = $request->origin_backup_course($requestid, $course->id, $destinyid, $configuration, []);
+                if ($res->success) {
+                    $object->status = 10;
+                    coursetransfer_request::insert_or_update($object, $requestid);
+                    $success = true;
+                } else {
+                    $err = $res->errors;
+                    $er = current($err);
+                    $errors = array_merge($errors, $res->errors);
+                    $object->status = 0;
+                    $object->error_code = isset($er->code) ? $er->code : '0';
+                    $object->error_message = isset($er->msg) ? $er->msg : '0';
+                    coursetransfer_request::insert_or_update($object, $requestid);
+                    $success = false;
+                }
+            }
 
             return [
                     'success' => $success,
                     'errors' => $errors,
                     'data' => [
-                        'requestid' => $requestid
+                        'requestid' => $requestcatid
                     ]
             ];
         } catch (moodle_exception $e) {
