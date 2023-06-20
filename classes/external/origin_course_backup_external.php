@@ -134,7 +134,7 @@ class origin_course_backup_external extends external_api {
             if ($authres['success']) {
                 $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
                 if ($verifydestiny['success']) {
-                    if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id), $res->id)) {
+                    if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id))) {
                         $res = $authres['data'];
                         $object = new stdClass();
                         $object->type = 0;

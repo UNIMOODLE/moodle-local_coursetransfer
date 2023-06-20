@@ -24,6 +24,7 @@
  */
 
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\factory\user;
 
 define('CLI_SCRIPT', 1);
 
@@ -68,7 +69,7 @@ Description.
 
 Examples:
 
-    # php local/coursetransfer/restore_course.php
+    # php local/coursetransfer/cli/restore_course.php
         --site_url=https://origen.dominio
         --origin_course_id=12
         --destiny_course_id=12
@@ -192,13 +193,15 @@ $errors = [];
 
 try {
 
-    $user = core_user::get_user_by_username('admin');
+    $user = core_user::get_user_by_username(user::USERNAME_WS);
     complete_user_login($user);
 
     $destiny = get_course($destinycourseid);
 
     $site = coursetransfer::get_site_by_url($siteurl);
+
     $res = coursetransfer::restore_course($site, $destiny->id, $origincourseid, $configuration);
+
     $errors = array_merge($errors, $res['errors']);
     $success = $res['success'];
     if ($success) {

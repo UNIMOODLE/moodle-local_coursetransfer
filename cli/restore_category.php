@@ -24,6 +24,7 @@
  */
 
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\factory\user;
 
 define('CLI_SCRIPT', 1);
 
@@ -178,7 +179,7 @@ $errors = [];
 
 try {
 
-    $user = core_user::get_user_by_username('admin');
+    $user = core_user::get_user_by_username(user::USERNAME_WS);
     complete_user_login($user);
 
     $destiny = core_course_category::get($destinycategoryid);

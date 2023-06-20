@@ -27,20 +27,18 @@ namespace local_coursetransfer;
 use backup;
 use backup_controller;
 use coding_exception;
-use context;
 use context_course;
 use course_modinfo;
 use dml_exception;
 use file_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\api\response;
+use local_coursetransfer\factory\user;
 use local_coursetransfer\task\create_backup_course_task;
 use local_coursetransfer\task\download_file_course_task;
 use moodle_exception;
 use moodle_url;
 use restore_controller;
-use restore_controller_exception;
-use restore_ui_exception;
 use stdClass;
 use stored_file;
 use stored_file_creation_exception;
@@ -180,13 +178,17 @@ class coursetransfer {
         if (in_array($field, self::FIELDS_USER)) {
             $res = $DB->get_record('user', [$field => $value]);
             if ($res) {
-                $courses = enrol_get_users_courses($res->id);
-                $hascourse = false;
-                foreach ($courses as $course) {
-                    $context = \context_course::instance($course->id);
-                    if (has_capability('moodle/backup:backupcourse', $context, $res->id)) {
-                        $hascourse = true;
-                        break;
+                if ($res->username === user::USERNAME_WS) {
+                    $hascourse = true;
+                } else {
+                    $courses = enrol_get_users_courses($res->id);
+                    $hascourse = false;
+                    foreach ($courses as $course) {
+                        $context = \context_course::instance($course->id);
+                        if (has_capability('moodle/backup:backupcourse', $context, $res->id)) {
+                            $hascourse = true;
+                            break;
+                        }
                     }
                 }
 

@@ -158,4 +158,10 @@ $string['config_destiny_merge_activities_desc'] = "The activities of the source 
 $string['config_destiny_remove_activities_desc'] = "All content in the destination course will be deleted and restored with the source course";
 $string['config_destiny_remove_groups_desc'] = "Existing destination course groups will be deleted";
 $string['config_destiny_remove_enrols_desc'] = "Existing target course enrollments will be deleted";
+$string['summary'] = "Summary";
+$string['config'] = "Configuration";
+$string['refresh'] = "Refresh";
+$string['index_title'] = "Data for integration with other Moodle";
+$string['token_user_ws'] = "Token for other platforms";
+$string['user_ws'] = "Service Web User";
 
