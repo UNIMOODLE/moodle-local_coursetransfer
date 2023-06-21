@@ -30,6 +30,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\models\configuration;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -190,7 +191,8 @@ class restore_category_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
-            $res = coursetransfer::restore_category($site, $destinyid, $categoryid, $courses);
+            $configuration = new configuration(false, false, false, false, false, '');
+            $res = coursetransfer::restore_category($site, $destinyid, $categoryid, $configuration, $courses);
             $errors = array_merge($errors, $res['errors']);
             $success = $res['success'];
 

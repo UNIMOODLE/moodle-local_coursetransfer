@@ -28,12 +28,15 @@ use backup;
 use backup_controller;
 use coding_exception;
 use context_course;
+use core_course_category;
 use course_modinfo;
 use dml_exception;
 use file_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\api\response;
+use local_coursetransfer\factory\course;
 use local_coursetransfer\factory\user;
+use local_coursetransfer\models\configuration;
 use local_coursetransfer\task\create_backup_course_task;
 use local_coursetransfer\task\download_file_course_task;
 use moodle_exception;
@@ -53,7 +56,7 @@ require_once($CFG->dirroot . '/local/coursetransfer/classes/task/create_backup_c
 
 class coursetransfer {
 
-    const FIELDS_USER = ['username', 'email', 'userid'];
+    const FIELDS_USER = ['username', 'email', 'userid', 'idnumber'];
 
     const STATUS = [
         0 => ['shortname' => 'error', 'alert' => 'danger'],
@@ -538,77 +541,38 @@ class coursetransfer {
      * Restore Course.
      *
      * @param stdClass $site
-     * @param int $destinyid
-     * @param int $courseid
-     * @param array $configuration
-     *          destiny_remove_activities
-     *          destiny_merge_activities
-     *          destiny_remove_enrols
-     *          destiny_remove_groups
-     *          origin_remove_course
-     *          destiny_notremove_activities
+     * @param int $destinycourseid
+     * @param int $origincourseid
+     * @param configuration $configuration
      * @param array|null $sections
      * @return array
      */
     public static function restore_course(
-            stdClass $site, int $destinyid, int $courseid, array $configuration, array $sections = []): array {
-        global $USER;
+            stdClass $site, int $destinycourseid, int $origincourseid, configuration $configuration, array $sections = []): array {
 
         try {
             $errors = [];
 
-            $object = new stdClass();
-            $object->type = 0;
-            $object->siteurl = $site->host;
-            $object->direction = 0;
-            $object->destiny_course_id = $destinyid;
-            $object->origin_course_id = $courseid;
-            $object->origin_enrolusers = 0;
-            $object->origin_activities = json_encode($sections);
+            $requestobject = self::get_request_object_restore_course(
+                    $site, $destinycourseid, $origincourseid, $configuration, $sections);
+            $requestid = coursetransfer_request::insert_or_update($requestobject);
 
-            $object->destiny_remove_activities = isset($configuration['destiny_remove_activities']) ?
-                    $configuration['destiny_remove_activities'] : 0;
-            $object->destiny_merge_activities = isset($configuration['destiny_merge_activities']) ?
-                    $configuration['destiny_merge_activities'] : 0;
-            $object->destiny_remove_enrols = isset($configuration['destiny_remove_enrols']) ?
-                    $configuration['destiny_remove_enrols'] : 0;
-            $object->destiny_remove_groups = isset($configuration['destiny_remove_groups']) ?
-                    $configuration['destiny_remove_groups'] : 0;
-            $object->origin_remove_course = isset($configuration['origin_remove_course']) ?
-                    $configuration['origin_remove_course'] : 0;
-            $object->destiny_notremove_activities = isset($configuration['destiny_notremove_activities']) ?
-                    $configuration['destiny_notremove_activities'] : '';
-            $configuration['origin_remove_course'] = isset($configuration['origin_remove_course']) ?
-                    $configuration['origin_remove_course'] : 0;
-
-            $configuration['destiny_notremove_activities'] = isset($configuration['destiny_notremove_activities']) ?
-                    $configuration['destiny_notremove_activities'] : '';
-
-            $config['destiny_merge_activities'] = 0;
-            $config['destiny_remove_enrols'] = 0;
-            $config['destiny_remove_groups'] = 0;
-            $config['destiny_remove_activities'] = 0;
-            $config['origin_remove_course'] = 0;
-            $config['destiny_notremove_activities'] = '';
-
-            $object->origin_backup_size_estimated = self::get_backup_size_estimated($courseid);
-            $object->status = 1;
-            $object->userid = $USER->id;
-            $requestid = coursetransfer_request::insert_or_update($object);
             $request = new request($site);
-            $res = $request->origin_backup_course($requestid, $courseid, $destinyid, $config, $sections);
+
+            $res = $request->origin_backup_course($requestid, $origincourseid, $destinycourseid, $configuration, $sections);
+
             if ($res->success) {
-                $object->status = 10;
-                coursetransfer_request::insert_or_update($object, $requestid);
+                $requestobject->status = 10;
+                coursetransfer_request::insert_or_update($requestobject, $requestid);
                 $success = true;
             } else {
                 $err = $res->errors;
                 $er = current($err);
                 $errors = array_merge($errors, $res->errors);
-                $object->status = 0;
-                $object->error_code = $er->code;
-                $object->error_message = $er->msg;
-                coursetransfer_request::insert_or_update($object, $requestid);
+                $requestobject->status = 0;
+                $requestobject->error_code = $er->code;
+                $requestobject->error_message = $er->msg;
+                coursetransfer_request::insert_or_update($requestobject, $requestid);
                 $success = false;
             }
             return [
@@ -632,30 +596,95 @@ class coursetransfer {
     }
 
     /**
+     * Get Request Object Restore Course.
+     *
+     * @param stdClass $site
+     * @param int $destinycourseid
+     * @param int $origincourseid
+     * @param configuration $configuration
+     * @param array $sections
+     * @param int|null $requestcatid
+     * @return stdClass
+     */
+    public static function get_request_object_restore_course(
+            stdClass $site, int $destinycourseid, int $origincourseid, configuration $configuration,
+            array $sections, int $requestcatid = null): stdClass {
+        global $USER;
+        $object = new stdClass();
+        $object->type = 0;
+        $object->siteurl = $site->host;
+        $object->direction = 0;
+        $object->destiny_course_id = $destinycourseid;
+        $object->origin_course_id = $origincourseid;
+        $object->origin_enrolusers = 0;
+        $object->request_category_id = $requestcatid;
+        $object->origin_activities = json_encode($sections);
+        $object->destiny_remove_activities = $configuration->destinynotremoveactivities;
+        $object->destiny_merge_activities = $configuration->destinymergeactivities;
+        $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
+        $object->destiny_remove_groups = $configuration->destinyremovegroups;
+        $object->origin_remove_course = $configuration->originremovecourse;
+        $object->destiny_notremove_activities = $configuration->destinynotremoveactivities;
+        $object->origin_backup_size_estimated = self::get_backup_size_estimated($origincourseid);
+        $object->status = 1;
+        $object->userid = $USER->id;
+        return $object;
+    }
+
+    /**
+     * Get Request Object Restore Course.
+     *
+     * @param stdClass $site
+     * @param int $destinycategoryid
+     * @param int $origincategoryid
+     * @param configuration $configuration
+     * @param array $courses
+     * @return stdClass
+     */
+    public static function get_request_object_restore_category(
+            stdClass $site, int $destinycategoryid, int $origincategoryid, configuration $configuration, array $courses): stdClass {
+        global $USER;
+        $object = new stdClass();
+        $object->type = 1;
+        $object->siteurl = $site->host;
+        $object->direction = 0;
+        $object->destiny_category_id = $destinycategoryid;
+        $object->origin_category_id = $origincategoryid;
+        $object->origin_activities = '[]';
+        $object->origin_category_courses = json_encode($courses);
+        $object->origin_enrolusers = 0;
+        $object->destiny_remove_activities = $configuration->destinynotremoveactivities;
+        $object->destiny_merge_activities = $configuration->destinymergeactivities;
+        $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
+        $object->destiny_remove_groups = $configuration->destinyremovegroups;
+        $object->origin_remove_course = $configuration->originremovecourse;
+        $object->destiny_notremove_activities = $configuration->destinynotremoveactivities;
+        $object->origin_backup_size_estimated = null;
+        $object->status = 1;
+        $object->userid = $USER->id;
+        return $object;
+    }
+
+    /**
      * Restore Category.
      *
      * @param stdClass $site
-     * @param int $destinyid
-     * @param int $categoryid
+     * @param int $destinycategoryid
+     * @param int $origincategoryid
+     * @param configuration $configuration
      * @param array $courses
-     * @param array $configuration
-     *          destiny_remove_activities
-     *          destiny_merge_activities
-     *          destiny_remove_enrols
-     *          destiny_remove_groups
-     *          origin_remove_course
-     *          destiny_notremove_activities
      * @return array
      */
     public static function restore_category(
-            stdClass $site, int $destinyid, int $categoryid, array $courses = [], array $configuration = []): array {
+            stdClass $site, int $destinycategoryid, int $origincategoryid,
+            configuration $configuration, array $courses = []): array {
         global $USER;
 
         try {
 
             $request = new request($site);
             if (count($courses) === 0) {
-                $res = $request->origin_get_category_detail($categoryid);
+                $res = $request->origin_get_category_detail($origincategoryid);
                 if ($res->success) {
                     $courses = $res->data->courses;
                 } else {
@@ -665,83 +694,37 @@ class coursetransfer {
                 $courses = self::get_courses_detail($site, $courses);
             }
 
-            $object = new stdClass();
-            $object->type = 1;
-            $object->siteurl = $site->host;
-            $object->direction = 0;
-            $object->destiny_category_id = $destinyid;
-            $object->origin_category_id = $categoryid;
-            $object->origin_activities = '[]';
-            $object->origin_category_courses = json_encode($courses);
+            $requestobject = self::get_request_object_restore_category(
+                    $site, $destinycategoryid, $origincategoryid, $configuration, $courses);
 
-            $object->destiny_remove_activities = isset($configuration['destiny_remove_activities']) ?
-                    $configuration['destiny_remove_activities'] : 0;
-            $object->destiny_merge_activities = isset($configuration['destiny_merge_activities']) ?
-                    $configuration['destiny_merge_activities'] : 0;
-            $object->destiny_remove_enrols = isset($configuration['destiny_remove_enrols']) ?
-                    $configuration['destiny_remove_enrols'] : 0;
-            $object->destiny_remove_groups = isset($configuration['destiny_remove_groups']) ?
-                    $configuration['destiny_remove_groups'] : 0;
-            $object->origin_remove_course = isset($configuration['origin_remove_course']) ?
-                    $configuration['origin_remove_course'] : 0;
-            $object->destiny_notremove_activities = isset($configuration['destiny_notremove_activities']) ?
-                    $configuration['destiny_notremove_activities'] : null;
-            $object->origin_enrolusers = isset($configuration['origin_enrolusers']) ?
-                    $configuration['origin_enrolusers'] : 0;
-
-            $object->origin_backup_size_estimated = null;
-            $object->status = 1;
-            $object->userid = $USER->id;
-
-            $requestcatid = coursetransfer_request::insert_or_update($object);
+            $requestcatid = coursetransfer_request::insert_or_update($requestobject);
 
             $success = true;
             $errors = [];
 
             foreach ($courses as $course) {
+                $destinycourseid = course::create(
+                        core_course_category::get($destinycategoryid),
+                        $course->fullname, $course->shortname . uniqid(), '');
+                $origincourseid = $course->id;
+                $requestobjectcourse = self::get_request_object_restore_course(
+                        $site, $destinycourseid, $origincourseid, $configuration, [], $requestcatid);
 
-                $object = new stdClass();
-                $object->type = 0;
-                $object->siteurl = $site->host;
-                $object->direction = 0;
-                $object->request_category_id = $requestcatid;
-                $object->destiny_course_id = self::create_new_course($destinyid, $course->fullname, $course->shortname);
-                $object->origin_course_id = $course->id;
-                $object->origin_activities = json_encode([]);
+                $requestid = coursetransfer_request::insert_or_update($requestobjectcourse);
 
-                $object->destiny_remove_activities = isset($configuration['destiny_remove_activities']) ?
-                        $configuration['destiny_remove_activities'] : 0;
-                $object->destiny_merge_activities = isset($configuration['destiny_merge_activities']) ?
-                        $configuration['destiny_merge_activities'] : 0;
-                $object->destiny_remove_enrols = isset($configuration['destiny_remove_enrols']) ?
-                        $configuration['destiny_remove_enrols'] : 0;
-                $object->destiny_remove_groups = isset($configuration['destiny_remove_groups']) ?
-                        $configuration['destiny_remove_groups'] : 0;
-                $object->origin_remove_course = isset($configuration['origin_remove_course']) ?
-                        $configuration['origin_remove_course'] : 0;
-                $object->destiny_notremove_activities = isset($configuration['destiny_notremove_activities']) ?
-                        $configuration['destiny_notremove_activities'] : null;
-                $object->origin_enrolusers = isset($configuration['origin_enrolusers']) ?
-                        $configuration['origin_enrolusers'] : 0;
-
-                $object->origin_backup_size_estimated = self::get_backup_size_estimated($course->id);
-                $object->status = 1;
-                $object->userid = $USER->id;
-                $requestid = coursetransfer_request::insert_or_update($object);
-
-                $res = $request->origin_backup_course($requestid, $course->id, $destinyid, $configuration, []);
+                $res = $request->origin_backup_course($requestid, $course->id, $destinycourseid, $configuration, []);
                 if ($res->success) {
-                    $object->status = 10;
-                    coursetransfer_request::insert_or_update($object, $requestid);
+                    $requestobjectcourse->status = 10;
+                    coursetransfer_request::insert_or_update($requestobjectcourse, $requestid);
                     $success = true;
                 } else {
                     $err = $res->errors;
                     $er = current($err);
                     $errors = array_merge($errors, $res->errors);
-                    $object->status = 0;
-                    $object->error_code = isset($er->code) ? $er->code : '0';
-                    $object->error_message = isset($er->msg) ? $er->msg : '0';
-                    coursetransfer_request::insert_or_update($object, $requestid);
+                    $requestobjectcourse->status = 0;
+                    $requestobjectcourse->error_code = isset($er->code) ? $er->code : '0';
+                    $requestobjectcourse->error_message = isset($er->msg) ? $er->msg : '0';
+                    coursetransfer_request::insert_or_update($requestobjectcourse, $requestid);
                     $success = false;
                 }
             }
@@ -789,22 +772,4 @@ class coursetransfer {
         return $items;
     }
 
-    /**
-     * Create new course in category.
-     *
-     * @param int $categoryid
-     * @param string $fullname
-     * @param string $shortname
-     * @return int
-     * @throws moodle_exception
-     */
-    public static function create_new_course(int $categoryid, string $fullname, string $shortname): int {
-        $datacourse = new \stdClass();
-        $datacourse->category = $categoryid;
-        $datacourse->shortname = $shortname . uniqid();
-        $datacourse->fullname = $fullname;
-        $datacourse->visible = 1;
-        $course = create_course($datacourse);
-        return $course->id;
-    }
 }

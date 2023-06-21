@@ -25,6 +25,7 @@
 
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\factory\user;
+use local_coursetransfer\models\configuration;
 
 define('CLI_SCRIPT', 1);
 
@@ -166,18 +167,12 @@ if ( !in_array((int)$originremovecourse, [0, 1])) {
     exit(128);
 }
 
-$configuration = [
-        'destiny_remove_activities' => $destinyremoveactivities,
-        'destiny_merge_activities' => $destinymergeactivities,
-        'destiny_remove_enrols' => $destinyremoveenrols,
-        'destiny_remove_groups' => $destinyremovegroups,
-        'origin_remove_course' => $originremovecourse,
-        'destiny_notremove_activities' => ''
-];
-
 $errors = [];
 
 try {
+
+    $configuration = new configuration($destinyremoveactivities, $destinymergeactivities, $destinyremoveenrols,
+            $destinyremovegroups, $originremovecourse);
 
     $user = core_user::get_user_by_username(user::USERNAME_WS);
     complete_user_login($user);
@@ -185,11 +180,11 @@ try {
     $destiny = core_course_category::get($destinycategoryid);
 
     $site = coursetransfer::get_site_by_url($siteurl);
-    $res = coursetransfer::restore_category($site, $destiny->id, $origincategoryid, [], $configuration);
+    $res = coursetransfer::restore_category($site, $destiny->id, $origincategoryid, $configuration, []);
     $errors = array_merge($errors, $res['errors']);
     $success = $res['success'];
     if ($success) {
-        cli_writeln('THE RESTORATION HAS BEGUN - VIEW LOG IN: view_log_request.php --requestid=' .
+        cli_writeln('THE RESTORATION HAS STARTED - VIEW LOG IN: view_log_request.php --requestid=' .
                 $res['data']['requestid']);
         exit(0);
     } else {

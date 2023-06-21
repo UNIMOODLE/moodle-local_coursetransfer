@@ -26,6 +26,7 @@ namespace local_coursetransfer\api;
 
 use dml_exception;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\models\configuration;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die;
@@ -142,20 +143,20 @@ class request {
      * Origin back up course remote.
      *
      * @param int $requestid
-     * @param int $courseid
+     * @param int $origincourseid
      * @param int $destinycourseid
-     * @param array $configuration
+     * @param configuration $configuration
      * @param array $sections
      * @return response
      * @throws dml_exception
      */
-    public function origin_backup_course(int $requestid, int $courseid, int $destinycourseid,
-                 array $configuration, array $sections): response {
+    public function origin_backup_course(int $requestid, int $origincourseid, int $destinycourseid,
+                 configuration $configuration, array $sections): response {
         global $USER, $CFG;
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
         $params['value'] = $USER->{$params['field']};
-        $params['courseid'] = $courseid;
+        $params['courseid'] = $origincourseid;
         $params['destinycourseid'] = $destinycourseid;
         $params['requestid'] = $requestid;
         $params['destinysite'] = $CFG->wwwroot;
@@ -188,14 +189,17 @@ class request {
     /**
      * Serialize Configuration.
      *
-     * @param array $configuration
+     * @param configuration $configuration
      * @return array
      */
-    public function serialize_configuration(array $configuration): array {
+    public function serialize_configuration(configuration $configuration): array {
         $res = [];
-        foreach ($configuration as $key => $config) {
-            $res['configuration['.$key.']'] = $config;
-        }
+        $res['configuration[destiny_merge_activities]'] = $configuration->destinymergeactivities;
+        $res['configuration[destiny_remove_enrols]'] = $configuration->destinyremoveenrols;
+        $res['configuration[destiny_remove_groups]'] = $configuration->destinyremovegroups;
+        $res['configuration[destiny_remove_activities]'] = $configuration->destinyremoveactivities;
+        $res['configuration[origin_remove_course]'] = $configuration->originremovecourse;
+        $res['configuration[destiny_notremove_activities]'] = $configuration->destinynotremoveactivities;
         return $res;
     }
 

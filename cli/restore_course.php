@@ -25,6 +25,7 @@
 
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\factory\user;
+use local_coursetransfer\models\configuration;
 
 define('CLI_SCRIPT', 1);
 
@@ -113,15 +114,16 @@ if ($options['help']) {
 }
 
 $siteurl = $options['site_url'];
-$origincourseid = (int) $options['origin_course_id'];
-$destinycourseid = (int) $options['destiny_course_id'];
+$origincourseid = !is_null($options['origin_course_id']) ? (int) $options['origin_course_id'] : null;
+$destinycourseid = !is_null($options['destiny_course_id']) ? (int) $options['destiny_course_id'] : null;
+$destinycategoryid = !is_null($options['destiny_category_id']) ? (int) $options['destiny_category_id'] : null;
 $originenrolusers = $options['origin_enrolusers'] === 'true' ? 1 : (int) $options['origin_enrolusers'];
 $destinyremoveactivities = $options['destiny_remove_activities'] === 'true' ? 1 : (int) $options['destiny_remove_activities'];
 $destinymergeactivities = $options['destiny_merge_activities'] === 'true' ? 1 : (int) $options['destiny_merge_activities'];
 $destinyremoveenrols = $options['destiny_remove_enrols'] === 'true' ? 1 : (int) $options['destiny_remove_enrols'];
 $destinyremovegroups = $options['destiny_remove_groups'] === 'true' ? 1 : (int) $options['destiny_remove_groups'];
 $originremovecourse = $options['origin_remove_course'] === 'true' ? 1 : (int) $options['origin_remove_course'];
-$destinynotremoveactivities = !empty($options['destiny_not_remove_activities']) ? $options['destiny_not_remove_activities'] : [];
+$destinynotremoveactivities = '';
 $originscheduledatetime = explode(',', $options['origin_schedule_datetime']);
 
 if (empty($siteurl)) {
@@ -138,8 +140,21 @@ if ( $origincourseid === null ) {
 }
 
 if ( $destinycourseid === null ) {
-    cli_writeln( get_string('destiny_course_id_require', 'local_coursetransfer') );
-    exit(128);
+    if ($destinycategoryid !== null) {
+        try {
+            $category = core_course_category::get($destinycategoryid);
+            // Create new course.
+            $destinycourseid = \local_coursetransfer\factory\course::create(
+                    $category, 'New Course', 'NEW-COURSE-' . time(), '');
+        } catch (moodle_exception $e) {
+            cli_writeln('300501: ' . $e->getMessage());
+            exit(1);
+        }
+
+    } else if ( $destinycourseid <= 0 ) {
+        cli_writeln( get_string('destiny_category_id_require', 'local_coursetransfer') );
+        exit(128);
+    }
 } else if ( $destinycourseid <= 0 ) {
     cli_writeln( get_string('destiny_course_id_integer', 'local_coursetransfer') );
     exit(128);
@@ -180,18 +195,12 @@ if ( !is_array($destinynotremoveactivities)) {
     exit(128);
 }
 
-$configuration = [
-        'destiny_remove_activities' => $destinyremoveactivities,
-        'destiny_merge_activities' => $destinymergeactivities,
-        'destiny_remove_enrols' => $destinyremoveenrols,
-        'destiny_remove_groups' => $destinyremovegroups,
-        'origin_remove_course' => $originremovecourse,
-        'destiny_notremove_activities' => $destinynotremoveactivities,
-];
-
 $errors = [];
 
 try {
+
+    $configuration = new configuration($destinyremoveactivities, $destinymergeactivities, $destinyremoveenrols,
+        $destinyremovegroups, $originremovecourse, $destinynotremoveactivities);
 
     $user = core_user::get_user_by_username(user::USERNAME_WS);
     complete_user_login($user);
@@ -205,7 +214,7 @@ try {
     $errors = array_merge($errors, $res['errors']);
     $success = $res['success'];
     if ($success) {
-        cli_writeln('THE RESTORATION HAS BEGUN - VIEW LOG IN: view_log_request.php --requestid=' .
+        cli_writeln('THE RESTORATION HAS STARTED - VIEW LOG IN: view_log_request.php --requestid=' .
                 $res['data']['requestid']);
         exit(0);
     } else {
