@@ -165,3 +165,4 @@ $string['refresh'] = "Refrescar";
 $string['index_title'] = "Datos para la integración con otros Moodle";
 $string['token_user_ws'] = "Token para otras plataformas";
 $string['user_ws'] = "Usuario Servicio Web";
+$string['sections_table_select_all'] = "Marcar todo";

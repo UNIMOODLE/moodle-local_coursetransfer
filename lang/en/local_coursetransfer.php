@@ -164,4 +164,5 @@ $string['refresh'] = "Refresh";
 $string['index_title'] = "Data for integration with other Moodle";
 $string['token_user_ws'] = "Token for other platforms";
 $string['user_ws'] = "Service Web User";
+$string['sections_table_select_all'] = "Select all";
 

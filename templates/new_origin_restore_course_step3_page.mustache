@@ -37,6 +37,8 @@
 
         <h4 class="h4">{{#str}} step3_sections_title, local_coursetransfer {{/str}}</h4>
 
+        <div class="ckeckbox select-all"><input class="select-all-checkbox" data-action="select-all" type="checkbox">{{#str}} sections_table_select_all, local_coursetransfer {{/str}}</div>
+
         <div class="sections-table">
             <div class="sections-table-header">
                 <div class="ckeckbox"></div>
@@ -155,6 +157,18 @@
         padding: 5px;
         font-size: 13px;
         font-weight: 400;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] div.select-all {
+        width: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+        font-weight: 500;
+        margin-bottom: 20px;
+    }
+    div[data-region='new_origin_restore_course_step3_page'] input.select-all-checkbox {
+        margin-right: 10px;
     }
 </style>
 

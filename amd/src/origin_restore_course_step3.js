@@ -35,7 +35,8 @@ define([
         COURSE: '[data-action="course"]',
         NEXT: '[data-action="next"]',
         CHECK: '[data-action="check"]',
-        CHECK_ACT: '[data-action="act-check"]'
+        CHECK_ACT: '[data-action="act-check"]',
+        SELECT_ALL: '[data-action="select-all"]'
     };
 
     /**
@@ -60,6 +61,7 @@ define([
         this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         this.node.find(ACTIONS.CHECK).on('click', this.clickCheck.bind(this));
         this.node.find(ACTIONS.CHECK_ACT).on('click', this.clickActCheck.bind(this));
+        this.node.find(ACTIONS.SELECT_ALL).on('click', this.clickSelectAll.bind(this));
     }
 
     restoreCourseStep3.prototype.clickActCheck = (e) => {
@@ -109,6 +111,18 @@ define([
         console.log(this.data);
         let userid = 1;
         sessionStorage.setItem($("[data-course-sessionStorageId]").attr("data-course-sessionStorageId"), JSON.stringify(this.data));
+    };
+
+    restoreCourseStep3.prototype.clickSelectAll = function(e) {
+        if (e.currentTarget.checked) {
+            $('.sections-table :checkbox').each(function() {
+                this.checked = true;
+            });
+        } else {
+            $('.sections-table :checkbox').each(function() {
+                this.checked = false;
+            });
+        }
     };
 
     restoreCourseStep3.prototype.node = null;
