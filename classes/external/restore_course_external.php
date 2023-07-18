@@ -30,6 +30,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\models\configuration;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -213,6 +214,9 @@ class restore_course_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
+            $configuration = new configuration($configuration['destiny_remove_activities'],
+                    $configuration['destiny_merge_activities'], $configuration['destiny_remove_enrols'],
+                    $configuration['destiny_remove_groups'], false, '');
             $res = coursetransfer::restore_course($site, $destinyid, $courseid, $configuration, $sections);
             $success = $res['success'];
             if (!$success) {

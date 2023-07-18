@@ -194,11 +194,11 @@ class request {
      */
     public function serialize_configuration(configuration $configuration): array {
         $res = [];
-        $res['configuration[destiny_merge_activities]'] = $configuration->destinymergeactivities;
-        $res['configuration[destiny_remove_enrols]'] = $configuration->destinyremoveenrols;
-        $res['configuration[destiny_remove_groups]'] = $configuration->destinyremovegroups;
-        $res['configuration[destiny_remove_activities]'] = $configuration->destinyremoveactivities;
-        $res['configuration[origin_remove_course]'] = $configuration->originremovecourse;
+        $res['configuration[destiny_merge_activities]'] = (int)$configuration->destinymergeactivities;
+        $res['configuration[destiny_remove_enrols]'] = (int)$configuration->destinyremoveenrols;
+        $res['configuration[destiny_remove_groups]'] = (int)$configuration->destinyremovegroups;
+        $res['configuration[destiny_remove_activities]'] = (int)$configuration->destinyremoveactivities;
+        $res['configuration[origin_remove_course]'] = (int)$configuration->originremovecourse;
         $res['configuration[destiny_notremove_activities]'] = $configuration->destinynotremoveactivities;
         return $res;
     }
