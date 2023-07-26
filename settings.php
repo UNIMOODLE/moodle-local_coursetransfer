@@ -29,6 +29,19 @@ defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) {
 
+    global $ADMIN, $CFG;
+
+    $ADMIN->add('modules', new admin_category('local_coursetransfer_category',
+            new lang_string('pluginname', 'local_coursetransfer')));
+
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_restore',
+            get_string('restore_page', 'local_coursetransfer'),
+            $CFG->wwwroot . '/local/coursetransfer/origin_restore.php'));
+
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_restore',
+            get_string('remove_page', 'local_coursetransfer'),
+            $CFG->wwwroot . '/local/coursetransfer/origin_remove.php'));
+
     $settings = new admin_settingpage('local_coursetransfer',
         get_string('pluginname', 'local_coursetransfer'));
     $ADMIN->add('localplugins', $settings);

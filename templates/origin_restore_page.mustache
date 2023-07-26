@@ -1,0 +1,94 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+  }}
+{{!
+  @template local_coursetransfer/origin_restore_page
+
+  Example context (json):
+
+}}
+<div class="local_coursetransfer" data-region="origin_restore_page" data-nexturl="{{ next_url }}">
+
+    {{> local_coursetransfer/components/stepbystep }}
+
+    <h3 class="h3">{{#str}} restore_page, local_coursetransfer {{/str}}</h3>
+
+    <p>{{#str}} restore_page_desc, local_coursetransfer {{/str}}</p>
+
+    {{{ form }}}
+
+    <div class="alert alert-danger hidden" role="alert"></div>
+
+    {{> local_coursetransfer/components/action_buttons }}
+
+</div>
+<style>
+    body#page-local-coursetransfer-origin_restore .page-header-headings .h2 {
+        display: none;
+    }
+    div[data-region='origin_restore_page']{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    div[data-region='origin_restore_page'] h3.h3{
+        font-size: 28px;
+        font-weight: 600;
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+    }
+    div[data-region='origin_restore_page'] p{
+        font-size: 16px;
+        font-weight: 400;
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+    }
+    div[data-region='origin_restore_page'] form{
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+    }
+    div[data-region='origin_restore_page'] div.alert-danger{
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        align-content: center;
+        align-self: center;
+        font-size: 16px;
+        font-weight: 400;
+    }
+    div[data-region='origin_restore_page'] div.button-container{
+        padding: 10px;
+    }
+    div[data-region='origin_restore_page'] div.button-container a.btn-primary{
+        background: #0D6EFD;
+    }
+    div[data-region='origin_restore_page'] div.button-container a.btn-light{
+        border: 1px solid black;
+    }
+</style>
+
+
+{{#js}}
+    require(['local_coursetransfer/origin_restore_page'], function(restoreCourseStep1) {
+    restoreCourseStep1.initRestoreCourseStep1('[data-region="new_origin_restore_course_step1_page"]', {{ courseid }});
+    });
+{{/js}}

@@ -166,3 +166,7 @@ $string['index_title'] = "Datos para la integración con otros Moodle";
 $string['token_user_ws'] = "Token para otras plataformas";
 $string['user_ws'] = "Usuario Servicio Web";
 $string['sections_table_select_all'] = "Marcar todo";
+$string['restore_page'] = "Restaurar cursos o categorías remotas";
+$string['restore_page_desc'] = "Seleccione si quiere restaurar una categoría o un conjunto de cursos.";
+$string['remove_page'] = "Eliminación de cursos de plataforma remota";
+$string['remove_page_desc'] = "Seleccione si quiere eliminar una categoría o un conjunto de cursos.";

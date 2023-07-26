@@ -165,4 +165,8 @@ $string['index_title'] = "Data for integration with other Moodle";
 $string['token_user_ws'] = "Token for other platforms";
 $string['user_ws'] = "Service Web User";
 $string['sections_table_select_all'] = "Select all";
+$string['restore_page'] = "Restore remote courses or categories";
+$string['restore_page_desc'] = "Select whether you want to restore a category or a set of courses.";
+$string['remove_page'] = "Deletion of remote platform courses";
+$string['remove_page_desc'] = "Select if you want to delete a category or a set of courses..";
 
