@@ -36,13 +36,13 @@ use stdClass;
 use templatable;
 
 /**
- * origin_remove_page
+ * origin_remove_page_step2
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_remove_page implements renderable, templatable {
+class origin_remove_page_step2 implements renderable, templatable {
 
     /**
      *  constructor.
@@ -60,17 +60,10 @@ class origin_remove_page implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $url = new moodle_url(
-                '/local/coursetransfer/origin_remove.php?step=1',
-        );
-        $form = new new_origin_restore_course_step1_form($url->out(false));
 
         $data = new stdClass();
-        $data->steps = [ ["current" => true, "num" => 1], ["current" => false, "num" => 2],
+        $data->steps = [ ["current" => false, "num" => 1], ["current" => true, "num" => 2],
                 ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
-        $data->next_url = $url->out(false);
-        $data->next_url_disabled = false;
-        $data->form = $form->render();
 
         return $data;
     }
