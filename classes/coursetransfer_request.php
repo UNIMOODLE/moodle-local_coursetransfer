@@ -245,7 +245,7 @@ class coursetransfer_request {
      * @throws moodle_exception
      */
     public static function set_request_restore_course(
-            stdClass $site, int $destinycourseid, int $origincourseid, configuration $configuration,
+            stdClass $site, int $destinycourseid, int $origincourseid, configuration $configuration, int $target,
             array $sections, int $requestcatid = null): stdClass {
         global $USER;
         $object = new stdClass();
@@ -264,6 +264,7 @@ class coursetransfer_request {
         $object->origin_remove_course = $configuration->originremovecourse;
         $object->destiny_notremove_activities = $configuration->destinynotremoveactivities;
         $object->origin_backup_size_estimated = coursetransfer::get_backup_size_estimated($origincourseid);
+        $object->destiny_target = $target;
         $object->status = 1;
         $object->userid = $USER->id;
         $object->id = self::insert_or_update($object);

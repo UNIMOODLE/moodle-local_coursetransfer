@@ -544,18 +544,20 @@ class coursetransfer {
      * @param int $destinycourseid
      * @param int $origincourseid
      * @param configuration $configuration
+     * @param int $target
      * @param array|null $sections
      * @return array
      */
     public static function restore_course(
-            stdClass $site, int $destinycourseid, int $origincourseid, configuration $configuration, array $sections = []): array {
+            stdClass $site, int $destinycourseid, int $origincourseid, configuration $configuration, int $target,
+            array $sections = []): array {
 
         try {
             $errors = [];
 
             // 1. Request DB.
             $requestobject = coursetransfer_request::set_request_restore_course(
-                    $site, $destinycourseid, $origincourseid, $configuration, $sections);
+                    $site, $destinycourseid, $origincourseid, $configuration, $target, $sections);
 
             // 2. Call CURL Origin Backup Course.
             $request = new request($site);

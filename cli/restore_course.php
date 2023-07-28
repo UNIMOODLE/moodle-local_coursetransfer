@@ -205,6 +205,12 @@ try {
     $user = core_user::get_user_by_username(user::USERNAME_WS);
     complete_user_login($user);
 
+    if ($newcourse) {
+        $target = backup::TARGET_NEW_COURSE;
+    } else {
+        $target = backup::TARGET_CURRENT_DELETING;
+    }
+
     // 3. Restore Course.
     $destiny = get_course($destinycourseid);
     $site = coursetransfer::get_site_by_url($siteurl);
@@ -214,10 +220,6 @@ try {
     $errors = array_merge($errors, $res['errors']);
     $success = $res['success'];
     if ($success) {
-        if ($newcourse) {
-            // 5b. Remove new course.
-            // TODO.
-        }
         // 5a. Rename new course.
         cli_writeln('THE RESTORATION HAS STARTED - VIEW LOG IN: view_log_request.php --requestid=' .
                 $res['data']['requestid']);
