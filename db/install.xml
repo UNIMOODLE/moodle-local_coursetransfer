@@ -7,7 +7,7 @@
         <TABLE NAME="local_coursetransfer_request" COMMENT="Contains the information of the requests made">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="type" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" COMMENT="0 = course, 1 = category"/>
+                <FIELD NAME="type" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" COMMENT="0 = course, 1 = category, 2 = remove"/>
                 <FIELD NAME="siteurl" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="URL SITE (origin or destiny depend direction)"/>
                 <FIELD NAME="direction" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" COMMENT="0 = request, 1 = answer"/>
                 <FIELD NAME="destiny_request_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="If direction is answer, request id"/>

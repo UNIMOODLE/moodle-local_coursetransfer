@@ -199,18 +199,20 @@ $errors = [];
 
 try {
 
+    // 1. Setup Configuration.
     $configuration = new configuration($destinyremoveactivities, $destinymergeactivities, $destinyremoveenrols,
         $destinyremovegroups, $originremovecourse, $destinynotremoveactivities);
 
+    // 2. User Login.
     $user = core_user::get_user_by_username(user::USERNAME_WS);
     complete_user_login($user);
 
+    // 3. Restore Course.
     $destiny = get_course($destinycourseid);
-
     $site = coursetransfer::get_site_by_url($siteurl);
-
     $res = coursetransfer::restore_course($site, $destiny->id, $origincourseid, $configuration);
 
+    // 4. Success or Errors.
     $errors = array_merge($errors, $res['errors']);
     $success = $res['success'];
     if ($success) {

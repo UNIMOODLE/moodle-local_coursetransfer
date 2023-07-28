@@ -553,33 +553,36 @@ class coursetransfer {
         try {
             $errors = [];
 
-            $requestobject = self::get_request_object_restore_course(
+            // 1. Request DB.
+            $requestobject = coursetransfer_request::set_request_restore_course(
                     $site, $destinycourseid, $origincourseid, $configuration, $sections);
-            $requestid = coursetransfer_request::insert_or_update($requestobject);
 
+            // 2. Call CURL Origin Backup Course.
             $request = new request($site);
+            $res = $request->origin_backup_course($requestobject->id, $origincourseid, $destinycourseid, $configuration, $sections);
 
-            $res = $request->origin_backup_course($requestid, $origincourseid, $destinycourseid, $configuration, $sections);
-
+            // 3. Success or Errors.
             if ($res->success) {
+                // 4a. Update Request DB Completed.
                 $requestobject->status = 10;
-                coursetransfer_request::insert_or_update($requestobject, $requestid);
+                coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
                 $success = true;
             } else {
+                // 4b. Update Request DB Errors.
                 $err = $res->errors;
                 $er = current($err);
                 $errors = array_merge($errors, $res->errors);
                 $requestobject->status = 0;
                 $requestobject->error_code = $er->code;
                 $requestobject->error_message = $er->msg;
-                coursetransfer_request::insert_or_update($requestobject, $requestid);
+                coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
                 $success = false;
             }
             return [
                     'success' => $success,
                     'errors' => $errors,
                     'data' => [
-                            'requestid' => $requestid
+                            'requestid' => $requestobject->id
                     ]
             ];
         } catch (moodle_exception $e) {
@@ -596,76 +599,6 @@ class coursetransfer {
     }
 
     /**
-     * Get Request Object Restore Course.
-     *
-     * @param stdClass $site
-     * @param int $destinycourseid
-     * @param int $origincourseid
-     * @param configuration $configuration
-     * @param array $sections
-     * @param int|null $requestcatid
-     * @return stdClass
-     */
-    public static function get_request_object_restore_course(
-            stdClass $site, int $destinycourseid, int $origincourseid, configuration $configuration,
-            array $sections, int $requestcatid = null): stdClass {
-        global $USER;
-        $object = new stdClass();
-        $object->type = 0;
-        $object->siteurl = $site->host;
-        $object->direction = 0;
-        $object->destiny_course_id = $destinycourseid;
-        $object->origin_course_id = $origincourseid;
-        $object->origin_enrolusers = 0;
-        $object->request_category_id = $requestcatid;
-        $object->origin_activities = json_encode($sections);
-        $object->destiny_remove_activities = $configuration->destinynotremoveactivities;
-        $object->destiny_merge_activities = $configuration->destinymergeactivities;
-        $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
-        $object->destiny_remove_groups = $configuration->destinyremovegroups;
-        $object->origin_remove_course = $configuration->originremovecourse;
-        $object->destiny_notremove_activities = $configuration->destinynotremoveactivities;
-        $object->origin_backup_size_estimated = self::get_backup_size_estimated($origincourseid);
-        $object->status = 1;
-        $object->userid = $USER->id;
-        return $object;
-    }
-
-    /**
-     * Get Request Object Restore Course.
-     *
-     * @param stdClass $site
-     * @param int $destinycategoryid
-     * @param int $origincategoryid
-     * @param configuration $configuration
-     * @param array $courses
-     * @return stdClass
-     */
-    public static function get_request_object_restore_category(
-            stdClass $site, int $destinycategoryid, int $origincategoryid, configuration $configuration, array $courses): stdClass {
-        global $USER;
-        $object = new stdClass();
-        $object->type = 1;
-        $object->siteurl = $site->host;
-        $object->direction = 0;
-        $object->destiny_category_id = $destinycategoryid;
-        $object->origin_category_id = $origincategoryid;
-        $object->origin_activities = '[]';
-        $object->origin_category_courses = json_encode($courses);
-        $object->origin_enrolusers = 0;
-        $object->destiny_remove_activities = $configuration->destinynotremoveactivities;
-        $object->destiny_merge_activities = $configuration->destinymergeactivities;
-        $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
-        $object->destiny_remove_groups = $configuration->destinyremovegroups;
-        $object->origin_remove_course = $configuration->originremovecourse;
-        $object->destiny_notremove_activities = $configuration->destinynotremoveactivities;
-        $object->origin_backup_size_estimated = null;
-        $object->status = 1;
-        $object->userid = $USER->id;
-        return $object;
-    }
-
-    /**
      * Restore Category.
      *
      * @param stdClass $site
@@ -678,12 +611,11 @@ class coursetransfer {
     public static function restore_category(
             stdClass $site, int $destinycategoryid, int $origincategoryid,
             configuration $configuration, array $courses = []): array {
-        global $USER;
 
         try {
-
             $request = new request($site);
             if (count($courses) === 0) {
+                // 1a. Call CURL Origin Get Category Detail for courses list.
                 $res = $request->origin_get_category_detail($origincategoryid);
                 if ($res->success) {
                     $courses = $res->data->courses;
@@ -691,40 +623,48 @@ class coursetransfer {
                     throw new moodle_exception(json_encode($res->errors));
                 }
             } else {
+                // 1b. Call CURL Origin Get Course Detail from courses list.
                 $courses = self::get_courses_detail($site, $courses);
             }
 
-            $requestobject = self::get_request_object_restore_category(
-                    $site, $destinycategoryid, $origincategoryid, $configuration, $courses);
-
-            $requestcatid = coursetransfer_request::insert_or_update($requestobject);
+            // 2. Category Request DB.
+            $requestobject = coursetransfer_request::set_request_restore_category(
+                    $site, $destinycategoryid, $origincategoryid, $configuration, $courses
+            );
 
             $success = true;
             $errors = [];
 
             foreach ($courses as $course) {
+
+                // 3. Create new course in this category.
                 $destinycourseid = course::create(
                         core_course_category::get($destinycategoryid),
                         $course->fullname, $course->shortname . uniqid(), '');
                 $origincourseid = $course->id;
-                $requestobjectcourse = self::get_request_object_restore_course(
-                        $site, $destinycourseid, $origincourseid, $configuration, [], $requestcatid);
 
-                $requestid = coursetransfer_request::insert_or_update($requestobjectcourse);
+                // 4. Course Request DB.
+                $requestobjectcourse = coursetransfer_request::set_request_restore_course(
+                        $site, $destinycourseid, $origincourseid, $configuration, [], $requestobject->id);
 
-                $res = $request->origin_backup_course($requestid, $course->id, $destinycourseid, $configuration, []);
+                // 5. Call CURL Origin Backup Course.
+                $res = $request->origin_backup_course($requestobjectcourse->id, $course->id, $destinycourseid, $configuration, []);
+
+                // 6. Success or Errors.
                 if ($res->success) {
+                    // 7a. Update Course Request DB Completed.
                     $requestobjectcourse->status = 10;
-                    coursetransfer_request::insert_or_update($requestobjectcourse, $requestid);
+                    coursetransfer_request::insert_or_update($requestobjectcourse, $requestobjectcourse->id);
                     $success = true;
                 } else {
+                    // 7b. Update Request DB Errors.
                     $err = $res->errors;
                     $er = current($err);
                     $errors = array_merge($errors, $res->errors);
                     $requestobjectcourse->status = 0;
                     $requestobjectcourse->error_code = isset($er->code) ? $er->code : '0';
                     $requestobjectcourse->error_message = isset($er->msg) ? $er->msg : '0';
-                    coursetransfer_request::insert_or_update($requestobjectcourse, $requestid);
+                    coursetransfer_request::insert_or_update($requestobjectcourse, $requestobjectcourse->id);
                     $success = false;
                 }
             }
@@ -733,7 +673,7 @@ class coursetransfer {
                     'success' => $success,
                     'errors' => $errors,
                     'data' => [
-                        'requestid' => $requestcatid
+                        'requestid' => $requestobject->id
                     ]
             ];
         } catch (moodle_exception $e) {

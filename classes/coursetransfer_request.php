@@ -25,6 +25,7 @@
 namespace local_coursetransfer;
 
 use dml_exception;
+use local_coursetransfer\models\configuration;
 use moodle_exception;
 use stdClass;
 
@@ -228,5 +229,82 @@ class coursetransfer_request {
             $object->id = $id;
             return $DB->update_record(self::TABLE, $object);
         }
+    }
+
+    /**
+     * Set Request Restore Course.
+     *
+     * @param stdClass $site
+     * @param int $destinycourseid
+     * @param int $origincourseid
+     * @param configuration $configuration
+     * @param array $sections
+     * @param int|null $requestcatid
+     * @return stdClass
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function set_request_restore_course(
+            stdClass $site, int $destinycourseid, int $origincourseid, configuration $configuration,
+            array $sections, int $requestcatid = null): stdClass {
+        global $USER;
+        $object = new stdClass();
+        $object->type = 0;
+        $object->siteurl = $site->host;
+        $object->direction = 0;
+        $object->destiny_course_id = $destinycourseid;
+        $object->origin_course_id = $origincourseid;
+        $object->origin_enrolusers = 0;
+        $object->request_category_id = $requestcatid;
+        $object->origin_activities = json_encode($sections);
+        $object->destiny_remove_activities = $configuration->destinynotremoveactivities;
+        $object->destiny_merge_activities = $configuration->destinymergeactivities;
+        $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
+        $object->destiny_remove_groups = $configuration->destinyremovegroups;
+        $object->origin_remove_course = $configuration->originremovecourse;
+        $object->destiny_notremove_activities = $configuration->destinynotremoveactivities;
+        $object->origin_backup_size_estimated = coursetransfer::get_backup_size_estimated($origincourseid);
+        $object->status = 1;
+        $object->userid = $USER->id;
+        $object->id = self::insert_or_update($object);
+        return $object;
+    }
+
+
+    /**
+     * Set Request Object Restore Category.
+     *
+     * @param stdClass $site
+     * @param int $destinycategoryid
+     * @param int $origincategoryid
+     * @param configuration $configuration
+     * @param array $courses
+     * @return stdClass
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function set_request_restore_category(
+            stdClass $site, int $destinycategoryid, int $origincategoryid, configuration $configuration, array $courses): stdClass {
+        global $USER;
+        $object = new stdClass();
+        $object->type = 1;
+        $object->siteurl = $site->host;
+        $object->direction = 0;
+        $object->destiny_category_id = $destinycategoryid;
+        $object->origin_category_id = $origincategoryid;
+        $object->origin_activities = '[]';
+        $object->origin_category_courses = json_encode($courses);
+        $object->origin_enrolusers = 0;
+        $object->destiny_remove_activities = $configuration->destinynotremoveactivities;
+        $object->destiny_merge_activities = $configuration->destinymergeactivities;
+        $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
+        $object->destiny_remove_groups = $configuration->destinyremovegroups;
+        $object->origin_remove_course = $configuration->originremovecourse;
+        $object->destiny_notremove_activities = $configuration->destinynotremoveactivities;
+        $object->origin_backup_size_estimated = null;
+        $object->status = 1;
+        $object->userid = $USER->id;
+        $object->id = self::insert_or_update($object);
+        return $object;
     }
 }
