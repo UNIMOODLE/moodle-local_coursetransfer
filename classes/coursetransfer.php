@@ -419,7 +419,11 @@ class coursetransfer {
         $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
                 backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, backup::RELEASESESSION_NO);
         $bc->set_status(backup::STATUS_AWAITING);
-        $bc->get_plan()->get_setting('root_users')->set_status($rootusers);
+        $bc->get_plan()->get_setting('users')->set_value($rootusers);
+        $bc->get_plan()->get_setting('role_assignments')->set_value($rootusers);
+        $bc->get_plan()->get_setting('comments')->set_value($rootusers);
+        $bc->get_plan()->get_setting('badges')->set_value($rootusers);
+        $bc->get_plan()->get_setting('userscompletion')->set_value($rootusers);
         $bc->set_execution(backup::EXECUTION_DELAYED);
         $bc->save_controller();
         $backupid = $bc->get_backupid();
