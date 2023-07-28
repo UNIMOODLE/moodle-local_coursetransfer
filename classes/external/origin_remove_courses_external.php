@@ -84,7 +84,6 @@ class origin_remove_courses_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
-            var_dump($site);
             $request = new request($site);
             $res = $request->origin_has_user();
             if ($res->success) {

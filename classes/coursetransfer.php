@@ -437,12 +437,13 @@ class coursetransfer {
      *
      * @param stdClass $request
      * @param string $fileurl
+     * @param int $target
      */
-    public static function create_task_download_course(stdClass $request, string $fileurl) {
+    public static function create_task_download_course(stdClass $request, string $fileurl, int $target) {
         $asynctask = new download_file_course_task();
         $asynctask->set_blocking(false);
         $asynctask->set_custom_data(
-                array('request' => $request, 'fileurl' => $fileurl)
+                array('request' => $request, 'fileurl' => $fileurl, 'target' => $target)
         );
         \core\task\manager::queue_adhoc_task($asynctask);
     }
@@ -455,7 +456,7 @@ class coursetransfer {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function create_task_restore_course(stdClass $request, stored_file $file) {
+    public static function create_task_restore_course(stdClass $request, stored_file $file, int $target) {
         try {
             $courseid = $request->destiny_course_id;
             $userid = $request->userid;
@@ -473,8 +474,7 @@ class coursetransfer {
             $fb->extract_to_pathname($file, $backuptempdir . '/' . $filepath . '/');
 
             $rc = new restore_controller($filepath, $courseid,
-                    backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid,
-                    backup::TARGET_CURRENT_ADDING);
+                    backup::INTERACTIVE_NO, backup::MODE_COPY, $userid, $target);
 
             $restoreoptions = [];
             foreach ($restoreoptions as $option => $value) {

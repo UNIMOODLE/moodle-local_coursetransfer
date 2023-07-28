@@ -22,6 +22,7 @@
 
 namespace local_coursetransfer\external;
 
+use backup;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -97,7 +98,7 @@ class destiny_course_callback_external extends external_api {
                     $finalurl = $fileurl . '?token=' . $origintoken;
                     $request->status = 30;
                     coursetransfer_request::insert_or_update($request, $requestid);
-                    coursetransfer::create_task_download_course($request, $finalurl);
+                    coursetransfer::create_task_download_course($request, $finalurl, $request->destiny_target);
                 } else {
                     $success = false;
                     $errors[] =
