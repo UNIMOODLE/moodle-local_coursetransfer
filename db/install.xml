@@ -29,6 +29,7 @@
                 <FIELD NAME="destiny_merge_activities" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't merge, 1 = merge"/>
                 <FIELD NAME="destiny_remove_enrols" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove enrol, 1 = remove enrol"/>
                 <FIELD NAME="destiny_remove_groups" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove groups, 1 = remove groups"/>
+                <FIELD NAME="destiny_target" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="3" COMMENT="TARGET_NEW_COURSE = 2; TARGET_EXISTING_DELETING = 3; TARGET_EXISTING_ADDING = 4;"/>
                 <FIELD NAME="error_code" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Code Error"/>
                 <FIELD NAME="error_message" SEQUENCE="false" TYPE="text" LENGTH="10" NOTNULL="false" COMMENT="Message Error"/>
                 <FIELD NAME="fileurl" SEQUENCE="false" TYPE="text" LENGTH="250" NOTNULL="false" COMMENT="File URL backup"/>
