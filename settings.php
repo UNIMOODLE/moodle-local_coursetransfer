@@ -35,6 +35,14 @@ if ($hassiteconfig) {
             new lang_string('pluginname', 'local_coursetransfer')));
 
     $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_restore',
+            get_string('configuration', 'local_coursetransfer'),
+            $CFG->wwwroot . '/admin/settings.php?section=local_coursetransfer'));
+
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_restore',
+            get_string('summary', 'local_coursetransfer'),
+            $CFG->wwwroot . '/local/coursetransfer/index.php'));
+
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_restore',
             get_string('restore_page', 'local_coursetransfer'),
             $CFG->wwwroot . '/local/coursetransfer/origin_restore.php'));
 
