@@ -473,6 +473,10 @@ class coursetransfer {
 
             $fb->extract_to_pathname($file, $backuptempdir . '/' . $filepath . '/');
 
+            if ($target === backup::TARGET_NEW_COURSE) {
+                $target = backup::TARGET_EXISTING_DELETING;
+            }
+
             $rc = new restore_controller($filepath, $courseid,
                     backup::INTERACTIVE_NO, backup::MODE_COPY, $userid, $target);
 
@@ -567,6 +571,7 @@ class coursetransfer {
             if ($res->success) {
                 // 4a. Update Request DB Completed.
                 $requestobject->status = 10;
+                $requestobject->origin_course_fullname = $res->data->course_fullname;
                 coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
                 $success = true;
             } else {

@@ -170,7 +170,8 @@ class origin_restore_course_table extends table_sql {
                 $row->destiny_remove_activities,
                 $row->destiny_merge_activities,
                 $row->destiny_remove_enrols,
-                $row->destiny_remove_groups
+                $row->destiny_remove_groups,
+                $row->destiny_target
         ];
         $output = $PAGE->get_renderer('local_coursetransfer');
         $component = new \local_coursetransfer\output\configuration_component($configuration, $row->id);

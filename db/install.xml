@@ -13,6 +13,7 @@
                 <FIELD NAME="destiny_request_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="If direction is answer, request id"/>
                 <FIELD NAME="request_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="?"/>
                 <FIELD NAME="origin_course_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Course ID to restore"/>
+                <FIELD NAME="origin_course_fullname" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Course Fullname to restore"/>
                 <FIELD NAME="origin_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Category ID to restore"/>
                 <FIELD NAME="origin_enrolusers" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't send enrolled users, 1 = send enrolled users"/>
                 <FIELD NAME="origin_remove_course" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>

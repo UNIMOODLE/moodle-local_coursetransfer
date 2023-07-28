@@ -36,6 +36,10 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    {{# course_new }}
+                    <h5>{{#str}} restoretnewcourse, backup {{/str}}</h5>
+                    {{/ course_new }}
+                    {{^ course_new }}
                     <h5>{{#str}} restoretocurrentcourse, backup {{/str}}</h5>
                     <ul class="configuration-list">
                         <li class="configuration-group">
@@ -67,6 +71,7 @@
                             </div>
                         </li>
                     </ul>
+                    {{/ course_new }}
                     <h5>{{#str}} deleteindestiny, local_coursetransfer {{/str}}</h5>
                     <ul class="configuration-list">
                         <li class="configuration-group">

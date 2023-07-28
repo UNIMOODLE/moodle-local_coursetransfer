@@ -172,6 +172,7 @@ class origin_course_backup_external extends external_api {
                                 $course->id, $res->id, $verifydestiny['data'], $requestid, $requestoriginid);
                         $data->origin_backup_size_estimated = $object->origin_backup_size_estimated;
                         $data->request_origin_id = $requestoriginid;
+                        $data->course_fullname = $course->fullname;
                         $success = true;
                     } else {
                         $success = false;
@@ -222,6 +223,7 @@ class origin_course_backup_external extends external_api {
                     array(
                         'requestid' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
                         'request_origin_id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                        'course_fullname' => new external_value(PARAM_RAW, 'Origin Course Fullname', VALUE_OPTIONAL),
                         'origin_backup_size_estimated' => new external_value(PARAM_INT,
                                 'Backup Size Estimated (MB)', VALUE_OPTIONAL ),
                     ), PARAM_TEXT, 'Data'

@@ -61,6 +61,7 @@ class restore_course_task extends \core\task\adhoc_task {
             // Execute restore.
             $rc->execute_precheck();
             $rc->execute_plan();
+            $rc->
             $rc->destroy();
 
             $this->log('Restore Backup Cours Remote Success!');
