@@ -45,13 +45,23 @@ $PAGE->set_pagelayout('standard');
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
-$PAGE->set_url('/local/coursetransfer/origin_remove.php');
+$PAGE->set_url('/local/coursetransfer/origin_remove.php?step=1');
 
 $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
 
-$page = new \local_coursetransfer\output\origin_remove_page();
-echo $output->render($page);
+$step = required_param('step', PARAM_INT);
+switch ($step) {
+    case 1:
+        $page = new \local_coursetransfer\output\origin_remove_page();
+        break;
+    case 2:
+        $page = new \local_coursetransfer\output\origin_remove_page_step2();
+        break;
+    default:
+        throw new moodle_exception('STEP NOT VALID');
+}
 
+echo $output->render($page);
 echo $OUTPUT->footer();
