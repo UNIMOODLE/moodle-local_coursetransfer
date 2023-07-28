@@ -156,7 +156,7 @@ if ( empty($destinycourseid) && ($destinytarget === backup::TARGET_NEW_COURSE)) 
     }
     // Create new course.
     $destinycourseid = \local_coursetransfer\factory\course::create(
-            $category, 'New Course', 'NEW-COURSE-' . time(), '');
+            $category, 'Remote Restoring in process...', 'IN-PROGRESS-' . time(), '');
 } else if ( empty($destinycourseid) && $destinytarget !== backup::TARGET_NEW_COURSE ) {
     cli_writeln( get_string('destiny_course_id_is_required', 'local_coursetransfer') );
     exit(128);
