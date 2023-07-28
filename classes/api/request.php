@@ -315,10 +315,16 @@ class request {
                 } else {
                     $message = get_string('error_not_controlled', 'local_coursetransfer');
                 }
-                return new response(false, null, ['code' => '200002', 'msg' => $message]);
+                $error = new stdClass();
+                $error->code = '200002';
+                $error->msg = $message;
+                return new response(false, null, [$error]);
             }
         } catch (\Exception $e) {
-            return new response(false, null, ['code' => '200003', 'msg' => $e->getMessage()]);
+            $error = new stdClass();
+            $error->code = '200003';
+            $error->msg = $e->getMessage();
+            return new response(false, null, [$error]);
         }
     }
 }
