@@ -32,10 +32,29 @@
 
     <div class="alert alert-danger hidden" role="alert"></div>
 
-    {{> local_coursetransfer/components/action_buttons }}
-
+    <div data-region="button-container" class="button-container">
+        <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
+        <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
+        {{# button }}
+            <button type="button" class="btn btn-primary" data-action="next" {{#next_url_disabled}}disabled{{/next_url_disabled}}>{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</button>
+        {{/ button }}
+        {{^ button }}
+            <a type="button" class="btn btn-primary" data-action="next" {{#next_url_disabled}}disabled{{/next_url_disabled}}>{{#str}} steps_buttons_next, local_coursetransfer {{/str}}</a>
+        {{/ button }}
+    </div>
 </div>
 <style>
+    [data-region="button-container"].button-container {
+        padding: 10px;
+        margin-top: 30px;
+    }
+    [data-region="button-container"].button-container a.btn-primary {
+        background: #0D6EFD;
+    }
+    [data-region="button-container"].button-container a.btn-light {
+        border: 1px solid black;
+    }
+
     body#page-local-coursetransfer-origin_remove .page-header-headings .h2 {
         display: none;
     }

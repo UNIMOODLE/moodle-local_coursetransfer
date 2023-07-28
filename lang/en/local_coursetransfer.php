@@ -169,4 +169,6 @@ $string['restore_page'] = "Restore remote courses or categories";
 $string['restore_page_desc'] = "Select whether you want to restore a category or a set of courses.";
 $string['remove_page'] = "Deletion of remote platform courses";
 $string['remove_page_desc'] = "Select if you want to delete a category or a set of courses..";
-
+$string['remove_page_desc_time'] = "Select if you want to delete courses now or in a scheduled time";
+$string['remove_time'] = "Select time to delete courses";
+$string['remove_date_time'] = "Select date to delete courses";

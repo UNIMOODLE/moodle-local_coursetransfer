@@ -170,3 +170,4 @@ $string['restore_page'] = "Restaurar cursos o categorías remotas";
 $string['restore_page_desc'] = "Seleccione si quiere restaurar una categoría o un conjunto de cursos.";
 $string['remove_page'] = "Eliminación de cursos de plataforma remota";
 $string['remove_page_desc'] = "Seleccione si quiere eliminar una categoría o un conjunto de cursos.";
+$string['remove_page_desc_time'] = "Seleccione si desea eliminar cursos ahora o en un horario programado";

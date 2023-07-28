@@ -27,6 +27,7 @@ namespace local_coursetransfer\output;
 use coding_exception;
 use local_coursetransfer\forms\new_origin_restore_course_step1_form;
 use local_coursetransfer\forms\origin_restore_form;
+use local_coursetransfer\forms\remove_courses_time;
 use local_coursetransfer\tables\origin_restore_course_table;
 use moodle_exception;
 use moodle_url;
@@ -65,6 +66,19 @@ class origin_remove_page_step2 implements renderable, templatable {
         $data->steps = [ ["current" => false, "num" => 1], ["current" => true, "num" => 2],
                 ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
 
+        $url = new moodle_url(
+            '/local/coursetransfer/origin_restore_course.php',
+            ['step' => 2 ]
+        );
+        $form = new remove_courses_time($url->out(false));
+        $data->form = $form->render();
+
+        $backurl = new moodle_url(
+            '/local/coursetransfer/origin_remove.php',
+            ['step' => 1]
+        );
+        $data->back_url = $backurl->out(false);
+        
         return $data;
     }
 

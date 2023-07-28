@@ -63,13 +63,12 @@ class origin_remove_page implements renderable, templatable {
         $url = new moodle_url(
                 '/local/coursetransfer/origin_remove.php?step=1',
         );
-        $form = new new_origin_restore_course_step1_form($url->out(false));
+        $form = new origin_restore_form($url->out(false));
 
         $data = new stdClass();
         $data->steps = [ ["current" => true, "num" => 1], ["current" => false, "num" => 2],
                 ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
-        $data->next_url = $url->out(false);
-        $data->next_url_disabled = false;
+
         $data->form = $form->render();
 
         return $data;

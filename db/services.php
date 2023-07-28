@@ -23,6 +23,7 @@ use local_coursetransfer\external\destiny_course_callback_external;
 use local_coursetransfer\external\origin_category_external;
 use local_coursetransfer\external\origin_course_backup_external;
 use local_coursetransfer\external\origin_course_external;
+use local_coursetransfer\external\origin_remove_courses_external;
 use local_coursetransfer\external\origin_user_external;
 use local_coursetransfer\external\restore_category_external;
 use local_coursetransfer\external\restore_course_external;
@@ -148,6 +149,15 @@ $functions = [
             'loginrequired' => false
     ],
 
+    'local_coursetransfer_origin_remove_courses_step1' => [
+        'classname' => origin_remove_courses_external::class,
+        'methodname' => 'origin_remove_courses_step1',
+        'description' => 'Check if user exists and pass to step 2',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => false
+    ],
+
 ];
 
 $services = [
@@ -164,7 +174,8 @@ $services = [
             'local_coursetransfer_new_origin_restore_course_step1',
             'local_coursetransfer_new_origin_restore_course_step5',
             'local_coursetransfer_new_origin_restore_category_step1',
-            'local_coursetransfer_new_origin_restore_category_step4'
+            'local_coursetransfer_new_origin_restore_category_step4',
+            'local_coursetransfer_origin_remove_courses_step1'
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,
