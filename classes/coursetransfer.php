@@ -26,6 +26,7 @@ namespace local_coursetransfer;
 
 use backup;
 use backup_controller;
+use base_setting;
 use coding_exception;
 use context_course;
 use core_course_category;
@@ -453,6 +454,7 @@ class coursetransfer {
      *
      * @param stdClass $request
      * @param stored_file $file
+     * @param int $target
      * @throws dml_exception
      * @throws moodle_exception
      */
@@ -460,6 +462,10 @@ class coursetransfer {
         try {
             $courseid = $request->destiny_course_id;
             $userid = $request->userid;
+            $fullname = $request->origin_course_fullname;
+            $shortname = $request->origin_course_shortname;
+            $removeenrols = $request->destiny_remove_enrols;
+            $removegroups = $request->destiny_remove_groups;
 
             $backuptmpdir = 'local_coursetransfer';
 
@@ -473,27 +479,39 @@ class coursetransfer {
 
             $fb->extract_to_pathname($file, $backuptempdir . '/' . $filepath . '/');
 
+            $restoreoptions = [
+                    'overwrite_conf' => 0,
+                    'keep_roles_and_enrolments' => $removeenrols,
+                    'keep_groups_and_groupings' => $removegroups,
+            ];
+
+            if ($target === backup::TARGET_NEW_COURSE) {
+                $restoreoptions['overwrite_conf'] = 1;
+                $restoreoptions['course_fullname'] = $fullname;
+                $restoreoptions['course_shortname'] = $shortname;
+            }
+
             if ($target === backup::TARGET_NEW_COURSE) {
                 $target = backup::TARGET_EXISTING_DELETING;
             }
 
             $rc = new restore_controller($filepath, $courseid,
-                    backup::INTERACTIVE_NO, backup::MODE_COPY, $userid, $target);
+                    backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, $target);
 
-            $restoreoptions = [];
             foreach ($restoreoptions as $option => $value) {
+                $rc->get_plan()->get_setting($option)->set_status(\base_setting::NOT_LOCKED);
                 $rc->get_plan()->get_setting($option)->set_value($value);
             }
 
             if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
                 $rc->convert();
-
             }
 
             // Execute restore.
             $rc->execute_precheck();
             $rc->execute_plan();
             $rc->destroy();
+
         } catch (\Exception $e) {
             $request->status = 0;
             $request->error_code = '200320';
@@ -572,6 +590,7 @@ class coursetransfer {
                 // 4a. Update Request DB Completed.
                 $requestobject->status = 10;
                 $requestobject->origin_course_fullname = $res->data->course_fullname;
+                $requestobject->origin_course_shortname = $res->data->course_shortname;
                 coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
                 $success = true;
             } else {

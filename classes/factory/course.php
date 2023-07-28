@@ -25,6 +25,8 @@
 namespace local_coursetransfer\factory;
 
 use core_course_category;
+use core_courseformat\external\update_course;
+use dml_exception;
 use moodle_exception;
 use stdClass;
 
@@ -52,7 +54,6 @@ class course {
         $datacourse = new stdClass();
         $datacourse->category = $category->id;
         $datacourse->shortname = $shortname;
-        $datacourse->idnumber = $shortname;
         $datacourse->fullname = $fullname;
         $datacourse->visible = 1;
         $datacourse->summary = $summary;
@@ -64,6 +65,5 @@ class course {
             throw new moodle_exception('0090100', $e->getMessage());
         }
     }
-
 
 }

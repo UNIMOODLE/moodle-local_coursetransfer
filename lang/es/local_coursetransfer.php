@@ -172,3 +172,4 @@ $string['remove_page'] = "Eliminación de cursos de plataforma remota";
 $string['remove_page_desc'] = "Seleccione si quiere eliminar una categoría o un conjunto de cursos.";
 $string['token_not_found'] = "El token no ha podido recuperarse.";
 $string['click_refresh'] = "Haz clic en el botón 'Refrescar' para recalcular la configuración.";
+$string['restoretnewcourse'] = "Restauración realizada en un curso nuevo";

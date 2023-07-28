@@ -27,6 +27,7 @@ namespace local_coursetransfer\task;
 
 use backup;
 use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\factory\course;
 use moodle_exception;
 use restore_controller;
 
@@ -61,7 +62,6 @@ class restore_course_task extends \core\task\adhoc_task {
             // Execute restore.
             $rc->execute_precheck();
             $rc->execute_plan();
-            $rc->
             $rc->destroy();
 
             $this->log('Restore Backup Cours Remote Success!');

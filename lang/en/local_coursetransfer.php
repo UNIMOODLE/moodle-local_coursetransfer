@@ -171,4 +171,5 @@ $string['remove_page'] = "Deletion of remote platform courses";
 $string['remove_page_desc'] = "Select if you want to delete a category or a set of courses.";
 $string['token_not_found'] = "The token could not be retrieved.";
 $string['click_refresh'] = "Click the 'Refresh' button to recalculate the settings.";
+$string['restoretnewcourse'] = "Restoration performed in a new course";
 

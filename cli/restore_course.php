@@ -217,13 +217,7 @@ try {
             // 5b. Remove new course.
             delete_course($destinycourseid);
         }
-        if (isset($errors[0])) {
-            foreach ($errors as $error) {
-                cli_writeln($error->code . ': ' . $error->msg);
-            }
-        } else {
-            cli_writeln($errors['code'] . ': ' . $errors['msg']);
-        }
+        cli_writeln(json_encode($errors));
         exit(1);
     }
 
