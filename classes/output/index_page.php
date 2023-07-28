@@ -60,20 +60,32 @@ class index_page implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         global $DB;
 
-        $user = \core_user::get_user_by_username(user::USERNAME_WS);
+        $error = false;
+        $message = '';
 
-        $tokensql =
-                "SELECT token
-        FROM {external_tokens} et
-        LEFT JOIN {external_services} es ON et.externalserviceid = es.id
-        WHERE es.name = 'local_coursetransfer' AND et.userid = " . $user->id;
+        try {
+            $user = \core_user::get_user_by_username(user::USERNAME_WS);
 
-        $token = $DB->get_record_sql($tokensql);
+            $tokensql =
+                    "SELECT token
+                     FROM {external_tokens} et
+                     LEFT JOIN {external_services} es ON et.externalserviceid = es.id
+                     WHERE es.name = 'local_coursetransfer' AND et.userid = " . $user->id;
 
-        if ($token) {
-            $token = $token->token;
-        } else {
-            $token = false;
+            $token = $DB->get_record_sql($tokensql);
+
+            if ($token) {
+                $token = $token->token;
+            } else {
+                $message = get_string('token_not_found', 'local_coursetransfer');
+                $token = '';
+                $error = true;
+            }
+
+        } catch (moodle_exception $e) {
+            $token = '';
+            $message = $e->getMessage();
+            $error = true;
         }
 
         $urlconfig = new moodle_url('/admin/settings.php', ['section' => 'local_coursetransfer']);
@@ -83,6 +95,8 @@ class index_page implements renderable, templatable {
         $data->token = $token;
         $data->url_config = $urlconfig->out(false);
         $data->url_postinstall = $urlpostinstall->out(false);
+        $data->error = $error;
+        $data->message = $message;
         return $data;
     }
 

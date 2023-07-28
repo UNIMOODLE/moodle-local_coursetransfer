@@ -139,13 +139,16 @@ if ( $origincourseid === null ) {
     exit(128);
 }
 
+$newcourse = false;
 if ( $destinycourseid === null ) {
     if ($destinycategoryid !== null) {
         try {
+            $newcourse = true;
             $category = core_course_category::get($destinycategoryid);
             // Create new course.
             $destinycourseid = \local_coursetransfer\factory\course::create(
                     $category, 'New Course', 'NEW-COURSE-' . time(), '');
+            $newcourse = true;
         } catch (moodle_exception $e) {
             cli_writeln('300501: ' . $e->getMessage());
             exit(1);
@@ -190,11 +193,6 @@ if ( !in_array((int)$originremovecourse, [0, 1])) {
     exit(128);
 }
 
-if ( !is_array($destinynotremoveactivities)) {
-    cli_writeln( get_string('destiny_not_remove_activities_invalid', 'local_coursetransfer') );
-    exit(128);
-}
-
 $errors = [];
 
 try {
@@ -216,10 +214,19 @@ try {
     $errors = array_merge($errors, $res['errors']);
     $success = $res['success'];
     if ($success) {
+        if ($newcourse) {
+            // 5b. Remove new course.
+            // TODO.
+        }
+        // 5a. Rename new course.
         cli_writeln('THE RESTORATION HAS STARTED - VIEW LOG IN: view_log_request.php --requestid=' .
                 $res['data']['requestid']);
         exit(0);
     } else {
+        if ($newcourse) {
+            // 5b. Remove new course.
+            delete_course($destinycourseid);
+        }
         if (isset($errors[0])) {
             foreach ($errors as $error) {
                 cli_writeln($error->code . ': ' . $error->msg);

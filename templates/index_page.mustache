@@ -26,6 +26,11 @@
             <img src="https://tresipunt.com/wp-content/uploads/2020/04/logo3ipunt.png" alt="3iPunt" height="200">
         </div>
         <div class="card-body text-left">
+            {{# error }}
+            <div class="alert alert-danger" role="alert">
+                {{ message }} . {{# str }} click_refresh, local_coursetransfer {{/ str }}
+            </div>
+            {{/ error }}
             <h4 class="card-title font-weight-bold">{{# str }} index_title, local_coursetransfer {{/ str }}</h4>
             <hr>
             <h6 class="section-title">{{# str }} user_ws, local_coursetransfer {{/ str }}</h6>
