@@ -238,6 +238,7 @@ class coursetransfer_request {
      * @param int $destinycourseid
      * @param int $origincourseid
      * @param configuration $configuration
+     * @param int $target
      * @param array $sections
      * @param int|null $requestcatid
      * @return stdClass
@@ -254,7 +255,7 @@ class coursetransfer_request {
         $object->direction = 0;
         $object->destiny_course_id = $destinycourseid;
         $object->origin_course_id = $origincourseid;
-        $object->origin_enrolusers = 0;
+        $object->origin_enrolusers = $configuration->originenrolusers;
         $object->request_category_id = $requestcatid;
         $object->origin_activities = json_encode($sections);
         $object->destiny_remove_activities = $configuration->destinyremoveactivities;
@@ -295,7 +296,7 @@ class coursetransfer_request {
         $object->origin_category_id = $origincategoryid;
         $object->origin_activities = '[]';
         $object->origin_category_courses = json_encode($courses);
-        $object->origin_enrolusers = 0;
+        $object->origin_enrolusers = $configuration->originenrolusers;
         $object->destiny_remove_activities = $configuration->destinyremoveactivities;
         $object->destiny_merge_activities = $configuration->destinymergeactivities;
         $object->destiny_remove_enrols = $configuration->destinyremoveenrols;

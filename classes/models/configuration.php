@@ -41,6 +41,9 @@ class configuration {
     /** @var bool Origin Remove Course */
     public $originremovecourse;
 
+    /** @var bool Origin Enrol Users */
+    public $originenrolusers;
+
     /** @var string Destinity Not Remove Activities */
     public $destinynotremoveactivities;
 
@@ -52,16 +55,19 @@ class configuration {
      * @param bool $destinyremoveenrols
      * @param bool $destinyremovegroups
      * @param bool $originremovecourse
+     * @param bool $originenrolusers
      * @param string $destinynotremoveactivities
      */
     public function __construct(
             bool $destinyremoveactivities, bool $destinymergeactivities, bool $destinyremoveenrols,
-    bool $destinyremovegroups, bool $originremovecourse, string $destinynotremoveactivities = '') {
+    bool $destinyremovegroups, bool $originremovecourse, bool $originenrolusers,
+            string $destinynotremoveactivities = '') {
         $this->set_destiny_remove_activities($destinyremoveactivities);
         $this->set_destiny_merge_activities($destinymergeactivities);
         $this->set_destiny_remove_enrols($destinyremoveenrols);
         $this->set_destiny_remove_groups($destinyremovegroups);
         $this->set_origin_remove_course($originremovecourse);
+        $this->set_origin_enrol_users($originenrolusers);
         $this->set_destiny_notremove_activities($destinynotremoveactivities);
     }
 
@@ -108,6 +114,15 @@ class configuration {
      */
     protected function set_origin_remove_course(bool $config) {
         $this->originremovecourse = $config;
+    }
+
+    /**
+     * Set Origin Enrol Users.
+     *
+     * @param bool $config
+     */
+    protected function set_origin_enrol_users(bool $config) {
+        $this->originenrolusers = $config;
     }
 
     /**

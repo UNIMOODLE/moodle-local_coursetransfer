@@ -62,7 +62,9 @@ class origin_course_backup_external extends external_api {
                                'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
                                'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
                                'origin_remove_course' => new external_value(PARAM_BOOL,
-                                               'Destiny Remove Course', VALUE_DEFAULT, false),
+                                               'Origin Remove Course', VALUE_DEFAULT, false),
+                               'origin_enrol_users' => new external_value(PARAM_BOOL,
+                                               'Origin Enrol Users', VALUE_DEFAULT, false),
                                'destiny_notremove_activities' => new external_value(PARAM_TEXT,
                                                'Destiny Not Remove Activities by commas', VALUE_DEFAULT, '')
                         )
@@ -145,7 +147,7 @@ class origin_course_backup_external extends external_api {
                         $object->origin_course_id = $course->id;
                         $object->origin_category_id = null;
 
-                        $object->origin_enrolusers = 0;
+                        $object->origin_enrolusers = $configuration['origin_enrol_users'];
                         $object->origin_schedule_datetime = null;
                         $object->origin_remove_activities = 0;
 
@@ -169,7 +171,8 @@ class origin_course_backup_external extends external_api {
 
                         $requestoriginid = coursetransfer_request::insert_or_update($object);
                         coursetransfer::create_task_backup_course(
-                                $course->id, $res->id, $verifydestiny['data'], $requestid, $requestoriginid);
+                                $course->id, $res->id, $verifydestiny['data'], $requestid, $requestoriginid,
+                                $configuration['origin_enrol_users']);
                         $data->origin_backup_size_estimated = $object->origin_backup_size_estimated;
                         $data->request_origin_id = $requestoriginid;
                         $data->course_fullname = $course->fullname;

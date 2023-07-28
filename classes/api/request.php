@@ -199,6 +199,7 @@ class request {
         $res['configuration[destiny_remove_groups]'] = (int)$configuration->destinyremovegroups;
         $res['configuration[destiny_remove_activities]'] = (int)$configuration->destinyremoveactivities;
         $res['configuration[origin_remove_course]'] = (int)$configuration->originremovecourse;
+        $res['configuration[origin_enrol_users]'] = (int)$configuration->originenrolusers;
         $res['configuration[destiny_notremove_activities]'] = $configuration->destinynotremoveactivities;
         return $res;
     }

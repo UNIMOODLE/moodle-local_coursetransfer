@@ -193,7 +193,7 @@ try {
     $configuration = new configuration(
             $destinytarget === backup::TARGET_EXISTING_DELETING,
             $destinytarget === backup::TARGET_EXISTING_ADDING,
-            $destinyremoveenrols, $destinyremovegroups, $originremovecourse, $destinynotremoveactivities);
+            $destinyremoveenrols, $destinyremovegroups, $originremovecourse, $originenrolusers, $destinynotremoveactivities);
 
     // 2. User Login.
     $user = core_user::get_user_by_username(user::USERNAME_WS);

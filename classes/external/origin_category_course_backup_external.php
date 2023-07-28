@@ -113,7 +113,7 @@ class origin_category_course_backup_external extends external_api {
                     $object->origin_course_id = $courseid;
                     $object->origin_category_id = null;
                     // TODO. Revisar pliego.
-                    $object->origin_enrolusers = 0;
+                    $object->origin_enrolusers = $configuration['origin_enrol_users'];
                     $object->origin_remove_course = 0;
                     $object->origin_schedule_datetime = null;
                     $object->origin_remove_activities = 0;
@@ -137,7 +137,8 @@ class origin_category_course_backup_external extends external_api {
 
                     $requestoriginid = coursetransfer_request::insert_or_update($object);
                     coursetransfer::create_task_backup_course(
-                            $courseid, $res->id, $verifydestiny['data'], $requestid, $requestoriginid);
+                            $courseid, $res->id, $verifydestiny['data'], $requestid, $requestoriginid,
+                            $configuration['origin_enrol_users']);
                     $data->origin_backup_size_estimated = $object->origin_backup_size_estimated;
                     $data->request_origin_id = $requestoriginid;
                     $success = true;
