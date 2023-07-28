@@ -596,11 +596,11 @@ class coursetransfer {
             } else {
                 // 4b. Update Request DB Errors.
                 $err = $res->errors;
-                $er = current($err);
+                $er = isset($err['code']) ? $err : current($err);
                 $errors = array_merge($errors, $res->errors);
                 $requestobject->status = 0;
-                $requestobject->error_code = $er->code;
-                $requestobject->error_message = $er->msg;
+                $requestobject->error_code = $er['code'];
+                $requestobject->error_message = $er['msg'];
                 coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
                 $success = false;
             }

@@ -215,13 +215,15 @@ try {
     } else {
         if ($destinytarget === backup::TARGET_NEW_COURSE) {
             // 5b. Remove new course.
-            delete_course($destinycourseid);
+            delete_course($destinycourseid, false);
         }
         cli_writeln(json_encode($errors));
         exit(1);
     }
 
 } catch (moodle_exception $e) {
+    // 5b. Remove new course.
+    delete_course($destinycourseid, false);
     cli_writeln('300500: ' . $e->getMessage());
     exit(1);
 }
