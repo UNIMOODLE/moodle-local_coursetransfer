@@ -26,7 +26,10 @@ namespace local_coursetransfer;
 
 use backup;
 use backup_controller;
+use base_plan_exception;
 use base_setting;
+use base_setting_exception;
+use cm_info;
 use coding_exception;
 use context_course;
 use core_course_category;
@@ -43,6 +46,7 @@ use local_coursetransfer\task\download_file_course_task;
 use moodle_exception;
 use moodle_url;
 use restore_controller;
+use section_info;
 use stdClass;
 use stored_file;
 use stored_file_creation_exception;
@@ -411,11 +415,15 @@ class coursetransfer {
      * @param stdClass $destinysite
      * @param int $requestid
      * @param int $requestoriginid
+     * @param array $sections
      * @param int $rootusers
-     * @throws \base_plan_exception
+     * @throws base_plan_exception
+     * @throws base_setting_exception
+     * @throws moodle_exception
      */
     public static function create_task_backup_course(
-            int $courseid, int $userid, stdClass $destinysite, int $requestid, int $requestoriginid, int $rootusers = 0) {
+            int $courseid, int $userid, stdClass $destinysite, int $requestid, int $requestoriginid,
+            array $sections, int $rootusers = 0) {
         $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
                 backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, backup::RELEASESESSION_NO);
         $bc->set_status(backup::STATUS_AWAITING);
@@ -424,6 +432,11 @@ class coursetransfer {
         $bc->get_plan()->get_setting('comments')->set_value($rootusers);
         $bc->get_plan()->get_setting('badges')->set_value($rootusers);
         $bc->get_plan()->get_setting('userscompletion')->set_value($rootusers);
+
+        self::set_value_settings_section_activities($bc, $courseid, $rootusers, $sections);
+
+        //error_log($bc->get_plan()->debug_display_all_settings_values());
+
         $bc->set_execution(backup::EXECUTION_DELAYED);
         $bc->save_controller();
         $backupid = $bc->get_backupid();
@@ -438,6 +451,77 @@ class coursetransfer {
                 ]);
         $asynctask->set_userid($userid);
         \core\task\manager::queue_adhoc_task($asynctask);
+    }
+
+    /**
+     * Set Value in settings for sections and activities.
+     *
+     * @param backup_controller $bc
+     * @param int $courseid
+     * @param int $rootusers
+     * @param array $sectionsselected
+     * @throws base_plan_exception
+     * @throws base_setting_exception
+     * @throws moodle_exception
+     */
+    public static function set_value_settings_section_activities(backup_controller $bc, int $courseid, int $rootusers,
+            array $sectionsselected) {
+        if (!empty($sectionsselected)) {
+            $bc->get_plan()->set_excluding_activities();
+            $modinfo = get_fast_modinfo($courseid);
+            $sections = $modinfo->get_section_info_all();
+            $cms = $modinfo->get_cms();
+            foreach ($sections as $section) {
+                $value = self::section_is_included($section, $sectionsselected);
+                $rootusers = ($value === 1) && ($rootusers === 1);
+                $bc->get_plan()->get_setting('section_' . $section->id . '_included')->set_value($value);
+                $bc->get_plan()->get_setting('section_' . $section->id . '_userinfo')->set_value($rootusers);
+            }
+            foreach ($cms as $cm) {
+                $value = self::cm_is_included($cm, $sectionsselected);
+                $rootusers = ($value === 1) && ($rootusers === 1);
+                $bc->get_plan()->get_setting($cm->modname . '_' . $cm->id . '_included')->set_value($value);
+                $bc->get_plan()->get_setting($cm->modname . '_' . $cm->id . '_userinfo')->set_value($rootusers);
+            }
+        }
+    }
+
+    /**
+     * Section is included?
+     *
+     * @param section_info $section
+     * @param array $sections
+     * @return int
+     */
+    protected static function section_is_included(section_info $section, array $sections): int {
+        foreach ($sections as $s) {
+            if ($section->id === $s['sectionid']) {
+                if ($s['selected']) {
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Course Module is included?
+     *
+     * @param cm_info $cm
+     * @param array $sections
+     * @return int
+     */
+    protected static function cm_is_included(cm_info $cm, array $sections): int {
+        foreach ($sections as $s) {
+            foreach ($s['activities'] as $activity) {
+                if ($cm->id === $activity['cmid']) {
+                    if ($activity['selected']) {
+                        return 1;
+                    }
+                }
+            }
+        }
+        return 0;
     }
 
     /**

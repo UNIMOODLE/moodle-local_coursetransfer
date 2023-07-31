@@ -39,11 +39,11 @@ $usage = 'CLI de restauracion de cursos.
 Usage:
     # php restore_course.php
         --site_url=<site_url>
+        --destiny_target=<destiny_target>
         --origin_course_id=<origin_course_id>
         --destiny_course_id=<destiny_course_id>
         --destiny_category_id=<destiny_category_id>
         --origin_enrolusers=<origin_enrolusers>
-        --destiny_target=<destiny_target>
         --destiny_remove_enrols=<destiny_remove_enrols>
         --destiny_remove_groups=<destiny_remove_groups>
         --origin_remove_course=<origin_remove_course>
@@ -51,14 +51,14 @@ Usage:
         --destiny_not_remove_activities=<destiny_not_remove_activities>
 
     --site_url=<site_url> Origin Site URL (string)
+    --destiny_target=<destiny_target> 2: In New Course,
+                                      3: Merge the backup course into this course,
+                                      4: Remove Content (Section & Activities)
+                                      (Int Enum)
     --origin_course_id=<origin_course_id>  Origin Course ID (int).
     --destiny_course_id=<destiny_course_id>  Destiny Course ID (int). (Optional - New Course)
     --destiny_category_id=<destiny_category_id>  Category ID (int). (Optional - Superior Category)
-    --origin_enrolusers=<origin_enrolusers>  Include enrolled users data (Boolean).
-    --destiny_target=<destiny_target> 2: In New Course,
-                                      4: Remove Content (Section & Activities),
-                                      3: Merge the backup course into this course
-                                      (Int Enum)
+    --origin_enrolusers=<origin_enrolusers>  Include enrolled users data. Default: false (Boolean).
     --destiny_remove_enrols=<destiny_remove_enrols> Remove Enrols (Boolean).
     --destiny_remove_groups=<destiny_remove_groups> Remove Groups (Boolean).
     --origin_remove_course=<origin_remove_course>   Remove Origin Course (Boolean).
