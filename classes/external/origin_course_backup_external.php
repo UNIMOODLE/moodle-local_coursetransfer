@@ -57,10 +57,9 @@ class origin_course_backup_external extends external_api {
                 'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site'),
                 'configuration' => new external_single_structure(
                         array(
-                               'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
+                               'destiny_target' => new external_value(PARAM_INT, 'Destiny Target'),
                                'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
                                'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
-                               'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
                                'origin_remove_course' => new external_value(PARAM_BOOL,
                                                'Origin Remove Course', VALUE_DEFAULT, false),
                                'origin_enrol_users' => new external_value(PARAM_BOOL,
@@ -157,11 +156,10 @@ class origin_course_backup_external extends external_api {
                         $object->origin_backup_url = null;
                         $object->destiny_course_id = $destinycourseid;
                         $object->destiny_category_id = null;
-                        $object->destiny_remove_activities = $configuration['destiny_remove_activities'];
-                        $object->destiny_merge_activities = $configuration['destiny_merge_activities'];
                         $object->destiny_remove_enrols = $configuration['destiny_remove_enrols'];
                         $object->destiny_remove_groups = $configuration['destiny_remove_groups'];
                         $object->origin_remove_course = $configuration['origin_remove_course'];
+                        $object->destiny_target = $configuration['destiny_target'];
 
                         $object->error_code = null;
                         $object->error_message = null;

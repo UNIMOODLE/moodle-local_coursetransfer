@@ -26,12 +26,6 @@ namespace local_coursetransfer\models;
 
 class configuration {
 
-    /** @var bool Destinity Remove Activities */
-    public $destinyremoveactivities;
-
-    /** @var bool Destinity Merge Activities */
-    public $destinymergeactivities;
-
     /** @var bool Destinity Remove Enrols */
     public $destinyremoveenrols;
 
@@ -50,8 +44,6 @@ class configuration {
     /**
      * constructor.
      *
-     * @param bool $destinyremoveactivities
-     * @param bool $destinymergeactivities
      * @param bool $destinyremoveenrols
      * @param bool $destinyremovegroups
      * @param bool $originremovecourse
@@ -59,34 +51,13 @@ class configuration {
      * @param string $destinynotremoveactivities
      */
     public function __construct(
-            bool $destinyremoveactivities, bool $destinymergeactivities, bool $destinyremoveenrols,
-    bool $destinyremovegroups, bool $originremovecourse, bool $originenrolusers,
+            bool $destinyremoveenrols, bool $destinyremovegroups, bool $originremovecourse, bool $originenrolusers,
             string $destinynotremoveactivities = '') {
-        $this->set_destiny_remove_activities($destinyremoveactivities);
-        $this->set_destiny_merge_activities($destinymergeactivities);
         $this->set_destiny_remove_enrols($destinyremoveenrols);
         $this->set_destiny_remove_groups($destinyremovegroups);
         $this->set_origin_remove_course($originremovecourse);
         $this->set_origin_enrol_users($originenrolusers);
         $this->set_destiny_notremove_activities($destinynotremoveactivities);
-    }
-
-    /**
-     * Set Destiny Remove Activities.
-     *
-     * @param bool $config
-     */
-    protected function set_destiny_remove_activities(bool $config) {
-        $this->destinyremoveactivities = $config;
-    }
-
-    /**
-     * Set Destiny Merge Activities.
-     *
-     * @param bool $config
-     */
-    protected function set_destiny_merge_activities(bool $config) {
-        $this->destinymergeactivities = $config;
     }
 
     /**

@@ -27,8 +27,6 @@
                 <FIELD NAME="origin_backup_url" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="URL Backup"/>
                 <FIELD NAME="destiny_course_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Course ID where restore origin course"/>
                 <FIELD NAME="destiny_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Category ID where restore origin course"/>
-                <FIELD NAME="destiny_remove_activities" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
-                <FIELD NAME="destiny_merge_activities" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't merge, 1 = merge"/>
                 <FIELD NAME="destiny_remove_enrols" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove enrol, 1 = remove enrol"/>
                 <FIELD NAME="destiny_remove_groups" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove groups, 1 = remove groups"/>
                 <FIELD NAME="destiny_target" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="3" COMMENT="TARGET_NEW_COURSE = 2; TARGET_EXISTING_DELETING = 3; TARGET_EXISTING_ADDING = 4;"/>

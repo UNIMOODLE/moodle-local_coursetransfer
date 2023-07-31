@@ -191,8 +191,6 @@ try {
 
     // 1. Setup Configuration.
     $configuration = new configuration(
-            $destinytarget === backup::TARGET_EXISTING_DELETING,
-            $destinytarget === backup::TARGET_EXISTING_ADDING,
             $destinyremoveenrols, $destinyremovegroups, $originremovecourse, $originenrolusers, $destinynotremoveactivities);
 
     // 2. User Login.

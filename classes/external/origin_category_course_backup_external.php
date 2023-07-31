@@ -124,8 +124,6 @@ class origin_category_course_backup_external extends external_api {
                     $object->origin_backup_url = null;
                     $object->destiny_course_id = $destinycourseid;
                     $object->destiny_category_id = null;
-                    $object->destiny_remove_activities = $configuration['destiny_remove_activities'];
-                    $object->destiny_merge_activities = $configuration['destiny_merge_activities'];
                     $object->destiny_remove_enrols = $configuration['destiny_remove_enrols'];
                     $object->destiny_remove_groups = $configuration['destiny_remove_groups'];
 

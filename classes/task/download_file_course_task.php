@@ -51,7 +51,6 @@ class download_file_course_task extends \core\task\adhoc_task {
         $this->log_start("Download File Backup Course Remote and Restore Starting...");
         $fileurle = $this->get_custom_data()->fileurl;
         $request = $this->get_custom_data()->request;
-        $target = $this->get_custom_data()->target;
 
         try {
 
@@ -79,7 +78,7 @@ class download_file_course_task extends \core\task\adhoc_task {
             $request->status = 70;
             coursetransfer_request::insert_or_update($request, $request->id);
 
-            coursetransfer::create_task_restore_course($request, $file, $target);
+            coursetransfer::create_task_restore_course($request, $file);
 
             $this->log('Restore in Moodle Success!');
             $request->status = 100;

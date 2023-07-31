@@ -424,8 +424,12 @@ class coursetransfer {
     public static function create_task_backup_course(
             int $courseid, int $userid, stdClass $destinysite, int $requestid, int $requestoriginid,
             array $sections, int $rootusers = 0) {
-        $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
-                backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, backup::RELEASESESSION_NO);
+        $bc = new backup_controller(
+                backup::TYPE_1COURSE, $courseid,
+                backup::FORMAT_MOODLE,
+                backup::INTERACTIVE_NO,
+                backup::MODE_GENERAL, $userid,
+                backup::RELEASESESSION_NO);
         $bc->set_status(backup::STATUS_AWAITING);
         $bc->get_plan()->get_setting('users')->set_value($rootusers);
         $bc->get_plan()->get_setting('role_assignments')->set_value($rootusers);
@@ -529,11 +533,11 @@ class coursetransfer {
      * @param string $fileurl
      * @param int $target
      */
-    public static function create_task_download_course(stdClass $request, string $fileurl, int $target) {
+    public static function create_task_download_course(stdClass $request, string $fileurl) {
         $asynctask = new download_file_course_task();
         $asynctask->set_blocking(false);
         $asynctask->set_custom_data(
-                array('request' => $request, 'fileurl' => $fileurl, 'target' => $target)
+                array('request' => $request, 'fileurl' => $fileurl)
         );
         \core\task\manager::queue_adhoc_task($asynctask);
     }
@@ -543,18 +547,18 @@ class coursetransfer {
      *
      * @param stdClass $request
      * @param stored_file $file
-     * @param int $target
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function create_task_restore_course(stdClass $request, stored_file $file, int $target) {
+    public static function create_task_restore_course(stdClass $request, stored_file $file) {
         try {
-            $courseid = $request->destiny_course_id;
-            $userid = $request->userid;
+            $courseid = (int)$request->destiny_course_id;
+            $userid = (int)$request->userid;
             $fullname = $request->origin_course_fullname;
             $shortname = $request->origin_course_shortname;
-            $removeenrols = $request->destiny_remove_enrols;
-            $removegroups = $request->destiny_remove_groups;
+            $removeenrols = (int)$request->destiny_remove_enrols;
+            $removegroups = (int)$request->destiny_remove_groups;
+            $target = (int)$request->destiny_target;
 
             $backuptmpdir = 'local_coursetransfer';
 
@@ -572,8 +576,8 @@ class coursetransfer {
                 $keeprolesenrolments = 0;
                 $keepgroupsgroupings = 0;
             } else {
-                $keeprolesenrolments = (int)$removeenrols === 1 ? 0 : 1;
-                $keepgroupsgroupings = (int)$removegroups === 1 ? 0 : 1;
+                $keeprolesenrolments = $removeenrols === 1 ? 0 : 1;
+                $keepgroupsgroupings = $removegroups === 1 ? 0 : 1;
             }
 
             $restoreoptions = [

@@ -206,14 +206,11 @@ class coursetransfer_request {
         if (!in_array($object->origin_enrolusers, [0, 1])) {
             throw new moodle_exception('ORIGIN ENROL USERS IS NOT VALID');
         }
+        if (!in_array($object->destiny_target, [2, 3, 4])) {
+            throw new moodle_exception('DESTINY TARGET IS NOT VALID (2,3,4)');
+        }
         if (!in_array($object->origin_remove_course, [0, 1])) {
             throw new moodle_exception('ORIGIN REMOVE COURSE IS NOT VALID');
-        }
-        if (!in_array($object->destiny_remove_activities, [0, 1])) {
-            throw new moodle_exception('DESTINY REMOVE ACTIVITIES IS NOT VALID');
-        }
-        if (!in_array($object->destiny_merge_activities, [0, 1])) {
-            throw new moodle_exception('DESTINY MERGE ACTIVITIES IS NOT VALID');
         }
         if (!in_array($object->destiny_remove_enrols, [0, 1])) {
             throw new moodle_exception('DESTINY REMOVE ENROLS IS NOT VALID');
@@ -258,8 +255,6 @@ class coursetransfer_request {
         $object->origin_enrolusers = $configuration->originenrolusers;
         $object->request_category_id = $requestcatid;
         $object->origin_activities = json_encode($sections);
-        $object->destiny_remove_activities = $configuration->destinyremoveactivities;
-        $object->destiny_merge_activities = $configuration->destinymergeactivities;
         $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
         $object->destiny_remove_groups = $configuration->destinyremovegroups;
         $object->origin_remove_course = $configuration->originremovecourse;
@@ -297,8 +292,6 @@ class coursetransfer_request {
         $object->origin_activities = '[]';
         $object->origin_category_courses = json_encode($courses);
         $object->origin_enrolusers = $configuration->originenrolusers;
-        $object->destiny_remove_activities = $configuration->destinyremoveactivities;
-        $object->destiny_merge_activities = $configuration->destinymergeactivities;
         $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
         $object->destiny_remove_groups = $configuration->destinyremovegroups;
         $object->origin_remove_course = $configuration->originremovecourse;

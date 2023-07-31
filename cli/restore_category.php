@@ -172,8 +172,7 @@ $errors = [];
 try {
 
     // 1. Setup Configuration.
-    $configuration = new configuration($destinyremoveactivities, $destinymergeactivities, $destinyremoveenrols,
-            $destinyremovegroups, $originremovecourse);
+    $configuration = new configuration($destinyremoveenrols, $destinyremovegroups, $originremovecourse, $originenrolusers);
 
     // 2. User Login.
     $user = core_user::get_user_by_username(user::USERNAME_WS);
