@@ -435,8 +435,6 @@ class coursetransfer {
 
         self::set_value_settings_section_activities($bc, $courseid, $rootusers, $sections);
 
-        //error_log($bc->get_plan()->debug_display_all_settings_values());
-
         $bc->set_execution(backup::EXECUTION_DELAYED);
         $bc->save_controller();
         $backupid = $bc->get_backupid();
@@ -570,14 +568,21 @@ class coursetransfer {
 
             $fb->extract_to_pathname($file, $backuptempdir . '/' . $filepath . '/');
 
+            if ($target !== backup::TARGET_EXISTING_DELETING && $target !== backup::TARGET_CURRENT_DELETING) {
+                $keeprolesenrolments = 0;
+                $keepgroupsgroupings = 0;
+            } else {
+                $keeprolesenrolments = (int)$removeenrols === 1 ? 0 : 1;
+                $keepgroupsgroupings = (int)$removegroups === 1 ? 0 : 1;
+            }
+
             $restoreoptions = [
-                    'overwrite_conf' => 0,
-                    'keep_roles_and_enrolments' => $removeenrols,
-                    'keep_groups_and_groupings' => $removegroups,
+                    'overwrite_conf' => 1,
+                    'keep_roles_and_enrolments' => $keeprolesenrolments,
+                    'keep_groups_and_groupings' => $keepgroupsgroupings,
             ];
 
             if ($target === backup::TARGET_NEW_COURSE) {
-                $restoreoptions['overwrite_conf'] = 1;
                 $restoreoptions['course_fullname'] = $fullname;
                 $restoreoptions['course_shortname'] = $shortname;
             }

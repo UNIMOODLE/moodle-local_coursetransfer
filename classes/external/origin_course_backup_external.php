@@ -124,8 +124,6 @@ class origin_course_backup_external extends external_api {
             ]
         );
 
-        error_log(json_encode($sections));
-
         $errors = [];
         $data = new stdClass();
         $data->requestid = $requestid;

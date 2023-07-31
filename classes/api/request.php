@@ -323,7 +323,7 @@ class request {
         } catch (\Exception $e) {
             $error = new stdClass();
             $error->code = '200003';
-            $error->msg = $e->getMessage();
+            $error->msg = $wsname . ': ' . $e->getMessage();
             return new response(false, null, [$error]);
         }
     }

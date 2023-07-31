@@ -52,15 +52,15 @@ Usage:
 
     --site_url=<site_url> Origin Site URL (string)
     --destiny_target=<destiny_target> 2: In New Course,
-                                      3: Merge the backup course into this course,
-                                      4: Remove Content (Section & Activities)
+                                      3: Remove Content (Section & Activities),
+                                      4: Merge the backup course into this course
                                       (Int Enum)
     --origin_course_id=<origin_course_id>  Origin Course ID (int).
     --destiny_course_id=<destiny_course_id>  Destiny Course ID (int). (Optional - New Course)
     --destiny_category_id=<destiny_category_id>  Category ID (int). (Optional - Superior Category)
     --origin_enrolusers=<origin_enrolusers>  Include enrolled users data. Default: false (Boolean).
-    --destiny_remove_enrols=<destiny_remove_enrols> Remove Enrols (Boolean).
-    --destiny_remove_groups=<destiny_remove_groups> Remove Groups (Boolean).
+    --destiny_remove_enrols=<destiny_remove_enrols> Remove Enrols (only in target: 4 - Remove Content) (Boolean).
+    --destiny_remove_groups=<destiny_remove_groups> Remove Groups (only in target: 4 - Remove Content) (Boolean).
     --origin_remove_course=<origin_remove_course>   Remove Origin Course (Boolean).
     --origin_schedule_datetime=<origin_schedule_datetime>   Date in UNIX timestamp (int).
     --destiny_not_remove_activities=<destiny_not_remove_activities> cmids separated by coma (string).
@@ -74,11 +74,11 @@ Examples:
 
     # php local/coursetransfer/cli/restore_course.php
         --site_url=https://origen.dominio
+        --destiny_target=2
         --origin_course_id=12
         --destiny_course_id=12
         --destiny_category_id=101
         --origin_enrolusers=true
-        --destiny_target=2
         --destiny_remove_enrols=false
         --destiny_remove_groups=false
         --origin_remove_course=false

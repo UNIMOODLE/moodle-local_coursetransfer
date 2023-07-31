@@ -82,13 +82,15 @@ try {
     if ($request) {
         foreach ($request as $key => $item) {
             if ($key === 'origin_category_courses') {
-                $courses = json_decode($item);
                 $coursesid = '';
-                foreach ($courses as $course) {
-                    if (empty($coursesid)) {
-                        $coursesid .= $course->id;
-                    } else {
-                        $coursesid .= '-'. $course->id;
+                if (!is_null($item)) {
+                    $courses = json_decode($item);
+                    foreach ($courses as $course) {
+                        if (empty($coursesid)) {
+                            $coursesid .= $course->id;
+                        } else {
+                            $coursesid .= '-'. $course->id;
+                        }
                     }
                 }
                 cli_writeln( $key . ': ' . $coursesid);
