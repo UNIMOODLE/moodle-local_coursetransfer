@@ -26,17 +26,20 @@ namespace local_coursetransfer\models;
 
 class configuration {
 
+    /** @var int Destinity Target: 2: New Course, 3: Remove Content , 4: Merge the backup course into this course */
+    public $destinytarget;
+
     /** @var bool Destinity Remove Enrols */
     public $destinyremoveenrols;
 
     /** @var bool Destinity Remove Groups */
     public $destinyremovegroups;
 
-    /** @var bool Origin Remove Course */
-    public $originremovecourse;
-
     /** @var bool Origin Enrol Users */
     public $originenrolusers;
+
+    /** @var bool Origin Remove Course */
+    public $originremovecourse;
 
     /** @var string Destinity Not Remove Activities */
     public $destinynotremoveactivities;
@@ -44,6 +47,7 @@ class configuration {
     /**
      * constructor.
      *
+     * @param int $destinytarget
      * @param bool $destinyremoveenrols
      * @param bool $destinyremovegroups
      * @param bool $originremovecourse
@@ -51,13 +55,23 @@ class configuration {
      * @param string $destinynotremoveactivities
      */
     public function __construct(
-            bool $destinyremoveenrols, bool $destinyremovegroups, bool $originremovecourse, bool $originenrolusers,
-            string $destinynotremoveactivities = '') {
+            int $destinytarget, bool $destinyremoveenrols, bool $destinyremovegroups, bool $originremovecourse,
+            bool $originenrolusers, string $destinynotremoveactivities = '') {
+        $this->set_destiny_target($destinytarget);
         $this->set_destiny_remove_enrols($destinyremoveenrols);
         $this->set_destiny_remove_groups($destinyremovegroups);
-        $this->set_origin_remove_course($originremovecourse);
         $this->set_origin_enrol_users($originenrolusers);
+        $this->set_origin_remove_course($originremovecourse);
         $this->set_destiny_notremove_activities($destinynotremoveactivities);
+    }
+
+    /**
+     * Set Destiny Remove Enrols.
+     *
+     * @param int $config
+     */
+    protected function set_destiny_target(int $config) {
+        $this->destinytarget = $config;
     }
 
     /**

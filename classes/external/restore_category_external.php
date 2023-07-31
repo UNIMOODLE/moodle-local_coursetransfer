@@ -191,7 +191,7 @@ class restore_category_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
-            $configuration = new configuration(false, false, false, false, false, '');
+            $configuration = new configuration(2, false, false, false, false, '');
             $res = coursetransfer::restore_category($site, $destinyid, $categoryid, $configuration, $courses);
             $errors = array_merge($errors, $res['errors']);
             $success = $res['success'];

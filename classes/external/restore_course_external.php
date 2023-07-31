@@ -153,10 +153,8 @@ class restore_course_external extends external_api {
                 'destinyid' => new external_value(PARAM_INT, 'Destiny ID'),
                 'configuration' => new external_single_structure(
                     array(
-                        'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
                         'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
                         'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
-                        'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities')
                     )
                 ),
                 'sections' => new external_multiple_structure(new external_single_structure(
@@ -214,7 +212,7 @@ class restore_course_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
-            $configuration = new configuration($configuration['destiny_remove_enrols'],
+            $configuration = new configuration(2, $configuration['destiny_remove_enrols'],
                     $configuration['destiny_remove_groups'], false, '');
             $res = coursetransfer::restore_course($site, $destinyid, $courseid, $configuration, $sections);
             $success = $res['success'];
