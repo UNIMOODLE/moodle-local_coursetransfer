@@ -497,8 +497,8 @@ class coursetransfer {
      */
     protected static function section_is_included(section_info $section, array $sections): int {
         foreach ($sections as $s) {
-            if ($section->id === $s['sectionid']) {
-                if ($s['selected']) {
+            if ((int)$section->id === (int)$s['sectionid']) {
+                if ((int)$s['selected'] === 1) {
                     return 1;
                 }
             }
@@ -516,8 +516,8 @@ class coursetransfer {
     protected static function cm_is_included(cm_info $cm, array $sections): int {
         foreach ($sections as $s) {
             foreach ($s['activities'] as $activity) {
-                if ($cm->id === $activity['cmid']) {
-                    if ($activity['selected']) {
+                if ((int)$cm->id === (int)$activity['cmid']) {
+                    if ((int)$activity['selected'] === 1) {
                         return 1;
                     }
                 }
