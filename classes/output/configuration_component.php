@@ -65,11 +65,11 @@ class configuration_component implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();
         $data->id = $this->id;
-        $data->destiny_remove_activities = $this->configuration[0];
-        $data->destiny_merge_activities = $this->configuration[1];
-        $data->destiny_remove_enrols = $this->configuration[2];
-        $data->destiny_remove_groups = $this->configuration[3];
-        $data->course_new = (int)$this->configuration[4] === backup::TARGET_NEW_COURSE;
+        $data->destiny_remove_activities = $this->configuration[0] === backup::TARGET_EXISTING_DELETING;
+        $data->destiny_merge_activities = $this->configuration[0] === backup::TARGET_EXISTING_ADDING;
+        $data->destiny_remove_enrols = $this->configuration[1];
+        $data->destiny_remove_groups = $this->configuration[2];
+        $data->course_new = (int)$this->configuration[0] === backup::TARGET_NEW_COURSE;
         return $data;
     }
 }

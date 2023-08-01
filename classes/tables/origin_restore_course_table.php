@@ -167,11 +167,9 @@ class origin_restore_course_table extends table_sql {
     public function col_configuration(stdClass $row): string {
         global $PAGE;
         $configuration = [
-                $row->destiny_remove_activities,
-                $row->destiny_merge_activities,
-                $row->destiny_remove_enrols,
-                $row->destiny_remove_groups,
-                $row->destiny_target
+                (int)$row->destiny_target,
+                (int)$row->destiny_remove_enrols,
+                (int)$row->destiny_remove_groups
         ];
         $output = $PAGE->get_renderer('local_coursetransfer');
         $component = new \local_coursetransfer\output\configuration_component($configuration, $row->id);

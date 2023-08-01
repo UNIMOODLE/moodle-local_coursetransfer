@@ -45,10 +45,10 @@
                         <li class="configuration-group">
                             <div class="checkbox">
                                 {{#destiny_merge_activities}}
-                                <input class="configuration-checkbox" id="destiny_merge_activities" type="radio" disabled checked>
+                                    <i class="fa fa-check-circle-o text-success" aria-hidden="true"></i>
                                 {{/destiny_merge_activities}}
                                 {{^destiny_merge_activities}}
-                                    <input class="configuration-checkbox" id="destiny_merge_activities" type="radio" disabled>
+                                    <i class="fa fa-circle-o text-muted" aria-hidden="true"></i>
                                 {{/destiny_merge_activities}}
                             </div>
                             <div class="config-info">
@@ -59,10 +59,10 @@
                         <li class="configuration-group">
                             <div class="checkbox">
                                 {{#destiny_remove_activities}}
-                                    <input class="configuration-checkbox" id="destiny_remove_activities" type="radio" disabled checked>
+                                    <i class="fa fa-check-circle-o text-success" aria-hidden="true"></i>
                                 {{/destiny_remove_activities}}
                                 {{^destiny_remove_activities}}
-                                    <input class="configuration-checkbox" id="destiny_remove_activities" type="radio" disabled>
+                                    <i class="fa fa-circle-o text-muted" aria-hidden="true"></i>
                                 {{/destiny_remove_activities}}
                             </div>
                             <div class="config-info">
@@ -77,10 +77,10 @@
                         <li class="configuration-group">
                             <div class="checkbox">
                                 {{#destiny_remove_enrols}}
-                                    <input class="configuration-checkbox" id="destiny_remove_enrols" type="checkbox" disabled checked>
+                                    <i class="fa fa-check-circle-o text-success" aria-hidden="true"></i>
                                 {{/destiny_remove_enrols}}
                                 {{^destiny_remove_enrols}}
-                                    <input class="configuration-checkbox" id="destiny_remove_enrols" type="checkbox" disabled>
+                                    <i class="fa fa-circle-o text-muted" aria-hidden="true"></i>
                                 {{/destiny_remove_enrols}}
                             </div>
                             <div class="config-info">
@@ -91,10 +91,10 @@
                         <li class="configuration-group">
                             <div class="checkbox">
                                 {{#destiny_remove_groups}}
-                                    <input class="configuration-checkbox" id="destiny_remove_groups" type="checkbox" disabled checked>
+                                    <i class="fa fa-check-circle-o text-success" aria-hidden="true"></i>
                                 {{/destiny_remove_groups}}
                                 {{^destiny_remove_groups}}
-                                    <input class="configuration-checkbox" id="destiny_remove_groups" type="checkbox" disabled>
+                                    <i class="fa fa-circle-o text-muted" aria-hidden="true"></i>
                                 {{/destiny_remove_groups}}
                             </div>
                             <div class="config-info">
@@ -145,5 +145,13 @@
     }
     div[data-region='table_configuration_component'] input[type="checkbox"]:checked, input[type="checkbox"]:active, input[type="checkbox"]:disabled {
         box-shadow: none;
+    }
+    div[data-region='table_configuration_component'] .checkbox i.fa {
+        font-size: 20px;
+        padding-top: 3px;
+    }
+
+    div[data-region='table_configuration_component'] .checkbox i.fa.text-success {
+        color: #21c235 !important;
     }
 </style>

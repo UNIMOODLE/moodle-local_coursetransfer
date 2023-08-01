@@ -144,7 +144,9 @@ class origin_course_backup_external extends external_api {
                         $object->destiny_request_id = $requestid;
                         $object->request_category_id = null;
                         $object->origin_course_id = $course->id;
-                        $object->origin_category_id = null;
+                        $object->origin_course_fullname = $course->fullname;
+                        $object->origin_course_shortname = $course->shortname;
+                        $object->origin_category_id = $course->category;
 
                         $object->origin_enrolusers = $configuration['origin_enrol_users'];
                         $object->origin_schedule_datetime = null;
