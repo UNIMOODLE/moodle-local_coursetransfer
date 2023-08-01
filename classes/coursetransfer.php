@@ -485,14 +485,17 @@ class coursetransfer {
                 $bc->get_plan()->get_setting($nameuserinfo)->set_value($rootusers);
             }
             foreach ($cms as $cm) {
-                $value = self::cm_is_included($cm, $sectionsselected);
-                $rootusers = ($value === 1) && ($rootusers === 1);
-                $nameincluded = $cm->modname . '_' . $cm->id . '_included';
-                //error_log('** cm name included: ' . $nameincluded);
-                $bc->get_plan()->get_setting($nameincluded)->set_value($value);
-                $nameuserinfo = $cm->modname . '_' . $cm->id . '_userinfo';                error_log('** name userinfo: ' . $nameuserinfo);
-                //error_log('** cm name userinfo: ' . $nameuserinfo);
-                $bc->get_plan()->get_setting($nameuserinfo)->set_value($rootusers);
+                if (!$cm->deletioninprogress) {
+                    $value = self::cm_is_included($cm, $sectionsselected);
+                    $rootusers = ($value === 1) && ($rootusers === 1);
+                    $nameincluded = $cm->modname . '_' . $cm->id . '_included';
+                    //error_log('** cm name included: ' . $nameincluded);
+                    $bc->get_plan()->get_setting($nameincluded)->set_value($value);
+                    $nameuserinfo = $cm->modname . '_' . $cm->id . '_userinfo';
+                    //error_log('** cm name userinfo: ' . $nameuserinfo);
+                    $bc->get_plan()->get_setting($nameuserinfo)->set_value($rootusers);
+                }
+
             }
         }
     }
