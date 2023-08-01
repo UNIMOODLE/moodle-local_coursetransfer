@@ -30,7 +30,6 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
-use local_coursetransfer\models\configuration;
 use local_coursetransfer\models\configuration_category;
 use moodle_exception;
 use moodle_url;

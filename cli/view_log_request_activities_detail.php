@@ -23,8 +23,6 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_coursetransfer\coursetransfer;
-
 define('CLI_SCRIPT', 1);
 
 require(__DIR__.'/../../../config.php');

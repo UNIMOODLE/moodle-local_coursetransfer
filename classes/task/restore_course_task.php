@@ -27,7 +27,6 @@ namespace local_coursetransfer\task;
 
 use backup;
 use local_coursetransfer\coursetransfer_request;
-use local_coursetransfer\factory\course;
 use moodle_exception;
 use restore_controller;
 

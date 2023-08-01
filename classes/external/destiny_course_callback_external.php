@@ -22,7 +22,6 @@
 
 namespace local_coursetransfer\external;
 
-use backup;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;

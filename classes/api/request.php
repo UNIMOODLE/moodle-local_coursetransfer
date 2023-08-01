@@ -26,7 +26,6 @@ namespace local_coursetransfer\api;
 
 use dml_exception;
 use local_coursetransfer\coursetransfer;
-use local_coursetransfer\models\configuration;
 use local_coursetransfer\models\configuration_course;
 use stdClass;
 

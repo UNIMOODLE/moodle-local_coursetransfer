@@ -25,7 +25,6 @@
 namespace local_coursetransfer;
 
 use dml_exception;
-use local_coursetransfer\models\configuration;
 use local_coursetransfer\models\configuration_category;
 use local_coursetransfer\models\configuration_course;
 use moodle_exception;

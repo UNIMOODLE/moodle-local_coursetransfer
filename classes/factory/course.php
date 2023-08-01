@@ -25,8 +25,6 @@
 namespace local_coursetransfer\factory;
 
 use core_course_category;
-use core_courseformat\external\update_course;
-use dml_exception;
 use moodle_exception;
 use stdClass;
 

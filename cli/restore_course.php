@@ -25,7 +25,6 @@
 
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\factory\user;
-use local_coursetransfer\models\configuration;
 use local_coursetransfer\models\configuration_course;
 
 define('CLI_SCRIPT', 1);

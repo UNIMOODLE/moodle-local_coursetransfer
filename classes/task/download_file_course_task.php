@@ -25,7 +25,6 @@
 
 namespace local_coursetransfer\task;
 
-use backup;
 use context_course;
 use dml_exception;
 use local_coursetransfer\coursetransfer;
