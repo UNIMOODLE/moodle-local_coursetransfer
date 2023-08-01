@@ -77,6 +77,7 @@ define([
         }
 
         restoreCourseStep5.prototype.clickNext = function(e) {
+            this.node.find(ACTIONS.RESTORE).prop('disabled', true);
             let self = this; // Store the reference of this.
             let alertbox = this.node.find(".alert");
             let siteurl = this.site;
