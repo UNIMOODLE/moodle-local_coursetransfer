@@ -25,6 +25,7 @@
 namespace local_coursetransfer\output;
 
 use backup;
+use local_coursetransfer\models\configuration_course;
 use renderable;
 use renderer_base;
 use stdClass;
@@ -39,7 +40,7 @@ use templatable;
  */
 class configuration_component implements renderable, templatable {
 
-    /** @var array Configuration */
+    /** @var configuration_course Configuration */
     protected $configuration;
 
     /** @var int ID */
@@ -48,10 +49,10 @@ class configuration_component implements renderable, templatable {
     /**
      *  constructor.
      *
-     * @param array $configuration
+     * @param configuration_course $configuration
      * @param int $id
      */
-    public function __construct(array $configuration, int $id) {
+    public function __construct(configuration_course $configuration, int $id) {
         $this->configuration = $configuration;
         $this->id = $id;
     }
@@ -65,11 +66,11 @@ class configuration_component implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();
         $data->id = $this->id;
-        $data->destiny_remove_activities = $this->configuration[0] === backup::TARGET_EXISTING_DELETING;
-        $data->destiny_merge_activities = $this->configuration[0] === backup::TARGET_EXISTING_ADDING;
-        $data->destiny_remove_enrols = $this->configuration[1];
-        $data->destiny_remove_groups = $this->configuration[2];
-        $data->course_new = (int)$this->configuration[0] === backup::TARGET_NEW_COURSE;
+        $data->destiny_remove_activities = $this->configuration->destinytarget === backup::TARGET_EXISTING_DELETING;
+        $data->destiny_merge_activities = $this->configuration->destinytarget === backup::TARGET_EXISTING_ADDING;
+        $data->destiny_remove_enrols = $this->configuration->destinyremoveenrols;
+        $data->destiny_remove_groups = $this->configuration->destinyremovegroups;
+        $data->course_new = $this->configuration->destinytarget === backup::TARGET_NEW_COURSE;
         return $data;
     }
 }

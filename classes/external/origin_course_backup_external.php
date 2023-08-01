@@ -167,7 +167,7 @@ class origin_course_backup_external extends external_api {
                         $object->error_message = null;
 
                         $object->userid = $res->id;
-                        $object->status = 10;
+                        $object->status = coursetransfer_request::STATUS_IN_PROGRESS;;
 
                         $requestoriginid = coursetransfer_request::insert_or_update($object);
                         coursetransfer::create_task_backup_course(

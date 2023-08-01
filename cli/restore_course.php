@@ -26,6 +26,7 @@
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\models\configuration;
+use local_coursetransfer\models\configuration_course;
 
 define('CLI_SCRIPT', 1);
 
@@ -117,13 +118,13 @@ $siteurl = $options['site_url'];
 $origincourseid = !is_null($options['origin_course_id']) ? (int) $options['origin_course_id'] : null;
 $destinycourseid = !is_null($options['destiny_course_id']) ? (int) $options['destiny_course_id'] : null;
 $destinycategoryid = !is_null($options['destiny_category_id']) ? (int) $options['destiny_category_id'] : null;
-$originenrolusers = $options['origin_enrolusers'] === 'true' ? 1 : (int) $options['origin_enrolusers'];
+$originenrolusers = $options['origin_enrolusers'] === 'true' ? 1 : 0;
 $destinytarget = !is_null($options['destiny_target']) ? (int) $options['destiny_target'] : null;
-$destinyremoveenrols = $options['destiny_remove_enrols'] === 'true' ? 1 : (int) $options['destiny_remove_enrols'];
-$destinyremovegroups = $options['destiny_remove_groups'] === 'true' ? 1 : (int) $options['destiny_remove_groups'];
-$originremovecourse = $options['origin_remove_course'] === 'true' ? 1 : (int) $options['origin_remove_course'];
+$destinyremoveenrols = $options['destiny_remove_enrols'] === 'true' ? 1 : 0;
+$destinyremovegroups = $options['destiny_remove_groups'] === 'true' ? 1 : 0;
+$originremovecourse = $options['origin_remove_course'] === 'true' ? 1 : 0;
 $destinynotremoveactivities = '';
-$originscheduledatetime = explode(',', $options['origin_schedule_datetime']);
+$originscheduledatetime = (int) $options['origin_schedule_datetime'];
 
 if (empty($siteurl)) {
     cli_writeln( get_string('site_url_required', 'local_coursetransfer') );
@@ -156,7 +157,7 @@ if ( empty($destinycourseid) && ($destinytarget === backup::TARGET_NEW_COURSE)) 
     }
     // Create new course.
     $destinycourseid = \local_coursetransfer\factory\course::create(
-            $category, 'Remote Restoring in process...', 'IN-PROGRESS-' . time(), '');
+            $category, 'Remote Restoring in process...', 'IN-PROGRESS-' . time());
 } else if ( empty($destinycourseid) && $destinytarget !== backup::TARGET_NEW_COURSE ) {
     cli_writeln( get_string('destiny_course_id_is_required', 'local_coursetransfer') );
     exit(128);
@@ -190,9 +191,9 @@ $errors = [];
 try {
 
     // 1. Setup Configuration.
-    $configuration = new configuration(
-            $destinytarget, $destinyremoveenrols,
-            $destinyremovegroups, $originremovecourse, $originenrolusers, $destinynotremoveactivities);
+    $configuration = new configuration_course(
+            $destinytarget, $destinyremoveenrols, $destinyremovegroups, $originenrolusers,
+            $originremovecourse, $destinynotremoveactivities);
 
     // 2. User Login.
     $user = core_user::get_user_by_username(user::USERNAME_WS);

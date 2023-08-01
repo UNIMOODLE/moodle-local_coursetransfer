@@ -41,6 +41,8 @@ use local_coursetransfer\api\response;
 use local_coursetransfer\factory\course;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\models\configuration;
+use local_coursetransfer\models\configuration_category;
+use local_coursetransfer\models\configuration_course;
 use local_coursetransfer\task\create_backup_course_task;
 use local_coursetransfer\task\download_file_course_task;
 use moodle_exception;
@@ -630,7 +632,7 @@ class coursetransfer {
             $rc->destroy();
 
         } catch (\Exception $e) {
-            $request->status = 0;
+            $request->status = coursetransfer_request::STATUS_ERROR;
             $request->error_code = '200320';
             $request->error_message = $e->getMessage();
             coursetransfer_request::insert_or_update($request, $request->id);
@@ -682,50 +684,16 @@ class coursetransfer {
      * @param stdClass $site
      * @param int $destinycourseid
      * @param int $origincourseid
-     * @param configuration $configuration
-     * @param int $target
+     * @param configuration_course $configuration
      * @param array|null $sections
      * @return array
      */
     public static function restore_course(
-            stdClass $site, int $destinycourseid, int $origincourseid, configuration $configuration, array $sections = []): array {
+            stdClass $site, int $destinycourseid, int $origincourseid,
+            configuration_course $configuration, array $sections = []): array {
 
         try {
-            $errors = [];
-
-            // 1. Request DB.
-            $requestobject = coursetransfer_request::set_request_restore_course(
-                    $site, $destinycourseid, $origincourseid, $configuration, $sections);
-
-            // 2. Call CURL Origin Backup Course.
-            $request = new request($site);
-            $res = $request->origin_backup_course($requestobject->id, $origincourseid, $destinycourseid, $configuration, $sections);
-
-            // 3. Success or Errors.
-            if ($res->success) {
-                // 4a. Update Request DB Completed.
-                $requestobject->status = 10;
-                $requestobject->origin_course_fullname = $res->data->course_fullname;
-                $requestobject->origin_course_shortname = $res->data->course_shortname;
-                coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
-                $success = true;
-            } else {
-                // 4b. Update Request DB Errors.
-                $err = $res->errors;
-                $errors = array_merge($errors, $res->errors);
-                $requestobject->status = 0;
-                $requestobject->error_code = $err[0]->code;
-                $requestobject->error_message = $err[0]->msg;
-                coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
-                $success = false;
-            }
-            return [
-                    'success' => $success,
-                    'errors' => $errors,
-                    'data' => [
-                            'requestid' => $requestobject->id
-                    ]
-            ];
+            return self::restore_course_unity($site, $destinycourseid, $origincourseid, $configuration, $sections);
         } catch (moodle_exception $e) {
             $error = [
                     'code' => '200330',
@@ -745,13 +713,13 @@ class coursetransfer {
      * @param stdClass $site
      * @param int $destinycategoryid
      * @param int $origincategoryid
-     * @param configuration $configuration
+     * @param configuration_category $configuration $configuration
      * @param array $courses
      * @return array
      */
     public static function restore_category(
             stdClass $site, int $destinycategoryid, int $origincategoryid,
-            configuration $configuration, array $courses = []): array {
+            configuration_category $configuration, array $courses = []): array {
 
         try {
             $request = new request($site);
@@ -778,35 +746,22 @@ class coursetransfer {
 
             foreach ($courses as $course) {
 
-                // 3. Create new course in this category.
+                // 1. Configuration Course.
+                $configurationcourse = new configuration_course($configuration->destinytarget, $configuration->destinyremovegroups,
+                $configuration->destinyremoveenrols, $configuration->originenrolusers);
+
+                // 2. Create new course in this category.
                 $destinycourseid = course::create(
                         core_course_category::get($destinycategoryid),
-                        $course->fullname, $course->shortname . uniqid(), '');
+                        $course->fullname, $course->shortname . uniqid());
                 $origincourseid = $course->id;
 
-                // 4. Course Request DB.
-                $requestobjectcourse = coursetransfer_request::set_request_restore_course(
-                        $site, $destinycourseid, $origincourseid, $configuration, [], $requestobject->id);
+                // 3. Request Restore Course.
+                $courseres = self::restore_course_unity($site, $destinycourseid, $origincourseid, $configurationcourse, []);
 
-                // 5. Call CURL Origin Backup Course.
-                $res = $request->origin_backup_course($requestobjectcourse->id, $course->id, $destinycourseid, $configuration, []);
-
-                // 6. Success or Errors.
-                if ($res->success) {
-                    // 7a. Update Course Request DB Completed.
-                    $requestobjectcourse->status = 10;
-                    coursetransfer_request::insert_or_update($requestobjectcourse, $requestobjectcourse->id);
-                    $success = true;
-                } else {
-                    // 7b. Update Request DB Errors.
-                    $err = $res->errors;
-                    $er = current($err);
-                    $errors = array_merge($errors, $res->errors);
-                    $requestobjectcourse->status = 0;
-                    $requestobjectcourse->error_code = isset($er->code) ? $er->code : '0';
-                    $requestobjectcourse->error_message = isset($er->msg) ? $er->msg : '0';
-                    coursetransfer_request::insert_or_update($requestobjectcourse, $requestobjectcourse->id);
+                if (!$courseres['success']) {
                     $success = false;
+                    $errors = array_merge($errors, $courseres['errors']);
                 }
             }
 
@@ -828,6 +783,58 @@ class coursetransfer {
                     'errors' => $errors
             ];
         }
+    }
+
+    /**
+     * Restore Course Unity.
+     *
+     * @param stdClass $site
+     * @param int $destinycourseid
+     * @param int $origincourseid
+     * @param configuration_course $configuration
+     * @param array $sections
+     * @return array
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    protected static function restore_course_unity(stdClass $site, int $destinycourseid, int $origincourseid,
+            configuration_course $configuration, array $sections = []): array {
+
+        $errors = [];
+
+        // 1. Request DB.
+        $requestobject = coursetransfer_request::set_request_restore_course(
+                $site, $destinycourseid, $origincourseid, $configuration, $sections);
+
+        // 2. Call CURL Origin Backup Course.
+        $request = new request($site);
+        $res = $request->origin_backup_course($requestobject->id, $origincourseid, $destinycourseid, $configuration, $sections);
+
+        // 3. Success or Errors.
+        if ($res->success) {
+            // 4a. Update Request DB Completed.
+            $requestobject->status = coursetransfer_request::STATUS_IN_PROGRESS;
+            $requestobject->origin_course_fullname = $res->data->course_fullname;
+            $requestobject->origin_course_shortname = $res->data->course_shortname;
+            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
+            $success = true;
+        } else {
+            // 4b. Update Request DB Errors.
+            $err = $res->errors;
+            $errors = $res->errors;
+            $requestobject->status = coursetransfer_request::STATUS_ERROR;
+            $requestobject->error_code = $err[0]->code;
+            $requestobject->error_message = $err[0]->msg;
+            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
+            $success = false;
+        }
+        return [
+                'success' => $success,
+                'errors' => $errors,
+                'data' => [
+                        'requestid' => $requestobject->id
+                ]
+        ];
     }
 
     /**

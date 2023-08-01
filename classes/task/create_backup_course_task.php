@@ -112,7 +112,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
                 $res = $request->destiny_backup_course_error($requestid, $result);
             }
             if (!$res->success) {
-                $requestorigin->status = 0;
+                $requestorigin->status = coursetransfer_request::STATUS_ERROR;
                 $requestorigin->error_code = $res->errors['code'];
                 $requestorigin->error_message = $res->errors['msg'];
                 coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);

@@ -96,7 +96,7 @@ class destiny_course_callback_external extends external_api {
                 if ($request) {
                     $origintoken = coursetransfer::get_token_origin_site($fileurl);
                     $finalurl = $fileurl . '?token=' . $origintoken;
-                    $request->status = 30;
+                    $request->status = coursetransfer_request::STATUS_BACKUP;
                     coursetransfer_request::insert_or_update($request, $requestid);
                     coursetransfer::create_task_download_course($request, $finalurl);
                 } else {
@@ -198,7 +198,7 @@ class destiny_course_callback_external extends external_api {
                     $obj->id = $requestid;
                     $obj->error_code = $errorcode;
                     $obj->error_message = $errormsg;
-                    $obj->status = 0;
+                    $obj->status = coursetransfer_request::STATUS_ERROR;
                     $DB->update_record($table, $obj);
                 } else {
                     $success = false;

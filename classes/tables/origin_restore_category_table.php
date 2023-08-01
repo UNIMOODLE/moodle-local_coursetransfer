@@ -29,6 +29,7 @@ use core_course_category;
 use core_user;
 use DateTime;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -127,7 +128,7 @@ class origin_restore_category_table extends table_sql {
      * @throws moodle_exception
      */
     public function col_status(stdClass $row): string {
-        if ( (int)$row->status === 0 ) {
+        if ( (int)$row->status === coursetransfer_request::STATUS_ERROR ) {
             return '<button type="button" class="btn btn-danger label-status" data-container="body" data-toggle="popover"
              data-placement="bottom" data-content="'. $row->error_code . ': ' . $row->error_message .'">'
                 . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
