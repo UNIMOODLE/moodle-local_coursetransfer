@@ -53,7 +53,7 @@ class new_origin_restore_course_step5_page extends new_origin_restore_course_ste
         $destinyid = required_param('id', PARAM_INT);
         $backurl = new moodle_url(
             '/local/coursetransfer/origin_restore_course.php',
-            ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $siteposition, 'restoreid' => $restoreid]
+            ['id' => $this->course->id, 'new' => 1, 'step' => 4, 'site' => $siteposition, 'restoreid' => $restoreid]
         );
         $tableurl = new moodle_url(
             '/local/coursetransfer/origin_restore_course.php',
