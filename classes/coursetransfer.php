@@ -485,14 +485,17 @@ class coursetransfer {
                 $bc->get_plan()->get_setting($nameuserinfo)->set_value($rootusers);
             }
             foreach ($cms as $cm) {
-                $value = self::cm_is_included($cm, $sectionsselected);
-                $rootusers = ($value === 1) && ($rootusers === 1);
-                $nameincluded = $cm->modname . '_' . $cm->id . '_included';
-                //error_log('** cm name included: ' . $nameincluded);
-                $bc->get_plan()->get_setting($nameincluded)->set_value($value);
-                $nameuserinfo = $cm->modname . '_' . $cm->id . '_userinfo';                error_log('** name userinfo: ' . $nameuserinfo);
-                //error_log('** cm name userinfo: ' . $nameuserinfo);
-                $bc->get_plan()->get_setting($nameuserinfo)->set_value($rootusers);
+                if (!$cm->deletioninprogress) {
+                    $value = self::cm_is_included($cm, $sectionsselected);
+                    $rootusers = ($value === 1) && ($rootusers === 1);
+                    $nameincluded = $cm->modname . '_' . $cm->id . '_included';
+                    //error_log('** cm name included: ' . $nameincluded);
+                    $bc->get_plan()->get_setting($nameincluded)->set_value($value);
+                    $nameuserinfo = $cm->modname . '_' . $cm->id . '_userinfo';
+                    //error_log('** cm name userinfo: ' . $nameuserinfo);
+                    $bc->get_plan()->get_setting($nameuserinfo)->set_value($rootusers);
+                }
+
             }
         }
     }
@@ -590,14 +593,19 @@ class coursetransfer {
             }
 
             $restoreoptions = [
-                    'overwrite_conf' => 1,
+                    'overwrite_conf' => 0,
                     'keep_roles_and_enrolments' => $keeprolesenrolments,
                     'keep_groups_and_groupings' => $keepgroupsgroupings,
+                    'course_fullname_customize' => 0,
+                    'course_shortname_customize' => 0,
             ];
 
             if ($target === backup::TARGET_NEW_COURSE) {
+                $restoreoptions['overwrite_conf'] = 1;
                 $restoreoptions['course_fullname'] = $fullname;
                 $restoreoptions['course_shortname'] = $shortname;
+                $restoreoptions['course_fullname_customize'] = 1;
+                $restoreoptions['course_shortname_customize'] = 1;
             }
 
             if ($target === backup::TARGET_NEW_COURSE) {
