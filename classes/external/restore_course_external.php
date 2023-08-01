@@ -221,7 +221,7 @@ class restore_course_external extends external_api {
             $res = coursetransfer::restore_course($site, $destinyid, $courseid, $configuration, $sections);
             $success = $res['success'];
             if (!$success) {
-                $errors[] = $res['errors'];
+                $errors = $res['errors'];
             }
         } catch (moodle_exception $e) {
             $errors[] =
@@ -253,7 +253,7 @@ class restore_course_external extends external_api {
                 'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                        'msg' => new external_value(PARAM_RAW, 'Message')
                     )
                 ))
             )
