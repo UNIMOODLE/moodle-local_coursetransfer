@@ -24,6 +24,9 @@
 
 namespace local_coursetransfer\output;
 
+use coding_exception;
+use dml_exception;
+use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
 use renderable;
 use renderer_base;
@@ -73,6 +76,7 @@ class category_course_component implements renderable, templatable {
         $data = new stdClass();
         $data->id = $this->id;
         $data->category = $category;
+        $data->has_status = true;
         return $data;
     }
 
@@ -80,7 +84,8 @@ class category_course_component implements renderable, templatable {
      * Get Courses Data.
      *
      * @return array
-     * @throws \dml_exception
+     * @throws dml_exception
+     * @throws coding_exception
      */
     protected function get_courses_data(): array {
         $cs = [];
@@ -88,13 +93,21 @@ class category_course_component implements renderable, templatable {
         foreach ($requests as $reqid) {
             $request = coursetransfer_request::get($reqid);
             $c = new stdClass();
+            $c->id = $request->origin_course_id;
             $c->fullname = $request->origin_course_fullname;
             $c->shortname = $request->origin_course_shortname;
             $c->idnumber = $request->origin_course_idnumber;
             $c->categoryid = $request->origin_category_id;
             $c->categoryname = $request->origin_category_name;
             $c->has_status = true;
-            $c->status = $request->status;
+            $status = (int)$request->status;
+            if (!empty($status)) {
+                if (isset(coursetransfer::STATUS[$status])) {
+                    $c->status = get_string(
+                            'status_' . coursetransfer::STATUS[$status]['shortname'],
+                            'local_coursetransfer');
+                }
+            }
             $c->checked = true;
             $c->disabled = true;
             $cs[] = $c;

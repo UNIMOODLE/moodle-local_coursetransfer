@@ -68,8 +68,10 @@ class coursetransfer {
         1 => ['shortname' => 'not_started', 'alert' => 'warning'],
         10 => ['shortname' => 'in_progress', 'alert' => 'primary'],
         30 => ['shortname' => 'in_backup', 'alert' => 'primary'],
-        50 => ['shortname' => 'incompleted', 'alert' => 'secondary'],
-        70 => ['shortname' => 'download', 'alert' => 'info'],
+        50 => ['shortname' => 'download', 'alert' => 'info'],
+        70 => ['shortname' => 'downloaded', 'alert' => 'info'],
+        80 => ['shortname' => 'restore', 'alert' => 'secondary'],
+        90 => ['shortname' => 'incompleted', 'alert' => 'warning'],
         100 => ['shortname' => 'completed', 'alert' => 'success'],
     ];
 
@@ -321,7 +323,6 @@ class coursetransfer {
         $sections = $modinfo->get_section_info_all();
         $course = get_course($courseid);
         foreach ($sections as $section) {
-            if ($section)
             $finalsection = [
                 'sectionnum' => $section->section,
                 'sectionid' => $section->id,
@@ -437,6 +438,7 @@ class coursetransfer {
         $bc->get_plan()->get_setting('comments')->set_value($rootusers);
         $bc->get_plan()->get_setting('badges')->set_value($rootusers);
         $bc->get_plan()->get_setting('userscompletion')->set_value($rootusers);
+        $bc->get_plan()->get_setting('questionbank')->set_value(1);
 
         self::set_value_settings_section_activities($bc, $courseid, $rootusers, $sections);
 
@@ -756,7 +758,8 @@ class coursetransfer {
                 $origincourseid = $course->id;
 
                 // 3. Request Restore Course.
-                $courseres = self::restore_course_unity($site, $destinycourseid, $origincourseid, $configurationcourse, []);
+                $courseres = self::restore_course_unity(
+                        $site, $destinycourseid, $origincourseid, $configurationcourse, [], $requestobject->id);
 
                 if (!$courseres['success']) {
                     $success = false;
@@ -799,18 +802,19 @@ class coursetransfer {
      * @param int $origincourseid
      * @param configuration_course $configuration
      * @param array $sections
+     * @param int|null $requestcatid
      * @return array
      * @throws dml_exception
      * @throws moodle_exception
      */
     protected static function restore_course_unity(stdClass $site, int $destinycourseid, int $origincourseid,
-            configuration_course $configuration, array $sections = []): array {
+            configuration_course $configuration, array $sections = [], int $requestcatid = null): array {
 
         $errors = [];
 
         // 1. Request DB.
         $requestobject = coursetransfer_request::set_request_restore_course(
-                $site, $destinycourseid, $origincourseid, $configuration, $sections);
+                $site, $destinycourseid, $origincourseid, $configuration, $sections, $requestcatid);
 
         // 2. Call CURL Origin Backup Course.
         $request = new request($site);
@@ -875,7 +879,7 @@ class coursetransfer {
      * @return core_course_category[]
      */
     public static function get_subcategories(core_course_category $category): array {
-        $categories =  [];
+        $categories = [];
         self::get_childs($category, $categories);
         return $categories;
     }

@@ -135,8 +135,9 @@ class origin_restore_category_table extends table_sql {
                     'local_coursetransfer') .'
             </button>';
         } else {
-            return '<label class="label-status text-' . coursetransfer::STATUS[$row->status]['alert'] . '">'
-                . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
+            $status = coursetransfer_request::get_status_category_request($row->id);
+            return '<label class="label-status text-' . coursetransfer::STATUS[$status]['alert'] . '">'
+                . get_string('status_'.coursetransfer::STATUS[$status]['shortname'],
                     'local_coursetransfer') . '</label>';
         }
     }

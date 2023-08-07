@@ -314,4 +314,31 @@ class coursetransfer_request {
         $object->id = self::insert_or_update($object);
         return $object;
     }
+
+    /**
+     * Get Status Category Request.
+     *
+     * @param int $requestid
+     * @return int
+     * @throws dml_exception
+     */
+    public static function get_status_category_request(int $requestid): int {
+        $request = self::get($requestid);
+        $status = self::STATUS_NOT_STARTED;
+        $requests = json_decode($request->origin_category_requests);
+        $total = count($requests);
+        foreach ($requests as $req) {
+            $courserequest = self::get($req);
+            if ((int)$courserequest->status > self::STATUS_NOT_STARTED) {
+                $status = self::STATUS_IN_PROGRESS;
+            }
+            if ((int)$courserequest->status === self::STATUS_COMPLETED) {
+                $total--;
+            }
+        }
+        if ($total === 0) {
+            $status = self::STATUS_COMPLETED;
+        }
+        return $status;
+    }
 }
