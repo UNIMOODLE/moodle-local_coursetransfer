@@ -98,7 +98,7 @@ class restore_course_external extends external_api {
                 $data->nexturl = $nexturl->out(false);
                 $success = true;
             } else {
-                $errors[] = $res->errors;
+                $errors = $res->errors;
             }
         } catch (moodle_exception $e) {
             $errors[] =
@@ -125,7 +125,7 @@ class restore_course_external extends external_api {
                 'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                        'msg' => new external_value(PARAM_RAW, 'Message')
                     )
                 )),
                 'data' => new external_single_structure(
