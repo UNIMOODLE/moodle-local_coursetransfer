@@ -82,7 +82,15 @@ class category_course_component implements renderable, templatable {
      */
     protected function get_courses_data(): array {
         if (!empty($this->courses)) {
-            return json_decode($this->courses);
+            $courses = json_decode($this->courses);
+            $cs = [];
+            foreach ($courses as $c) {
+                $c->disabled = true;
+                $c->checked = true;
+                $c->status = true;
+                $cs[] = $c;
+            }
+            return $cs;
         } else {
             return [];
         }

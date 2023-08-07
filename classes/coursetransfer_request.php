@@ -304,6 +304,7 @@ class coursetransfer_request {
         $object->destiny_category_id = $destinycategoryid;
         $object->origin_category_id = $origincategoryid;
         $object->origin_category_courses = json_encode($courses);
+        $object->origin_activities = json_encode([]);
         $object->origin_enrolusers = $configuration->originenrolusers;
         $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
         $object->destiny_remove_groups = $configuration->destinyremovegroups;
