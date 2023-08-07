@@ -192,18 +192,22 @@ class origin_category_external extends external_api {
             $category = core_course_category::get($categoryid);
             $categoryparent = core_course_category::get($category->parent);
             $courses = [];
-            foreach ($category->get_courses() as $c) {
-                $courseurl = new moodle_url('/course/view.php', ['id' => $c->id]);
-                $course = new stdClass();
-                $course->id = $c->id;
-                $course->url = $courseurl->out(false);
-                $course->fullname = $c->fullname;
-                $course->shortname = $c->shortname;
-                $course->idnumber = $c->idnumber;
-                $course->categoryid = $c->category;
-                $ccategory = core_course_category::get($c->category);
-                $course->categoryname = $ccategory->name;
-                $courses[] = $course;
+            $subcategories = coursetransfer::get_subcategories($category);
+            array_unshift($subcategories, $category);
+            foreach ($subcategories as $sub) {
+                foreach ($sub->get_courses() as $c) {
+                    $courseurl = new moodle_url('/course/view.php', ['id' => $c->id]);
+                    $course = new stdClass();
+                    $course->id = $c->id;
+                    $course->url = $courseurl->out(false);
+                    $course->fullname = $c->fullname;
+                    $course->shortname = $c->shortname;
+                    $course->idnumber = $c->idnumber;
+                    $course->categoryid = $c->category;
+                    $ccategory = core_course_category::get($c->category);
+                    $course->categoryname = $ccategory->name;
+                    $courses[] = $course;
+                }
             }
             $parentname = !empty($categoryparent->name) ? $categoryparent->name : get_string('top');
             $data = [
