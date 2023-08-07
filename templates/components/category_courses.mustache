@@ -30,7 +30,9 @@
         <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
         <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
         <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
-        <th>{{#str}} status, local_coursetransfer {{/str}}</th>
+        {{# has_status }}
+            <th>{{#str}} status, local_coursetransfer {{/str}}</th>
+        {{/ has_status }}
     </tr>
     </thead>
     <tbody>
