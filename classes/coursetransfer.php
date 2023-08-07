@@ -868,4 +868,45 @@ class coursetransfer {
         return $items;
     }
 
+    /**
+     * Get Subcategories.
+     *
+     * @param core_course_category $category
+     * @return core_course_category[]
+     */
+    public static function get_subcategories(core_course_category $category): array {
+        $categories =  [];
+        self::get_childs($category, $categories);
+        return $categories;
+    }
+
+    /**
+     * Get Subcategories.
+     *
+     * @param core_course_category $category
+     * @param array $categories
+     */
+    public static function get_childs(core_course_category $category, array &$categories) {
+        if ($category->get_children_count() > 0) {
+            foreach ($category->get_children() as $child) {
+                $categories[] = $child;
+                self::get_childs($child, $categories);
+            }
+        };
+    }
+
+    /**
+     * Get Subcategories.
+     *
+     * @param int $courses
+     * @param core_course_category[] $categories
+     * @return int
+     */
+    public static function get_subcategories_numcourses(int $courses, array $categories): int {
+        foreach ($categories as $cat) {
+            $courses += $cat->get_courses_count();
+        }
+        return $courses;
+    }
+
 }

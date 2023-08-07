@@ -91,6 +91,10 @@ class origin_category_external extends external_api {
                         $categoryparent = core_course_category::get($item->parentid);
                         $item->parentname = $categoryparent->name;
                         $item->totalcourses = $category->get_courses_count();
+                        $subcategories = coursetransfer::get_subcategories($category);
+                        $item->totalsubcategories = count($subcategories);
+                        $item->totalcourseschild = coursetransfer::get_subcategories_numcourses(
+                                $category->get_courses_count(), $subcategories);
                         $data[] = $item;
                     }
                 }
@@ -134,7 +138,9 @@ class origin_category_external extends external_api {
                         'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
                         'parentid' => new external_value(PARAM_INT, 'Category parent ID', VALUE_OPTIONAL),
                         'parentname' => new external_value(PARAM_TEXT, 'Category parent Name', VALUE_OPTIONAL),
-                        'totalcourses' => new external_value(PARAM_INT, 'Total courses', VALUE_OPTIONAL)
+                        'totalcourses' => new external_value(PARAM_INT, 'Total courses', VALUE_OPTIONAL),
+                        'totalsubcategories' => new external_value(PARAM_INT, 'Total subcategories', VALUE_OPTIONAL),
+                        'totalcourseschild' => new external_value(PARAM_INT, 'Total courses all subcategory', VALUE_OPTIONAL)
                     ), PARAM_TEXT, 'Data'
                 ))
             )
