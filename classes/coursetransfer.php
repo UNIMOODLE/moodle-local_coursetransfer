@@ -815,7 +815,6 @@ class coursetransfer {
         // 2. Call CURL Origin Backup Course.
         $request = new request($site);
         $res = $request->origin_backup_course($requestobject->id, $origincourseid, $destinycourseid, $configuration, $sections);
-
         // 3. Success or Errors.
         if ($res->success) {
             // 4a. Update Request DB Completed.
@@ -823,8 +822,8 @@ class coursetransfer {
             $requestobject->origin_course_fullname = $res->data->course_fullname;
             $requestobject->origin_course_shortname = $res->data->course_shortname;
             $requestobject->origin_course_idnumber = $res->data->course_idnumber;
-            $requestobject->origin_category_id = $res->data->category_id;
-            $requestobject->origin_category_name = $res->data->category_name;
+            $requestobject->origin_category_id = $res->data->course_category_id;
+            $requestobject->origin_category_name = $res->data->course_category_name;
             coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
             $success = true;
         } else {

@@ -180,7 +180,7 @@ class origin_course_backup_external extends external_api {
                         $data->course_fullname = $course->fullname;
                         $data->course_shortname = $course->shortname;
                         $data->course_idnumber = $course->idnumber;
-                        $data->course_category_name = $course->category;
+                        $data->course_category_id = $course->category;
                         $category = core_course_category::get($course->category);
                         $data->course_category_name = $category->name;
                         $success = true;
