@@ -23,6 +23,8 @@
 namespace local_coursetransfer\external;
 
 use context_course;
+use core_course\reportbuilder\local\entities\course_category;
+use core_course_category;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -177,6 +179,10 @@ class origin_course_backup_external extends external_api {
                         $data->request_origin_id = $requestoriginid;
                         $data->course_fullname = $course->fullname;
                         $data->course_shortname = $course->shortname;
+                        $data->course_idnumber = $course->idnumber;
+                        $data->course_category_name = $course->category;
+                        $category = core_course_category::get($course->category);
+                        $data->course_category_name = $category->name;
                         $success = true;
                     } else {
                         $success = false;
@@ -229,8 +235,11 @@ class origin_course_backup_external extends external_api {
                         'request_origin_id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
                         'course_fullname' => new external_value(PARAM_RAW, 'Origin Course Fullname', VALUE_OPTIONAL),
                         'course_shortname' => new external_value(PARAM_RAW, 'Origin Course Shortname', VALUE_OPTIONAL),
+                        'course_idnumber' => new external_value(PARAM_RAW, 'Origin Course ID Number', VALUE_OPTIONAL),
+                        'course_category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                        'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
                         'origin_backup_size_estimated' => new external_value(PARAM_INT,
-                                'Backup Size Estimated (MB)', VALUE_OPTIONAL ),
+                            'Backup Size Estimated (MB)', VALUE_OPTIONAL ),
                     ), PARAM_TEXT, 'Data'
                 )
             )

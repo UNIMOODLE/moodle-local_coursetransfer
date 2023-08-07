@@ -24,6 +24,7 @@
 
 namespace local_coursetransfer\output;
 
+use local_coursetransfer\coursetransfer_request;
 use renderable;
 use renderer_base;
 use stdClass;
@@ -41,8 +42,8 @@ class category_course_component implements renderable, templatable {
     /** @var int ID */
     protected $id;
 
-    /** @var string Courses JSON details */
-    protected $courses;
+    /** @var string Courses Requests JSON */
+    protected $requests;
 
     /** @var string Origin Site URL */
     protected $siteurl;
@@ -50,13 +51,13 @@ class category_course_component implements renderable, templatable {
     /**
      *  constructor.
      *
-     * @param string $courses
+     * @param string $requests
      * @param string $siteurl
      * @param int $id
      */
-    public function __construct(string $courses, string $siteurl, int $id) {
+    public function __construct(string $requests, string $siteurl, int $id) {
         $this->id = $id;
-        $this->courses = $courses;
+        $this->requests = $requests;
         $this->siteurl = $siteurl;
     }
 
@@ -79,20 +80,25 @@ class category_course_component implements renderable, templatable {
      * Get Courses Data.
      *
      * @return array
+     * @throws \dml_exception
      */
     protected function get_courses_data(): array {
-        if (!empty($this->courses)) {
-            $courses = json_decode($this->courses);
-            $cs = [];
-            foreach ($courses as $c) {
-                $c->disabled = true;
-                $c->checked = true;
-                $c->status = true;
-                $cs[] = $c;
-            }
-            return $cs;
-        } else {
-            return [];
+        $cs = [];
+        $requests = json_decode($this->requests);
+        foreach ($requests as $reqid) {
+            $request = coursetransfer_request::get($reqid);
+            $c = new stdClass();
+            $c->fullname = $request->origin_course_fullname;
+            $c->shortname = $request->origin_course_shortname;
+            $c->idnumber = $request->origin_course_idnumber;
+            $c->categoryid = $request->origin_category_id;
+            $c->categoryname = $request->origin_category_name;
+            $c->has_status = true;
+            $c->status = $request->status;
+            $c->checked = true;
+            $c->disabled = true;
+            $cs[] = $c;
         }
+        return $cs;
     }
 }

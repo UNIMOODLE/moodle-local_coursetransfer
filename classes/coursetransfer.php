@@ -736,11 +736,12 @@ class coursetransfer {
 
             // 2. Category Request DB.
             $requestobject = coursetransfer_request::set_request_restore_category(
-                    $site, $destinycategoryid, $origincategoryid, $configuration, $courses
+                    $site, $destinycategoryid, $origincategoryid, $configuration
             );
 
             $success = true;
             $errors = [];
+            $catcourserequests = [];
 
             foreach ($courses as $course) {
 
@@ -760,6 +761,13 @@ class coursetransfer {
                 if (!$courseres['success']) {
                     $success = false;
                     $errors = array_merge($errors, $courseres['errors']);
+                }
+
+                // Update category course requests.
+                if (isset($courseres['data']['requestid'])) {
+                    $catcourserequests[] = $courseres['data']['requestid'];
+                    $requestobject->origin_category_requests = json_encode($catcourserequests);
+                    coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
                 }
             }
 
@@ -814,6 +822,9 @@ class coursetransfer {
             $requestobject->status = coursetransfer_request::STATUS_IN_PROGRESS;
             $requestobject->origin_course_fullname = $res->data->course_fullname;
             $requestobject->origin_course_shortname = $res->data->course_shortname;
+            $requestobject->origin_course_idnumber = $res->data->course_idnumber;
+            $requestobject->origin_category_id = $res->data->category_id;
+            $requestobject->origin_category_name = $res->data->category_name;
             coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
             $success = true;
         } else {

@@ -85,7 +85,7 @@ try {
 
     foreach (\local_coursetransfer\coursetransfer_request::get_by_destiny_category_id($categoryid) as $item) {
         $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
-        $courses = json_decode($item->origin_category_courses);
+        $requests = json_decode($item->origin_category_requests);
         $coursesid = '';
         foreach ($courses as $course) {
             if (empty($coursesid)) {

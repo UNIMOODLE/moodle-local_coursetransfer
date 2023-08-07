@@ -151,8 +151,9 @@ class origin_restore_category_table extends table_sql {
     public function col_origin_category_courses(stdClass $row): string {
         global $PAGE;
         $output = $PAGE->get_renderer('local_coursetransfer');
-        $origincategorycourses = !empty($row->origin_category_courses) ? $row->origin_category_courses : '';
-        $component = new \local_coursetransfer\output\category_course_component($origincategorycourses, $row->siteurl, $row->id);
+        $origincategoryrequests = !empty($row->origin_category_requests) ? $row->origin_category_requests : '';
+        $component = new \local_coursetransfer\output\category_course_component(
+                $origincategoryrequests, $row->siteurl, $row->id);
         return $output->render($component);
     }
 

@@ -15,7 +15,9 @@
                 <FIELD NAME="origin_course_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Course ID to restore"/>
                 <FIELD NAME="origin_course_fullname" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="Course Fullname to restore"/>
                 <FIELD NAME="origin_course_shortname" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="Course Shortname to restore"/>
+                <FIELD NAME="origin_course_idnumber" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="Course id number to restore"/>
                 <FIELD NAME="origin_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Category ID to restore"/>
+                <FIELD NAME="origin_category_name" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Category ID to restore"/>
                 <FIELD NAME="origin_enrolusers" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't send enrolled users, 1 = send enrolled users"/>
                 <FIELD NAME="origin_remove_course" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
                 <FIELD NAME="origin_remove_category" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
