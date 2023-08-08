@@ -78,7 +78,12 @@ try {
 
     $request = \local_coursetransfer\coursetransfer_request::get($requestid);
     if ($request) {
-        cli_writeln(json_encode(json_decode($request->origin_activities), JSON_PRETTY_PRINT));
+        $decode = json_decode($request->origin_activities);
+        if (empty($decode)) {
+            cli_writeln('All sections and activities');
+        } else {
+            cli_writeln(json_encode($decode, JSON_PRETTY_PRINT));
+        }
     } else {
         cli_writeln( get_string('request_not_found', 'local_coursetransfer') );
     }

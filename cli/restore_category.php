@@ -32,6 +32,7 @@ define('CLI_SCRIPT', 1);
 require(__DIR__.'/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
+require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
 $usage = 'CLI de restauracion de categorias.
 
@@ -98,7 +99,7 @@ if ($options['help']) {
 }
 
 $siteurl = $options['site_url'];
-$origincategoryid = !is_null($options['origin_category_id']) ? (int) $options['origin_course_id'] : null;
+$origincategoryid = !is_null($options['origin_category_id']) ? (int) $options['origin_category_id'] : null;
 $destinycategoryid = !is_null($options['destiny_category_id']) ? (int) $options['destiny_category_id'] : null;
 $originenrolusers = $options['origin_enrolusers'] === 'true' ? 1 : 0;
 $destinyremoveenrols = $options['destiny_remove_enrols'] === 'true' ? 1 : 0;
@@ -119,13 +120,22 @@ if ( $origincategoryid === null ) {
     exit(128);
 }
 
-if ( $destinycategoryid === null ) {
-    cli_writeln( get_string('destiny_category_id_require', 'local_coursetransfer') );
-    exit(128);
-} else if ( $destinycategoryid <= 0 ) {
-    cli_writeln( get_string('destiny_category_id_integer', 'local_coursetransfer') );
-    exit(128);
+if ($destinycategoryid !== null) {
+    try {
+        $category = core_course_category::get($destinycategoryid);
+    } catch (moodle_exception $e) {
+        cli_writeln('300501: ' . $e->getMessage());
+        exit(1);
+    }
+} else {
+    try {
+        $category = core_course_category::create(['name' => get_string('defaultcategoryname')]);
+    } catch (moodle_exception $e) {
+        cli_writeln('300502: ' . $e->getMessage());
+        exit(1);
+    }
 }
+$destinycategoryid = $category->id;
 
 if ( !in_array((int)$originenrolusers, [0, 1])) {
     cli_writeln( get_string('origin_enrolusers_boolean', 'local_coursetransfer') );
