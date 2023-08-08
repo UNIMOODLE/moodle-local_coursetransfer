@@ -78,7 +78,7 @@ if ( $courseid === null ) {
 
 try {
 
-    $mask = "| %12.15s |%-35.35s | %-14.14s | %-14.14s  | %-7.7s | %-50.50s  | %-8.8s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
+    $mask = "| %12.15s |%-35.35s | %-14.14s | %-12.12s  | %-9.9s | %-50.50s  | %-8.8s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
     printf($mask,
             'Request ID', 'Destiny Site', 'Dest Course', 'Orig Course',
             'Status', 'Error', 'Size', 'UserID', 'TimeModified', 'TimeCreated');

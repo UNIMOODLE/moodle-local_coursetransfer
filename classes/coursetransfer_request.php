@@ -287,13 +287,14 @@ class coursetransfer_request {
      * @param stdClass $site
      * @param int $destinycategoryid
      * @param int $origincategoryid
+     * @param string $origincategoryname
      * @param configuration_category $configuration $configuration
      * @return stdClass
      * @throws dml_exception
      * @throws moodle_exception
      */
     public static function set_request_restore_category(
-            stdClass $site, int $destinycategoryid, int $origincategoryid,
+            stdClass $site, int $destinycategoryid, int $origincategoryid, string $origincategoryname,
             configuration_category $configuration): stdClass {
         global $USER;
         $object = new stdClass();
@@ -302,6 +303,7 @@ class coursetransfer_request {
         $object->direction = self::DIRECTION_REQUEST;
         $object->destiny_category_id = $destinycategoryid;
         $object->origin_category_id = $origincategoryid;
+        $object->origin_category_name = $origincategoryname;
         $object->origin_category_requests = json_encode([]);
         $object->origin_activities = json_encode([]);
         $object->origin_enrolusers = $configuration->originenrolusers;

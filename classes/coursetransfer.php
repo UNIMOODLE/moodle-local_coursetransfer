@@ -722,11 +722,13 @@ class coursetransfer {
 
         try {
             $request = new request($site);
+            $origincategoryname = '';
             if (count($courses) === 0) {
                 // 1a. Call CURL Origin Get Category Detail for courses list.
                 $res = $request->origin_get_category_detail($origincategoryid);
                 if ($res->success) {
                     $courses = $res->data->courses;
+                    $origincategoryname = $res->data->name;
                 } else {
                     throw new moodle_exception(json_encode($res->errors));
                 }
@@ -737,7 +739,7 @@ class coursetransfer {
 
             // 2. Category Request DB.
             $requestobject = coursetransfer_request::set_request_restore_category(
-                    $site, $destinycategoryid, $origincategoryid, $configuration
+                    $site, $destinycategoryid, $origincategoryid, $origincategoryname, $configuration
             );
 
             $success = true;
