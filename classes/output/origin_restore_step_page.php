@@ -25,28 +25,34 @@
 namespace local_coursetransfer\output;
 
 use coding_exception;
-use local_coursetransfer\forms\origin_restore_form;
-use moodle_exception;
-use moodle_url;
 use renderable;
 use renderer_base;
 use stdClass;
 use templatable;
 
 /**
- * origin_restore_page
+ * origin_restore_step_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_page implements renderable, templatable {
+class origin_restore_step_page implements renderable, templatable {
+
+    /** @var string Type */
+    protected $type;
+
+    /** @var int Site */
+    protected $site;
 
     /**
      *  constructor.
      *
+     * @throws coding_exception
      */
     public function __construct() {
+        $this->type = required_param('type', PARAM_TEXT);
+        $this->site = required_param('site', PARAM_INT);
     }
 
     /**
@@ -56,25 +62,6 @@ class origin_restore_page implements renderable, templatable {
      * @return stdClass
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $newurl = new moodle_url(
-            '/local/coursetransfer/origin_restore.php'
-        );
-        $url = new moodle_url(
-                '/local/coursetransfer/origin_restore.php',
-        );
-        $form = new origin_restore_form($url->out(false));
-
-        $data = new stdClass();
-        $data->button = true;
-        $data->new_url = $newurl->out(false);
-        $data->steps = [
-                ['current' => true, 'num' => 1],
-                ['current' => false, 'num' => 2],
-                ['current' => false, 'num' => 3],
-                ['current' => false, 'num' => 4]
-        ];
-        $data->form = $form->render();
-        return $data;
+        return new stdClass();
     }
-
 }

@@ -176,4 +176,9 @@ $string['remove_page_desc'] = "Select if you want to delete a category or a set 
 $string['token_not_found'] = "The token could not be retrieved.";
 $string['click_refresh'] = "Click the 'Refresh' button to recalculate the settings.";
 $string['restoretnewcourse'] = "Restoration performed in a new course";
-
+$string['course_categories'] = "Restore courses or category";
+$string['course_categories_help'] = "Select courses if you want to restore a list of courses, select category if you want to restore an entire category or a list of courses in that category";
+$string['origin_restore_courses_title'] = "Restore Source Courses";
+$string['origin_restore_courses_desc'] = 'Select the courses you want to restore from the source site and link the corresponding destination';
+$string['origin_restore_courses_list'] = "Source Site Course List";
+$string['step2_course_destiny'] = "Destiny Course";

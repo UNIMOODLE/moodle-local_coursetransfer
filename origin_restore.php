@@ -51,7 +51,15 @@ $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
 
-$page = new \local_coursetransfer\output\origin_restore_page();
+$step = optional_param('step', null, PARAM_INT);
+switch ($step) {
+    case 2:
+        $page = new \local_coursetransfer\output\origin_restore_step2_page();
+        break;
+    default:
+        $page = new \local_coursetransfer\output\origin_restore_page();
+}
+
 echo $output->render($page);
 
 echo $OUTPUT->footer();

@@ -48,7 +48,7 @@ class origin_restore_form extends moodleform {
 
         $mform->addElement(
                 'select', 'course_categories',
-                get_string('origin_site', 'local_coursetransfer'),
+                get_string('course_categories', 'local_coursetransfer'),
                 [ 'courses' => 'courses', 'categories' => 'categories']);
         $mform->addHelpButton('course_categories', 'course_categories', 'local_coursetransfer');
 

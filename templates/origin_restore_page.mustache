@@ -63,7 +63,7 @@
     }
     div[data-region='origin_restore_page'] form{
         margin: auto;
-        width: 50%;
+        width: 100%;
         padding: 10px;
     }
     div[data-region='origin_restore_page'] div.alert-danger{
@@ -88,7 +88,7 @@
 
 
 {{#js}}
-    require(['local_coursetransfer/origin_restore_page'], function(restoreCourseStep1) {
-    restoreCourseStep1.initRestoreCourseStep1('[data-region="new_origin_restore_course_step1_page"]', {{ courseid }});
+    require(['local_coursetransfer/origin_restore'], function(originRestore) {
+        originRestore.initOriginRestore('[data-region="origin_restore_page"]');
     });
 {{/js}}

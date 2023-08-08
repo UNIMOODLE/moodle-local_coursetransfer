@@ -26,6 +26,7 @@ use local_coursetransfer\external\origin_course_external;
 use local_coursetransfer\external\origin_user_external;
 use local_coursetransfer\external\restore_category_external;
 use local_coursetransfer\external\restore_course_external;
+use local_coursetransfer\external\restore_external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -148,6 +149,15 @@ $functions = [
             'loginrequired' => false
     ],
 
+    'local_coursetransfer_origin_restore_step1' => [
+            'classname' => restore_external::class,
+            'methodname' => 'origin_restore_step1',
+            'description' => 'Execute category restauration from moodle remote in step4',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => false
+    ],
+
 ];
 
 $services = [
@@ -164,7 +174,8 @@ $services = [
             'local_coursetransfer_new_origin_restore_course_step1',
             'local_coursetransfer_new_origin_restore_course_step5',
             'local_coursetransfer_new_origin_restore_category_step1',
-            'local_coursetransfer_new_origin_restore_category_step4'
+            'local_coursetransfer_new_origin_restore_category_step4',
+            'local_coursetransfer_origin_restore_step1'
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,
