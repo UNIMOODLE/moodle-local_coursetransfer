@@ -84,12 +84,12 @@ class destiny_course_callback_external extends external_api {
             ]
         );
 
-        $success = true;
         $errors = [];
+        $data = new stdClass();
+        $data->id = 0;
 
         try {
             $authres = coursetransfer::auth_user($field, $value);
-            // TODO. comprobar que el origen es correcto.
             if ($authres['success']) {
                 $request = coursetransfer_request::get($requestid);
                 if ($request) {
@@ -98,12 +98,14 @@ class destiny_course_callback_external extends external_api {
                     $request->status = coursetransfer_request::STATUS_BACKUP;
                     coursetransfer_request::insert_or_update($request, $requestid);
                     coursetransfer::create_task_download_course($request, $finalurl);
+                    $data->id = $request->id;
+                    $success = true;
                 } else {
                     $success = false;
                     $errors[] =
                         [
                             'code' => '200011',
-                            'msg' => "REQUEST NOT FOUND"
+                            'msg' => 'Request id not found: ' . $requestid
                         ];
                 }
             } else {
@@ -121,6 +123,7 @@ class destiny_course_callback_external extends external_api {
 
         return [
             'success' => $success,
+            'data' => $data,
             'errors' => $errors,
         ];
     }
@@ -132,6 +135,11 @@ class destiny_course_callback_external extends external_api {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'data' => new external_single_structure(
+                        array(
+                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL)
+                        )
+                ),
                 'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'code' => new external_value(PARAM_TEXT, 'Code'),
@@ -182,38 +190,32 @@ class destiny_course_callback_external extends external_api {
             ]
         );
 
-        global $DB;
-        $table = 'local_coursetransfer_request';
-        $success = true;
-        $message = '';
+        $data = new stdClass();
+        $data->id = 0;
         $errors = [];
 
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
-                $request = $DB->get_record($table, ['id' => $requestid]);
+                $request = coursetransfer_request::get($requestid);
                 if ($request) {
-                    $obj = new stdClass();
-                    $obj->id = $requestid;
-                    $obj->error_code = $errorcode;
-                    $obj->error_message = $errormsg;
-                    $obj->status = coursetransfer_request::STATUS_ERROR;
-                    $DB->update_record($table, $obj);
+                    $request->error_code = $errorcode;
+                    $request->error_message = $errormsg;
+                    $request->status = coursetransfer_request::STATUS_ERROR;
+                    coursetransfer_request::insert_or_update($request, $requestid);
+                    $data->id = $requestid;
+                    $success = true;
                 } else {
                     $success = false;
                     $errors[] =
                         [
                             'code' => '200013',
-                            'msg' => 'Request id not found'
+                            'msg' => 'Request id not found: ' . $requestid
                         ];
                 }
             } else {
                 $success = false;
-                $errors[] =
-                    [
-                        'code' => '200014',
-                        'msg' => 'Could not authenticate the user'
-                    ];
+                $errors[] = $authres['error'];
             }
         } catch (moodle_exception $e) {
             $success = false;
@@ -225,8 +227,9 @@ class destiny_course_callback_external extends external_api {
         }
 
         return [
-            'success' => $success,
-            'errors' => $errors,
+                'success' => $success,
+                'data' => $data,
+                'errors' => $errors,
         ];
     }
 
@@ -237,6 +240,11 @@ class destiny_course_callback_external extends external_api {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'data' => new external_single_structure(
+                        array(
+                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL)
+                        )
+                ),
                 'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'code' => new external_value(PARAM_INT, 'Code'),
