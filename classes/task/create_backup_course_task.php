@@ -51,55 +51,57 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
      */
     public function execute() {
         global $DB;
-        $started = time();
 
         $backupid = $this->get_custom_data()->backupid;
         $bc = \backup_controller::load_controller($backupid);
 
-        $this->log_start("Course Transfer Backup Starting...");
+        try {
+            $started = time();
 
-        $backupid = $this->get_custom_data()->backupid;
-        $backuprecord = $DB->get_record('backup_controllers', array('backupid' => $backupid), 'id, controller', MUST_EXIST);
-        mtrace('Processing asynchronous backup for backup: ' . $backupid);
+            $this->log_start("Course Transfer Backup Starting...");
 
-        // Get the backup controller by backup id. If controller is invalid, this task can never complete.
-        if ($backuprecord->controller === '') {
-            mtrace('Bad backup controller status, invalid controller, ending backup execution.');
-            return;
-        }
+            $backupid = $this->get_custom_data()->backupid;
+            $backuprecord = $DB->get_record('backup_controllers', array('backupid' => $backupid), 'id, controller', MUST_EXIST);
+            mtrace('Processing asynchronous backup for backup: ' . $backupid);
 
-        $bc->set_progress(new \core\progress\db_updater($backuprecord->id, 'backup_controllers', 'progress'));
-
-        // Do some preflight checks on the backup.
-        $status = $bc->get_status();
-        $execution = $bc->get_execution();
-
-        // Check that the backup is in the correct status and
-        // that is set for asynchronous execution.
-        if ($status == \backup::STATUS_AWAITING && $execution == \backup::EXECUTION_DELAYED) {
-            // Execute the backup.
-            $bc->execute_plan();
-
-            // Send message to user if enabled.
-            $messageenabled = (bool)get_config('backup', 'backup_async_message_users');
-            if ($messageenabled && $bc->get_status() == \backup::STATUS_FINISHED_OK) {
-                $asynchelper = new async_helper('backup', $backupid);
-                $asynchelper->send_message();
+            // Get the backup controller by backup id. If controller is invalid, this task can never complete.
+            if ($backuprecord->controller === '') {
+                mtrace('Bad backup controller status, invalid controller, ending backup execution.');
+                return;
             }
 
-        } else {
-            // If status isn't 700, it means the process has failed.
-            // Retrying isn't going to fix it, so marked operation as failed.
-            $bc->set_status(\backup::STATUS_FINISHED_ERR);
-            mtrace('Bad backup controller status, is: ' . $status . ' should be 700, marking job as failed.');
+            $bc->set_progress(new \core\progress\db_updater($backuprecord->id, 'backup_controllers', 'progress'));
 
-        }
+            // Do some preflight checks on the backup.
+            $status = $bc->get_status();
+            $execution = $bc->get_execution();
 
-        $result = $bc->get_results();
-        $site = $this->get_custom_data()->destinysite;
-        $requestid = $this->get_custom_data()->requestid;
-        $request = new request($site);
-        try {
+            // Check that the backup is in the correct status and
+            // that is set for asynchronous execution.
+            if ($status == \backup::STATUS_AWAITING && $execution == \backup::EXECUTION_DELAYED) {
+                // Execute the backup.
+                $bc->execute_plan();
+
+                // Send message to user if enabled.
+                $messageenabled = (bool)get_config('backup', 'backup_async_message_users');
+                if ($messageenabled && $bc->get_status() == \backup::STATUS_FINISHED_OK) {
+                    $asynchelper = new async_helper('backup', $backupid);
+                    $asynchelper->send_message();
+                }
+
+            } else {
+                // If status isn't 700, it means the process has failed.
+                // Retrying isn't going to fix it, so marked operation as failed.
+                $bc->set_status(\backup::STATUS_FINISHED_ERR);
+                mtrace('Bad backup controller status, is: ' . $status . ' should be 700, marking job as failed.');
+
+            }
+
+            $result = $bc->get_results();
+            $site = $this->get_custom_data()->destinysite;
+            $requestid = $this->get_custom_data()->requestid;
+            $request = new request($site);
+
             $requestorigin = coursetransfer_request::get($this->get_custom_data()->requestoriginid);
             if ($bc->get_status() === \backup::STATUS_FINISHED_OK) {
                 $fileurl = coursetransfer::create_backupfile_url($bc->get_courseid(), $result['backup_destination']);
@@ -113,12 +115,13 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
             }
             if (!$res->success) {
                 $requestorigin->status = coursetransfer_request::STATUS_ERROR;
-                $requestorigin->error_code = $res->errors['code'];
-                $requestorigin->error_message = $res->errors['msg'];
+                $requestorigin->error_code = $res->errors[0]->code;
+                $requestorigin->error_message = $res->errors[0]->msg;
                 coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
             }
             $this->log(json_encode($res));
         } catch (moodle_exception $e) {
+            mtrace('Course Transfer Backup ERROR: ' . $e->getMessage());
             $this->log($e->getMessage());
         }
 
