@@ -438,7 +438,6 @@ class coursetransfer {
         $bc->get_plan()->get_setting('comments')->set_value($rootusers);
         $bc->get_plan()->get_setting('badges')->set_value($rootusers);
         $bc->get_plan()->get_setting('userscompletion')->set_value($rootusers);
-        $bc->get_plan()->get_setting('questionbank')->set_value(1);
 
         self::set_value_settings_section_activities($bc, $courseid, $rootusers, $sections);
 
