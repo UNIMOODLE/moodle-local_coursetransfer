@@ -48,29 +48,35 @@ define([
             this.node = $(region);
             this.site = site;
             this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'));
-            this.data.courses.forEach(function(course) {
-                let courseid = parseInt(course.courseid);
-                let destinyid = parseInt(course.destinyid);
-                let seldestiny = '[data-action="destiny"][data-courseid="' + courseid + '"] option[value="' + destinyid + '"]';
-                $(seldestiny).prop('selected', true);
-                let row = 'tr[data-action="course"][data-courseid="' + courseid + '"]';
-                $(row).prop('selected', true).removeClass('hidden');
-            });
-            this.data.configuration.forEach(function(config) {
-                let item = $('#' + config.name);
-                item.prop('disabled', true);
-                item.prop('checked', config.selected);
-            });
-            this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
+            if (this.data) {
+                this.data.courses.forEach(function(course) {
+                    let courseid = parseInt(course.courseid);
+                    let destinyid = parseInt(course.destinyid);
+                    let seldestiny = '[data-action="destiny"][data-courseid="' + courseid + '"] option[value="' + destinyid + '"]';
+                    $(seldestiny).prop('selected', true);
+                    let row = 'tr[data-action="course"][data-courseid="' + courseid + '"]';
+                    $(row).prop('selected', true).removeClass('hidden');
+                });
+                this.data.configuration.forEach(function(config) {
+                    let item = $('#' + config.name);
+                    item.prop('disabled', true);
+                    item.prop('checked', config.selected);
+                });
+                this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
+            } else {
+                let alertbox = this.node.find(".alert");
+                let errors = [{code: '100078', msg: 'error_session_cache'}];
+                this.renderErrors(errors, alertbox);
+            }
         }
 
         originRestoreStep4.prototype.clickNext = function(e) {
-            let alertbox = this.node.find(".alert");
             let configuration = {};
             this.data.configuration.forEach(function(config) {
                 configuration[config.name] = config.selected;
             });
 
+            let alertbox = this.node.find(".alert");
             const request = {
                 methodname: SERVICES.ORIGIN_RESTORE_STEP4,
                 args: {

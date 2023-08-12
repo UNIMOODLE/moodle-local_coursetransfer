@@ -183,3 +183,7 @@ $string['origin_restore_courses_desc'] = 'Select the courses you want to restore
 $string['origin_restore_courses_list'] = "Source Site Course List";
 $string['step2_course_destiny'] = "Destiny Course";
 $string['origin_restore_step4_desc'] = "Review the selected courses, their destination, and settings before running the remote restore";
+$string['origin_restore_category_title'] = "Restore Source Category";
+$string['origin_restore_category_desc'] = "Select the category you want to restore from the source site";
+$string['step4_destiny_title'] = "Destination category";
+$string['step4_destiny_desc'] = "Select the destination category of the restore";

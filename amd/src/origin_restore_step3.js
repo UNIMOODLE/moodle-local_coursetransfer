@@ -47,16 +47,18 @@ define([
         function originRestoreStep3(region) {
             this.node = $(region);
             this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'));
-            this.data.courses.forEach(function(course) {
-                let courseid = parseInt(course.courseid);
-                let destinyid = parseInt(course.destinyid);
-                $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop( "checked", true );
-                let seldestiny = '[data-action="destiny"][data-courseid="' + courseid + '"] option[value="' + destinyid + '"]';
-                $(seldestiny).prop('selected', true);
-            });
-            this.data.configuration.forEach(function(config) {
-                $('#' + config.name).prop('checked', config.selected);
-            });
+            if (this.data) {
+                this.data.courses.forEach(function(course) {
+                    let courseid = parseInt(course.courseid);
+                    let destinyid = parseInt(course.destinyid);
+                    $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop( "checked", true );
+                    let seldestiny = '[data-action="destiny"][data-courseid="' + courseid + '"] option[value="' + destinyid + '"]';
+                    $(seldestiny).prop('selected', true);
+                });
+                this.data.configuration.forEach(function(config) {
+                    $('#' + config.name).prop('checked', config.selected);
+                });
+            }
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         }
 

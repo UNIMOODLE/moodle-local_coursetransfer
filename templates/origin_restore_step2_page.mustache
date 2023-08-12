@@ -66,7 +66,7 @@
                         <select name="destinyid" data-action="destiny" data-courseid="{{ id }}">
                             <option value="0" selected>{{#str}} newcourse {{/str}}</option>
                             {{# destinies }}
-                            <option value="{{ id }}">{{ name }} ({{ shortname }})</option>
+                            <option value="{{ id }}">{{ name }} {{# shortname }}({{ shortname }}){{/ shortname }}</option>
                             {{/ destinies }}
                         </select>
                     </td>

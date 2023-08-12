@@ -31,7 +31,7 @@ define([
         "use strict";
 
         let ACTIONS = {
-            COURSE_SELECT: '[data-action="select"]',
+            CAT_SELECT: '[data-action="select"]',
             COURSE: '[data-action="course"]',
             NEXT: '[data-action="next"]',
             DESTINY: '[data-action="destiny"]',
@@ -44,26 +44,21 @@ define([
          *
          * @constructor
          */
-        function originRestoreStep2(region) {
+        function originRestoreCatStep2(region) {
             this.node = $(region);
-            let data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'));
+            let data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_cat_page'));
             if (data) {
-                data.courses.forEach(function(course) {
-                    let courseid = parseInt(course.courseid);
-                    let destinyid = parseInt(course.destinyid);
-                    $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop( "checked", true );
-                    let seldestiny = '[data-action="destiny"][data-courseid="' + courseid + '"] option[value="' + destinyid + '"]';
-                    $(seldestiny).prop('selected', true);
-                });
+                let catid = parseInt(data.catid);
+                $(ACTIONS.CAT_SELECT + '[data-id="' + catid + '"]').prop( "checked", true );
             }
             this.selectCourse();
-            this.node.find(ACTIONS.COURSE_SELECT).on('click', this.selectCourse.bind(this));
+            this.node.find(ACTIONS.CAT_SELECT).on('click', this.selectCourse.bind(this));
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         }
 
-        originRestoreStep2.prototype.selectCourse = function(e) {
+        originRestoreCatStep2.prototype.selectCourse = function(e) {
             let selected = false;
-            let items = this.node.find(ACTIONS.COURSE_SELECT);
+            let items = this.node.find(ACTIONS.CAT_SELECT);
             items.each(function(i, item) {
                 if($(item).prop('checked')) {
                     selected = true;
@@ -76,41 +71,36 @@ define([
             }
         };
 
-        originRestoreStep2.prototype.clickNext = function(e) {
-            let courses = [];
-            let items = this.node.find(ACTIONS.COURSE_SELECT);
+        originRestoreCatStep2.prototype.clickNext = function(e) {
+            let items = this.node.find(ACTIONS.CAT_SELECT);
+            let catid = 0;
             items.each(function(i, item) {
-                let courseid = $(item).data('courseid');
                 if ($(item).prop('checked')) {
-                    let destiny = $('[data-action="destiny"][data-courseid="' + courseid + '"]').val();
-                    let course = {
-                        courseid: courseid, destinyid: destiny
-                    };
-                    courses.push(course);
+                    catid = $(item).data('id');
                 }
             });
             let data = {
-                courses: courses, configuration: []
+                catid: catid, destinyid: 0, configuration: { }
             };
-            sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(data));
+            sessionStorage.setItem('local_coursetransfer_restore_cat_page', JSON.stringify(data));
 
             let currentUrl = $(location).attr('href');
             let url = new URL(currentUrl);
             url.searchParams.set('step', '3');
+            url.searchParams.set('restoreid', catid);
             window.location.href = url.href;
         };
 
-
-        originRestoreStep2.prototype.node = null;
+        originRestoreCatStep2.prototype.node = null;
 
         return {
             /**
              * @param {String} region
-             * @return {originRestoreStep2}
+             * @return {originRestoreCatStep2}
              */
-            initRestoreStep2: function(region) {
+            initRestoreCatStep2: function(region) {
                 // eslint-disable-next-line babel/new-cap
-                return new originRestoreStep2(region);
+                return new originRestoreCatStep2(region);
             }
         };
     });

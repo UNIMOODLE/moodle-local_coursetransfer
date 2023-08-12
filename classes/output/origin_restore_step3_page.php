@@ -54,6 +54,9 @@ class origin_restore_step3_page extends origin_restore_step_page {
                 ['current' => true, 'num' => 3],
                 ['current' => false, 'num' => 4]
         ];
+        $tableurl = new moodle_url(
+                '/local/coursetransfer/origin_restore.php'
+        );
         $backurl = new moodle_url(
                 '/local/coursetransfer/origin_restore.php',
                 ['step' => 2, 'site' => $this->site, 'type' => 'courses']
@@ -62,6 +65,7 @@ class origin_restore_step3_page extends origin_restore_step_page {
             '/local/coursetransfer/origin_restore.php',
             ['step' => 4, 'site' => $this->site, 'type' => 'courses']
         );
+        $data->table_url = $tableurl->out(false);
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $data->next_url_disabled = false;
