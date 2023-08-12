@@ -63,8 +63,8 @@
                     <td>{{ categoryid }}</td>
                     <td>{{ categoryname }}</td>
                     <td>
-                        <select name="destinyid" data-action="destiny" data-courseid="{{ id }}">
-                            <option value="0" selected>{{#str}} newcourse {{/str}}</option>
+                        <select name="destinyid" data-action="destiny">
+                            <option value="0 selected">Curso Nuevo</option>
                             {{# destinies }}
                             <option value="{{ id }}">{{ name }} ({{ shortname }})</option>
                             {{/ destinies }}

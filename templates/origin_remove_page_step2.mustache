@@ -15,12 +15,12 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
   }}
 {{!
-  @template local_coursetransfer/origin_remove_page
+  @template local_coursetransfer/origin_remove_step2_page
 
   Example context (json):
 
 }}
-<div class="local_coursetransfer" data-region="origin_remove_page" data-nexturl="{{ next_url }}">
+<div class="local_coursetransfer" data-region="origin_remove_step2_page" data-nexturl="{{ next_url }}">
 
     {{> local_coursetransfer/components/stepbystep }}
 
@@ -37,13 +37,13 @@
     body#page-local-coursetransfer-origin_remove .page-header-headings .h2 {
         display: none;
     }
-    div[data-region='origin_remove_page']{
+    div[data-region='origin_remove_step2_page']{
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
     }
-    div[data-region='origin_remove_page'] h3.h3{
+    div[data-region='origin_remove_step2_page'] h3.h3{
         font-size: 28px;
         font-weight: 600;
         margin: auto;
@@ -51,7 +51,7 @@
         padding: 10px;
         text-align: center;
     }
-    div[data-region='origin_remove_page'] p{
+    div[data-region='origin_remove_step2_page'] p{
         font-size: 16px;
         font-weight: 400;
         margin: auto;
@@ -59,12 +59,12 @@
         padding: 10px;
         text-align: center;
     }
-    div[data-region='origin_remove_page'] form{
+    div[data-region='origin_remove_step2_page'] form{
         margin: auto;
         width: 100%;
         padding: 10px;
     }
-    div[data-region='origin_remove_page'] div.alert-danger{
+    div[data-region='origin_remove_step2_page'] div.alert-danger{
         margin: auto;
         width: 100%;
         padding: 10px;
@@ -73,13 +73,19 @@
         font-size: 16px;
         font-weight: 400;
     }
-    div[data-region='origin_remove_page'] div.button-container{
+    div[data-region='origin_remove_step2_page'] div.button-container{
         padding: 10px;
     }
-    div[data-region='origin_remove_page'] div.button-container a.btn-primary{
+    div[data-region='origin_remove_step2_page'] div.button-container a.btn-primary{
         background: #0D6EFD;
     }
-    div[data-region='origin_remove_page'] div.button-container a.btn-light{
+    div[data-region='origin_remove_step2_page'] div.button-container a.btn-light{
         border: 1px solid black;
     }
 </style>
+{{#js}}
+    require(['local_coursetransfer/origin_remove_step2_page'], function(originRemoveStep2) {
+        originRemoveStep2.initOriginRemoveStep2('[data-region="origin_remove_page"]');
+    });
+{{/js}}
+

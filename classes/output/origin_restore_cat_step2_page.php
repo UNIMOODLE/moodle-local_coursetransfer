@@ -32,13 +32,13 @@ use renderer_base;
 use stdClass;
 
 /**
- * origin_restore_step2_page
+ * origin_restore_cat_step2_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_step2_page extends origin_restore_step_page {
+class origin_restore_cat_step2_page extends origin_restore_step_page {
 
     /**
      * Export for Template.
@@ -61,7 +61,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
         );
         $nexturl = new moodle_url(
             '/local/coursetransfer/origin_restore.php',
-            ['step' => 3, 'site' => $this->site, 'type' => 'courses']
+            ['step' => 3, 'site' => $this->site, 'type' => 'categories']
         );
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
@@ -77,9 +77,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
                 $destinies = [];
                 foreach ($coursesdest as $cd) {
                     $destinies[] = [
-                            'id' => $cd->id,
-                            'name' => $cd->fullname,
-                            'shortname' => $cd->shortname
+                            'id' => $cd->id, 'name' => $cd->fullname, 'shortname' => $cd->shortname
                     ];
                 }
                 foreach ($courses as $c) {

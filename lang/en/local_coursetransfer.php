@@ -182,3 +182,4 @@ $string['origin_restore_courses_title'] = "Restore Source Courses";
 $string['origin_restore_courses_desc'] = 'Select the courses you want to restore from the source site and link the corresponding destination';
 $string['origin_restore_courses_list'] = "Source Site Course List";
 $string['step2_course_destiny'] = "Destiny Course";
+$string['origin_restore_step4_desc'] = "Review the selected courses, their destination, and settings before running the remote restore";

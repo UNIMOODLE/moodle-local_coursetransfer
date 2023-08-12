@@ -24,21 +24,19 @@
 
 namespace local_coursetransfer\output;
 
-use local_coursetransfer\api\request;
-use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use moodle_url;
 use renderer_base;
 use stdClass;
 
 /**
- * origin_restore_step2_page
+ * origin_restore_step3_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_step2_page extends origin_restore_step_page {
+class origin_restore_step3_page extends origin_restore_step_page {
 
     /**
      * Export for Template.
@@ -52,51 +50,21 @@ class origin_restore_step2_page extends origin_restore_step_page {
         $data->button = true;
         $data->steps = [
                 ['current' => false, 'num' => 1],
-                ['current' => true,  'num' => 2],
-                ['current' => false, 'num' => 3],
+                ['current' => false,  'num' => 2],
+                ['current' => true, 'num' => 3],
                 ['current' => false, 'num' => 4]
         ];
         $backurl = new moodle_url(
-            '/local/coursetransfer/origin_restore.php'
+                '/local/coursetransfer/origin_restore.php',
+                ['step' => 2, 'site' => $this->site, 'type' => 'courses']
         );
         $nexturl = new moodle_url(
             '/local/coursetransfer/origin_restore.php',
-            ['step' => 3, 'site' => $this->site, 'type' => 'courses']
+            ['step' => 4, 'site' => $this->site, 'type' => 'courses']
         );
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
-        $site = coursetransfer::get_site_by_position($this->site);
-
-        try {
-            $request = new request($site);
-            $res = $request->origin_get_courses();
-            if ($res->success) {
-                $courses = $res->data;
-                $datacourses = [];
-                $coursesdest = get_courses();
-                $destinies = [];
-                foreach ($coursesdest as $cd) {
-                    $destinies[] = [
-                            'id' => $cd->id,
-                            'name' => $cd->fullname,
-                            'shortname' => $cd->shortname
-                    ];
-                }
-                foreach ($courses as $c) {
-                    $c->destinies = $destinies;
-                    $datacourses[] = $c;
-                }
-                $data->courses = $datacourses;
-                $data->haserrors = false;
-            } else {
-                $data->errors = $res->errors;
-                $data->haserrors = true;
-            }
-        } catch (moodle_exception $e) {
-            $data->errors = ['code' => '201001', 'msg' => $e->getMessage()];
-            $data->haserrors = true;
-        }
-        $data->next_url_disabled = true;
+        $data->next_url_disabled = false;
         return $data;
     }
 }

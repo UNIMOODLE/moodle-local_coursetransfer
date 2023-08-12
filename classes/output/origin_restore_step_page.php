@@ -39,9 +39,6 @@ use templatable;
  */
 class origin_restore_step_page implements renderable, templatable {
 
-    /** @var string Type */
-    protected $type;
-
     /** @var int Site */
     protected $site;
 
@@ -51,7 +48,6 @@ class origin_restore_step_page implements renderable, templatable {
      * @throws coding_exception
      */
     public function __construct() {
-        $this->type = required_param('type', PARAM_TEXT);
         $this->site = required_param('site', PARAM_INT);
     }
 

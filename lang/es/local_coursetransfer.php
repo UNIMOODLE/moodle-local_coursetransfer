@@ -183,3 +183,5 @@ $string['origin_restore_courses_title'] = "Restaurar cursos de origen";
 $string['origin_restore_courses_desc'] = "Seleccione los cursos que quiere restaurar del sitio de origen y vincule el destino correspondiente";
 $string['origin_restore_courses_list'] = "Lista de cursos del sitio de origen";
 $string['step2_course_destiny'] = "Curso de Destino";
+$string['origin_restore_step4_desc'] = "Revisa los cursos seleccionados, su destino y la configuración antes de ejecutar la restauración remota";
+

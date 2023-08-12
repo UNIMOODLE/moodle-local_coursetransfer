@@ -32,13 +32,13 @@ use renderer_base;
 use stdClass;
 
 /**
- * origin_restore_step2_page
+ * origin_restore_step4_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_step2_page extends origin_restore_step_page {
+class origin_restore_step4_page extends origin_restore_step_page {
 
     /**
      * Export for Template.
@@ -52,19 +52,20 @@ class origin_restore_step2_page extends origin_restore_step_page {
         $data->button = true;
         $data->steps = [
                 ['current' => false, 'num' => 1],
-                ['current' => true,  'num' => 2],
+                ['current' => false,  'num' => 2],
                 ['current' => false, 'num' => 3],
-                ['current' => false, 'num' => 4]
+                ['current' => true, 'num' => 4]
         ];
         $backurl = new moodle_url(
-            '/local/coursetransfer/origin_restore.php'
-        );
-        $nexturl = new moodle_url(
-            '/local/coursetransfer/origin_restore.php',
-            ['step' => 3, 'site' => $this->site, 'type' => 'courses']
+                '/local/coursetransfer/origin_restore.php',
+                ['step' => 3, 'site' => $this->site, 'type' => 'courses']
         );
         $data->back_url = $backurl->out(false);
-        $data->next_url = $nexturl->out(false);
+        $data->next_url_disabled = false;
+        $siteposition = required_param('site', PARAM_RAW);
+        $data->siteposition = $siteposition;
+        $site = coursetransfer::get_site_by_position($siteposition);
+        $data->host = $site->host;
         $site = coursetransfer::get_site_by_position($this->site);
 
         try {
@@ -96,7 +97,6 @@ class origin_restore_step2_page extends origin_restore_step_page {
             $data->errors = ['code' => '201001', 'msg' => $e->getMessage()];
             $data->haserrors = true;
         }
-        $data->next_url_disabled = true;
         return $data;
     }
 }
