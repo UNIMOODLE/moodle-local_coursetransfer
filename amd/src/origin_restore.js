@@ -74,6 +74,20 @@ define([
             });
         };
 
+        /**
+         *
+         * @param {String[]} errors
+         * @param {String} alertbox
+         */
+        originRestore.prototype.renderErrors = function(errors, alertbox) {
+            let errorString = "";
+            alertbox.removeClass("hidden");
+            errors.forEach(error => {
+                errorString += 'Error (' + error.code + '): ' + error.msg + '<br>';
+            });
+            alertbox.append(errorString);
+        };
+
 
         originRestore.prototype.node = null;
 

@@ -47,7 +47,7 @@ define([
         function originRestoreCatStep2(region) {
             this.node = $(region);
             let data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_cat_page'));
-            if (data) {
+            if (data && data.catid) {
                 let catid = parseInt(data.catid);
                 $(ACTIONS.CAT_SELECT + '[data-id="' + catid + '"]').prop( "checked", true );
             }
@@ -80,7 +80,7 @@ define([
                 }
             });
             let data = {
-                catid: catid, destinyid: 0, configuration: { }
+                catid: catid, destinyid: 0, configuration: []
             };
             sessionStorage.setItem('local_coursetransfer_restore_cat_page', JSON.stringify(data));
 

@@ -72,7 +72,7 @@ switch ($step) {
     case 4:
         $type = required_param('type', PARAM_TEXT);
         if ($type === 'categories') {
-            //$page = new \local_coursetransfer\output\origin_restore_cat_step3_page();
+            $page = new \local_coursetransfer\output\origin_restore_cat_step4_page();
         } else {
             $page = new \local_coursetransfer\output\origin_restore_step4_page();
         }

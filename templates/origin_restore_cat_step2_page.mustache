@@ -33,6 +33,13 @@
     {{/ haserrors }}
 
     {{^ haserrors }}
+        <hr>
+
+        <h4 class="h4">{{#str}} step5_restore_origin_site, local_coursetransfer {{/str}}</h4>
+
+        <div class="origin-site">{{ host }}</div>
+
+        <hr>
         <h3 class="h2">{{#str}} step2_categories_list, local_coursetransfer {{/str}}</h3>
         <table>
             <thead>
@@ -142,6 +149,16 @@
     }
     div[data-region='origin_restore_cat_step2_page'] input[type="radio"]:checked, input[type="radio"]:active {
         box-shadow: none;
+    }
+    div[data-region='origin_restore_cat_step2_page'] div.origin-site {
+        width: 50%;
+        border: 1px solid black;
+        border-radius: 10px;
+        margin: 10px 0;
+        padding: 20px 0;
+        text-align: center;
+        font-size: 16px;
+        font-weight: 400;
     }
 </style>
 

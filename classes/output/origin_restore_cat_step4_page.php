@@ -32,13 +32,13 @@ use renderer_base;
 use stdClass;
 
 /**
- * origin_restore_cat_step3_page
+ * origin_restore_cat_step4_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_cat_step3_page extends origin_restore_step_page {
+class origin_restore_cat_step4_page extends origin_restore_step_page {
 
     /**
      * Export for Template.
@@ -48,32 +48,32 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        $restoreid = required_param('restoreid', PARAM_INT);
+        $siteposition = required_param('site', PARAM_RAW);
         $data = new stdClass();
         $data->button = true;
         $data->steps = [
                 ['current' => false, 'num' => 1],
                 ['current' => false,  'num' => 2],
-                ['current' => true, 'num' => 3],
-                ['current' => false, 'num' => 4]
+                ['current' => false, 'num' => 3],
+                ['current' => true, 'num' => 4]
         ];
         $tableurl = new moodle_url(
                 '/local/coursetransfer/origin_restore.php'
         );
         $backurl = new moodle_url(
                 '/local/coursetransfer/origin_restore.php',
-                ['step' => 2, 'site' => $this->site, 'type' => 'categories']
+                ['step' => 3, 'site' => $this->site, 'type' => 'categories', 'restoreid' => $restoreid]
         );
         $nexturl = new moodle_url(
             '/local/coursetransfer/origin_restore.php',
-            ['step' => 4, 'site' => $this->site, 'type' => 'categories']
+            ['step' => 5, 'site' => $this->site, 'type' => 'categories']
         );
         $data->table_url = $tableurl->out(false);
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $site = coursetransfer::get_site_by_position($this->site);
-
-        $data->host = $site->host;
-
+        $data->siteposition = $siteposition;
         $cats = \core_course_category::get_all();
         $destinies = [];
         foreach ($cats as $cat) {
@@ -98,8 +98,6 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
             $des->idnumber = $cat->idnumber;
             $destinies[] = $des;
         }
-        $restoreid = required_param('restoreid', PARAM_INT);
-
         if (coursetransfer::validate_origin_site($site->host)) {
             $data->haserrors = false;
             try {
@@ -117,7 +115,8 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
             }
         } else {
             $data->haserrors = true;
-            $errors[] = ['code' => '200111', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $errors[] = ['code' => '200111',
+                    'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
         $data->button = true;

@@ -188,3 +188,5 @@ $string['origin_restore_category_title'] = "Restaurar categoría de origen";
 $string['origin_restore_category_desc'] = "Seleccione la categoría que quiere restaurar del sitio de origen";
 $string['step4_destiny_title'] = "Categoría de destino";
 $string['step4_destiny_desc'] = "Seleccione la categoría de destino de la restauración";
+$string['origin_restore_category_step3_desc'] = "Seleccione la categoría de destino y la configuración a aplicar en la restauración";
+$string['origin_restore_category_step4_desc'] = "Revisa las configuraciones seleccionadas antes de ejectuar las restauraciones";

@@ -16,7 +16,7 @@
 /**
  * @package
  * @author  2022 3iPunt <https://www.tresipunt.com/>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v4 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /* eslint-disable no-unused-vars */
@@ -31,10 +31,16 @@ define([
         "use strict";
 
         let SERVICES = {
-            ORIGIN_RESTORE_STEP4: 'local_coursetransfer_origin_restore_step4'
+            ORIGIN_RESTORE_STEP4: 'local_coursetransfer_origin_restore_cat_step4'
         };
 
         let ACTIONS = {
+            CAT_SELECT: '[data-action="select"]',
+            COURSE: '[data-action="course"]',
+            NEXT: '[data-action="next"]',
+            DESTINY: '[data-action="destiny"]',
+            CHECK: '[data-action="check"]',
+            CHECK_ACT: '[data-action="act-check"]',
             RESTORE: '[data-action="execute-restore"]'
         };
 
@@ -44,44 +50,39 @@ define([
          *
          * @constructor
          */
-        function originRestoreStep4(region, site) {
+        function originRestoreCatStep4(region, site) {
             this.node = $(region);
             this.site = site;
-            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'));
+            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_cat_page'));
             if (this.data) {
-                this.data.courses.forEach(function(course) {
-                    let courseid = parseInt(course.courseid);
-                    let destinyid = parseInt(course.destinyid);
-                    let seldestiny = '[data-action="destiny"][data-courseid="' + courseid + '"] option[value="' + destinyid + '"]';
-                    $(seldestiny).prop('selected', true);
-                    let row = 'tr[data-action="course"][data-courseid="' + courseid + '"]';
-                    $(row).prop('selected', true).removeClass('hidden');
-                });
-                this.data.configuration.forEach(function(config) {
-                    let item = $('#' + config.name);
-                    item.prop('disabled', true);
-                    item.prop('checked', config.selected);
-                });
+                if (this.data.destinyid) {
+                    let destinyid = parseInt(this.data.destinyid);
+                    this.node.find(ACTIONS.DESTINY).val(destinyid);
+                    this.node.find(ACTIONS.DESTINY).prop('disabled', true);
+                }
+                if (this.data.configuration) {
+                    this.data.configuration.forEach(function(config) {
+                        let item = $('#' + config.name);
+                        item.prop('checked', config.selected);
+                        item.prop('disabled', true);
+                    });
+                }
                 this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
-            } else {
-                let alertbox = this.node.find(".alert");
-                let errors = [{code: '100078', msg: 'error_session_cache'}];
-                this.renderErrors(errors, alertbox);
             }
         }
 
-        originRestoreStep4.prototype.clickNext = function(e) {
+        originRestoreCatStep4.prototype.clickNext = function(e) {
             let configuration = [];
             this.data.configuration.forEach(function(config) {
                 configuration[config.name] = config.selected;
             });
-
             let alertbox = this.node.find(".alert");
             const request = {
                 methodname: SERVICES.ORIGIN_RESTORE_STEP4,
                 args: {
                     siteurl: this.site,
-                    courses: this.data.courses,
+                    catid: this.data.catid,
+                    destinyid: this.data.destinyid,
                     configuration: {
                         destiny_merge_activities: configuration['destiny_merge_activities'],
                         destiny_remove_activities: configuration['destiny_remove_activities'],
@@ -93,21 +94,21 @@ define([
             let that = this;
             Ajax.call([request])[0].done(function(response) {
                 if (response.success) {
-                    window.location.href = response.data.nexturl;
+                    //window.location.href = response.data.nexturl;
                 } else if (!response.success) {
                     that.renderErrors(response.errors, alertbox);
                 } else {
-                    let errors = [{code: '100071', msg: 'error_not_controlled'}];
+                    let errors = [{code: '100081', msg: 'error_not_controlled'}];
                     that.renderErrors(errors, alertbox);
                 }
             }).fail(function(fail) {
                 let errors = [];
                 if (fail.error) {
-                    errors.push({code: '100072', msg: fail.error});
+                    errors.push({code: '100082', msg: fail.error});
                 } else if (fail.message) {
-                    errors.push({code: '100073', msg: fail.message});
+                    errors.push({code: '100083', msg: fail.message});
                 } else {
-                    errors = [{code: '100074', msg: 'error_not_controlled'}];
+                    errors = [{code: '100084', msg: 'error_not_controlled'}];
                 }
                 that.renderErrors(errors, alertbox);
             });
@@ -118,7 +119,7 @@ define([
          * @param {String[]} errors
          * @param {String} alertbox
          */
-        originRestoreStep4.prototype.renderErrors = function(errors, alertbox) {
+        originRestoreCatStep4.prototype.renderErrors = function(errors, alertbox) {
             let errorString = "";
             alertbox.removeClass("hidden");
             errors.forEach(error => {
@@ -127,17 +128,17 @@ define([
             alertbox.append(errorString);
         };
 
-        originRestoreStep4.prototype.node = null;
+        originRestoreCatStep4.prototype.node = null;
 
         return {
             /**
              * @param {String} region
              * @param {Integer} site
-             * @return {originRestoreStep4}
+             * @return {originRestoreCatStep4}
              */
-            initRestoreStep4: function(region, site) {
+            initRestoreCatStep4: function(region, site) {
                 // eslint-disable-next-line babel/new-cap
-                return new originRestoreStep4(region, site);
+                return new originRestoreCatStep4(region, site);
             }
         };
     });

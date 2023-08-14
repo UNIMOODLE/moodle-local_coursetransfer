@@ -30,6 +30,8 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\factory\course;
+use local_coursetransfer\models\configuration_category;
 use local_coursetransfer\models\configuration_course;
 use moodle_exception;
 use moodle_url;
@@ -224,6 +226,105 @@ class restore_external extends external_api {
      * @return external_single_structure
      */
     public static function origin_restore_step4_returns(): external_single_structure {
+        return new external_single_structure(
+                array(
+                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                        'data' => new external_single_structure(
+                                array(
+                                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#')
+                                )
+                        ),
+                        'errors' => new external_multiple_structure(new external_single_structure(
+                                array(
+                                        'code' => new external_value(PARAM_TEXT, 'Code'),
+                                        'msg' => new external_value(PARAM_RAW, 'Message')
+                                )
+                        ))
+                )
+        );
+    }
+
+    /**
+     * @return external_function_parameters
+     */
+    public static function origin_restore_cat_step4_parameters(): external_function_parameters {
+        return new external_function_parameters(
+                array(
+                        'siteurl' => new external_value(PARAM_INT, 'Site Url'),
+                        'catid' => new external_value(PARAM_INT, 'Origin Category Id'),
+                        'destinyid' => new external_value(PARAM_INT, 'Destiny Category Id'),
+                        'configuration' => new external_single_structure(
+                                array(
+                                        'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
+                                        'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
+                                        'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
+                                        'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities')
+                                )
+                        ),
+                )
+        );
+    }
+
+    /**
+     *
+     *
+     * @param int $siteurl
+     * @param int $catid
+     * @param int $destinyid
+     * @param array $configuration
+     * @return array
+     * @throws invalid_parameter_exception
+     */
+    public static function origin_restore_cat_step4(
+            int $siteurl, int $catid, int $destinyid, array $configuration): array {
+        self::validate_parameters(
+            self::origin_restore_cat_step4_parameters(),
+                [
+                        'siteurl' => $siteurl,
+                        'catid' => $catid,
+                        'destinyid' => $destinyid,
+                        'configuration' => $configuration
+                ]
+        );
+
+        $success = false;
+        $errors = [];
+        $data = new stdClass();
+        $nexturl = new moodle_url('/local/coursetransfer/origin_restore.php');
+        $data->nexturl = $nexturl->out(false);
+
+        try {
+            $site = coursetransfer::get_site_by_position($siteurl);
+            $configuration = new configuration_category(\backup::TARGET_NEW_COURSE,
+                    $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups']);
+
+            $res = coursetransfer::restore_category($site, $destinyid, $catid, $configuration);
+
+            if (!$res['success']) {
+                $errors = $res['errors'];
+            } else {
+                $success = true;
+            }
+
+        } catch (moodle_exception $e) {
+            $errors[] =
+                [
+                    'code' => '200101',
+                    'msg' => $e->getMessage()
+                ];
+        }
+
+        return [
+            'success' => $success,
+            'errors' => $errors,
+            'data' => $data
+        ];
+    }
+
+    /**
+     * @return external_single_structure
+     */
+    public static function origin_restore_cat_step4_returns(): external_single_structure {
         return new external_single_structure(
                 array(
                         'success' => new external_value(PARAM_BOOL, 'Was it a success?'),

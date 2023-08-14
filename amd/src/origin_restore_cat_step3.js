@@ -46,14 +46,36 @@ define([
          */
         function originRestoreCatStep3(region) {
             this.node = $(region);
-            let data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_cat_page'));
+            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_cat_page'));
+            if (this.data) {
+                if (this.data.destinyid) {
+                    let destinyid = parseInt(this.data.destinyid);
+                    this.node.find(ACTIONS.DESTINY).val(destinyid);
+                }
+                if (this.data.configuration) {
+                    this.data.configuration.forEach(function(config) {
+                        let item = $('#' + config.name);
+                        item.prop('checked', config.selected);
+                    });
+                }
+            }
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
-            console.log('PASO 3');
         }
 
-
         originRestoreCatStep3.prototype.clickNext = function(e) {
+            this.data.destinyid = parseInt(this.node.find(ACTIONS.DESTINY).val());
+            let configuration = [];
+            let checkboxes = $('.configuration-checkbox');
+            checkboxes.each(function() {
+                configuration.push({'name': $(this).attr('id'), 'selected': $(this).prop('checked')});
+            });
+            this.data.configuration = configuration;
+            sessionStorage.setItem('local_coursetransfer_restore_cat_page', JSON.stringify(this.data));
 
+            let currentUrl = $(location).attr('href');
+            let url = new URL(currentUrl);
+            url.searchParams.set('step', '4');
+            window.location.href = url.href;
         };
 
         originRestoreCatStep3.prototype.node = null;

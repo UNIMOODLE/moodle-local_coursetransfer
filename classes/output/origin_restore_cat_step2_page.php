@@ -54,8 +54,7 @@ class origin_restore_cat_step2_page extends origin_restore_step_page {
                 ['current' => false, 'num' => 1],
                 ['current' => true,  'num' => 2],
                 ['current' => false, 'num' => 3],
-                ['current' => false, 'num' => 4],
-                ['current' => false, 'num' => 5]
+                ['current' => false, 'num' => 4]
         ];
         $backurl = new moodle_url(
             '/local/coursetransfer/origin_restore.php'
@@ -68,6 +67,7 @@ class origin_restore_cat_step2_page extends origin_restore_step_page {
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $site = coursetransfer::get_site_by_position($this->site);
+        $data->host = $site->host;
 
         try {
             $request = new request($site);

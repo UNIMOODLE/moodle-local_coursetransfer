@@ -20,25 +20,19 @@
   Example context (json):
 
 }}
-<div class="local_coursetransfer" data-region="origin_restore_cat_step3_page">
+<div class="local_coursetransfer" data-region="origin_restore_cat_step4_page">
 
     {{> local_coursetransfer/components/stepbystep }}
 
     <h3 class="h3">{{#str}} origin_restore_category_title, local_coursetransfer {{/str}}</h3>
 
-    <p>{{#str}} origin_restore_category_step3_desc, local_coursetransfer {{/str}}</p>
+    <p>{{#str}} origin_restore_category_step4_desc, local_coursetransfer {{/str}}</p>
 
     {{# haserrors }}
         {{> local_coursetransfer/components/alert }}
     {{/ haserrors }}
 
     {{^ haserrors }}
-
-        <hr>
-
-        <h4 class="h4">{{#str}} step5_restore_origin_site, local_coursetransfer {{/str}}</h4>
-
-        <div class="origin-site">{{ host }}</div>
 
         {{> local_coursetransfer/components/category_details }}
 
@@ -65,7 +59,11 @@
         <div class="alert alert-danger hidden" role="alert"></div>
     {{/ haserrors }}
 
-    {{> local_coursetransfer/components/action_buttons }}
+    <div class="button-container">
+        <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
+        <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
+        <button type="button" class="btn btn-primary" data-action="execute-restore">{{#str}} execute_restore, local_coursetransfer {{/str}}</button>
+    </div>
 
 </div>
 <style>
@@ -75,28 +73,28 @@
     #page-local-coursetransfer-origin_restore .main-inner {
         max-width: 100% !important;
     }
-    div[data-region='origin_restore_cat_step3_page'] {
+    div[data-region='origin_restore_cat_step4_page'] {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
     }
-    div[data-region='origin_restore_cat_step3_page'] div[data-region="stepbystep"] {
+    div[data-region='origin_restore_cat_step4_page'] div[data-region="stepbystep"] {
         margin: auto;
         width: 50%;
         padding: 10px;
     }
-    div[data-region='origin_restore_cat_step3_page'] .text-white {
+    div[data-region='origin_restore_cat_step4_page'] .text-white {
         padding: 0 10px;
     }
-    div[data-region='origin_restore_cat_step3_page'] h3.h2 {
+    div[data-region='origin_restore_cat_step4_page'] h3.h2 {
         font-size: 24px;
         font-weight: 600;
         width: 100%;
         padding: 10px;
         text-align: left;
     }
-    div[data-region='origin_restore_cat_step3_page'] h3.h3 {
+    div[data-region='origin_restore_cat_step4_page'] h3.h3 {
         font-size: 28px;
         font-weight: 600;
         margin: auto;
@@ -104,25 +102,25 @@
         padding: 10px;
         text-align: center;
     }
-    div[data-region='origin_restore_cat_step3_page'] table {
+    div[data-region='origin_restore_cat_step4_page'] table {
         width: 100%;
     }
-    div[data-region='origin_restore_cat_step3_page'] table tr {
+    div[data-region='origin_restore_cat_step4_page'] table tr {
         font-size: 14px;
         font-weight: 400;
     }
-    div[data-region='origin_restore_cat_step3_page'] table th {
+    div[data-region='origin_restore_cat_step4_page'] table th {
         border-bottom: 2px solid #9396AA;
         padding: 10px;
     }
-    div[data-region='origin_restore_cat_step3_page'] table td {
+    div[data-region='origin_restore_cat_step4_page'] table td {
         border-top: 1px solid #D7D8E2;
         padding: 10px;
     }
-    div[data-region='origin_restore_cat_step3_page'] tbody {
+    div[data-region='origin_restore_cat_step4_page'] tbody {
         color: #7C7C7C;
     }
-    div[data-region='origin_restore_cat_step3_page'] p {
+    div[data-region='origin_restore_cat_step4_page'] p {
         font-size: 16px;
         font-weight: 400;
         margin: auto;
@@ -130,36 +128,26 @@
         padding: 10px;
         text-align: center;
     }
-    div[data-region='origin_restore_cat_step3_page'] div.button-container {
+    div[data-region='origin_restore_cat_step4_page'] div.button-container {
         padding: 10px;
     }
-    div[data-region='origin_restore_cat_step3_page'] div.button-container a.btn-primary {
+    div[data-region='origin_restore_cat_step4_page'] div.button-container a.btn-primary {
         background: #0D6EFD;
     }
-    div[data-region='origin_restore_cat_step3_page'] div.button-container a.btn-light {
+    div[data-region='origin_restore_cat_step4_page'] div.button-container a.btn-light {
         border: 1px solid black;
     }
-    div[data-region='origin_restore_cat_step3_page'] tr.selected {
+    div[data-region='origin_restore_cat_step4_page'] tr.selected {
         color: black;
         background-color: #F7F9FC;
     }
-    div[data-region='origin_restore_cat_step3_page'] input[type="radio"]:checked, input[type="radio"]:active {
+    div[data-region='origin_restore_cat_step4_page'] input[type="radio"]:checked, input[type="radio"]:active {
         box-shadow: none;
-    }
-    div[data-region='origin_restore_cat_step3_page'] div.origin-site {
-        width: 50%;
-        border: 1px solid black;
-        border-radius: 10px;
-        margin: 10px 0;
-        padding: 20px 0;
-        text-align: center;
-        font-size: 16px;
-        font-weight: 400;
     }
 </style>
 
 {{#js}}
-    require(['local_coursetransfer/origin_restore_cat_step3'], function(restoreCatStep3) {
-        restoreCatStep3.initRestoreCatStep3('[data-region="origin_restore_cat_step3_page"]');
+    require(['local_coursetransfer/origin_restore_cat_step4'], function(restoreCatStep4) {
+        restoreCatStep4.initRestoreCatStep4('[data-region="origin_restore_cat_step4_page"]', '{{ siteposition }}');
     });
 {{/js}}

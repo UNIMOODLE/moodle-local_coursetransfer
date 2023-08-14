@@ -187,3 +187,6 @@ $string['origin_restore_category_title'] = "Restore Source Category";
 $string['origin_restore_category_desc'] = "Select the category you want to restore from the source site";
 $string['step4_destiny_title'] = "Destination category";
 $string['step4_destiny_desc'] = "Select the destination category of the restore";
+$string['origin_restore_category_step3_desc'] = "Select the destination category and settings to apply to the restore";
+$string['origin_restore_category_step4_desc'] = "Review selected settings before running restores";
+
