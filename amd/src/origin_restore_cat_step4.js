@@ -72,6 +72,8 @@ define([
         }
 
         originRestoreCatStep4.prototype.clickNext = function(e) {
+            this.node.find(ACTIONS.RESTORE).prop('disabled', true);
+
             let configuration = [];
             this.data.configuration.forEach(function(config) {
                 configuration[config.name] = config.selected;
@@ -94,7 +96,7 @@ define([
             let that = this;
             Ajax.call([request])[0].done(function(response) {
                 if (response.success) {
-                    //window.location.href = response.data.nexturl;
+                    window.location.href = response.data.nexturl;
                 } else if (!response.success) {
                     that.renderErrors(response.errors, alertbox);
                 } else {

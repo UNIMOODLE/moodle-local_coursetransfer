@@ -71,6 +71,8 @@ define([
         }
 
         originRestoreStep4.prototype.clickNext = function(e) {
+            this.node.find(ACTIONS.RESTORE).prop('disabled', true);
+
             let configuration = [];
             this.data.configuration.forEach(function(config) {
                 configuration[config.name] = config.selected;
