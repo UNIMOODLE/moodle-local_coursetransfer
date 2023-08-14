@@ -183,6 +183,7 @@ class origin_course_backup_external extends external_api {
                         $data->course_category_id = $course->category;
                         $category = core_course_category::get($course->category);
                         $data->course_category_name = $category->name;
+                        $data->course_category_idnumber = $category->idnumber;
                         $success = true;
                     } else {
                         $success = false;
@@ -238,6 +239,7 @@ class origin_course_backup_external extends external_api {
                         'course_idnumber' => new external_value(PARAM_RAW, 'Origin Course ID Number', VALUE_OPTIONAL),
                         'course_category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                         'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
+                        'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
                         'origin_backup_size_estimated' => new external_value(PARAM_INT,
                             'Backup Size Estimated (MB)', VALUE_OPTIONAL ),
                     ), PARAM_TEXT, 'Data'

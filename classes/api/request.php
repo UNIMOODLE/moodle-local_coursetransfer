@@ -258,6 +258,44 @@ class request {
     }
 
     /**
+     * Origin remove course remote.
+     *
+     * @param int $requestid
+     * @param int $origincourseid
+     * @return response
+     * @throws dml_exception
+     */
+    public function origin_remove_course(int $requestid, int $origincourseid): response {
+        global $USER, $CFG;
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params['field']};
+        $params['courseid'] = $origincourseid;
+        $params['requestid'] = $requestid;
+        $params['destinysite'] = $CFG->wwwroot;
+        return $this->req('local_coursetransfer_origin_remove_course', $params);
+    }
+
+    /**
+     * Origin remove category remote.
+     *
+     * @param int $requestid
+     * @param int $origincatid
+     * @return response
+     * @throws dml_exception
+     */
+    public function origin_remove_category(int $requestid, int $origincatid): response {
+        global $USER, $CFG;
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params['field']};
+        $params['catid'] = $origincatid;
+        $params['requestid'] = $requestid;
+        $params['destinysite'] = $CFG->wwwroot;
+        return $this->req('local_coursetransfer_origin_remove_course', $params);
+    }
+
+    /**
      * Request.
      *
      * @param string $wsname

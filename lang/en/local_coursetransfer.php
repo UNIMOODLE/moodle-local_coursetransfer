@@ -189,4 +189,11 @@ $string['step4_destiny_title'] = "Destination category";
 $string['step4_destiny_desc'] = "Select the destination category of the restore";
 $string['origin_restore_category_step3_desc'] = "Select the destination category and settings to apply to the restore";
 $string['origin_restore_category_step4_desc'] = "Review selected settings before running restores";
+$string['course_categories_remove'] = "Delete courses or category";
+$string['course_categories_remove_help'] = "Select if you want to delete a list of courses or an entire category";
+$string['remove_course_page'] = "Delete remote courses";
+$string['remove_page_course_desc'] = "Select the remote site courses you want to delete";
+$string['origin_remove_step3_desc'] = "Review the courses selected to delete on the site of origin.";
+$string['origin_remove_courses_list'] = "Courses to be deleted at the site of origin.";
+
 

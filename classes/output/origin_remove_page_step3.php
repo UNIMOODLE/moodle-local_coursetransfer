@@ -24,53 +24,65 @@
 
 namespace local_coursetransfer\output;
 
+use coding_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use moodle_url;
+use renderable;
 use renderer_base;
 use stdClass;
+use templatable;
 
 /**
- * origin_restore_step4_page
+ * origin_remove_page_step3
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_step4_page extends origin_restore_step_page {
+class origin_remove_page_step3 implements renderable, templatable {
+
+    /** @var int Site */
+    protected $site;
+
+    /**
+     *  constructor.
+     *
+     * @throws coding_exception
+     */
+    public function __construct() {
+        $this->site = required_param('site', PARAM_INT);
+    }
 
     /**
      * Export for Template.
      *
      * @param renderer_base $output
      * @return stdClass
+     * @throws coding_exception
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+
         $data = new stdClass();
-        $data->button = true;
         $data->steps = [
                 ['current' => false, 'num' => 1],
-                ['current' => false,  'num' => 2],
-                ['current' => false, 'num' => 3],
-                ['current' => true, 'num' => 4]
+                ['current' => true, 'num' => 2],
+                ['current' => false, 'num' => 3]
         ];
         $backurl = new moodle_url(
-                '/local/coursetransfer/origin_restore.php',
-                ['step' => 3, 'site' => $this->site, 'type' => 'courses']
+                '/local/coursetransfer/origin_remove.php',
+                ['step' => 2, 'site' => $this->site, 'type' => 'courses']
         );
         $tableurl = new moodle_url(
-                '/local/coursetransfer/origin_restore.php'
+                '/local/coursetransfer/origin_remove.php'
         );
         $data->table_url = $tableurl->out(false);
         $data->back_url = $backurl->out(false);
-        $data->next_url_disabled = false;
-        $siteposition = required_param('site', PARAM_RAW);
-        $data->siteposition = $siteposition;
-        $site = coursetransfer::get_site_by_position($siteposition);
+        $site = coursetransfer::get_site_by_position($this->site);
+        $data->siteposition = $this->site;
         $data->host = $site->host;
-
         try {
             $request = new request($site);
             $res = $request->origin_get_courses();
@@ -97,9 +109,13 @@ class origin_restore_step4_page extends origin_restore_step_page {
                 $data->haserrors = true;
             }
         } catch (moodle_exception $e) {
-            $data->errors = ['code' => '201001', 'msg' => $e->getMessage()];
+            $data->errors = ['code' => '205001', 'msg' => $e->getMessage()];
             $data->haserrors = true;
         }
+        $data->next_url_disabled = true;
+        $data->button = true;
+
         return $data;
     }
+
 }

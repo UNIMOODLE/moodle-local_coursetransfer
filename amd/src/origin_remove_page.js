@@ -30,7 +30,7 @@ define([
 ], function($, Str, Ajax, Templates) {
     "use strict";
     let SERVICES = {
-        REMOVE_COURSE_STEP1: 'local_coursetransfer_origin_remove_courses_step1'
+        REMOVE_COURSE_STEP1: 'local_coursetransfer_origin_remove_step1'
     };
 
     let ACTIONS = {
@@ -51,10 +51,12 @@ define([
         let self = this; // Store the reference of this.
         let alertbox = this.node.find(".alert");
         let siteurl = this.node.find("#id_origin_site option:selected").val();
+        let type = this.node.find("#id_course_categories option:selected").val();
         const request = {
             methodname: SERVICES.REMOVE_COURSE_STEP1,
             args: {
                 siteurl: siteurl,
+                type: type
             }
         };
         Ajax.call([request])[0].done(function(response) {

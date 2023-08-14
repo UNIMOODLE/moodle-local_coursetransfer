@@ -15,30 +15,38 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
   }}
 {{!
-  @template local_coursetransfer/origin_remove_step2_page
+  @template local_coursetransfer/origin_remove_step3_page
 
   Example context (json):
 
 }}
-<div class="local_coursetransfer" data-region="origin_remove_step2_page" data-nexturl="{{ next_url }}">
+<div class="local_coursetransfer" data-region="origin_remove_step3_page" data-nexturl="{{ next_url }}">
 
     {{> local_coursetransfer/components/stepbystep }}
 
     <h3 class="h3">{{#str}} remove_course_page, local_coursetransfer {{/str}}</h3>
-
-    <p>{{#str}} remove_page_course_desc, local_coursetransfer {{/str}}</p>
 
     {{# haserrors }}
         {{> local_coursetransfer/components/alert }}
     {{/ haserrors }}
 
     {{^ haserrors }}
-        <h3 class="h2">{{#str}} origin_restore_courses_list, local_coursetransfer {{/str}}{{ categoryname }}</h3>
+        <h3 class="h3">{{#str}} summary, local_coursetransfer {{/str}}</h3>
+        <p>{{#str}} origin_remove_step3_desc, local_coursetransfer {{/str}}</p>
+
+        <hr>
+
+        <h4 class="h4">{{#str}} step5_restore_origin_site, local_coursetransfer {{/str}}</h4>
+
+        <div class="origin-site">{{ host }}</div>
+
+        <hr>
+
+        <h4 class="h4">{{#str}} origin_remove_courses_list, local_coursetransfer {{/str}}{{ categoryname }}</h4>
 
         <table style="width: 100%">
             <thead>
             <tr>
-                <th></th>
                 <th>{{#str}} step2_course_id, local_coursetransfer {{/str}}</th>
                 <th>{{#str}} step2_course_name, local_coursetransfer {{/str}}</th>
                 <th>{{#str}} step2_course_shortname, local_coursetransfer {{/str}}</th>
@@ -49,12 +57,7 @@
             </thead>
             <tbody>
             {{# courses }}
-                <tr data-action="course">
-                    <td><input type="checkbox"
-                               name="radiogroup"
-                               data-action="select"
-                               data-courseid="{{ id }}"
-                        {{# disabled }}disabled{{/ disabled }} {{# checked }}checked{{/ checked }}></td>
+                <tr data-action="course" data-courseid="{{ id }}" class="hidden">
                     <td id="courseid"><a href="{{ url }}" target="_blank">{{ id }}</a></td>
                     <td>{{ fullname }}</td>
                     <td>{{ shortname }}</td>
@@ -74,7 +77,11 @@
         <div class="alert alert-danger hidden" role="alert"></div>
     {{/ haserrors }}
 
-    {{> local_coursetransfer/components/action_buttons }}
+    <div class="button-container">
+        <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
+        <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
+        <button type="button" class="btn btn-primary" data-action="execute-restore">{{#str}} execute_restore, local_coursetransfer {{/str}}</button>
+    </div>
 
 </div>
 <style>
@@ -84,25 +91,25 @@
     #page-local-coursetransfer-origin_restore .main-inner {
         max-width: 100% !important;
     }
-    div[data-region='origin_remove_step2_page'] {
+    div[data-region='origin_remove_step3_page'] {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
     }
-    div[data-region='origin_remove_step2_page'] div[data-region="stepbystep"] {
+    div[data-region='origin_remove_step3_page'] div[data-region="stepbystep"] {
         margin: auto;
         width: 50%;
         padding: 10px;
     }
-    div[data-region='origin_remove_step2_page'] h3.h2 {
+    div[data-region='origin_remove_step3_page'] h3.h2 {
         font-size: 24px;
         font-weight: 600;
         width: 100%;
         padding: 10px;
         text-align: left;
     }
-    div[data-region='origin_remove_step2_page'] h3.h3 {
+    div[data-region='origin_remove_step3_page'] h3.h3 {
         font-size: 28px;
         font-weight: 600;
         margin: auto;
@@ -110,25 +117,25 @@
         padding: 10px;
         text-align: center;
     }
-    div[data-region='origin_remove_step2_page'] table {
+    div[data-region='origin_remove_step3_page'] table {
         width: 100%;
     }
-    div[data-region='origin_remove_step2_page'] table tr {
+    div[data-region='origin_remove_step3_page'] table tr {
         font-size: 14px;
         font-weight: 400;
     }
-    div[data-region='origin_remove_step2_page'] table th {
+    div[data-region='origin_remove_step3_page'] table th {
         border-bottom: 2px solid #9396AA;
         padding: 10px;
     }
-    div[data-region='origin_remove_step2_page'] table td {
+    div[data-region='origin_remove_step3_page'] table td {
         border-top: 1px solid #D7D8E2;
         padding: 10px;
     }
-    div[data-region='origin_remove_step2_page'] tbody {
+    div[data-region='origin_remove_step3_page'] tbody {
         color: #7C7C7C;
     }
-    div[data-region='origin_remove_step2_page'] p {
+    div[data-region='origin_remove_step3_page'] p {
         font-size: 16px;
         font-weight: 400;
         margin: auto;
@@ -136,26 +143,36 @@
         padding: 10px;
         text-align: center;
     }
-    div[data-region='origin_remove_step2_page'] div.button-container {
+    div[data-region='origin_remove_step3_page'] div.button-container {
         padding: 10px;
     }
-    div[data-region='origin_remove_step2_page'] div.button-container a.btn-primary {
+    div[data-region='origin_remove_step3_page'] div.button-container a.btn-primary {
         background: #0D6EFD;
     }
-    div[data-region='origin_remove_step2_page'] div.button-container a.btn-light {
+    div[data-region='origin_remove_step3_page'] div.button-container a.btn-light {
         border: 1px solid black;
     }
-    div[data-region='origin_remove_step2_page'] tr.selected {
+    div[data-region='origin_remove_step3_page'] tr.selected {
         color: black;
         background-color: #F7F9FC;
     }
-    div[data-region='origin_remove_step2_page'] input[type="radio"]:checked, input[type="radio"]:active {
+    div[data-region='origin_remove_step3_page'] input[type="radio"]:checked, input[type="radio"]:active {
         box-shadow: none;
+    }
+    div[data-region='origin_remove_step3_page'] div.origin-site {
+        width: 50%;
+        border: 1px solid black;
+        border-radius: 10px;
+        margin: 10px 0;
+        padding: 20px 0;
+        text-align: center;
+        font-size: 16px;
+        font-weight: 400;
     }
 </style>
 {{#js}}
-    require(['local_coursetransfer/origin_remove_step2_page'], function(originRemoveStep2) {
-        originRemoveStep2.initOriginRemoveStep2('[data-region="origin_remove_step2_page"]');
+    require(['local_coursetransfer/origin_remove_step3_page'], function(originRemoveStep3) {
+        originRemoveStep3.initOriginRemoveStep3('[data-region="origin_remove_step3_page"]', '{{ siteposition }}');
     });
 {{/js}}
 

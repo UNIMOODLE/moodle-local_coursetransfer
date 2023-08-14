@@ -206,6 +206,7 @@ class origin_category_external extends external_api {
                     $course->categoryid = $c->category;
                     $ccategory = core_course_category::get($c->category);
                     $course->categoryname = $ccategory->name;
+                    $course->categoryidnumber = $ccategory->idnumber;
                     $courses[] = $course;
                 }
             }
@@ -264,6 +265,7 @@ class origin_category_external extends external_api {
                                 'idnumber' => new external_value(PARAM_TEXT, 'Course Idnumber', VALUE_OPTIONAL),
                                 'categoryid' => new external_value(PARAM_INT, 'Category Id', VALUE_OPTIONAL),
                                 'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
+                                'categoryidnumber' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
                                 )
                             )
                         )

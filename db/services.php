@@ -24,6 +24,7 @@ use local_coursetransfer\external\origin_category_external;
 use local_coursetransfer\external\origin_course_backup_external;
 use local_coursetransfer\external\origin_course_external;
 use local_coursetransfer\external\origin_user_external;
+use local_coursetransfer\external\remove_external;
 use local_coursetransfer\external\restore_category_external;
 use local_coursetransfer\external\restore_course_external;
 use local_coursetransfer\external\restore_external;
@@ -176,6 +177,33 @@ $functions = [
             'loginrequired' => false
     ],
 
+    'local_coursetransfer_origin_remove_step1' => [
+            'classname' => remove_external::class,
+            'methodname' => 'origin_remove_step1',
+            'description' => 'Execute courses or category remove from moodle remote in step1',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => false
+    ],
+
+    'local_coursetransfer_origin_remove_step3' => [
+            'classname' => remove_external::class,
+            'methodname' => 'origin_remove_step3',
+            'description' => 'Execute courses remove from moodle remote in step3',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => false
+    ],
+
+    'local_coursetransfer_origin_remove_cat_step3' => [
+            'classname' => remove_external::class,
+            'methodname' => 'origin_remove_cat_step3',
+            'description' => 'Execute category remove from moodle remote in step3',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => false
+    ],
+
 ];
 
 $services = [
@@ -195,7 +223,10 @@ $services = [
             'local_coursetransfer_new_origin_restore_category_step4',
             'local_coursetransfer_origin_restore_step1',
             'local_coursetransfer_origin_restore_step4',
-            'local_coursetransfer_origin_restore_cat_step4'
+            'local_coursetransfer_origin_restore_cat_step4',
+            'local_coursetransfer_origin_remove_step1',
+            'local_coursetransfer_origin_remove_step3',
+            'local_coursetransfer_origin_remove_cat_step3'
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,

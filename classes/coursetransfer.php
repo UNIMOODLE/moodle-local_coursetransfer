@@ -479,10 +479,8 @@ class coursetransfer {
                 $value = self::section_is_included($section, $sectionsselected);
                 $rootusers = ($value === 1) && ($rootusers === 1);
                 $nameincluded = 'section_' . $section->id . '_included';
-                //error_log('** sec name included: ' . $nameincluded);
                 $bc->get_plan()->get_setting($nameincluded)->set_value($value);
                 $nameuserinfo = 'section_' . $section->id . '_userinfo';
-                //error_log('** sec name userinfo: ' . $nameuserinfo);
                 $bc->get_plan()->get_setting($nameuserinfo)->set_value($rootusers);
             }
             foreach ($cms as $cm) {
@@ -490,10 +488,8 @@ class coursetransfer {
                     $value = self::cm_is_included($cm, $sectionsselected);
                     $rootusers = ($value === 1) && ($rootusers === 1);
                     $nameincluded = $cm->modname . '_' . $cm->id . '_included';
-                    //error_log('** cm name included: ' . $nameincluded);
                     $bc->get_plan()->get_setting($nameincluded)->set_value($value);
                     $nameuserinfo = $cm->modname . '_' . $cm->id . '_userinfo';
-                    //error_log('** cm name userinfo: ' . $nameuserinfo);
                     $bc->get_plan()->get_setting($nameuserinfo)->set_value($rootusers);
                 }
 
@@ -703,6 +699,103 @@ class coursetransfer {
     }
 
     /**
+     * Remove Course.
+     *
+     * @param stdClass $site
+     * @param int $origincourseid
+     * @return array
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function remove_course(stdClass $site, int $origincourseid): array {
+
+        $errors = [];
+
+        // 1. Request DB.
+        $requestobject = coursetransfer_request::set_request_remove_course($site, $origincourseid);
+
+        // 2. Call CURL Origin Backup Course.
+        $request = new request($site);
+        $res = $request->origin_remove_course($requestobject->id, $origincourseid);
+        // 3. Success or Errors.
+        if ($res->success) {
+            // 4a. Update Request DB Completed.
+            $requestobject->status = coursetransfer_request::STATUS_IN_PROGRESS;
+            $requestobject->origin_course_fullname = $res->data->course_fullname;
+            $requestobject->origin_course_shortname = $res->data->course_shortname;
+            $requestobject->origin_course_idnumber = $res->data->course_idnumber;
+            $requestobject->origin_category_id = $res->data->course_category_id;
+            $requestobject->origin_category_name = $res->data->course_category_name;
+            $requestobject->origin_category_idnumber = $res->data->course_category_idnumber;
+            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
+            $success = true;
+        } else {
+            // 4b. Update Request DB Errors.
+            $err = $res->errors;
+            $errors = $res->errors;
+            $requestobject->status = coursetransfer_request::STATUS_ERROR;
+            $requestobject->error_code = $err[0]->code;
+            $requestobject->error_message = $err[0]->msg;
+            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
+            $success = false;
+        }
+        return [
+                'success' => $success,
+                'errors' => $errors,
+                'data' => [
+                        'requestid' => $requestobject->id
+                ]
+        ];
+    }
+
+    /**
+     * Remove Category.
+     *
+     * @param stdClass $site
+     * @param int $origincatid
+     * @return array
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function remove_category(stdClass $site, int $origincatid): array {
+
+        $errors = [];
+
+        // 1. Request DB.
+        $requestobject = coursetransfer_request::set_request_remove_category($site, $origincatid);
+
+        // 2. Call CURL Origin Backup Course.
+        $request = new request($site);
+        $res = $request->origin_remove_category($requestobject->id, $origincatid);
+        // 3. Success or Errors.
+        if ($res->success) {
+            // 4a. Update Request DB Completed.
+            $requestobject->status = coursetransfer_request::STATUS_IN_PROGRESS;
+            $requestobject->origin_category_id = $res->data->course_category_id;
+            $requestobject->origin_category_name = $res->data->course_category_name;
+            $requestobject->origin_category_idnumber = $res->data->course_category_idnumber;
+            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
+            $success = true;
+        } else {
+            // 4b. Update Request DB Errors.
+            $err = $res->errors;
+            $errors = $res->errors;
+            $requestobject->status = coursetransfer_request::STATUS_ERROR;
+            $requestobject->error_code = $err[0]->code;
+            $requestobject->error_message = $err[0]->msg;
+            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
+            $success = false;
+        }
+        return [
+                'success' => $success,
+                'errors' => $errors,
+                'data' => [
+                        'requestid' => $requestobject->id
+                ]
+        ];
+    }
+
+    /**
      * Restore Category.
      *
      * @param stdClass $site
@@ -825,6 +918,7 @@ class coursetransfer {
             $requestobject->origin_course_idnumber = $res->data->course_idnumber;
             $requestobject->origin_category_id = $res->data->course_category_id;
             $requestobject->origin_category_name = $res->data->course_category_name;
+            $requestobject->origin_category_idnumber = $res->data->course_category_idnumber;
             coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
             $success = true;
         } else {
