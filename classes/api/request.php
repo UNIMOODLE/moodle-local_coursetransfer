@@ -292,7 +292,7 @@ class request {
         $params['catid'] = $origincatid;
         $params['requestid'] = $requestid;
         $params['destinysite'] = $CFG->wwwroot;
-        return $this->req('local_coursetransfer_origin_remove_course', $params);
+        return $this->req('local_coursetransfer_origin_remove_category', $params);
     }
 
     /**

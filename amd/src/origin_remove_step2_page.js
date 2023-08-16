@@ -48,10 +48,7 @@ define([
         this.node = $(region);
         let data = JSON.parse(sessionStorage.getItem('local_coursetransfer_remove_page'));
         if (data) {
-            data.courses.forEach(function(course) {
-                let courseid = parseInt(course.id);
-                $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop( "checked", true );
-            });
+            $(ACTIONS.CAT_SELECT + '[data-id="' + data.categoryid + '"]').prop( "checked", true );
         }
         this.selectCourse();
         this.node.find(ACTIONS.COURSE_SELECT).on('click', this.selectCourse.bind(this));
@@ -86,7 +83,7 @@ define([
             }
         });
         let data = {
-            courses: courses, configuration: []
+            courses: courses
         };
         sessionStorage.setItem('local_coursetransfer_remove_page', JSON.stringify(data));
 

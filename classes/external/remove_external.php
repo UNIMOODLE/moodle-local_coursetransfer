@@ -28,10 +28,8 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
-use moodle_url;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();

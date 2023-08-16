@@ -196,3 +196,6 @@ $string['remove_course_page'] = "Borrar cursos remotos";
 $string['remove_page_course_desc'] = "Selecciona los cursos del sitio remoto que quieres borrar";
 $string['origin_remove_step3_desc'] = "Revisa los cursos seleccionados para borrar en el sitio de origen.";
 $string['origin_remove_courses_list'] = "Cursos a borrar en el sitio de origen.";
+$string['origin_remove_step3_cat_desc'] = "Revisa los datos de la categoría remota a borrar";
+$string['origin_remove_category_step3'] = "Categoría a borrar";
+$string['remove_category_page'] = "Borrar categoría remota";

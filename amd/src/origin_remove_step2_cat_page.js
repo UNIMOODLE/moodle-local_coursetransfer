@@ -31,8 +31,7 @@ define([
     "use strict";
 
     let ACTIONS = {
-        COURSE_SELECT: '[data-action="select"]',
-        COURSE: '[data-action="course"]',
+        CAT_SELECT: '[data-action="select"]',
         NEXT: '[data-action="next"]',
         DESTINY: '[data-action="destiny"]',
         CHECK: '[data-action="check"]',
@@ -46,21 +45,18 @@ define([
      */
     function originRemoveCatStep2(region) {
         this.node = $(region);
-        let data = JSON.parse(sessionStorage.getItem('local_coursetransfer_remove_page'));
+        let data = JSON.parse(sessionStorage.getItem('local_coursetransfer_remove_cat_page'));
         if (data) {
-            data.courses.forEach(function(course) {
-                let courseid = parseInt(course.id);
-                $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop( "checked", true );
-            });
+            $(ACTIONS.CAT_SELECT + '[data-id="' + data.categoryid + '"]').prop( "checked", true );
         }
-        this.selectCourse();
-        this.node.find(ACTIONS.COURSE_SELECT).on('click', this.selectCourse.bind(this));
+        this.selectCat();
+        this.node.find(ACTIONS.CAT_SELECT).on('click', this.selectCat.bind(this));
         this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
     }
 
-    originRemoveCatStep2.prototype.selectCourse = function(e) {
+    originRemoveCatStep2.prototype.selectCat = function(e) {
         let selected = false;
-        let items = this.node.find(ACTIONS.COURSE_SELECT);
+        let items = this.node.find(ACTIONS.CAT_SELECT);
         items.each(function(i, item) {
             if($(item).prop('checked')) {
                 selected = true;
@@ -74,25 +70,23 @@ define([
     };
 
     originRemoveCatStep2.prototype.clickNext = function(e) {
-        let courses = [];
-        let items = this.node.find(ACTIONS.COURSE_SELECT);
+        let category = null;
+        let items = this.node.find(ACTIONS.CAT_SELECT);
         items.each(function(i, item) {
-            let courseid = $(item).data('courseid');
+            let catid = $(item).data('id');
             if ($(item).prop('checked')) {
-                let course = {
-                    id: courseid
-                };
-                courses.push(course);
+                category = catid;
             }
         });
         let data = {
-            courses: courses, configuration: []
+            categoryid: category
         };
-        sessionStorage.setItem('local_coursetransfer_remove_page', JSON.stringify(data));
+        sessionStorage.setItem('local_coursetransfer_remove_cat_page', JSON.stringify(data));
 
         let currentUrl = $(location).attr('href');
         let url = new URL(currentUrl);
         url.searchParams.set('step', '3');
+        url.searchParams.set('removeid', category);
         window.location.href = url.href;
     };
 

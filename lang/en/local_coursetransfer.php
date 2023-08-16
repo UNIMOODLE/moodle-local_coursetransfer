@@ -195,5 +195,8 @@ $string['remove_course_page'] = "Delete remote courses";
 $string['remove_page_course_desc'] = "Select the remote site courses you want to delete";
 $string['origin_remove_step3_desc'] = "Review the courses selected to delete on the site of origin.";
 $string['origin_remove_courses_list'] = "Courses to be deleted at the site of origin.";
+$string['origin_remove_step3_cat_desc'] = "Review the data of the remote category to delete";
+$string['origin_remove_category_step3'] = "Category to delete";
+$string['remove_category_page'] = "Delete remote category";
 
 

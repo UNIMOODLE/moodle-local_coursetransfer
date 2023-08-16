@@ -87,31 +87,16 @@ class origin_remove_page_cat_step2 implements renderable, templatable {
         $site = coursetransfer::get_site_by_position($this->site);
         try {
             $request = new request($site);
-            $res = $request->origin_get_courses();
+            $res = $request->origin_get_categories();
             if ($res->success) {
-                $courses = $res->data;
-                $datacourses = [];
-                $coursesdest = get_courses();
-                $destinies = [];
-                foreach ($coursesdest as $cd) {
-                    $destinies[] = [
-                            'id' => $cd->id,
-                            'name' => $cd->fullname,
-                            'shortname' => $cd->shortname
-                    ];
-                }
-                foreach ($courses as $c) {
-                    $c->destinies = $destinies;
-                    $datacourses[] = $c;
-                }
-                $data->courses = $datacourses;
+                $data->categories = $res->data;
                 $data->haserrors = false;
             } else {
                 $data->errors = $res->errors;
                 $data->haserrors = true;
             }
         } catch (moodle_exception $e) {
-            $data->errors = ['code' => '204001', 'msg' => $e->getMessage()];
+            $data->errors = ['code' => '200100', 'msg' => $e->getMessage()];
             $data->haserrors = true;
         }
         $data->next_url_disabled = true;

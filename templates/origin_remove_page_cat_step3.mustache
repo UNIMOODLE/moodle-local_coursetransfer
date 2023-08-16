@@ -24,7 +24,7 @@
 
     {{> local_coursetransfer/components/stepbystep }}
 
-    <h3 class="h3">{{#str}} remove_course_page, local_coursetransfer {{/str}}</h3>
+    <h3 class="h3">{{#str}} remove_category_page, local_coursetransfer {{/str}}</h3>
 
     {{# haserrors }}
         {{> local_coursetransfer/components/alert }}
@@ -32,7 +32,7 @@
 
     {{^ haserrors }}
         <h3 class="h3">{{#str}} summary, local_coursetransfer {{/str}}</h3>
-        <p>{{#str}} origin_remove_step3_desc, local_coursetransfer {{/str}}</p>
+        <p>{{#str}} origin_remove_step3_cat_desc, local_coursetransfer {{/str}}</p>
 
         <hr>
 
@@ -42,37 +42,9 @@
 
         <hr>
 
-        <h4 class="h4">{{#str}} origin_remove_courses_list, local_coursetransfer {{/str}}{{ categoryname }}</h4>
+        <h4 class="h4">{{#str}} origin_remove_category_step3, local_coursetransfer {{/str}}</h4>
 
-        <table style="width: 100%">
-            <thead>
-            <tr>
-                <th>{{#str}} step2_course_id, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_name, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_shortname, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {{# courses }}
-                <tr data-action="course" data-courseid="{{ id }}" class="hidden">
-                    <td id="courseid"><a href="{{ url }}" target="_blank">{{ id }}</a></td>
-                    <td>{{ fullname }}</td>
-                    <td>{{ shortname }}</td>
-                    <td>{{ idnumber }}</td>
-                    <td>{{ categoryid }}</td>
-                    <td>{{ categoryname }}</td>
-                </tr>
-            {{/ courses }}
-            </tbody>
-        </table>
-        {{^ courses }}
-            <div class="alert alert-primary mt-4" role="alert" style="width: 100%; text-align: center">
-                {{#str}} not_courses, local_coursetransfer {{/str}}
-            </div>
-        {{/ courses }}
+        {{> local_coursetransfer/components/category_details }}
 
         <div class="alert alert-danger hidden" role="alert"></div>
     {{/ haserrors }}
@@ -119,6 +91,9 @@
     }
     div[data-region='origin_remove_step3_cat_page'] table {
         width: 100%;
+    }
+    div[data-region='origin_remove_step3_cat_page'] .text-white {
+        padding: 0 10px;
     }
     div[data-region='origin_remove_step3_cat_page'] table tr {
         font-size: 14px;
@@ -172,7 +147,7 @@
 </style>
 {{#js}}
     require(['local_coursetransfer/origin_remove_step3_cat_page'], function(originRemoveCatStep3) {
-        originRemoveCatStep3.initOriginRemoveCatStep3('[data-region="origin_remove_step3_cat_page"]', '{{ siteposition }}');
+        originRemoveCatStep3.initOriginRemoveCatStep3('[data-region="origin_remove_step3_cat_page"]', '{{ siteposition }}', {{removeid}});
     });
 {{/js}}
 

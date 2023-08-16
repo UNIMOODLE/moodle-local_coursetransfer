@@ -64,6 +64,7 @@ class origin_remove_page_cat_step3 implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        $removeid = required_param('removeid', PARAM_INT);
 
         $data = new stdClass();
         $data->steps = [
@@ -83,37 +84,29 @@ class origin_remove_page_cat_step3 implements renderable, templatable {
         $site = coursetransfer::get_site_by_position($this->site);
         $data->siteposition = $this->site;
         $data->host = $site->host;
-        try {
-            $request = new request($site);
-            $res = $request->origin_get_courses();
-            if ($res->success) {
-                $courses = $res->data;
-                $datacourses = [];
-                $coursesdest = get_courses();
-                $destinies = [];
-                foreach ($coursesdest as $cd) {
-                    $destinies[] = [
-                            'id' => $cd->id,
-                            'name' => $cd->fullname,
-                            'shortname' => $cd->shortname
-                    ];
+        if (coursetransfer::validate_origin_site($site->host)) {
+            $data->haserrors = false;
+            try {
+                $request = new request($site);
+                $res = $request->origin_get_category_detail($removeid);
+                if ($res->success) {
+                    $data->category = $res->data;
+                } else {
+                    $data->errors = $res->errors;
+                    $data->haserrors = true;
                 }
-                foreach ($courses as $c) {
-                    $c->destinies = $destinies;
-                    $datacourses[] = $c;
-                }
-                $data->courses = $datacourses;
-                $data->haserrors = false;
-            } else {
-                $data->errors = $res->errors;
+            } catch (moodle_exception $e) {
+                $data->errors = ['code' => '200110', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
-        } catch (moodle_exception $e) {
-            $data->errors = ['code' => '205001', 'msg' => $e->getMessage()];
+        } else {
             $data->haserrors = true;
+            $errors[] = ['code' => '200111', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $data->errors = $errors;
         }
         $data->next_url_disabled = true;
         $data->button = true;
+        $data->removeid = $removeid;
 
         return $data;
     }

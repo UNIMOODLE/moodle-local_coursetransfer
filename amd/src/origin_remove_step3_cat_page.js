@@ -31,7 +31,7 @@ define([
     "use strict";
 
     let SERVICES = {
-        ORIGIN_REMOVE_STEP3: 'local_coursetransfer_origin_remove_step3'
+        ORIGIN_REMOVE_CAT_STEP3: 'local_coursetransfer_origin_remove_cat_step3'
     };
 
     let ACTIONS = {
@@ -47,56 +47,45 @@ define([
     /**
      * @param {String} region
      * @param {Integer} site
+     * @param {Integer} removeid
      *
      * @constructor
      */
-    function originRemoveCatStep3(region, site) {
+    function originRemoveCatStep3(region, site, removeid) {
         this.node = $(region);
         this.site = site;
-        this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_remove_page'));
-        if (this.data) {
-            this.data.courses.forEach(function(course) {
-                let courseid = parseInt(course.id);
-                let row = 'tr[data-action="course"][data-courseid="' + courseid + '"]';
-                $(row).removeClass('hidden');
-            });
-            this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
-        } else {
-            let alertbox = this.node.find(".alert");
-            let errors = [{code: '100088', msg: 'error_session_cache'}];
-            this.renderErrors(errors, alertbox);
-            this.node.find(ACTIONS.RESTORE).prop('disabled', true);
-        }
+        this.removeid = removeid;
+        this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
     }
 
     originRemoveCatStep3.prototype.clickNext = function(e) {
         this.node.find(ACTIONS.RESTORE).prop('disabled', true);
         let alertbox = this.node.find(".alert");
         const request = {
-            methodname: SERVICES.ORIGIN_REMOVE_STEP3,
+            methodname: SERVICES.ORIGIN_REMOVE_CAT_STEP3,
             args: {
                 siteurl: this.site,
-                courses: this.data.courses,
+                catid: this.removeid,
             }
         };
         let that = this;
         Ajax.call([request])[0].done(function(response) {
             if (response.success) {
-                //window.location.href = response.data.nexturl;
+                window.location.href = response.data.nexturl;
             } else if (!response.success) {
                 that.renderErrors(response.errors, alertbox);
             } else {
-                let errors = [{code: '100091', msg: 'error_not_controlled'}];
+                let errors = [{code: '100291', msg: 'error_not_controlled'}];
                 that.renderErrors(errors, alertbox);
             }
         }).fail(function(fail) {
             let errors = [];
             if (fail.error) {
-                errors.push({code: '100092', msg: fail.error});
+                errors.push({code: '100292', msg: fail.error});
             } else if (fail.message) {
-                errors.push({code: '100093', msg: fail.message});
+                errors.push({code: '100293', msg: fail.message});
             } else {
-                errors = [{code: '100094', msg: 'error_not_controlled'}];
+                errors = [{code: '100294', msg: 'error_not_controlled'}];
             }
             that.renderErrors(errors, alertbox);
         });
@@ -117,11 +106,12 @@ define([
         /**
          * @param {String} region
          * @param {Integer} site
+         * @param {Integer} removeid
          * @return {originRemoveCatStep3}
          */
-        initOriginRemoveCatStep3: function(region, site) {
+        initOriginRemoveCatStep3: function(region, site, removeid) {
             // eslint-disable-next-line babel/new-cap
-            return new originRemoveCatStep3(region, site);
+            return new originRemoveCatStep3(region, site, removeid);
         }
     };
 });

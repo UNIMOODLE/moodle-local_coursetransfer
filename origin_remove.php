@@ -67,7 +67,7 @@ switch ($step) {
     case 3:
         $type = required_param('type', PARAM_TEXT);
         if ($type === 'categories') {
-            $page = new \local_coursetransfer\output\origin_remove_page_cat_step2();
+            $page = new \local_coursetransfer\output\origin_remove_page_cat_step3();
         } else {
             $page = new \local_coursetransfer\output\origin_remove_page_step3();
         }

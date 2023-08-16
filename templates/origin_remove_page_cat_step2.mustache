@@ -24,53 +24,47 @@
 
     {{> local_coursetransfer/components/stepbystep }}
 
-    <h3 class="h3">{{#str}} remove_course_page, local_coursetransfer {{/str}}</h3>
+    <h3 class="h3">{{#str}} remove_category_page, local_coursetransfer {{/str}}</h3>
 
     <p>{{#str}} remove_page_course_desc, local_coursetransfer {{/str}}</p>
 
-    {{# haserrors }}
-        {{> local_coursetransfer/components/alert }}
-    {{/ haserrors }}
-
     {{^ haserrors }}
-        <h3 class="h2">{{#str}} origin_restore_courses_list, local_coursetransfer {{/str}}{{ categoryname }}</h3>
+        <hr>
 
-        <table style="width: 100%">
+        <h4 class="h4">{{#str}} step5_restore_origin_site, local_coursetransfer {{/str}}</h4>
+
+        <div class="origin-site">{{ host }}</div>
+
+        <hr>
+        <h3 class="h2">{{#str}} step2_categories_list, local_coursetransfer {{/str}}</h3>
+        <table>
             <thead>
             <tr>
                 <th></th>
-                <th>{{#str}} step2_course_id, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_name, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_shortname, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_category_id, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_category_name, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_category_idnumber, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_category_parentname, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_category_totalcourses, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_category_totalsubcategories, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_category_totalcourseschild, local_coursetransfer {{/str}}</th>
             </tr>
             </thead>
             <tbody>
-            {{# courses }}
-                <tr data-action="course">
-                    <td><input type="checkbox"
-                               name="radiogroup"
-                               data-action="select"
-                               data-courseid="{{ id }}"
-                        {{# disabled }}disabled{{/ disabled }} {{# checked }}checked{{/ checked }}></td>
-                    <td id="courseid"><a href="{{ url }}" target="_blank">{{ id }}</a></td>
-                    <td>{{ fullname }}</td>
-                    <td>{{ shortname }}</td>
+            {{# categories }}
+                <tr data-action="category">
+                    <td><input type="radio" name="radiogroup" data-action="select" data-id="{{id}}"></td>
+                    <td id="categoryid">{{ id }}</td>
+                    <td><a href="{{ siteurl }}/course/index.php?categoryid={{id}}">{{ name }}</a></td>
                     <td>{{ idnumber }}</td>
-                    <td>{{ categoryid }}</td>
-                    <td>{{ categoryname }}</td>
+                    <td><a href="{{ siteurl }}/course/index.php?categoryid={{parentnameid}}">{{ parentname }}</a></td>
+                    <td>{{ totalcourses }}</td>
+                    <td>{{ totalsubcategories }}</td>
+                    <td>{{ totalcourseschild }}</td>
                 </tr>
-            {{/ courses }}
+            {{/ categories }}
             </tbody>
         </table>
-        {{^ courses }}
-            <div class="alert alert-primary mt-4" role="alert" style="width: 100%; text-align: center">
-                {{#str}} not_courses, local_coursetransfer {{/str}}
-            </div>
-        {{/ courses }}
-
         <div class="alert alert-danger hidden" role="alert"></div>
     {{/ haserrors }}
 
@@ -154,8 +148,8 @@
     }
 </style>
 {{#js}}
-    require(['local_coursetransfer/origin_remove_cat_step2_page'], function(originRemoveCatStep2) {
-        originRemoveCatStep2.initOriginRemoveCatStep2('[data-region="origin_remove_step2_cat_page"]');
+    require(['local_coursetransfer/origin_remove_step2_cat_page'], function(originRemoveCatStep2) {
+        originRemoveCatStep2.initOriginRemoveCatStep2('[data-region="origin_remove_cat_step2_page"]');
     });
 {{/js}}
 
