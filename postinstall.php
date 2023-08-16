@@ -59,6 +59,8 @@ if (is_siteadmin()) {
     role::add_capability($roleid, 'moodle/restore:viewautomatedfilearea');
     role::add_capability($roleid, 'moodle/restore:createuser');
     role::add_capability($roleid, 'moodle/site:maintenanceaccess');
+    role::add_capability($roleid, 'moodle/course:delete');
+    role::add_capability($roleid, 'moodle/category:manage');
 
     // 3. Create User.
     $userid = user::create_user($roleid);

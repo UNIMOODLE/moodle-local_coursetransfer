@@ -37,7 +37,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
-require_once($CFG->dirroot . '/group/lib.php');
+require_once($CFG->dirroot . '/course/externallib.php');
 
 class remove_external extends external_api {
 
@@ -92,7 +92,14 @@ class remove_external extends external_api {
             if ($authres['success']) {
                 $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
                 if ($verifydestiny['success']) {
-                    $success = true;
+                    // TODO. Crear task de borrado de curso.
+                    $res = \core_course_external::delete_courses(array($course->id));
+                    if (count($res['warnings']) > 0) {
+                        $errors[] = json_encode($res['warnings']);
+                        $success = false;
+                    } else {
+                        $success = true;
+                    }
                 } else {
                     $success = false;
                     $errors[] = $verifydestiny['error'];
@@ -195,6 +202,11 @@ class remove_external extends external_api {
             if ($authres['success']) {
                 $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
                 if ($verifydestiny['success']) {
+                    // TODO. Crear tarea de borrado de categoría.
+                    $catogories = [
+                            ['id' => $category->id, 'recursive' => 1]
+                    ];
+                    \core_course_external::delete_categories($catogories);
                     $success = true;
                 } else {
                     $success = false;
