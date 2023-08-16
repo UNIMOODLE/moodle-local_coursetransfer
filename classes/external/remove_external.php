@@ -122,7 +122,7 @@ class remove_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_backup_course_returns(): external_single_structure {
+    public static function origin_remove_course_returns(): external_single_structure {
         return new external_single_structure(
                 array(
                         'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
