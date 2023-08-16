@@ -120,7 +120,7 @@ class remove_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_backup_course_returns(): external_single_structure {
+    public static function origin_remove_course_returns(): external_single_structure {
         return new external_single_structure(
                 array(
                         'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
@@ -174,13 +174,11 @@ class remove_external extends external_api {
     public static function origin_remove_category(string $field, string $value, int $catid,
             int $requestid, string $destinysite): array {
 
-        global $CFG;
-
         self::validate_parameters(
                 self::origin_remove_category_parameters(), [
                         'field' => $field,
                         'value' => $value,
-                        'courseid' => $catid,
+                        'catid' => $catid,
                         'requestid' => $requestid,
                         'destinysite' => $destinysite
                 ]
