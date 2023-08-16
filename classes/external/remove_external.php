@@ -30,7 +30,6 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
-use local_coursetransfer\models\configuration_course;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -47,61 +46,68 @@ class remove_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function origin_remove_step1_parameters(): external_function_parameters {
+    public static function origin_remove_course_parameters(): external_function_parameters {
         return new external_function_parameters(
                 array(
-                        'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                        'type' => new external_value(PARAM_TEXT, 'Type restore')
+                        'field' => new external_value(PARAM_TEXT, 'Field'),
+                        'value' => new external_value(PARAM_TEXT, 'Value'),
+                        'courseid' => new external_value(PARAM_INT, 'Course ID'),
+                        'requestid' => new external_value(PARAM_INT, 'Request ID'),
+                        'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site')
                 )
         );
     }
 
     /**
      *
-     *
-     * @param int $siteurl
-     * @param string $type
+     * @param string $field
+     * @param string $value
+     * @param int $courseid
+     * @param int $requestid
+     * @param string $destinysite
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function origin_remove_step1(int $siteurl, string $type): array {
+    public static function origin_remove_course(string $field, string $value, int $courseid,
+            int $requestid, string $destinysite): array {
+
+        global $CFG;
+
         self::validate_parameters(
-                self::origin_remove_step1_parameters(),
-                [
-                        'siteurl' => $siteurl,
-                        'type' => $type
+                self::origin_remove_course_parameters(), [
+                        'field' => $field,
+                        'value' => $value,
+                        'courseid' => $courseid,
+                        'requestid' => $requestid,
+                        'destinysite' => $destinysite
                 ]
         );
 
-        $success = false;
         $errors = [];
         $data = new stdClass();
-        $data->userid = 0;
-        $data->username = '';
-        $data->firstname = '';
-        $data->lastname = '';
-        $data->email = '';
-        $data->nexturl = '';
+        $data->requestid = $requestid;
+        $data->request_origin_id = null;
 
         try {
-            $site = coursetransfer::get_site_by_position($siteurl);
-            $request = new request($site);
-            $res = $request->origin_has_user();
-            if ($res->success) {
-                $data = $res->data;
-                $nexturl = new moodle_url(
-                        '/local/coursetransfer/origin_remove.php',
-                        ['step' => 2, 'site' => $siteurl, 'type' => $type]
-                );
-                $data->nexturl = $nexturl->out(false);
-                $success = true;
+            $course = get_course($courseid);
+            $authres = coursetransfer::auth_user($field, $value);
+            if ($authres['success']) {
+                $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
+                if ($verifydestiny['success']) {
+                    $success = true;
+                } else {
+                    $success = false;
+                    $errors[] = $verifydestiny['error'];
+                }
             } else {
-                $errors = $res->errors;
+                $success = false;
+                $errors[] = $authres['error'];
             }
         } catch (moodle_exception $e) {
+            $success = false;
             $errors[] =
                     [
-                            'code' => '200301',
+                            'code' => '200151',
                             'msg' => $e->getMessage()
                     ];
         }
@@ -116,25 +122,27 @@ class remove_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_remove_step1_returns(): external_single_structure {
+    public static function origin_backup_course_returns(): external_single_structure {
         return new external_single_structure(
                 array(
                         'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                         'errors' => new external_multiple_structure(new external_single_structure(
                                 array(
                                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_RAW, 'Message')
-                                )
+                                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                                ), PARAM_TEXT, 'Errors'
                         )),
                         'data' => new external_single_structure(
-                                array(
-                                        'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
-                                        'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
-                                        'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
-                                        'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
-                                        'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
-                                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
-                                )
+                            array(
+                                'requestid' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                                'request_origin_id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                                'course_fullname' => new external_value(PARAM_RAW, 'Origin Course Fullname', VALUE_OPTIONAL),
+                                'course_shortname' => new external_value(PARAM_RAW, 'Origin Course Shortname', VALUE_OPTIONAL),
+                                'course_idnumber' => new external_value(PARAM_RAW, 'Origin Course ID Number', VALUE_OPTIONAL),
+                                'course_category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                                'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
+                                'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
+                            ), PARAM_TEXT, 'Data'
                         )
                 )
         );
@@ -143,136 +151,68 @@ class remove_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function origin_remove_step3_parameters(): external_function_parameters {
+    public static function origin_remove_category_parameters(): external_function_parameters {
         return new external_function_parameters(
                 array(
-                        'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                        'courses' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'id' => new external_value(PARAM_INT, 'Origin Course ID')
-                                )
-                        )),
+                        'field' => new external_value(PARAM_TEXT, 'Field'),
+                        'value' => new external_value(PARAM_TEXT, 'Value'),
+                        'catid' => new external_value(PARAM_INT, 'Course Category ID'),
+                        'requestid' => new external_value(PARAM_INT, 'Request ID'),
+                        'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site')
                 )
         );
     }
 
     /**
      *
-     *
-     * @param int $siteurl
-     * @param array $courses
-     * @return array
-     * @throws invalid_parameter_exception
-     */
-    public static function origin_remove_step3(int $siteurl, array $courses): array {
-        self::validate_parameters(
-                self::origin_remove_step3_parameters(),
-                [
-                        'siteurl' => $siteurl,
-                        'courses' => $courses
-                ]
-        );
-
-        $success = false;
-        $errors = [];
-        $data = new stdClass();
-        $nexturl = new moodle_url('/local/coursetransfer/origin_remove.php');
-        $data->nexturl = $nexturl->out(false);
-
-        try {
-            $site = coursetransfer::get_site_by_position($siteurl);
-            foreach ($courses as $course) {
-                $res = coursetransfer::remove_course($site, $course->id);
-                if (!$res['success']) {
-                    $errors = $res['errors'];
-                } else {
-                    $success = true;
-                }
-            }
-        } catch (moodle_exception $e) {
-            $errors[] =
-                    [
-                            'code' => '201101',
-                            'msg' => $e->getMessage()
-                    ];
-        }
-
-        return [
-                'success' => $success,
-                'errors' => $errors,
-                'data' => $data
-        ];
-    }
-
-    /**
-     * @return external_single_structure
-     */
-    public static function origin_restore_step4_returns(): external_single_structure {
-        return new external_single_structure(
-                array(
-                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'data' => new external_single_structure(
-                                array(
-                                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#')
-                                )
-                        ),
-                        'errors' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_RAW, 'Message')
-                                )
-                        ))
-                )
-        );
-    }
-
-    /**
-     * @return external_function_parameters
-     */
-    public static function origin_remove_cat_step3_parameters(): external_function_parameters {
-        return new external_function_parameters(
-                array(
-                        'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                        'catid' => new external_value(PARAM_INT, 'Origin Course Category ID')
-                )
-        );
-    }
-
-    /**
-     *
-     *
-     * @param int $siteurl
+     * @param string $field
+     * @param string $value
      * @param int $catid
+     * @param int $requestid
+     * @param string $destinysite
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function origin_remove_cat_step3(int $siteurl, int $catid): array {
+    public static function origin_remove_category(string $field, string $value, int $catid,
+            int $requestid, string $destinysite): array {
+
+        global $CFG;
+
         self::validate_parameters(
-                self::origin_remove_cat_step3_parameters(),
-                [
-                        'siteurl' => $siteurl,
-                        'catid' => $catid
+                self::origin_remove_category_parameters(), [
+                        'field' => $field,
+                        'value' => $value,
+                        'courseid' => $catid,
+                        'requestid' => $requestid,
+                        'destinysite' => $destinysite
                 ]
         );
 
-        $success = false;
         $errors = [];
         $data = new stdClass();
-        $nexturl = new moodle_url('/local/coursetransfer/origin_remove.php');
-        $data->nexturl = $nexturl->out(false);
+        $data->requestid = $requestid;
+        $data->request_origin_id = null;
 
         try {
-            $site = coursetransfer::get_site_by_position($siteurl);
-            $res = coursetransfer::remove_category($site, $catid);
-            if (!$res['success']) {
-                $errors = $res['errors'];
+            $category = \core_course_category::get($catid);
+            $authres = coursetransfer::auth_user($field, $value);
+            if ($authres['success']) {
+                $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
+                if ($verifydestiny['success']) {
+                    $success = true;
+                } else {
+                    $success = false;
+                    $errors[] = $verifydestiny['error'];
+                }
             } else {
-                $success = true;
+                $success = false;
+                $errors[] = $authres['error'];
             }
         } catch (moodle_exception $e) {
+            $success = false;
             $errors[] =
                     [
-                            'code' => '202101',
+                            'code' => '200251',
                             'msg' => $e->getMessage()
                     ];
         }
@@ -287,21 +227,25 @@ class remove_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function origin_remove_cat_step3_returns(): external_single_structure {
+    public static function origin_remove_category_returns(): external_single_structure {
         return new external_single_structure(
                 array(
                         'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'data' => new external_single_structure(
-                                array(
-                                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#')
-                                )
-                        ),
                         'errors' => new external_multiple_structure(new external_single_structure(
                                 array(
                                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_RAW, 'Message')
-                                )
-                        ))
+                                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                                ), PARAM_TEXT, 'Errors'
+                        )),
+                        'data' => new external_single_structure(
+                            array(
+                                'requestid' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                                'request_origin_id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                                'course_category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                                'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
+                                'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
+                            ), PARAM_TEXT, 'Data'
+                        )
                 )
         );
     }

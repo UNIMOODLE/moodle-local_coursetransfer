@@ -75,10 +75,11 @@ define([
         const request = {
             methodname: SERVICES.ORIGIN_REMOVE_STEP3,
             args: {
-                siteurl: this.site,
+                siteurl: parseInt(this.site),
                 courses: this.data.courses,
             }
         };
+        console.log(request);
         let that = this;
         Ajax.call([request])[0].done(function(response) {
             if (response.success) {

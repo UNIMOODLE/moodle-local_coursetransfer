@@ -68,8 +68,8 @@ class origin_remove_page_step3 implements renderable, templatable {
         $data = new stdClass();
         $data->steps = [
                 ['current' => false, 'num' => 1],
-                ['current' => true, 'num' => 2],
-                ['current' => false, 'num' => 3]
+                ['current' => false, 'num' => 2],
+                ['current' => true, 'num' => 3]
         ];
         $backurl = new moodle_url(
                 '/local/coursetransfer/origin_remove.php',
