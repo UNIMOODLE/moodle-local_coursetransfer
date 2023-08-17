@@ -198,5 +198,7 @@ $string['origin_remove_courses_list'] = "Courses to be deleted at the site of or
 $string['origin_remove_step3_cat_desc'] = "Review the data of the remote category to delete";
 $string['origin_remove_category_step3'] = "Category to delete";
 $string['remove_category_page'] = "Delete remote category";
+$string['logs_page'] = "Logs executions";
+$string['course_completed_sections'] = "Restoration of the complete course";
 
 

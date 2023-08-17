@@ -50,6 +50,10 @@ if ($hassiteconfig) {
             get_string('remove_page', 'local_coursetransfer'),
             $CFG->wwwroot . '/local/coursetransfer/origin_remove.php'));
 
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_logs',
+            get_string('logs_page', 'local_coursetransfer'),
+            $CFG->wwwroot . '/local/coursetransfer/logs.php'));
+
     $settings = new admin_settingpage('local_coursetransfer',
         get_string('pluginname', 'local_coursetransfer'));
     $ADMIN->add('localplugins', $settings);

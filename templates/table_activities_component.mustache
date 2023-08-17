@@ -36,6 +36,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    {{# has_sections }}
                     <div class="sections-table">
                     <div class="sections-table-header">
                         <div class="checkbox"></div>
@@ -86,6 +87,12 @@
                             {{/hasactivities}}
                         </div>
                     {{/sections}}
+                    {{/ has_sections }}
+                    {{^ has_sections }}
+                        <p style="text-align: center; padding: 10px 0;font-style: italic;">
+                            {{#str}} course_completed_sections, local_coursetransfer {{/str}}
+                        </p>
+                    {{/ has_sections }}
                 </div>
 
                 </div>

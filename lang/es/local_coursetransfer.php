@@ -199,3 +199,5 @@ $string['origin_remove_courses_list'] = "Cursos a borrar en el sitio de origen."
 $string['origin_remove_step3_cat_desc'] = "Revisa los datos de la categoría remota a borrar";
 $string['origin_remove_category_step3'] = "Categoría a borrar";
 $string['remove_category_page'] = "Borrar categoría remota";
+$string['logs_page'] = "Registros ejecuciones";
+$string['course_completed_sections'] = "Restauración del curso completo";
