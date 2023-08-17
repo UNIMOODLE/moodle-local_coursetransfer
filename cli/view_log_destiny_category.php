@@ -87,11 +87,12 @@ try {
         $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
         $requests = json_decode($item->origin_category_requests);
         $coursesid = '';
-        foreach ($courses as $course) {
+        foreach ($requests as $request) {
+            $req = \local_coursetransfer\coursetransfer_request::get($request);
             if (empty($coursesid)) {
-                $coursesid .= $course->id;
+                $coursesid .= $req->origin_course_id;
             } else {
-                $coursesid .= '-'. $course->id;
+                $coursesid .= '-'. $req->origin_course_id;
             }
         }
         printf($mask,

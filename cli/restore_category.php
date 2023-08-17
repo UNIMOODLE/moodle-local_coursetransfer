@@ -68,8 +68,6 @@ Examples:
         --origin_category_id=12
         --destiny_category_id=12
         --origin_enrolusers=true
-        --destiny_remove_enrols=false
-        --destiny_remove_groups=false
         --origin_remove_category=false
         --origin_schedule_datetime=1679404952
 ';
@@ -80,8 +78,6 @@ list($options, $unrecognised) = cli_get_params([
         'origin_category_id' => null,
         'destiny_category_id' => null,
         'origin_enrolusers' => false,
-        'destiny_remove_enrols' => false,
-        'destiny_remove_groups' => false,
         'origin_remove_category' => false,
         'origin_schedule_datetime' => 0
 ], [
@@ -102,8 +98,6 @@ $siteurl = $options['site_url'];
 $origincategoryid = !is_null($options['origin_category_id']) ? (int) $options['origin_category_id'] : null;
 $destinycategoryid = !is_null($options['destiny_category_id']) ? (int) $options['destiny_category_id'] : null;
 $originenrolusers = $options['origin_enrolusers'] === 'true' ? 1 : 0;
-$destinyremoveenrols = $options['destiny_remove_enrols'] === 'true' ? 1 : 0;
-$destinyremovegroups = $options['destiny_remove_groups'] === 'true' ? 1 : 0;
 $originremovecategory = $options['origin_remove_category'] === 'true' ? 1 : 0;
 $originscheduledatetime = (int) $options['origin_schedule_datetime'];
 
@@ -142,23 +136,13 @@ if ( !in_array((int)$originenrolusers, [0, 1])) {
     exit(128);
 }
 
-if ( !in_array((int)$destinyremoveenrols, [0, 1])) {
-    cli_writeln( get_string('destiny_remove_enrols_boolean', 'local_coursetransfer') );
-    exit(128);
-}
-
-if ( !in_array((int)$destinyremovegroups, [0, 1])) {
-    cli_writeln( get_string('destiny_remove_groups_booelan', 'local_coursetransfer') );
-    exit(128);
-}
-
 $errors = [];
 
 try {
 
     // 1. Setup Configuration.
     $configuration = new configuration_category(
-            backup::TARGET_NEW_COURSE, $destinyremoveenrols, $destinyremovegroups, $originenrolusers,
+            backup::TARGET_NEW_COURSE, false, false, $originenrolusers,
             $originremovecategory);
 
     // 2. User Login.
