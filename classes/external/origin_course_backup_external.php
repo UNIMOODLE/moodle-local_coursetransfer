@@ -140,15 +140,18 @@ class origin_course_backup_external extends external_api {
                     if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id))) {
                         $res = $authres['data'];
                         $object = new stdClass();
-                        $object->type = 0;
+                        $object->type = coursetransfer_request::TYPE_COURSE;
                         $object->siteurl = $CFG->wwwroot;
-                        $object->direction = 1;
+                        $object->direction = coursetransfer_request::DIRECTION_RESPONSE;
                         $object->destiny_request_id = $requestid;
                         $object->request_category_id = null;
                         $object->origin_course_id = $course->id;
                         $object->origin_course_fullname = $course->fullname;
                         $object->origin_course_shortname = $course->shortname;
                         $object->origin_category_id = $course->category;
+                        $cat = core_course_category::get($course->category);
+                        $object->origin_category_idnumber = $cat->idnumber;
+                        $object->origin_category_name = $cat->name;
 
                         $object->origin_enrolusers = $configuration['origin_enrol_users'];
                         $object->origin_schedule_datetime = null;

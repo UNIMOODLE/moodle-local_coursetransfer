@@ -78,7 +78,6 @@ class origin_course_external extends external_api {
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
-                global $DB;
                 $res = $authres['data'];
                 $courses = enrol_get_users_courses($res->id);
                 foreach ($courses as $course) {
