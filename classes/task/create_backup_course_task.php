@@ -110,6 +110,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
                     coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
                 }
                 $res = $request->destiny_backup_course_completed($fileurl, $requestid);
+                $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
             } else {
                 $res = $request->destiny_backup_course_error($requestid, $result);
             }
@@ -119,6 +120,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
                 $requestorigin->error_message = $res->errors[0]->msg;
                 coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
             }
+            coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
             $this->log(json_encode($res));
         } catch (moodle_exception $e) {
             mtrace('Course Transfer Backup ERROR: ' . $e->getMessage());
