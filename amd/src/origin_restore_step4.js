@@ -89,14 +89,14 @@ define([
                         destiny_remove_activities: configuration['destiny_remove_activities'],
                         destiny_remove_groups: configuration['destiny_remove_groups'],
                         destiny_remove_enrols: configuration['destiny_remove_enrols'],
-                        origin_restore_user_data: configuration['origin_restore_user_data']
+                        origin_enrol_users: configuration['origin_enrol_users']
                     },
                 }
             };
             let that = this;
             Ajax.call([request])[0].done(function(response) {
                 if (response.success) {
-                    window.location.href = response.data.nexturl;
+                    //window.location.href = response.data.nexturl;
                 } else if (!response.success) {
                     that.renderErrors(response.errors, alertbox);
                 } else {

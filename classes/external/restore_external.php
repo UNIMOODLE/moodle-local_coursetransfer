@@ -22,6 +22,7 @@
 
 namespace local_coursetransfer\external;
 
+use core_course_category;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -161,7 +162,7 @@ class restore_external extends external_api {
                                         'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
                                         'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
                                         'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
-                                        'origin_restore_user_data' => new external_value(PARAM_BOOL, 'Origin Restore User Data'),
+                                        'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Restore User Data'),
                                 )
                         ),
                 )
@@ -195,14 +196,22 @@ class restore_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
-            $target = $configuration['destiny_merge_activities'] ?
-                    \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
-            $configuration = new configuration_course(
-                    $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups'],
-                    $configuration['origin_restore_user_data']);
             foreach ($courses as $course) {
+                if ((int)$course['destinyid'] === 0) {
+                    $target = \backup::TARGET_NEW_COURSE;
+                    $category = core_course_category::get_default();
+                    $destinycourseid = \local_coursetransfer\factory\course::create(
+                        $category, 'Remote Restoring in process...', 'IN-PROGRESS-' . time());
+                } else {
+                    $target = $configuration['destiny_merge_activities'] ?
+                        \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
+                    $destinycourseid = $course['destinyid'];
+                }
+                $configuration = new configuration_course(
+                    $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups'],
+                    $configuration['origin_enrol_users']);
                 $res = coursetransfer::restore_course(
-                        $site, $course['destinyid'], $course['courseid'], $configuration, []);
+                        $site, $destinycourseid, $course['courseid'], $configuration, []);
                 if (!$res['success']) {
                     $errors = $res['errors'];
                 } else {

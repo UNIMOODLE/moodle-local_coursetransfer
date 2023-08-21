@@ -69,6 +69,7 @@ class origin_restore_step3_page extends origin_restore_step_page {
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $data->next_url_disabled = false;
+        $data->has_origin_user_data = true;
         return $data;
     }
 }

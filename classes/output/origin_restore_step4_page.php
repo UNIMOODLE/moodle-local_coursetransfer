@@ -70,6 +70,7 @@ class origin_restore_step4_page extends origin_restore_step_page {
         $data->siteposition = $siteposition;
         $site = coursetransfer::get_site_by_position($siteposition);
         $data->host = $site->host;
+        $data->has_origin_user_data = true;
 
         try {
             $request = new request($site);
