@@ -26,6 +26,7 @@ namespace local_coursetransfer\output;
 
 use coding_exception;
 use core_course_category;
+use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\tables\origin_restore_category_table;
 use moodle_exception;
 use moodle_url;
@@ -88,11 +89,15 @@ class origin_restore_category_page implements renderable, templatable {
         $table->is_downloadable(false);
         $table->pageable(false);
         $select = 'csr.id, csr.siteurl, csr.origin_course_id, csr.origin_category_id, csr.status,
-                    csr.origin_category_courses, csr.error_code, csr.error_message, csr.userid,
+                    csr.origin_category_requests, csr.error_code, csr.error_message, csr.userid,
                     csr.timemodified, csr.timecreated';
         $from = '{local_coursetransfer_request} csr';
-        $where = 'destiny_category_id = :categoryid AND direction = 0 AND type = 1';
-        $params = ['categoryid' => $this->category->id];
+        $where = 'destiny_category_id = :categoryid AND direction = :direction AND type = :type';
+        $params = [
+                'categoryid' => $this->category->id,
+                'direction' => coursetransfer_request::DIRECTION_REQUEST,
+                'type' => coursetransfer_request::TYPE_CATEGORY
+        ];
         $table->set_sql($select, $from, $where, $params);
         $table->sortable(true, 'timemodified', SORT_DESC);
         $table->collapsible(false);

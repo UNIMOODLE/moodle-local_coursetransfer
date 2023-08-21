@@ -43,6 +43,8 @@
                     <th>{{#str}} step2_category_idnumber, local_coursetransfer {{/str}}</th>
                     <th>{{#str}} step2_category_parentname, local_coursetransfer {{/str}}</th>
                     <th>{{#str}} step2_category_totalcourses, local_coursetransfer {{/str}}</th>
+                    <th>{{#str}} step2_category_totalsubcategories, local_coursetransfer {{/str}}</th>
+                    <th>{{#str}} step2_category_totalcourseschild, local_coursetransfer {{/str}}</th>
                 </tr>
             </thead>
             <tbody>
@@ -54,6 +56,8 @@
                         <td>{{ idnumber }}</td>
                         <td><a href="{{ siteurl }}/course/index.php?categoryid={{parentnameid}}">{{ parentname }}</a></td>
                         <td>{{ totalcourses }}</td>
+                        <td>{{ totalsubcategories }}</td>
+                        <td>{{ totalcourseschild }}</td>
                     </tr>
                 {{/ categories }}
             </tbody>

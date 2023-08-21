@@ -29,6 +29,7 @@ use core_course_category;
 use core_user;
 use DateTime;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -127,15 +128,16 @@ class origin_restore_category_table extends table_sql {
      * @throws moodle_exception
      */
     public function col_status(stdClass $row): string {
-        if ( (int)$row->status === 0 ) {
+        if ( (int)$row->status === coursetransfer_request::STATUS_ERROR ) {
             return '<button type="button" class="btn btn-danger label-status" data-container="body" data-toggle="popover"
              data-placement="bottom" data-content="'. $row->error_code . ': ' . $row->error_message .'">'
                 . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
                     'local_coursetransfer') .'
             </button>';
         } else {
-            return '<label class="label-status text-' . coursetransfer::STATUS[$row->status]['alert'] . '">'
-                . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
+            $status = coursetransfer_request::get_status_category_request($row->id);
+            return '<label class="label-status text-' . coursetransfer::STATUS[$status]['alert'] . '">'
+                . get_string('status_'.coursetransfer::STATUS[$status]['shortname'],
                     'local_coursetransfer') . '</label>';
         }
     }
@@ -150,8 +152,9 @@ class origin_restore_category_table extends table_sql {
     public function col_origin_category_courses(stdClass $row): string {
         global $PAGE;
         $output = $PAGE->get_renderer('local_coursetransfer');
-        $origincategorycourses = !empty($row->origin_category_courses) ? $row->origin_category_courses : '';
-        $component = new \local_coursetransfer\output\category_course_component($origincategorycourses, $row->siteurl, $row->id);
+        $origincategoryrequests = !empty($row->origin_category_requests) ? $row->origin_category_requests : '';
+        $component = new \local_coursetransfer\output\category_course_component(
+                $origincategoryrequests, $row->siteurl, $row->id);
         return $output->render($component);
     }
 

@@ -26,7 +26,6 @@ namespace local_coursetransfer\output;
 
 use coding_exception;
 use local_coursetransfer\forms\origin_restore_form;
-use local_coursetransfer\tables\origin_restore_course_table;
 use moodle_exception;
 use moodle_url;
 use renderable;
@@ -55,8 +54,6 @@ class origin_restore_page implements renderable, templatable {
      *
      * @param renderer_base $output
      * @return stdClass
-     * @throws coding_exception
-     * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
         $newurl = new moodle_url(
@@ -68,9 +65,14 @@ class origin_restore_page implements renderable, templatable {
         $form = new origin_restore_form($url->out(false));
 
         $data = new stdClass();
+        $data->button = true;
         $data->new_url = $newurl->out(false);
-        $data->steps = [ ["current" => true, "num" => 1], ["current" => false, "num" => 2],
-                ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
+        $data->steps = [
+                ['current' => true, 'num' => 1],
+                ['current' => false, 'num' => 2],
+                ['current' => false, 'num' => 3],
+                ['current' => false, 'num' => 4]
+        ];
         $data->form = $form->render();
         return $data;
     }

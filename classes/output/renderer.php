@@ -146,7 +146,7 @@ class renderer extends plugin_renderer_base {
     /**
      * Defer to template.
      *
-     * @param activities_component $component
+     * @param configuration_component $component
      * @return bool|string
      * @throws moodle_exception
      */

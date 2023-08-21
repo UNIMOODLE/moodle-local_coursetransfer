@@ -47,12 +47,11 @@ class course {
      * @throws moodle_exception
      */
     public static function create(core_course_category $category,
-            string $fullname, string $shortname, string $summary): int {
+            string $fullname, string $shortname, string $summary = ''): int {
 
         $datacourse = new stdClass();
         $datacourse->category = $category->id;
         $datacourse->shortname = $shortname;
-        $datacourse->idnumber = $shortname;
         $datacourse->fullname = $fullname;
         $datacourse->visible = 1;
         $datacourse->summary = $summary;
@@ -64,6 +63,5 @@ class course {
             throw new moodle_exception('0090100', $e->getMessage());
         }
     }
-
 
 }

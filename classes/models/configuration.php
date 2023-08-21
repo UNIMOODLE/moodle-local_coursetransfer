@@ -24,13 +24,10 @@
 
 namespace local_coursetransfer\models;
 
-class configuration {
+abstract class configuration {
 
-    /** @var bool Destinity Remove Activities */
-    public $destinyremoveactivities;
-
-    /** @var bool Destinity Merge Activities */
-    public $destinymergeactivities;
+    /** @var int Destinity Target: 2: New Course, 3: Remove Content , 4: Merge the backup course into this course */
+    public $destinytarget;
 
     /** @var bool Destinity Remove Enrols */
     public $destinyremoveenrols;
@@ -38,49 +35,32 @@ class configuration {
     /** @var bool Destinity Remove Groups */
     public $destinyremovegroups;
 
-    /** @var bool Origin Remove Course */
-    public $originremovecourse;
-
-    /** @var string Destinity Not Remove Activities */
-    public $destinynotremoveactivities;
+    /** @var bool Origin Enrol Users */
+    public $originenrolusers;
 
     /**
      * constructor.
      *
-     * @param bool $destinyremoveactivities
-     * @param bool $destinymergeactivities
+     * @param int $destinytarget
      * @param bool $destinyremoveenrols
      * @param bool $destinyremovegroups
-     * @param bool $originremovecourse
-     * @param string $destinynotremoveactivities
+     * @param bool $originenrolusers
      */
     public function __construct(
-            bool $destinyremoveactivities, bool $destinymergeactivities, bool $destinyremoveenrols,
-    bool $destinyremovegroups, bool $originremovecourse, string $destinynotremoveactivities = '') {
-        $this->set_destiny_remove_activities($destinyremoveactivities);
-        $this->set_destiny_merge_activities($destinymergeactivities);
+            int $destinytarget, bool $destinyremoveenrols, bool $destinyremovegroups, bool $originenrolusers) {
+        $this->set_destiny_target($destinytarget);
         $this->set_destiny_remove_enrols($destinyremoveenrols);
         $this->set_destiny_remove_groups($destinyremovegroups);
-        $this->set_origin_remove_course($originremovecourse);
-        $this->set_destiny_notremove_activities($destinynotremoveactivities);
+        $this->set_origin_enrol_users($originenrolusers);
     }
 
     /**
-     * Set Destiny Remove Activities.
+     * Set Destiny Remove Enrols.
      *
-     * @param bool $config
+     * @param int $config
      */
-    protected function set_destiny_remove_activities(bool $config) {
-        $this->destinyremoveactivities = $config;
-    }
-
-    /**
-     * Set Destiny Merge Activities.
-     *
-     * @param bool $config
-     */
-    protected function set_destiny_merge_activities(bool $config) {
-        $this->destinymergeactivities = $config;
+    protected function set_destiny_target(int $config) {
+        $this->destinytarget = $config;
     }
 
     /**
@@ -102,21 +82,12 @@ class configuration {
     }
 
     /**
-     * Set Origin Remove Course.
+     * Set Origin Enrol Users.
      *
      * @param bool $config
      */
-    protected function set_origin_remove_course(bool $config) {
-        $this->originremovecourse = $config;
-    }
-
-    /**
-     * Set Destiny Not Remove Activities.
-     *
-     * @param string $config
-     */
-    protected function set_destiny_notremove_activities(string $config) {
-        $this->destinynotremoveactivities = $config;
+    protected function set_origin_enrol_users(bool $config) {
+        $this->originenrolusers = $config;
     }
 
 }

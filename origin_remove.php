@@ -45,22 +45,35 @@ $PAGE->set_pagelayout('standard');
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
-$PAGE->set_url('/local/coursetransfer/origin_remove.php?step=1');
+$PAGE->set_url('/local/coursetransfer/origin_remove.php');
 
 $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
 
-$step = required_param('step', PARAM_INT);
+$step = optional_param('step', 1, PARAM_INT);
 switch ($step) {
     case 1:
         $page = new \local_coursetransfer\output\origin_remove_page();
         break;
     case 2:
-        $page = new \local_coursetransfer\output\origin_remove_page_step2();
+        $type = required_param('type', PARAM_TEXT);
+        if ($type === 'categories') {
+            $page = new \local_coursetransfer\output\origin_remove_page_cat_step2();
+        } else {
+            $page = new \local_coursetransfer\output\origin_remove_page_step2();
+        }
+        break;
+    case 3:
+        $type = required_param('type', PARAM_TEXT);
+        if ($type === 'categories') {
+            $page = new \local_coursetransfer\output\origin_remove_page_cat_step3();
+        } else {
+            $page = new \local_coursetransfer\output\origin_remove_page_step3();
+        }
         break;
     default:
-        throw new moodle_exception('STEP NOT VALID');
+        $page = new \local_coursetransfer\output\origin_remove_page();
 }
 
 echo $output->render($page);

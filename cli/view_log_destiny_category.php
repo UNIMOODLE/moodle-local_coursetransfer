@@ -85,13 +85,14 @@ try {
 
     foreach (\local_coursetransfer\coursetransfer_request::get_by_destiny_category_id($categoryid) as $item) {
         $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
-        $courses = json_decode($item->origin_category_courses);
+        $requests = json_decode($item->origin_category_requests);
         $coursesid = '';
-        foreach ($courses as $course) {
+        foreach ($requests as $request) {
+            $req = \local_coursetransfer\coursetransfer_request::get($request);
             if (empty($coursesid)) {
-                $coursesid .= $course->id;
+                $coursesid .= $req->origin_course_id;
             } else {
-                $coursesid .= '-'. $course->id;
+                $coursesid .= '-'. $req->origin_course_id;
             }
         }
         printf($mask,

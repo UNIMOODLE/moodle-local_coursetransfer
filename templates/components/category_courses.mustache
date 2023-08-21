@@ -30,6 +30,9 @@
         <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
         <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
         <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
+        {{# has_status }}
+            <th>{{#str}} status, local_coursetransfer {{/str}}</th>
+        {{/ has_status }}
     </tr>
     </thead>
     <tbody>
@@ -39,13 +42,16 @@
                        name="radiogroup"
                        data-action="select"
                        data-courseid="{{ id }}"
-                       {{# disabled }}disabled{{/ disabled }}></td>
+                       {{# disabled }}disabled{{/ disabled }} {{# checked }}checked{{/ checked }}></td>
             <td id="courseid"><a href="{{ url }}" target="_blank">{{ id }}</a></td>
             <td>{{ fullname }}</td>
             <td>{{ shortname }}</td>
             <td>{{ idnumber }}</td>
             <td>{{ categoryid }}</td>
             <td>{{ categoryname }}</td>
+            {{# has_status }}
+                <td>{{ status }}</td>
+            {{/ has_status }}
         </tr>
     {{/ category.courses }}
     </tbody>

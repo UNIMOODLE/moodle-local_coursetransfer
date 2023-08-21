@@ -28,6 +28,9 @@ use coding_exception;
 use core_user;
 use DateTime;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\models\configuration_course;
+use local_coursetransfer\output\configuration_component;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -130,7 +133,7 @@ class origin_restore_course_table extends table_sql {
      * @throws moodle_exception
      */
     public function col_status(stdClass $row): string {
-        if ( (int)$row->status === 0 ) {
+        if ( (int)$row->status === coursetransfer_request::STATUS_ERROR ) {
             return '<button type="button" class="btn btn-danger label-status" data-container="body" data-toggle="popover"
              data-placement="bottom" data-content="'. $row->error_code . ': ' . $row->error_message .'">'
                 . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
@@ -166,14 +169,10 @@ class origin_restore_course_table extends table_sql {
      */
     public function col_configuration(stdClass $row): string {
         global $PAGE;
-        $configuration = [
-                $row->destiny_remove_activities,
-                $row->destiny_merge_activities,
-                $row->destiny_remove_enrols,
-                $row->destiny_remove_groups
-        ];
+        $configuration = new configuration_course(
+                (int)$row->destiny_target, $row->destiny_remove_enrols, $row->destiny_remove_groups);
         $output = $PAGE->get_renderer('local_coursetransfer');
-        $component = new \local_coursetransfer\output\configuration_component($configuration, $row->id);
+        $component = new configuration_component($configuration, $row->id);
         return $output->render($component);
     }
 

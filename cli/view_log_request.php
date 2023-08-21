@@ -24,6 +24,7 @@
  */
 
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
 
 define('CLI_SCRIPT', 1);
 
@@ -78,30 +79,52 @@ if ( $requestid === null ) {
 
 try {
 
-    $request = \local_coursetransfer\coursetransfer_request::get($requestid);
+    $request = coursetransfer_request::get($requestid);
     if ($request) {
         foreach ($request as $key => $item) {
             if ($key === 'origin_category_courses') {
-                $courses = json_decode($item);
                 $coursesid = '';
-                foreach ($courses as $course) {
-                    if (empty($coursesid)) {
-                        $coursesid .= $course->id;
-                    } else {
-                        $coursesid .= '-'. $course->id;
+                if (!is_null($item)) {
+                    $courses = json_decode($item);
+                    foreach ($courses as $course) {
+                        if (empty($coursesid)) {
+                            $coursesid .= $course->id;
+                        } else {
+                            $coursesid .= '-'. $course->id;
+                        }
                     }
                 }
                 cli_writeln( $key . ': ' . $coursesid);
             } else if ($key === 'type') {
-                $type = $item === 1 ? 'restore course' : 'restore category';
+                $type = (int)$item === coursetransfer_request::TYPE_COURSE ? 'restore course' : 'restore category';
                 cli_writeln( $key . ': ' . $type);
             } else if ($key === 'direction') {
-                $type = $item === 1 ? 'request' : 'answer';
+                $type = (int)$item === coursetransfer_request::DIRECTION_REQUEST ? 'request' : 'answer';
                 cli_writeln( $key . ': ' . $type);
             } else if ($key === 'origin_activities') {
                 cli_writeln( $key . ': ' . 'view more details in view_log_request_activities_detail');
+            } else if ($key === 'destiny_target' ) {
+                switch ($item) {
+                    case 2:
+                        $target = 'In New Course';
+                        break;
+                    case 3:
+                        $target = 'Remove Content';
+                        break;
+                    case 4:
+                        $target = 'Merge the backup into this course';
+                        break;
+                    default:
+                        $target = '-';
+                }
+                cli_writeln( $key . ': ' . $target);
             } else if ($key === 'timemodified' || $key === 'timecreated' ) {
                 cli_writeln( $key . ': ' . userdate($item));
+            } else if ($key === 'origin_enrolusers' || $key === 'origin_remove_course' ||
+                    $key === 'origin_remove_category' || $key === 'destiny_remove_enrols' ||
+                    $key === 'destiny_remove_groups' ) {
+                $bool = (int)$item === 1 ? 'true' : 'false';
+                cli_writeln( $key . ': ' . $bool);
             } else if ($key === 'status') {
                 cli_writeln( $key . ': ' . get_string('status_' .
                                 coursetransfer::STATUS[$item]['shortname'], 'local_coursetransfer'));

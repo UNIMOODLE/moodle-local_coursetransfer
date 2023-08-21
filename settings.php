@@ -34,13 +34,25 @@ if ($hassiteconfig) {
     $ADMIN->add('modules', new admin_category('local_coursetransfer_category',
             new lang_string('pluginname', 'local_coursetransfer')));
 
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_config',
+            get_string('configuration', 'local_coursetransfer'),
+            $CFG->wwwroot . '/admin/settings.php?section=local_coursetransfer'));
+
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_summary',
+            get_string('summary', 'local_coursetransfer'),
+            $CFG->wwwroot . '/local/coursetransfer/index.php'));
+
     $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_restore',
             get_string('restore_page', 'local_coursetransfer'),
             $CFG->wwwroot . '/local/coursetransfer/origin_restore.php'));
 
-    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_restore',
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_remove',
             get_string('remove_page', 'local_coursetransfer'),
-            $CFG->wwwroot . '/local/coursetransfer/origin_remove.php?step=1'));
+            $CFG->wwwroot . '/local/coursetransfer/origin_remove.php'));
+
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_logs',
+            get_string('logs_page', 'local_coursetransfer'),
+            $CFG->wwwroot . '/local/coursetransfer/logs.php'));
 
     $settings = new admin_settingpage('local_coursetransfer',
         get_string('pluginname', 'local_coursetransfer'));

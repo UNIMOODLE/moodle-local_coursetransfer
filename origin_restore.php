@@ -51,7 +51,36 @@ $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
 
-$page = new \local_coursetransfer\output\origin_restore_page();
+$step = optional_param('step', null, PARAM_INT);
+switch ($step) {
+    case 2:
+        $type = required_param('type', PARAM_TEXT);
+        if ($type === 'categories') {
+            $page = new \local_coursetransfer\output\origin_restore_cat_step2_page();
+        } else {
+            $page = new \local_coursetransfer\output\origin_restore_step2_page();
+        }
+        break;
+    case 3:
+        $type = required_param('type', PARAM_TEXT);
+        if ($type === 'categories') {
+            $page = new \local_coursetransfer\output\origin_restore_cat_step3_page();
+        } else {
+            $page = new \local_coursetransfer\output\origin_restore_step3_page();
+        }
+        break;
+    case 4:
+        $type = required_param('type', PARAM_TEXT);
+        if ($type === 'categories') {
+            $page = new \local_coursetransfer\output\origin_restore_cat_step4_page();
+        } else {
+            $page = new \local_coursetransfer\output\origin_restore_step4_page();
+        }
+        break;
+    default:
+        $page = new \local_coursetransfer\output\origin_restore_page();
+}
+
 echo $output->render($page);
 
 echo $OUTPUT->footer();

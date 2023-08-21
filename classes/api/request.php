@@ -26,7 +26,7 @@ namespace local_coursetransfer\api;
 
 use dml_exception;
 use local_coursetransfer\coursetransfer;
-use local_coursetransfer\models\configuration;
+use local_coursetransfer\models\configuration_course;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die;
@@ -145,13 +145,13 @@ class request {
      * @param int $requestid
      * @param int $origincourseid
      * @param int $destinycourseid
-     * @param configuration $configuration
-     * @param array $sections
+     * @param configuration_course $configuration
+     * @param array $sections If array empty [], all sections and all activities will be backup.
      * @return response
      * @throws dml_exception
      */
     public function origin_backup_course(int $requestid, int $origincourseid, int $destinycourseid,
-                 configuration $configuration, array $sections): response {
+                 configuration_course $configuration, array $sections =[]): response {
         global $USER, $CFG;
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
@@ -166,39 +166,18 @@ class request {
     }
 
     /**
-     * Origin back up category course remote.
-     *
-     * @param int $requestid
-     * @param int $courseid
-     * @param int $destinycategoryid
-     * @return response
-     * @throws dml_exception
-     */
-    public function origin_backup_category_course(int $requestid, int $courseid, int $destinycategoryid): response {
-        global $USER, $CFG;
-        $params = [];
-        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params['field']};
-        $params['courseid'] = $courseid;
-        $params['destinycategoryid'] = $destinycategoryid;
-        $params['requestid'] = $requestid;
-        $params['destinysite'] = $CFG->wwwroot;
-        return $this->req('local_coursetransfer_origin_backup_category_course', $params);
-    }
-
-    /**
      * Serialize Configuration.
      *
-     * @param configuration $configuration
+     * @param configuration_course $configuration $configuration
      * @return array
      */
-    public function serialize_configuration(configuration $configuration): array {
+    public function serialize_configuration(configuration_course $configuration): array {
         $res = [];
-        $res['configuration[destiny_merge_activities]'] = (int)$configuration->destinymergeactivities;
+        $res['configuration[destiny_target]'] = (int)$configuration->destinytarget;
         $res['configuration[destiny_remove_enrols]'] = (int)$configuration->destinyremoveenrols;
         $res['configuration[destiny_remove_groups]'] = (int)$configuration->destinyremovegroups;
-        $res['configuration[destiny_remove_activities]'] = (int)$configuration->destinyremoveactivities;
         $res['configuration[origin_remove_course]'] = (int)$configuration->originremovecourse;
+        $res['configuration[origin_enrol_users]'] = (int)$configuration->originenrolusers;
         $res['configuration[destiny_notremove_activities]'] = $configuration->destinynotremoveactivities;
         return $res;
     }
@@ -279,6 +258,44 @@ class request {
     }
 
     /**
+     * Origin remove course remote.
+     *
+     * @param int $requestid
+     * @param int $origincourseid
+     * @return response
+     * @throws dml_exception
+     */
+    public function origin_remove_course(int $requestid, int $origincourseid): response {
+        global $USER, $CFG;
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params['field']};
+        $params['courseid'] = $origincourseid;
+        $params['requestid'] = $requestid;
+        $params['destinysite'] = $CFG->wwwroot;
+        return $this->req('local_coursetransfer_origin_remove_course', $params);
+    }
+
+    /**
+     * Origin remove category remote.
+     *
+     * @param int $requestid
+     * @param int $origincatid
+     * @return response
+     * @throws dml_exception
+     */
+    public function origin_remove_category(int $requestid, int $origincatid): response {
+        global $USER, $CFG;
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params['field']};
+        $params['catid'] = $origincatid;
+        $params['requestid'] = $requestid;
+        $params['destinysite'] = $CFG->wwwroot;
+        return $this->req('local_coursetransfer_origin_remove_category', $params);
+    }
+
+    /**
      * Request.
      *
      * @param string $wsname
@@ -314,10 +331,16 @@ class request {
                 } else {
                     $message = get_string('error_not_controlled', 'local_coursetransfer');
                 }
-                return new response(false, null, ['code' => '200002', 'msg' => $message]);
+                $error = new stdClass();
+                $error->code = '200002';
+                $error->msg = $message;
+                return new response(false, null, [$error]);
             }
         } catch (\Exception $e) {
-            return new response(false, null, ['code' => '200003', 'msg' => $e->getMessage()]);
+            $error = new stdClass();
+            $error->code = '200003';
+            $error->msg = $wsname . ': ' . $e->getMessage();
+            return new response(false, null, [$error]);
         }
     }
 }
