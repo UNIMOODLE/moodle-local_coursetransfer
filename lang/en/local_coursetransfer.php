@@ -200,5 +200,6 @@ $string['origin_remove_category_step3'] = "Category to delete";
 $string['remove_category_page'] = "Delete remote category";
 $string['logs_page'] = "Logs executions";
 $string['course_completed_sections'] = "Restoration of the complete course";
-
-
+$string['restore_origin_data'] = "Origin course configuration";
+$string['restore_origin_user_data'] = "Restore course with origin user data";
+$string['restore_origin_user_data_desc'] = "The course will be restored with the user data that exists in the origin course.";

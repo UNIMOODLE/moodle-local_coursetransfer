@@ -89,6 +89,7 @@ define([
                         destiny_remove_activities: configuration['destiny_remove_activities'],
                         destiny_remove_groups: configuration['destiny_remove_groups'],
                         destiny_remove_enrols: configuration['destiny_remove_enrols'],
+                        origin_restore_user_data: configuration['origin_restore_user_data']
                     },
                 }
             };

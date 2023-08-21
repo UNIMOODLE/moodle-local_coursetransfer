@@ -162,6 +162,7 @@ class request {
         $params['destinysite'] = $CFG->wwwroot;
         $params = array_merge($params, $this->serialize_configuration($configuration));
         $params = array_merge($params, $this->serialize_sections($sections));
+        var_dump($params);
         return $this->req('local_coursetransfer_origin_backup_course', $params);
     }
 
