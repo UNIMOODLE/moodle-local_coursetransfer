@@ -86,10 +86,6 @@ define([
                     catid: this.data.catid,
                     destinyid: this.data.destinyid,
                     configuration: {
-                        destiny_merge_activities: configuration['destiny_merge_activities'],
-                        destiny_remove_activities: configuration['destiny_remove_activities'],
-                        destiny_remove_groups: configuration['destiny_remove_groups'],
-                        destiny_remove_enrols: configuration['destiny_remove_enrols'],
                         origin_enrolusers: configuration['origin_enrolusers']
                     },
                 }
