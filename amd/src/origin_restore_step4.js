@@ -96,7 +96,7 @@ define([
             let that = this;
             Ajax.call([request])[0].done(function(response) {
                 if (response.success) {
-                    //window.location.href = response.data.nexturl;
+                    window.location.href = response.data.nexturl;
                 } else if (!response.success) {
                     that.renderErrors(response.errors, alertbox);
                 } else {

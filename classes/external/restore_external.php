@@ -162,7 +162,7 @@ class restore_external extends external_api {
                                         'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
                                         'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
                                         'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
-                                        'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Restore User Data'),
+                                        'origin_enrolusers' => new external_value(PARAM_BOOL, 'Origin Restore User Data'),
                                 )
                         ),
                 )
@@ -209,7 +209,7 @@ class restore_external extends external_api {
                 }
                 $configuration = new configuration_course(
                     $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups'],
-                    $configuration['origin_enrol_users']);
+                    $configuration['origin_enrolusers']);
                 $res = coursetransfer::restore_course(
                         $site, $destinycourseid, $course['courseid'], $configuration, []);
                 if (!$res['success']) {
@@ -270,7 +270,7 @@ class restore_external extends external_api {
                                         'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
                                         'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
                                         'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
-                                        'origin_enrolusers' => new external_value(PARAM_BOOL, 'Origin Enrol Users')
+                                        'origin_enrolusers' => new external_value(PARAM_BOOL, 'Origin Enrol Users'),
                                 )
                         ),
                 )
@@ -308,8 +308,7 @@ class restore_external extends external_api {
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
             $configuration = new configuration_category(\backup::TARGET_NEW_COURSE,
-                    $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups'],
-                    $configuration['origin_enrolusers']);
+                    $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups'], $configuration['origin_enrolusers']);
 
             $res = coursetransfer::restore_category($site, $destinyid, $catid, $configuration);
 
