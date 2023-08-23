@@ -59,7 +59,7 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
         ];
         $backurl = new moodle_url(
             '/local/coursetransfer/origin_restore_category.php',
-            ['id' => $this->category->id, 'new' => 1, 'step' => 2]
+            ['id' => $this->category->id, 'new' => 1, 'step' => 2, 'site' => $siteposition]
         );
         $tableurl = new moodle_url(
             '/local/coursetransfer/origin_restore_category.php',
