@@ -31,6 +31,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\factory\course;
 use local_coursetransfer\models\configuration_category;
 use local_coursetransfer\models\configuration_course;
@@ -191,7 +192,7 @@ class restore_external extends external_api {
         $success = false;
         $errors = [];
         $data = new stdClass();
-        $nexturl = new moodle_url('/local/coursetransfer/origin_restore.php');
+        $nexturl = new moodle_url('/local/coursetransfer/logs.php');
         $data->nexturl = $nexturl->out(false);
 
         try {
@@ -282,6 +283,7 @@ class restore_external extends external_api {
      * @param array $configuration
      * @return array
      * @throws invalid_parameter_exception
+     * @throws moodle_exception
      */
     public static function origin_restore_cat_step4(
             int $siteurl, int $catid, int $destinyid, array $configuration): array {
@@ -298,7 +300,7 @@ class restore_external extends external_api {
         $success = false;
         $errors = [];
         $data = new stdClass();
-        $nexturl = new moodle_url('/local/coursetransfer/origin_restore.php');
+        $nexturl = new moodle_url('/local/coursetransfer/logs.php', ['type' => coursetransfer_request::TYPE_CATEGORY]);
         $data->nexturl = $nexturl->out(false);
 
         try {

@@ -41,7 +41,7 @@
 
         <p>{{#str}} step4_destiny_desc, local_coursetransfer {{/str}}</p>
 
-        <select name="destinyid" data-action="destiny" data-catid="{{ id }}">
+        <select name="destinyid" data-action="destiny" data-catid="{{ id }}" disabled>
             <option value="0" selected>{{#str}} newcategory, grades {{/str}}</option>
             {{# destinies }}
                 <option value="{{ id }}">{{ name }} {{# idnumber }}({{ idnumber }}){{/ idnumber }}</option>

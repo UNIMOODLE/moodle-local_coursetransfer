@@ -37,6 +37,7 @@ use dml_exception;
 use file_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\api\response;
+use local_coursetransfer\factory\category;
 use local_coursetransfer\factory\course;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\models\configuration_category;
@@ -824,6 +825,11 @@ class coursetransfer {
             } else {
                 // 1b. Call CURL Origin Get Course Detail from courses list.
                 $courses = self::get_courses_detail($site, $courses);
+            }
+
+            // 2. If destinycategoryid is new (0)
+            if ($destinycategoryid === 0) {
+                $destinycategoryid = category::create(get_string('newcategory', 'grades'));
             }
 
             // 2. Category Request DB.
