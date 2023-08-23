@@ -96,7 +96,7 @@ class logs_page implements renderable, templatable {
     protected function get_logs_table(): string {
         $table = $this->table;
         $table->is_downloadable(false);
-        $table->pageable(true);
+        $table->pageable(false);
         $select = 'csr.*';
         $from = '{local_coursetransfer_request} csr';
         $where = 'direction = :direction AND type = :type';
@@ -105,11 +105,11 @@ class logs_page implements renderable, templatable {
                 'type' => $this->type
         ];
         $table->set_sql($select, $from, $where, $params);
-        $table->sortable(true, 'timemodified', SORT_DESC);
+        $table->sortable(false, 'id', SORT_DESC);
         $table->collapsible(false);
         $table->define_baseurl($this->url);
         ob_start();
-        $table->out(20, true, false);
+        $table->out(200, true, false);
         $tablecontent = ob_get_contents();
         ob_end_clean();
         return $tablecontent;
