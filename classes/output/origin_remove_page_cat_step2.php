@@ -76,7 +76,7 @@ class origin_remove_page_cat_step2 implements renderable, templatable {
         );
         $nexturl = new moodle_url(
                 '/local/coursetransfer/origin_remove.php',
-                ['step' => 3, 'site' => $this->site, 'type' => 'courses']
+                ['step' => 3, 'site' => $this->site, 'type' => 'categories']
         );
         $tableurl = new moodle_url(
                 '/local/coursetransfer/origin_remove.php'

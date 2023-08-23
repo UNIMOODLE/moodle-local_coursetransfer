@@ -59,6 +59,9 @@ class logs_page implements renderable, templatable {
     /** @var moodle_url URL */
     protected $url;
 
+    /** @var string[] URL */
+    protected $selects;
+
     /**
      *  constructor.
      *
@@ -78,9 +81,12 @@ class logs_page implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        $formurl = new moodle_url('/local/coursetransfer/logs.php');
         $data = new stdClass();
         $data->table = $this->get_logs_table();
         $data->title = $this->get_title();
+        $data->selects = $this->selects;
+        $data->form_url = $formurl->out(false);
         return $data;
     }
 
@@ -120,14 +126,23 @@ class logs_page implements renderable, templatable {
     protected function get_title(): string {
         switch ($this->type) {
             case coursetransfer_request::TYPE_CATEGORY:
-                return get_string('origin_restore_category', 'local_coursetransfer');
+                $title = get_string('restore_category', 'local_coursetransfer');
+                break;
             case coursetransfer_request::TYPE_REMOVE_COURSE:
-                return get_string('remove_course_page', 'local_coursetransfer');
+                $title = get_string('remove_course', 'local_coursetransfer');
+                break;
             case coursetransfer_request::TYPE_REMOVE_CATEGORY:
-                return get_string('remove_category_page', 'local_coursetransfer');
+                $title = get_string('remove_category', 'local_coursetransfer');
+                break;
             default:
-                return get_string('origin_restore_course', 'local_coursetransfer');
+                $title = get_string('restore_course', 'local_coursetransfer');
         }
+        if ($this->direction === coursetransfer_request::DIRECTION_REQUEST) {
+            $title .= ' - ' . get_string('request', 'local_coursetransfer');
+        } else {
+            $title .= ' - ' . get_string('response', 'local_coursetransfer');
+        }
+        return $title;
     }
 
 }

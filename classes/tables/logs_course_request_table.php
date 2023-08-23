@@ -71,7 +71,8 @@ class logs_course_request_table extends table_sql {
                 'backupsize',
                 'userid',
                 'timemodified',
-                'timecreated'
+                'timecreated',
+                'detail'
         ]);
 
         $this->define_headers([
@@ -86,6 +87,7 @@ class logs_course_request_table extends table_sql {
                 get_string('userid', 'local_coursetransfer'),
                 get_string('timemodified', 'local_coursetransfer'),
                 get_string('timecreated', 'local_coursetransfer'),
+                get_string('detail', 'local_coursetransfer'),
         ]);
 
         $this->sortable(false);
@@ -206,10 +208,10 @@ class logs_course_request_table extends table_sql {
      * Col Size
      *
      * @param stdClass $row Full data of the current row.
-     * @return int
+     * @return string
      */
-    public function col_backupsize(stdClass $row): int {
-        return !is_null($row->origin_backup_size) ? $row->origin_backup_size : 0;
+    public function col_backupsize(stdClass $row): string {
+        return !is_null($row->origin_backup_size) ? $row->origin_backup_size : '-';
     }
 
     /**
@@ -238,5 +240,18 @@ class logs_course_request_table extends table_sql {
         $date->setTimestamp($row->timecreated);
         $date = userdate($row->timecreated, get_string("strftimedatetimeshort", "core_langconfig"));
         return $date;
+    }
+
+    /**
+     * Col Detail
+     *
+     * @param stdClass $row Full data of the current row.
+     * @return string
+     * @throws moodle_exception
+     */
+    public function col_detail(stdClass $row): string {
+        $href = new moodle_url('/local/coursetransfer/log.php', ['id' => $row->id]);
+        return '<a href="' . $href->out(false) . '" target="_blank">' .
+                get_string('detail', 'local_coursetransfer') . '</a>';
     }
 }

@@ -89,6 +89,5 @@ switch ($type) {
         throw new moodle_exception('TYPE NOT VALID');
 }
 
-
 echo $output->render($page);
 echo $OUTPUT->footer();

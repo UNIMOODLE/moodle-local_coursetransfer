@@ -30,6 +30,7 @@ use local_coursetransfer\forms\new_origin_restore_course_step1_form;
 use local_coursetransfer\forms\origin_remove_form;
 use local_coursetransfer\forms\origin_restore_form;
 use local_coursetransfer\tables\logs_course_request_table;
+use local_coursetransfer\tables\logs_course_response_table;
 use local_coursetransfer\tables\logs_table;
 use moodle_exception;
 use moodle_url;
@@ -39,13 +40,13 @@ use stdClass;
 use templatable;
 
 /**
- * logs_course_request_page
+ * logs_course_remove_response_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class logs_course_request_page extends logs_page {
+class logs_course_remove_response_page extends logs_page {
 
     /**
      *  constructor.
@@ -56,14 +57,14 @@ class logs_course_request_page extends logs_page {
     public function __construct() {
         parent::__construct();
         $uniqid = uniqid('', true);
-        $this->table = new logs_course_request_table($uniqid);
+        $this->table = new logs_course_response_table($uniqid);
         $this->url = new moodle_url('/local/coursetransfer/logs_page.php');
         $this->selects = [
                 'type' => [
                         [
                                 'value' => 0,
                                 'name' => get_string('restore_course', 'local_coursetransfer'),
-                                'selected' => true
+                                'selected' => false
                         ],
                         [
                                 'value' => 1,
@@ -73,7 +74,7 @@ class logs_course_request_page extends logs_page {
                         [
                                 'value' => 2,
                                 'name' => get_string('remove_course', 'local_coursetransfer'),
-                                'selected' => false
+                                'selected' => true
                         ],
                         [
                                 'value' => 3,
@@ -85,12 +86,12 @@ class logs_course_request_page extends logs_page {
                         [
                                 'value' => 0,
                                 'name' => get_string('request', 'local_coursetransfer'),
-                                'selected' => true
+                                'selected' => false
                         ],
                         [
                                 'value' => 1,
                                 'name' => get_string('response', 'local_coursetransfer'),
-                                'selected' => false
+                                'selected' => true
                         ],
                 ],
         ];

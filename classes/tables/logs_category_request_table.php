@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class origin_restore_course_table
+ * Class logs_course_request_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
@@ -25,11 +25,12 @@
 namespace local_coursetransfer\tables;
 
 use coding_exception;
-use core_course_category;
 use core_user;
 use DateTime;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\models\configuration_course;
+use local_coursetransfer\output\configuration_component;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -40,32 +41,24 @@ defined('MOODLE_INTERNAL') || die;
 require_once('../../lib/tablelib.php');
 
 /**
- * Class origin_restore_category_table
+ * Class logs_category_request_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_category_table extends table_sql {
-
-    /** @var int PAGE SIZE */
-    const PAGE_SIZE = 20;
-
-    /** @var core_course_category Course */
-    protected $category;
+class logs_category_request_table extends table_sql {
 
     /**
      * constructor.
      *
      * @param string $uniqueid
-     * @param core_course_category $category
      * @throws coding_exception
+     * @throws moodle_exception
      */
-    public function __construct(string $uniqueid, core_course_category $category) {
+    public function __construct(string $uniqueid) {
 
         parent::__construct($uniqueid);
-
-        $this->category = $category;
 
         $this->define_columns([
                 'id',
@@ -75,7 +68,8 @@ class origin_restore_category_table extends table_sql {
                 'origin_category_courses',
                 'userid',
                 'timemodified',
-                'timecreated'
+                'timecreated',
+                'detail'
         ]);
 
         $this->define_headers([
@@ -87,11 +81,13 @@ class origin_restore_category_table extends table_sql {
                 get_string('userid', 'local_coursetransfer'),
                 get_string('timemodified', 'local_coursetransfer'),
                 get_string('timecreated', 'local_coursetransfer'),
+                get_string('detail', 'local_coursetransfer'),
         ]);
 
         $this->sortable(false);
 
         $this->column_style('id', 'text-align', 'center');
+        $this->column_style('configuration', 'text-align', 'center');
     }
 
     /**
@@ -137,14 +133,14 @@ class origin_restore_category_table extends table_sql {
         if ( (int)$row->status === coursetransfer_request::STATUS_ERROR ) {
             return '<button type="button" class="btn btn-danger label-status" data-container="body" data-toggle="popover"
              data-placement="bottom" data-content="'. $row->error_code . ': ' . $row->error_message .'">'
-                . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
-                    'local_coursetransfer') .'
+                    . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
+                            'local_coursetransfer') .'
             </button>';
         } else {
             $status = coursetransfer_request::get_status_category_request($row->id);
             return '<label class="label-status text-' . coursetransfer::STATUS[$status]['alert'] . '">'
-                . get_string('status_'.coursetransfer::STATUS[$status]['shortname'],
-                    'local_coursetransfer') . '</label>';
+                    . get_string('status_'.coursetransfer::STATUS[$status]['shortname'],
+                            'local_coursetransfer') . '</label>';
         }
     }
 
@@ -203,5 +199,18 @@ class origin_restore_category_table extends table_sql {
         $date->setTimestamp($row->timecreated);
         $date = userdate($row->timecreated, get_string("strftimedatetimeshort", "core_langconfig"));
         return $date;
+    }
+
+    /**
+     * Col Detail
+     *
+     * @param stdClass $row Full data of the current row.
+     * @return string
+     * @throws moodle_exception
+     */
+    public function col_detail(stdClass $row): string {
+        $href = new moodle_url('/local/coursetransfer/log.php', ['id' => $row->id]);
+        return '<a href="' . $href->out(false) . '" target="_blank">' .
+                get_string('detail', 'local_coursetransfer') . '</a>';
     }
 }

@@ -39,13 +39,13 @@ use stdClass;
 use templatable;
 
 /**
- * logs_course_request_page
+ * logs_category_remove_response_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class logs_course_request_page extends logs_page {
+class logs_category_remove_response_page extends logs_page {
 
     /**
      *  constructor.
@@ -63,7 +63,7 @@ class logs_course_request_page extends logs_page {
                         [
                                 'value' => 0,
                                 'name' => get_string('restore_course', 'local_coursetransfer'),
-                                'selected' => true
+                                'selected' => false
                         ],
                         [
                                 'value' => 1,
@@ -78,19 +78,19 @@ class logs_course_request_page extends logs_page {
                         [
                                 'value' => 3,
                                 'name' => get_string('remove_category', 'local_coursetransfer'),
-                                'selected' => false
+                                'selected' => true
                         ],
                 ],
                 'direction' => [
                         [
                                 'value' => 0,
                                 'name' => get_string('request', 'local_coursetransfer'),
-                                'selected' => true
+                                'selected' => false
                         ],
                         [
                                 'value' => 1,
                                 'name' => get_string('response', 'local_coursetransfer'),
-                                'selected' => false
+                                'selected' => true
                         ],
                 ],
         ];
