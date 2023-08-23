@@ -1,0 +1,64 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Local Course Transfer
+ *
+ * @package    local_coursetransfer
+ * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace local_coursetransfer\output;
+
+use coding_exception;
+use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\forms\new_origin_restore_course_step1_form;
+use local_coursetransfer\forms\origin_remove_form;
+use local_coursetransfer\forms\origin_restore_form;
+use local_coursetransfer\tables\logs_course_request_table;
+use local_coursetransfer\tables\logs_table;
+use moodle_exception;
+use moodle_url;
+use renderable;
+use renderer_base;
+use stdClass;
+use templatable;
+
+/**
+ * logs_course_request_page
+ *
+ * @package    local_coursetransfer
+ * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class logs_course_request_page extends logs_page {
+
+    /**
+     *  constructor.
+     *
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    public function __construct() {
+        parent::__construct();
+        $uniqid = uniqid('', true);
+        $this->table = new logs_course_request_table($uniqid);
+        $this->url = new moodle_url('/local/coursetransfer/logs_page.php');
+    }
+
+
+}

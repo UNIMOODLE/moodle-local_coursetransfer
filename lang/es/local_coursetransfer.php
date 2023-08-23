@@ -64,6 +64,7 @@ $string['origin_site_help'] = "El sitio de origen, es donde se encuentra el curs
 $string['request_id'] = "ID Petición";
 $string['siteurl'] = "Sitio Origen";
 $string['origin_course_id'] = "ID del curso de origen";
+$string['destiny_course_id'] = "ID del curso de destino";
 $string['status'] = "Estado";
 $string['origin_activities'] = "Actividades de Origen";
 $string['configuration'] = "Configuración";

@@ -35,6 +35,7 @@ use moodle_url;
 use renderable;
 use renderer_base;
 use stdClass;
+use table_sql;
 use templatable;
 
 /**
@@ -48,8 +49,15 @@ class logs_page implements renderable, templatable {
 
     /** @var int Type  */
     protected $type;
+
     /** @var int Direction */
     protected $direction;
+
+    /** @var table_sql Table */
+    protected $table;
+
+    /** @var moodle_url URL */
+    protected $url;
 
     /**
      *  constructor.
@@ -77,15 +85,12 @@ class logs_page implements renderable, templatable {
     }
 
     /**
-     * Get restore request table
+     * Get logs Table.
      *
      * @return string
-     * @throws coding_exception
-     * @throws moodle_exception
      */
     protected function get_logs_table(): string {
-        $uniqid = uniqid('', true);
-        $table = new logs_table($uniqid);
+        $table = $this->table;
         $table->is_downloadable(false);
         $table->pageable(true);
         $select = 'csr.*';
@@ -98,11 +103,9 @@ class logs_page implements renderable, templatable {
         $table->set_sql($select, $from, $where, $params);
         $table->sortable(true, 'timemodified', SORT_DESC);
         $table->collapsible(false);
-        $table->define_baseurl(
-                new moodle_url('/local/coursetransfer/logs_page.php')
-        );
+        $table->define_baseurl($this->url);
         ob_start();
-        $table->out(10, true, false);
+        $table->out(20, true, false);
         $tablecontent = ob_get_contents();
         ob_end_clean();
         return $tablecontent;
