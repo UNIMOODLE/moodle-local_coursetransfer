@@ -22,6 +22,7 @@
 
 namespace local_coursetransfer\external;
 
+use core_course_category;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -29,6 +30,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
 use moodle_exception;
 use stdClass;
 
@@ -69,8 +71,6 @@ class remove_external extends external_api {
     public static function origin_remove_course(string $field, string $value, int $courseid,
             int $requestid, string $destinysite): array {
 
-        global $CFG;
-
         self::validate_parameters(
                 self::origin_remove_course_parameters(), [
                         'field' => $field,
@@ -92,12 +92,44 @@ class remove_external extends external_api {
             if ($authres['success']) {
                 $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
                 if ($verifydestiny['success']) {
+                    $res = $authres['data'];
+                    $object = new stdClass();
+                    $object->type = coursetransfer_request::TYPE_REMOVE_COURSE;
+                    $object->siteurl = $destinysite;
+                    $object->direction = coursetransfer_request::DIRECTION_RESPONSE;
+                    $object->destiny_request_id = $requestid;
+                    $object->request_category_id = null;
+                    $object->origin_course_id = $course->id;
+                    $object->origin_course_fullname = $course->fullname;
+                    $object->origin_course_shortname = $course->shortname;
+                    $object->origin_category_id = $course->category;
+                    $cat = core_course_category::get($course->category);
+                    $object->origin_category_idnumber = $cat->idnumber;
+                    $object->origin_category_name = $cat->name;
+
+                    $object->origin_schedule_datetime = null;
+
+                    $object->error_code = null;
+                    $object->error_message = null;
+
+                    $object->userid = $res->id;
+                    $object->status = coursetransfer_request::STATUS_IN_PROGRESS;
+
+                    $requestoriginid = coursetransfer_request::insert_or_update($object);
+
                     // TODO. Crear task de borrado de curso.
                     $res = \core_course_external::delete_courses(array($course->id));
+
                     if (count($res['warnings']) > 0) {
                         $errors[] = json_encode($res['warnings']);
+                        $object->status = coursetransfer_request::STATUS_ERROR;
+                        $object->error_code = '156045';
+                        $object->error_message = json_encode($res['warnings']);
+                        coursetransfer_request::insert_or_update($object, $requestoriginid);
                         $success = false;
                     } else {
+                        $object->status = coursetransfer_request::STATUS_COMPLETED;
+                        coursetransfer_request::insert_or_update($object, $requestoriginid);
                         $success = true;
                     }
                 } else {
@@ -202,11 +234,35 @@ class remove_external extends external_api {
             if ($authres['success']) {
                 $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
                 if ($verifydestiny['success']) {
+                    $res = $authres['data'];
+                    $object = new stdClass();
+                    $object->type = coursetransfer_request::TYPE_REMOVE_CATEGORY;
+                    $object->siteurl = $destinysite;
+                    $object->direction = coursetransfer_request::DIRECTION_RESPONSE;
+                    $object->destiny_request_id = $requestid;
+                    $object->request_category_id = null;
+                    $object->origin_category_id = $category->id;
+                    $object->origin_category_idnumber = $category->idnumber;
+                    $object->origin_category_name = $category->name;
+
+                    $object->origin_schedule_datetime = null;
+
+                    $object->error_code = null;
+                    $object->error_message = null;
+
+                    $object->userid = $res->id;
+                    $object->status = coursetransfer_request::STATUS_IN_PROGRESS;
+
+                    $requestoriginid = coursetransfer_request::insert_or_update($object);
+
                     // TODO. Crear tarea de borrado de categoría.
                     $catogories = [
                             ['id' => $category->id, 'recursive' => 1]
                     ];
                     \core_course_external::delete_categories($catogories);
+
+                    $object->status = coursetransfer_request::STATUS_COMPLETED;
+                    coursetransfer_request::insert_or_update($object, $requestoriginid);
                     $success = true;
                 } else {
                     $success = false;
