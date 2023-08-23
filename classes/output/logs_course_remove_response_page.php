@@ -25,6 +25,7 @@
 namespace local_coursetransfer\output;
 
 use coding_exception;
+use local_coursetransfer\tables\logs_course_remove_response_table;
 use local_coursetransfer\tables\logs_course_response_table;
 use moodle_exception;
 use moodle_url;
@@ -47,7 +48,7 @@ class logs_course_remove_response_page extends logs_page {
     public function __construct() {
         parent::__construct();
         $uniqid = uniqid('', true);
-        $this->table = new logs_course_response_table($uniqid);
+        $this->table = new logs_course_remove_response_table($uniqid);
         $this->url = new moodle_url('/local/coursetransfer/logs_page.php');
         $this->selects = [
                 'type' => [
