@@ -47,7 +47,6 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
     /**
      * Execute the task.
      *
-     * @throws dml_exception
      */
     public function execute() {
         global $DB;

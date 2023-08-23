@@ -124,7 +124,7 @@ class logs_course_response_table extends table_sql {
      * @throws moodle_exception
      */
     public function col_origin_course_id(stdClass $row): string {
-        $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->origin_course_id]);
+        $href = new moodle_url('/course/view.php', ['id' => $row->origin_course_id]);
         return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_course_id . '</a>';
     }
 
@@ -136,7 +136,7 @@ class logs_course_response_table extends table_sql {
      * @throws moodle_exception
      */
     public function col_destiny_course_id(stdClass $row): string {
-        $href = new moodle_url('/course/view.php', ['id' => $row->destiny_course_id]);
+        $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->destiny_course_id]);
         return '<a href="' . $href->out(false) . '" target="_blank">' . $row->destiny_course_id . '</a>';
     }
 

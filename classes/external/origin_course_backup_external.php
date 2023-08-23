@@ -141,7 +141,7 @@ class origin_course_backup_external extends external_api {
                         $res = $authres['data'];
                         $object = new stdClass();
                         $object->type = coursetransfer_request::TYPE_COURSE;
-                        $object->siteurl = $CFG->wwwroot;
+                        $object->siteurl = $destinysite;
                         $object->direction = coursetransfer_request::DIRECTION_RESPONSE;
                         $object->destiny_request_id = $requestid;
                         $object->request_category_id = null;
