@@ -30,6 +30,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -161,7 +162,7 @@ class origin_remove_external extends external_api {
      * @param int $siteurl
      * @param array $courses
      * @return array
-     * @throws invalid_parameter_exception
+     * @throws invalid_parameter_exception|moodle_exception
      */
     public static function origin_remove_step3(int $siteurl, array $courses): array {
         self::validate_parameters(
@@ -175,17 +176,37 @@ class origin_remove_external extends external_api {
         $success = false;
         $errors = [];
         $data = new stdClass();
-        $nexturl = new moodle_url('/local/coursetransfer/origin_remove.php');
+        $nexturl = new moodle_url('/local/coursetransfer/logs.php', [
+                'type' => coursetransfer_request::TYPE_REMOVE_COURSE
+        ]);
         $data->nexturl = $nexturl->out(false);
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
             foreach ($courses as $course) {
                 $res = coursetransfer::remove_course($site, $course['id']);
-                if (!$res['success']) {
-                    $errors = $res['errors'];
+                if (isset($res['data']['requestid'])) {
+                    $requestid = $res['data']['requestid'];
+                    if (!$res['success']) {
+                        $errors = $res['errors'];
+                        $request = coursetransfer_request::get($requestid);
+                        $request->status = coursetransfer_request::STATUS_ERROR;
+                        $request->error_code = $errors[0]->code;
+                        $request->error_message = $errors[0]->msg;
+                        coursetransfer_request::insert_or_update($request, $requestid);
+                    } else {
+                        $success = true;
+                        $errors = $res['errors'];
+                        $request = coursetransfer_request::get($requestid);
+                        $request->status = coursetransfer_request::STATUS_COMPLETED;
+                        coursetransfer_request::insert_or_update($request, $requestid);
+                    }
                 } else {
-                    $success = true;
+                    $errors[] =
+                            [
+                                    'code' => '201102',
+                                    'msg' => 'NOT CONTROLLED'
+                            ];
                 }
             }
         } catch (moodle_exception $e) {
@@ -243,7 +264,7 @@ class origin_remove_external extends external_api {
      * @param int $siteurl
      * @param int $catid
      * @return array
-     * @throws invalid_parameter_exception
+     * @throws invalid_parameter_exception|moodle_exception
      */
     public static function origin_remove_cat_step3(int $siteurl, int $catid): array {
         self::validate_parameters(
@@ -257,16 +278,36 @@ class origin_remove_external extends external_api {
         $success = false;
         $errors = [];
         $data = new stdClass();
-        $nexturl = new moodle_url('/local/coursetransfer/origin_remove.php');
+        $nexturl = new moodle_url('/local/coursetransfer/logs.php', [
+                'type' => coursetransfer_request::TYPE_REMOVE_CATEGORY
+        ]);
         $data->nexturl = $nexturl->out(false);
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
             $res = coursetransfer::remove_category($site, $catid);
-            if (!$res['success']) {
-                $errors = $res['errors'];
+            if (isset($res['data']['requestid'])) {
+                $requestid = $res['data']['requestid'];
+                if (!$res['success']) {
+                    $errors = $res['errors'];
+                    $request = coursetransfer_request::get($requestid);
+                    $request->status = coursetransfer_request::STATUS_ERROR;
+                    $request->error_code = $errors[0]->code;
+                    $request->error_message = $errors[0]->msg;
+                    coursetransfer_request::insert_or_update($request, $requestid);
+                } else {
+                    $success = true;
+                    $errors = $res['errors'];
+                    $request = coursetransfer_request::get($requestid);
+                    $request->status = coursetransfer_request::STATUS_COMPLETED;
+                    coursetransfer_request::insert_or_update($request, $requestid);
+                }
             } else {
-                $success = true;
+                $errors[] =
+                        [
+                                'code' => '201102',
+                                'msg' => 'NOT CONTROLLED'
+                        ];
             }
         } catch (moodle_exception $e) {
             $errors[] =
