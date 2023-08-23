@@ -51,8 +51,8 @@ class new_origin_restore_category_step2_page  extends new_origin_restore_categor
         $data = new stdClass();
         $siteposition = required_param('site', PARAM_INT);
         $data->button = true;
-        $data->steps = [ ["current" => false, "num" => 1], ["current" => true, "num" => 2],
-            ["current" => false, "num" => 3], ["current" => false, "num" => 4] ];
+        $data->steps = [ ['current' => false, 'num' => 1], ['current' => true, 'num' => 2],
+            ['current' => false, 'num' => 3], ['current' => false, 'num' => 4] ];
         $backurl = new moodle_url(
             '/local/coursetransfer/origin_restore_category.php',
             ['id' => $this->category->id, 'new' => 1, 'step' => 1]

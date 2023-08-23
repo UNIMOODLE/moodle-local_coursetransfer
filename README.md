@@ -28,7 +28,7 @@ This plugin version is tested for:
 ## Instalación manual ##
 
 El plugin también se puede instalar colocando el contenido de este directorio en
-
+    
     {your/moodle/dirroot}/local/coursetransfer
 
 Luego, inicie sesión en su sitio Moodle como administrador y vaya a _Administración del sitio>
@@ -51,11 +51,11 @@ Go to the URL:
     * Límite en el tamaño de la copia de seguridad (archivo MBZ) del curso origen a restaurar en MB.
 
 *  Sitios destino
-    * local_coursetransfer | destiny_sites
-    * Listado de sitios origen, a los que se les podrá pedir copias de seguridad de los cursos. En la misma línea, host y token separados por punto y coma. Sitios separados por salto de línea.
-    * Ejemplo:
-
-
+   * local_coursetransfer | destiny_sites
+   * Listado de sitios origen, a los que se les podrá pedir copias de seguridad de los cursos. En la misma línea, host y token separados por punto y coma. Sitios separados por salto de línea.
+   * Ejemplo:
+    
+    
     http://dominio.test;5e1bc573434396d2c3267eab3a5fe942
     http://dominio2.test;5e1bc523412sdfasf3243eab3a5fe942
     http://dominio3.test;5e1bc523412sdfasf3243eab3a5fe942
@@ -81,26 +81,26 @@ Por el momento, para que los servicios webs funcionen se debe configurar un toke
 1. Se recomienda crear un rol específico para este tipo de usuarios
 2. Creamos un usuario con la autenticación con servicio web, o utilizamos uno ya existente
 3. Le añadimos como rol el nuevo creado de forma global, con los permisos necesarios (webservice/rest:use).
-
-   ``{your/moodle/dirroot}/admin/roles/assign.php?contextid=1``
+   
+    ``{your/moodle/dirroot}/admin/roles/assign.php?contextid=1``
 
 4. Vamos servidor/Servicios Externos
 
-   ``{your/moodle/dirroot}/admin/settings.php?section=externalservices``
+    ``{your/moodle/dirroot}/admin/settings.php?section=externalservices``
 
 5. Habilitamos los servicios webs
-
-   ``{your/moodle/dirroot}/admin/search.php?query=enablewebservices``
-
+   
+    ``{your/moodle/dirroot}/admin/search.php?query=enablewebservices``
+   
 6. Habilitamos el protocolo REST
-
-   ``{your/moodle/dirroot}/admin/settings.php?section=webserviceprotocols``
-
+   
+    ``{your/moodle/dirroot}/admin/settings.php?section=webserviceprotocols``
+   
 7. En el servicio externo ‘local_coursetransfer’ lo añadimos como usuario autorizado
 8. Y por último, en gestionar tokens
-
-   ``{your/moodle/dirroot}/admin/webservice/tokens.php``
-
+   
+    ``{your/moodle/dirroot}/admin/webservice/tokens.php``
+   
 9. Creamos un token asignando el servicio de local_coursetransfer al usuario que hemos creado anteriormente.
 10. Este token es el que tenemos que utilizar en los otros Moodle para conectarse.
 

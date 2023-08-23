@@ -23,6 +23,8 @@
 namespace local_coursetransfer\external;
 
 use context_course;
+use core_course\reportbuilder\local\entities\course_category;
+use core_course_category;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -57,12 +59,13 @@ class origin_course_backup_external extends external_api {
                 'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site'),
                 'configuration' => new external_single_structure(
                         array(
-                               'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
+                               'destiny_target' => new external_value(PARAM_INT, 'Destiny Target'),
                                'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
                                'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
-                               'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
                                'origin_remove_course' => new external_value(PARAM_BOOL,
-                                               'Destiny Remove Course', VALUE_DEFAULT, false),
+                                               'Origin Remove Course', VALUE_DEFAULT, false),
+                               'origin_enrol_users' => new external_value(PARAM_BOOL,
+                                               'Origin Enrol Users', VALUE_DEFAULT, false),
                                'destiny_notremove_activities' => new external_value(PARAM_TEXT,
                                                'Destiny Not Remove Activities by commas', VALUE_DEFAULT, '')
                         )
@@ -134,18 +137,23 @@ class origin_course_backup_external extends external_api {
             if ($authres['success']) {
                 $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
                 if ($verifydestiny['success']) {
-                    if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id), $res->id)) {
+                    if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id))) {
                         $res = $authres['data'];
                         $object = new stdClass();
-                        $object->type = 0;
-                        $object->siteurl = $CFG->wwwroot;
-                        $object->direction = 1;
+                        $object->type = coursetransfer_request::TYPE_COURSE;
+                        $object->siteurl = $destinysite;
+                        $object->direction = coursetransfer_request::DIRECTION_RESPONSE;
                         $object->destiny_request_id = $requestid;
                         $object->request_category_id = null;
                         $object->origin_course_id = $course->id;
-                        $object->origin_category_id = null;
+                        $object->origin_course_fullname = $course->fullname;
+                        $object->origin_course_shortname = $course->shortname;
+                        $object->origin_category_id = $course->category;
+                        $cat = core_course_category::get($course->category);
+                        $object->origin_category_idnumber = $cat->idnumber;
+                        $object->origin_category_name = $cat->name;
 
-                        $object->origin_enrolusers = 0;
+                        $object->origin_enrolusers = $configuration['origin_enrol_users'];
                         $object->origin_schedule_datetime = null;
                         $object->origin_remove_activities = 0;
 
@@ -155,23 +163,30 @@ class origin_course_backup_external extends external_api {
                         $object->origin_backup_url = null;
                         $object->destiny_course_id = $destinycourseid;
                         $object->destiny_category_id = null;
-                        $object->destiny_remove_activities = $configuration['destiny_remove_activities'];
-                        $object->destiny_merge_activities = $configuration['destiny_merge_activities'];
                         $object->destiny_remove_enrols = $configuration['destiny_remove_enrols'];
                         $object->destiny_remove_groups = $configuration['destiny_remove_groups'];
                         $object->origin_remove_course = $configuration['origin_remove_course'];
+                        $object->destiny_target = $configuration['destiny_target'];
 
                         $object->error_code = null;
                         $object->error_message = null;
 
                         $object->userid = $res->id;
-                        $object->status = 10;
+                        $object->status = coursetransfer_request::STATUS_IN_PROGRESS;
 
                         $requestoriginid = coursetransfer_request::insert_or_update($object);
                         coursetransfer::create_task_backup_course(
-                                $course->id, $res->id, $verifydestiny['data'], $requestid, $requestoriginid);
+                                $course->id, $res->id, $verifydestiny['data'], $requestid, $requestoriginid, $sections,
+                                $configuration['origin_enrol_users']);
                         $data->origin_backup_size_estimated = $object->origin_backup_size_estimated;
                         $data->request_origin_id = $requestoriginid;
+                        $data->course_fullname = $course->fullname;
+                        $data->course_shortname = $course->shortname;
+                        $data->course_idnumber = $course->idnumber;
+                        $data->course_category_id = $course->category;
+                        $category = core_course_category::get($course->category);
+                        $data->course_category_name = $category->name;
+                        $data->course_category_idnumber = $category->idnumber;
                         $success = true;
                     } else {
                         $success = false;
@@ -222,8 +237,14 @@ class origin_course_backup_external extends external_api {
                     array(
                         'requestid' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
                         'request_origin_id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                        'course_fullname' => new external_value(PARAM_RAW, 'Origin Course Fullname', VALUE_OPTIONAL),
+                        'course_shortname' => new external_value(PARAM_RAW, 'Origin Course Shortname', VALUE_OPTIONAL),
+                        'course_idnumber' => new external_value(PARAM_RAW, 'Origin Course ID Number', VALUE_OPTIONAL),
+                        'course_category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                        'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
+                        'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
                         'origin_backup_size_estimated' => new external_value(PARAM_INT,
-                                'Backup Size Estimated (MB)', VALUE_OPTIONAL ),
+                            'Backup Size Estimated (MB)', VALUE_OPTIONAL ),
                     ), PARAM_TEXT, 'Data'
                 )
             )

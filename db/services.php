@@ -23,9 +23,12 @@ use local_coursetransfer\external\destiny_course_callback_external;
 use local_coursetransfer\external\origin_category_external;
 use local_coursetransfer\external\origin_course_backup_external;
 use local_coursetransfer\external\origin_course_external;
+use local_coursetransfer\external\origin_remove_external;
 use local_coursetransfer\external\origin_user_external;
+use local_coursetransfer\external\remove_external;
 use local_coursetransfer\external\restore_category_external;
 use local_coursetransfer\external\restore_course_external;
+use local_coursetransfer\external\restore_external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,7 +40,7 @@ $functions = [
         'description' => 'Asks to origin if user exists',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => false
+        'loginrequired' => true
     ],
 
     'local_coursetransfer_origin_get_courses' => [
@@ -46,7 +49,7 @@ $functions = [
         'description' => 'Get all courses from user',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => false
+        'loginrequired' => true
     ],
 
     'local_coursetransfer_origin_get_categories' => [
@@ -55,7 +58,7 @@ $functions = [
         'description' => 'Get all categories from user',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => false
+        'loginrequired' => true
     ],
 
     'local_coursetransfer_origin_get_course_detail' => [
@@ -64,7 +67,7 @@ $functions = [
         'description' => 'Get specific course details',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => false
+        'loginrequired' => true
     ],
 
     'local_coursetransfer_origin_get_category_detail' => [
@@ -73,7 +76,7 @@ $functions = [
         'description' => 'Get specific category details',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => false
+        'loginrequired' => true
     ],
 
     'local_coursetransfer_origin_backup_course' => [
@@ -82,7 +85,7 @@ $functions = [
         'description' => 'Asks origin to make a backup of the course',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => false
+        'loginrequired' => true
     ],
 
     'local_coursetransfer_origin_backup_category_course' => [
@@ -91,7 +94,7 @@ $functions = [
         'description' => 'Asks origin to make a backup of the course',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => false
+        'loginrequired' => true
     ],
 
     'local_coursetransfer_destiny_backup_course_completed' => [
@@ -100,7 +103,7 @@ $functions = [
         'description' => 'Notify origin that the backup is completed',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => false
+        'loginrequired' => true
     ],
 
     'local_coursetransfer_destiny_backup_course_error' => [
@@ -109,7 +112,7 @@ $functions = [
         'description' => 'Notify origin that an error ocurred',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => false
+        'loginrequired' => true
     ],
 
     'local_coursetransfer_new_origin_restore_course_step1' => [
@@ -118,7 +121,7 @@ $functions = [
         'description' => 'Verify that user exists in origin and check if it has courses as a teacher',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => false
+        'loginrequired' => true
     ],
 
     'local_coursetransfer_new_origin_restore_course_step5' => [
@@ -127,7 +130,7 @@ $functions = [
         'description' => 'Execute course restauration from moodle remote in step5',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => false
+        'loginrequired' => true
     ],
 
     'local_coursetransfer_new_origin_restore_category_step1' => [
@@ -136,7 +139,7 @@ $functions = [
             'description' => 'Verify that user exists in origin and check if it has courses as a teacher',
             'type' => 'read',
             'ajax' => true,
-            'loginrequired' => false
+            'loginrequired' => true
     ],
 
     'local_coursetransfer_new_origin_restore_category_step4' => [
@@ -145,7 +148,79 @@ $functions = [
             'description' => 'Execute category restauration from moodle remote in step4',
             'type' => 'write',
             'ajax' => true,
-            'loginrequired' => false
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_origin_restore_step1' => [
+            'classname' => restore_external::class,
+            'methodname' => 'origin_restore_step1',
+            'description' => 'Execute restauration from moodle remote in step1',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_origin_restore_step4' => [
+            'classname' => restore_external::class,
+            'methodname' => 'origin_restore_step4',
+            'description' => 'Execute courses restauration from moodle remote in step4',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_origin_restore_cat_step4' => [
+            'classname' => restore_external::class,
+            'methodname' => 'origin_restore_cat_step4',
+            'description' => 'Execute category restauration from moodle remote in step4',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_origin_remove_step1' => [
+            'classname' => origin_remove_external::class,
+            'methodname' => 'origin_remove_step1',
+            'description' => 'Execute courses or category remove from moodle remote in step1',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_origin_remove_step3' => [
+            'classname' => origin_remove_external::class,
+            'methodname' => 'origin_remove_step3',
+            'description' => 'Execute courses remove from moodle remote in step3',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_origin_remove_cat_step3' => [
+            'classname' => origin_remove_external::class,
+            'methodname' => 'origin_remove_cat_step3',
+            'description' => 'Execute category remove from moodle remote in step3',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_origin_remove_course' => [
+            'classname' => remove_external::class,
+            'methodname' => 'origin_remove_course',
+            'description' => 'Remove origin course',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_origin_remove_category' => [
+            'classname' => remove_external::class,
+            'methodname' => 'origin_remove_category',
+            'description' => 'Remove origin category',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => true
     ],
 
 ];
@@ -164,7 +239,15 @@ $services = [
             'local_coursetransfer_new_origin_restore_course_step1',
             'local_coursetransfer_new_origin_restore_course_step5',
             'local_coursetransfer_new_origin_restore_category_step1',
-            'local_coursetransfer_new_origin_restore_category_step4'
+            'local_coursetransfer_new_origin_restore_category_step4',
+            'local_coursetransfer_origin_restore_step1',
+            'local_coursetransfer_origin_restore_step4',
+            'local_coursetransfer_origin_restore_cat_step4',
+            'local_coursetransfer_origin_remove_step1',
+            'local_coursetransfer_origin_remove_step3',
+            'local_coursetransfer_origin_remove_cat_step3',
+            'local_coursetransfer_origin_remove_course',
+            'local_coursetransfer_origin_remove_category'
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,

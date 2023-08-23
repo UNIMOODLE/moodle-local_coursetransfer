@@ -74,13 +74,13 @@ class download_file_course_task extends \core\task\adhoc_task {
 
             $this->log('Backup File Dowload in Moodle Success!');
 
-            $request->status = 70;
+            $request->status = coursetransfer_request::STATUS_DOWNLOADED;
             coursetransfer_request::insert_or_update($request, $request->id);
 
             coursetransfer::create_task_restore_course($request, $file);
 
             $this->log('Restore in Moodle Success!');
-            $request->status = 100;
+            $request->status = coursetransfer_request::STATUS_COMPLETED;
             coursetransfer_request::insert_or_update($request, $request->id);
 
             if (!is_null($request->request_category_id)) {
@@ -90,14 +90,13 @@ class download_file_course_task extends \core\task\adhoc_task {
 
         } catch (\Exception $e) {
             $this->log($e->getMessage());
-            $request->status = 0;
+            $request->status = coursetransfer_request::STATUS_ERROR;
             $request->error_code = '200200';
             $request->error_message = $e->getMessage();
             coursetransfer_request::insert_or_update($request, $request->id);
         }
 
         $this->log_finish("Download File Backup Course Remote and Restore Finishing...");
-
     }
 
 }

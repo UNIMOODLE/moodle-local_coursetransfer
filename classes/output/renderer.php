@@ -36,6 +36,17 @@ use plugin_renderer_base;
  */
 class renderer extends plugin_renderer_base {
 
+    /**
+     * Defer to template.
+     *
+     * @param index_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_index_page(index_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/index_page', $data);
+    }
 
     /**
      * Defer to template.
@@ -135,7 +146,7 @@ class renderer extends plugin_renderer_base {
     /**
      * Defer to template.
      *
-     * @param activities_component $component
+     * @param configuration_component $component
      * @return bool|string
      * @throws moodle_exception
      */
@@ -155,4 +166,17 @@ class renderer extends plugin_renderer_base {
         $data = $page->export_for_template($this);
         return parent::render_from_template('local_coursetransfer/origin_restore_category_page', $data);
     }
+
+    /**
+     * Defer to template.
+     *
+     * @param origin_restore_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_origin_restore_page(origin_restore_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/origin_restore_page', $data);
+    }
+
 }

@@ -91,6 +91,10 @@ class origin_category_external extends external_api {
                         $categoryparent = core_course_category::get($item->parentid);
                         $item->parentname = $categoryparent->name;
                         $item->totalcourses = $category->get_courses_count();
+                        $subcategories = coursetransfer::get_subcategories($category);
+                        $item->totalsubcategories = count($subcategories);
+                        $item->totalcourseschild = coursetransfer::get_subcategories_numcourses(
+                                $category->get_courses_count(), $subcategories);
                         $data[] = $item;
                     }
                 }
@@ -134,7 +138,9 @@ class origin_category_external extends external_api {
                         'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
                         'parentid' => new external_value(PARAM_INT, 'Category parent ID', VALUE_OPTIONAL),
                         'parentname' => new external_value(PARAM_TEXT, 'Category parent Name', VALUE_OPTIONAL),
-                        'totalcourses' => new external_value(PARAM_INT, 'Total courses', VALUE_OPTIONAL)
+                        'totalcourses' => new external_value(PARAM_INT, 'Total courses', VALUE_OPTIONAL),
+                        'totalsubcategories' => new external_value(PARAM_INT, 'Total subcategories', VALUE_OPTIONAL),
+                        'totalcourseschild' => new external_value(PARAM_INT, 'Total courses all subcategory', VALUE_OPTIONAL)
                     ), PARAM_TEXT, 'Data'
                 ))
             )
@@ -186,18 +192,23 @@ class origin_category_external extends external_api {
             $category = core_course_category::get($categoryid);
             $categoryparent = core_course_category::get($category->parent);
             $courses = [];
-            foreach ($category->get_courses() as $c) {
-                $courseurl = new moodle_url('/course/view.php', ['id' => $c->id]);
-                $course = new stdClass();
-                $course->id = $c->id;
-                $course->url = $courseurl->out(false);
-                $course->fullname = $c->fullname;
-                $course->shortname = $c->shortname;
-                $course->idnumber = $c->idnumber;
-                $course->categoryid = $c->category;
-                $ccategory = core_course_category::get($c->category);
-                $course->categoryname = $ccategory->name;
-                $courses[] = $course;
+            $subcategories = coursetransfer::get_subcategories($category);
+            array_unshift($subcategories, $category);
+            foreach ($subcategories as $sub) {
+                foreach ($sub->get_courses() as $c) {
+                    $courseurl = new moodle_url('/course/view.php', ['id' => $c->id]);
+                    $course = new stdClass();
+                    $course->id = $c->id;
+                    $course->url = $courseurl->out(false);
+                    $course->fullname = $c->fullname;
+                    $course->shortname = $c->shortname;
+                    $course->idnumber = $c->idnumber;
+                    $course->categoryid = $c->category;
+                    $ccategory = core_course_category::get($c->category);
+                    $course->categoryname = $ccategory->name;
+                    $course->categoryidnumber = $ccategory->idnumber;
+                    $courses[] = $course;
+                }
             }
             $parentname = !empty($categoryparent->name) ? $categoryparent->name : get_string('top');
             $data = [
@@ -254,6 +265,7 @@ class origin_category_external extends external_api {
                                 'idnumber' => new external_value(PARAM_TEXT, 'Course Idnumber', VALUE_OPTIONAL),
                                 'categoryid' => new external_value(PARAM_INT, 'Category Id', VALUE_OPTIONAL),
                                 'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
+                                'categoryidnumber' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
                                 )
                             )
                         )

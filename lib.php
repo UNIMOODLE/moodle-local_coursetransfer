@@ -47,8 +47,10 @@ function local_coursetransfer_extend_navigation_course(navigation_node $navigati
  * Adds to the course admin menu.
  *
  * @param navigation_node $navigation The navigation node to extend
- * @param context $context The context of the course
+ * @param context_coursecat $context $context The context of the course
  * @return void|null return null if we don't want to display the node.
+ * @throws coding_exception
+ * @throws moodle_exception
  */
 function local_coursetransfer_extend_navigation_category_settings(navigation_node $navigation, context_coursecat $context) {
     global $PAGE;

@@ -64,7 +64,9 @@ class activities_component implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();
         $data->id = $this->id;
-        $data->sections = json_decode($this->activities);
+        $activities = json_decode($this->activities);
+        $data->sections = $activities;
+        $data->has_sections = count($activities) > 0;
         if (isset($data->sections)) {
             for ($i = 0; $i < count($data->sections); $i++) {
                 $data->sections[$i]->hasactivities = count($data->sections[$i]->activities);

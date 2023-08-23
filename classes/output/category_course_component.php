@@ -24,6 +24,10 @@
 
 namespace local_coursetransfer\output;
 
+use coding_exception;
+use dml_exception;
+use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
 use renderable;
 use renderer_base;
 use stdClass;
@@ -41,8 +45,8 @@ class category_course_component implements renderable, templatable {
     /** @var int ID */
     protected $id;
 
-    /** @var string Courses JSON details */
-    protected $courses;
+    /** @var string Courses Requests JSON */
+    protected $requests;
 
     /** @var string Origin Site URL */
     protected $siteurl;
@@ -50,13 +54,13 @@ class category_course_component implements renderable, templatable {
     /**
      *  constructor.
      *
-     * @param string $courses
+     * @param string $requests
      * @param string $siteurl
      * @param int $id
      */
-    public function __construct(string $courses, string $siteurl, int $id) {
+    public function __construct(string $requests, string $siteurl, int $id) {
         $this->id = $id;
-        $this->courses = $courses;
+        $this->requests = $requests;
         $this->siteurl = $siteurl;
     }
 
@@ -72,6 +76,7 @@ class category_course_component implements renderable, templatable {
         $data = new stdClass();
         $data->id = $this->id;
         $data->category = $category;
+        $data->has_status = true;
         return $data;
     }
 
@@ -79,12 +84,34 @@ class category_course_component implements renderable, templatable {
      * Get Courses Data.
      *
      * @return array
+     * @throws dml_exception
+     * @throws coding_exception
      */
     protected function get_courses_data(): array {
-        if (!empty($this->courses)) {
-            return json_decode($this->courses);
-        } else {
-            return [];
+        $cs = [];
+        $requests = json_decode($this->requests);
+        foreach ($requests as $reqid) {
+            $request = coursetransfer_request::get($reqid);
+            $c = new stdClass();
+            $c->id = $request->origin_course_id;
+            $c->fullname = $request->origin_course_fullname;
+            $c->shortname = $request->origin_course_shortname;
+            $c->idnumber = $request->origin_course_idnumber;
+            $c->categoryid = $request->origin_category_id;
+            $c->categoryname = $request->origin_category_name;
+            $c->has_status = true;
+            $status = (int)$request->status;
+            if (!empty($status)) {
+                if (isset(coursetransfer::STATUS[$status])) {
+                    $c->status = get_string(
+                            'status_' . coursetransfer::STATUS[$status]['shortname'],
+                            'local_coursetransfer');
+                }
+            }
+            $c->checked = true;
+            $c->disabled = true;
+            $cs[] = $c;
         }
+        return $cs;
     }
 }

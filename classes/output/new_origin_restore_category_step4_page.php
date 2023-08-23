@@ -53,7 +53,9 @@ class new_origin_restore_category_step4_page extends new_origin_restore_category
         $destinyid = required_param('id', PARAM_INT);
         $backurl = new moodle_url(
             '/local/coursetransfer/origin_restore_category.php',
-            ['id' => $this->category->id, 'new' => 1, 'step' => 3, 'site' => $siteposition, 'restoreid' => $restoreid]
+            [
+                    'id' => $this->category->id,
+                    'new' => 1, 'step' => 3, 'site' => $siteposition, 'restoreid' => $restoreid]
         );
         $tableurl = new moodle_url(
             '/local/coursetransfer/origin_restore_category.php',
@@ -64,8 +66,12 @@ class new_origin_restore_category_step4_page extends new_origin_restore_category
         $data->restoreid = $restoreid;
         $data->destinyid = $destinyid;
         $data->siteposition = $siteposition;
-        $data->steps = [ ["current" => false, "num" => 1], ["current" => false, "num" => 2],
-            ["current" => false, "num" => 3], ["current" => true, "num" => 4] ];
+        $data->steps = [
+                ['current' => false, 'num' => 1],
+                ['current' => false, 'num' => 2],
+                ['current' => false, 'num' => 3],
+                ['current' => true,  'num' => 4]
+        ];
         $data->back_url = $backurl->out(false);
         $data->table_url = $tableurl->out(false);
         $site = coursetransfer::get_site_by_position($siteposition);
@@ -87,7 +93,8 @@ class new_origin_restore_category_step4_page extends new_origin_restore_category
             }
         } else {
             $data->haserrors = true;
-            $errors[] = ['code' => '200122', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $errors[] = ['code' => '200122',
+                    'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
         $data->category->sessionStorage_id = "local_coursetransfer_".$this->category->id."_".$data->restoreid;

@@ -30,6 +30,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\models\configuration_course;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -97,7 +98,7 @@ class restore_course_external extends external_api {
                 $data->nexturl = $nexturl->out(false);
                 $success = true;
             } else {
-                $errors[] = $res->errors;
+                $errors = $res->errors;
             }
         } catch (moodle_exception $e) {
             $errors[] =
@@ -124,7 +125,7 @@ class restore_course_external extends external_api {
                 'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                        'msg' => new external_value(PARAM_RAW, 'Message')
                     )
                 )),
                 'data' => new external_single_structure(
@@ -213,10 +214,14 @@ class restore_course_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
+            $target = $configuration['destiny_merge_activities'] ?
+                    \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
+            $configuration = new configuration_course(
+                    $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups']);
             $res = coursetransfer::restore_course($site, $destinyid, $courseid, $configuration, $sections);
             $success = $res['success'];
             if (!$success) {
-                $errors[] = $res['errors'];
+                $errors = $res['errors'];
             }
         } catch (moodle_exception $e) {
             $errors[] =
@@ -248,7 +253,7 @@ class restore_course_external extends external_api {
                 'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                        'msg' => new external_value(PARAM_RAW, 'Message')
                     )
                 ))
             )

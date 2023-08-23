@@ -25,12 +25,32 @@
 namespace local_coursetransfer;
 
 use dml_exception;
+use local_coursetransfer\models\configuration_category;
+use local_coursetransfer\models\configuration_course;
 use moodle_exception;
 use stdClass;
 
 class coursetransfer_request {
 
     const TABLE = 'local_coursetransfer_request';
+
+    const TYPE_COURSE = 0;
+    const TYPE_CATEGORY = 1;
+    const TYPE_REMOVE_COURSE = 2;
+    const TYPE_REMOVE_CATEGORY = 3;
+
+    const DIRECTION_REQUEST = 0;
+    const DIRECTION_RESPONSE = 1;
+
+    const STATUS_ERROR = 0;
+    const STATUS_NOT_STARTED = 1;
+    const STATUS_IN_PROGRESS = 10;
+    const STATUS_BACKUP = 30;
+    const STATUS_DOWNLOAD = 50;
+    const STATUS_DOWNLOADED = 70;
+    const STATUS_RESTORE = 80;
+    const STATUS_INCOMPLETED = 90;
+    const STATUS_COMPLETED = 100;
 
     /**
      * Get.
@@ -54,7 +74,7 @@ class coursetransfer_request {
     public static function get_by_destiny_course_id(int $courseid) {
         global $DB;
         return $DB->get_records(self::TABLE,
-                ['destiny_course_id' => $courseid, 'type' => 0, 'direction' => 0]);
+                ['destiny_course_id' => $courseid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_REQUEST]);
     }
 
     /**
@@ -67,7 +87,7 @@ class coursetransfer_request {
     public static function get_by_destiny_category_id(int $catid) {
         global $DB;
         return $DB->get_records(self::TABLE,
-                ['destiny_category_id' => $catid, 'type' => 1, 'direction' => 0]);
+                ['destiny_category_id' => $catid, 'type' => self::TYPE_CATEGORY, 'direction' => self::DIRECTION_REQUEST]);
     }
 
     /**
@@ -80,7 +100,7 @@ class coursetransfer_request {
     public static function get_by_origin_course_id(int $courseid) {
         global $DB;
         return $DB->get_records(self::TABLE,
-                ['origin_course_id' => $courseid, 'type' => 0, 'direction' => 1]);
+                ['origin_course_id' => $courseid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_RESPONSE]);
     }
 
     /**
@@ -93,7 +113,7 @@ class coursetransfer_request {
     public static function get_by_origin_category_id(int $catid) {
         global $DB;
         return $DB->get_records(self::TABLE,
-                ['origin_category_id' => $catid, 'type' => 1, 'direction' => 1]);
+                ['origin_category_id' => $catid, 'type' => self::TYPE_CATEGORY, 'direction' => self::DIRECTION_RESPONSE]);
     }
 
     /**
@@ -169,16 +189,16 @@ class coursetransfer_request {
 
         $reqcat = $DB->get_record(self::TABLE, ['id' => $requestid]);
         $courses = $DB->get_records(self::TABLE,
-                ['request_category_id' => $requestid, 'type' => 0, 'direction' => 0]);
+                ['request_category_id' => $requestid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_REQUEST]);
 
         $completed = 1;
         foreach ($courses as $course) {
-            if ($course->status < 100) {
+            if ($course->status < self::STATUS_COMPLETED) {
                 $completed = 0;
                 break;
             }
         }
-        $reqcat->status = $completed === 1 ? 100 : 50;
+        $reqcat->status = $completed === 1 ? self::STATUS_COMPLETED : self::STATUS_INCOMPLETED;
         self::insert_or_update($reqcat, $requestid);
     }
 
@@ -196,29 +216,11 @@ class coursetransfer_request {
         if (!array_key_exists($object->status, coursetransfer::STATUS)) {
             throw new moodle_exception('STATUS IS NOT VALID');
         }
-        if (!in_array($object->type, [0, 1])) {
+        if (!in_array($object->type, [0, 1, 2, 3])) {
             throw new moodle_exception('TYPE IS NOT VALID');
         }
         if (!in_array($object->direction, [0, 1])) {
             throw new moodle_exception('DIRECTION IS NOT VALID');
-        }
-        if (!in_array($object->origin_enrolusers, [0, 1])) {
-            throw new moodle_exception('ORIGIN ENROL USERS IS NOT VALID');
-        }
-        if (!in_array($object->origin_remove_course, [0, 1])) {
-            throw new moodle_exception('ORIGIN REMOVE COURSE IS NOT VALID');
-        }
-        if (!in_array($object->destiny_remove_activities, [0, 1])) {
-            throw new moodle_exception('DESTINY REMOVE ACTIVITIES IS NOT VALID');
-        }
-        if (!in_array($object->destiny_merge_activities, [0, 1])) {
-            throw new moodle_exception('DESTINY MERGE ACTIVITIES IS NOT VALID');
-        }
-        if (!in_array($object->destiny_remove_enrols, [0, 1])) {
-            throw new moodle_exception('DESTINY REMOVE ENROLS IS NOT VALID');
-        }
-        if (!in_array($object->destiny_remove_groups, [0, 1])) {
-            throw new moodle_exception('DESTINY REMOVE GROUPS IS NOT VALID');
         }
         $object->timemodified = time();
         if (is_null($id)) {
@@ -228,5 +230,150 @@ class coursetransfer_request {
             $object->id = $id;
             return $DB->update_record(self::TABLE, $object);
         }
+    }
+
+    /**
+     * Set Request Restore Course.
+     *
+     * @param stdClass $site
+     * @param int $destinycourseid
+     * @param int $origincourseid
+     * @param configuration_course $configuration $configuration
+     * @param array $sections
+     * @param int|null $requestcatid
+     * @return stdClass
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function set_request_restore_course(
+            stdClass $site, int $destinycourseid, int $origincourseid, configuration_course $configuration,
+            array $sections, int $requestcatid = null): stdClass {
+        global $USER;
+        $object = new stdClass();
+        $object->type = self::TYPE_COURSE;
+        $object->siteurl = $site->host;
+        $object->direction = self::DIRECTION_REQUEST;
+        $object->destiny_course_id = $destinycourseid;
+        $object->origin_course_id = $origincourseid;
+        $object->origin_enrolusers = $configuration->originenrolusers;
+        $object->request_category_id = $requestcatid;
+        $object->origin_activities = json_encode($sections);
+        $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
+        $object->destiny_remove_groups = $configuration->destinyremovegroups;
+        $object->origin_remove_course = $configuration->originremovecourse;
+        $object->destiny_notremove_activities = $configuration->destinynotremoveactivities;
+        $object->origin_backup_size_estimated = coursetransfer::get_backup_size_estimated($origincourseid);
+        $object->destiny_target = $configuration->destinytarget;
+        $object->status = self::STATUS_NOT_STARTED;
+        $object->userid = $USER->id;
+        $object->id = self::insert_or_update($object);
+        return $object;
+    }
+
+    /**
+     * Set Request Object Restore Category.
+     *
+     * @param stdClass $site
+     * @param int $destinycategoryid
+     * @param int $origincategoryid
+     * @param string $origincategoryname
+     * @param configuration_category $configuration $configuration
+     * @return stdClass
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function set_request_restore_category(
+            stdClass $site, int $destinycategoryid, int $origincategoryid, string $origincategoryname,
+            configuration_category $configuration): stdClass {
+        global $USER;
+        $object = new stdClass();
+        $object->type = self::TYPE_CATEGORY;;
+        $object->siteurl = $site->host;
+        $object->direction = self::DIRECTION_REQUEST;
+        $object->destiny_category_id = $destinycategoryid;
+        $object->origin_category_id = $origincategoryid;
+        $object->origin_category_name = $origincategoryname;
+        $object->origin_category_requests = json_encode([]);
+        $object->origin_activities = json_encode([]);
+        $object->origin_enrolusers = $configuration->originenrolusers;
+        $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
+        $object->destiny_remove_groups = $configuration->destinyremovegroups;
+        $object->origin_remove_category = $configuration->originremovecategory;
+        $object->destiny_target = $configuration->destinytarget;
+        $object->status = self::STATUS_NOT_STARTED;
+        $object->userid = $USER->id;
+        $object->id = self::insert_or_update($object);
+        return $object;
+    }
+
+    /**
+     * Get Status Category Request.
+     *
+     * @param int $requestid
+     * @return int
+     * @throws dml_exception
+     */
+    public static function get_status_category_request(int $requestid): int {
+        $request = self::get($requestid);
+        $status = self::STATUS_NOT_STARTED;
+        $requests = json_decode($request->origin_category_requests);
+        $total = count($requests);
+        foreach ($requests as $req) {
+            $courserequest = self::get($req);
+            if ((int)$courserequest->status > self::STATUS_NOT_STARTED) {
+                $status = self::STATUS_IN_PROGRESS;
+            }
+            if ((int)$courserequest->status === self::STATUS_COMPLETED) {
+                $total--;
+            }
+        }
+        if ($total === 0) {
+            $status = self::STATUS_COMPLETED;
+        }
+        return $status;
+    }
+
+    /**
+     * Set Request Remove Course.
+     *
+     * @param stdClass $site
+     * @param int $origincourseid
+     * @return stdClass
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function set_request_remove_course(stdClass $site, int $origincourseid): stdClass {
+        global $USER;
+        $object = new stdClass();
+        $object->type = self::TYPE_REMOVE_COURSE;
+        $object->siteurl = $site->host;
+        $object->direction = self::DIRECTION_REQUEST;
+        $object->origin_course_id = $origincourseid;
+        $object->status = self::STATUS_NOT_STARTED;
+        $object->userid = $USER->id;
+        $object->id = self::insert_or_update($object);
+        return $object;
+    }
+
+    /**
+     * Set Request Remove Category.
+     *
+     * @param stdClass $site
+     * @param int $origincatid
+     * @return stdClass
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function set_request_remove_category(stdClass $site, int $origincatid): stdClass {
+        global $USER;
+        $object = new stdClass();
+        $object->type = self::TYPE_REMOVE_CATEGORY;
+        $object->siteurl = $site->host;
+        $object->direction = self::DIRECTION_REQUEST;
+        $object->origin_category_id = $origincatid;
+        $object->status = self::STATUS_NOT_STARTED;
+        $object->userid = $USER->id;
+        $object->id = self::insert_or_update($object);
+        return $object;
     }
 }

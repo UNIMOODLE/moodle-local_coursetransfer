@@ -7,33 +7,38 @@
         <TABLE NAME="local_coursetransfer_request" COMMENT="Contains the information of the requests made">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="type" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" COMMENT="0 = course, 1 = category"/>
+                <FIELD NAME="type" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" COMMENT="0 = course, 1 = category, 2 = remove"/>
                 <FIELD NAME="siteurl" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="URL SITE (origin or destiny depend direction)"/>
                 <FIELD NAME="direction" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" COMMENT="0 = request, 1 = answer"/>
                 <FIELD NAME="destiny_request_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="If direction is answer, request id"/>
                 <FIELD NAME="request_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="?"/>
                 <FIELD NAME="origin_course_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Course ID to restore"/>
+                <FIELD NAME="origin_course_fullname" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="Course Fullname to restore"/>
+                <FIELD NAME="origin_course_shortname" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="Course Shortname to restore"/>
+                <FIELD NAME="origin_course_idnumber" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="Course id number to restore"/>
                 <FIELD NAME="origin_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Category ID to restore"/>
-                <FIELD NAME="origin_enrolusers" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't send enrolled users, 1 = send enrolled users"/>
-                <FIELD NAME="origin_remove_course" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
+                <FIELD NAME="origin_category_idnumber" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="Category Id Number to restore"/>
+                <FIELD NAME="origin_category_name" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="Category Name to restore"/>
+                <FIELD NAME="origin_enrolusers" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="0 = don't send enrolled users, 1 = send enrolled users"/>
+                <FIELD NAME="origin_remove_course" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
+                <FIELD NAME="origin_remove_category" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
                 <FIELD NAME="origin_schedule_datetime" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Schedule datetime"/>
                 <FIELD NAME="origin_remove_activities" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="Course Module separate by commas"/>
-                <FIELD NAME="origin_activities" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="JSON of sections with activities"/>
-                <FIELD NAME="origin_category_courses" SEQUENCE="false" TYPE="text" NOTNULL="false" COMMENT="JSON of courses selected with detail"/>
+                <FIELD NAME="origin_activities" SEQUENCE="false" TYPE="text" NOTNULL="false" COMMENT="JSON of sections with activities"/>
+                <FIELD NAME="origin_category_requests" SEQUENCE="false" TYPE="text" NOTNULL="false" COMMENT="Course Requests Ids by commas from category request"/>
                 <FIELD NAME="origin_backup_size" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Final Backup size"/>
                 <FIELD NAME="origin_backup_size_estimated" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Estimated Backup size"/>
                 <FIELD NAME="origin_backup_url" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="URL Backup"/>
                 <FIELD NAME="destiny_course_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Course ID where restore origin course"/>
                 <FIELD NAME="destiny_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Category ID where restore origin course"/>
-                <FIELD NAME="destiny_remove_activities" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove, 1 = remove"/>
-                <FIELD NAME="destiny_merge_activities" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't merge, 1 = merge"/>
-                <FIELD NAME="destiny_remove_enrols" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove enrol, 1 = remove enrol"/>
-                <FIELD NAME="destiny_remove_groups" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="0 = don't remove groups, 1 = remove groups"/>
+                <FIELD NAME="destiny_remove_enrols" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="0 = don't remove enrol, 1 = remove enrol"/>
+                <FIELD NAME="destiny_remove_groups" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="0 = don't remove groups, 1 = remove groups"/>
+                <FIELD NAME="destiny_target" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="3" COMMENT="TARGET_NEW_COURSE = 2; TARGET_EXISTING_DELETING = 3; TARGET_EXISTING_ADDING = 4;"/>
                 <FIELD NAME="error_code" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Code Error"/>
                 <FIELD NAME="error_message" SEQUENCE="false" TYPE="text" LENGTH="10" NOTNULL="false" COMMENT="Message Error"/>
                 <FIELD NAME="fileurl" SEQUENCE="false" TYPE="text" LENGTH="250" NOTNULL="false" COMMENT="File URL backup"/>
                 <FIELD NAME="userid" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Creator User ID"/>
-                <FIELD NAME="status" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="0 = error, 1 = not_started, 10 = in_progress, 30 = backup, 50 = download, 70 = downloaded, 80 = restore, 100 = completed"/>
+                <FIELD NAME="status" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="0 = error, 1 = not_started, 10 = in_progress, 30 = backup, 50 = download, 70 = downloaded, 80 = restore,  90 = incompleted for category, 100 = completed"/>
                 <FIELD NAME="timemodified" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
                 <FIELD NAME="timecreated" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
             </FIELDS>

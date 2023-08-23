@@ -1,0 +1,170 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+  }}
+{{!
+  @template local_coursetransfer/origin_restore_step2_page
+
+  Example context (json):
+
+}}
+<div class="local_coursetransfer" data-region="origin_restore_step2_page">
+
+    {{> local_coursetransfer/components/stepbystep }}
+
+    <h3 class="h3">{{#str}} origin_restore_courses_title, local_coursetransfer {{/str}}</h3>
+
+    <p>{{#str}} origin_restore_courses_desc, local_coursetransfer {{/str}}</p>
+
+    {{# haserrors }}
+        {{> local_coursetransfer/components/alert }}
+    {{/ haserrors }}
+
+    {{^ haserrors }}
+        <h3 class="h2">{{#str}} origin_restore_courses_list, local_coursetransfer {{/str}}{{ categoryname }}</h3>
+
+        <table style="width: 100%">
+            <thead>
+            <tr>
+                <th></th>
+                <th>{{#str}} step2_course_id, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_name, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_shortname, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_destiny, local_coursetransfer {{/str}}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{# courses }}
+                <tr data-action="course">
+                    <td><input type="checkbox"
+                               name="radiogroup"
+                               data-action="select"
+                               data-courseid="{{ id }}"
+                        {{# disabled }}disabled{{/ disabled }} {{# checked }}checked{{/ checked }}></td>
+                    <td id="courseid"><a href="{{ url }}" target="_blank">{{ id }}</a></td>
+                    <td>{{ fullname }}</td>
+                    <td>{{ shortname }}</td>
+                    <td>{{ idnumber }}</td>
+                    <td>{{ categoryid }}</td>
+                    <td>{{ categoryname }}</td>
+                    <td>
+                        <select name="destinyid" data-action="destiny" data-courseid="{{ id }}">
+                            <option value="0" selected>{{#str}} newcourse {{/str}}</option>
+                            {{# destinies }}
+                            <option value="{{ id }}">{{ name }} {{# shortname }}({{ shortname }}){{/ shortname }}</option>
+                            {{/ destinies }}
+                        </select>
+                    </td>
+                </tr>
+            {{/ courses }}
+            </tbody>
+        </table>
+        {{^ courses }}
+            <div class="alert alert-primary mt-4" role="alert" style="width: 100%; text-align: center">
+                {{#str}} not_courses, local_coursetransfer {{/str}}
+            </div>
+        {{/ courses }}
+
+        <div class="alert alert-danger hidden" role="alert"></div>
+    {{/ haserrors }}
+
+    {{> local_coursetransfer/components/action_buttons }}
+
+</div>
+<style>
+    body#page-local-coursetransfer-origin_restore .page-header-headings .h2 {
+        display: none;
+    }
+    #page-local-coursetransfer-origin_restore .main-inner {
+        max-width: 100% !important;
+    }
+    div[data-region='origin_restore_step2_page'] {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    div[data-region='origin_restore_step2_page'] div[data-region="stepbystep"] {
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+    }
+    div[data-region='origin_restore_step2_page'] h3.h2 {
+        font-size: 24px;
+        font-weight: 600;
+        width: 100%;
+        padding: 10px;
+        text-align: left;
+    }
+    div[data-region='origin_restore_step2_page'] h3.h3 {
+        font-size: 28px;
+        font-weight: 600;
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+    }
+    div[data-region='origin_restore_step2_page'] table {
+        width: 100%;
+    }
+    div[data-region='origin_restore_step2_page'] table tr {
+        font-size: 14px;
+        font-weight: 400;
+    }
+    div[data-region='origin_restore_step2_page'] table th {
+        border-bottom: 2px solid #9396AA;
+        padding: 10px;
+    }
+    div[data-region='origin_restore_step2_page'] table td {
+        border-top: 1px solid #D7D8E2;
+        padding: 10px;
+    }
+    div[data-region='origin_restore_step2_page'] tbody {
+        color: #7C7C7C;
+    }
+    div[data-region='origin_restore_step2_page'] p {
+        font-size: 16px;
+        font-weight: 400;
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+    }
+    div[data-region='origin_restore_step2_page'] div.button-container {
+        padding: 10px;
+    }
+    div[data-region='origin_restore_step2_page'] div.button-container a.btn-primary {
+        background: #0D6EFD;
+    }
+    div[data-region='origin_restore_step2_page'] div.button-container a.btn-light {
+        border: 1px solid black;
+    }
+    div[data-region='origin_restore_step2_page'] tr.selected {
+        color: black;
+        background-color: #F7F9FC;
+    }
+    div[data-region='origin_restore_step2_page'] input[type="radio"]:checked, input[type="radio"]:active {
+        box-shadow: none;
+    }
+</style>
+
+{{#js}}
+    require(['local_coursetransfer/origin_restore_step2'], function(restoreStep2) {
+        restoreStep2.initRestoreStep2('[data-region="origin_restore_step2_page"]', '{{ next_url }}');
+    });
+{{/js}}
