@@ -25,18 +25,9 @@
 namespace local_coursetransfer\output;
 
 use coding_exception;
-use local_coursetransfer\coursetransfer_request;
-use local_coursetransfer\forms\new_origin_restore_course_step1_form;
-use local_coursetransfer\forms\origin_remove_form;
-use local_coursetransfer\forms\origin_restore_form;
-use local_coursetransfer\tables\logs_course_request_table;
-use local_coursetransfer\tables\logs_table;
+use local_coursetransfer\tables\logs_category_response_table;
 use moodle_exception;
 use moodle_url;
-use renderable;
-use renderer_base;
-use stdClass;
-use templatable;
 
 /**
  * logs_category_response_page
@@ -56,7 +47,7 @@ class logs_category_response_page extends logs_page {
     public function __construct() {
         parent::__construct();
         $uniqid = uniqid('', true);
-        $this->table = new logs_course_request_table($uniqid);
+        $this->table = new logs_category_response_table($uniqid);
         $this->url = new moodle_url('/local/coursetransfer/logs_page.php');
         $this->selects = [
                 'type' => [

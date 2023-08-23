@@ -25,19 +25,9 @@
 namespace local_coursetransfer\output;
 
 use coding_exception;
-use local_coursetransfer\coursetransfer_request;
-use local_coursetransfer\forms\new_origin_restore_course_step1_form;
-use local_coursetransfer\forms\origin_remove_form;
-use local_coursetransfer\forms\origin_restore_form;
 use local_coursetransfer\tables\logs_category_remove_request_table;
-use local_coursetransfer\tables\logs_course_request_table;
-use local_coursetransfer\tables\logs_table;
 use moodle_exception;
 use moodle_url;
-use renderable;
-use renderer_base;
-use stdClass;
-use templatable;
 
 /**
  * logs_category_remove_request_page

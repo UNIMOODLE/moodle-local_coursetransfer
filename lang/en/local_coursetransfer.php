@@ -214,3 +214,4 @@ $string['remove_category'] = "Remove Category";
 $string['request'] = "Request";
 $string['response'] = "Response";
 $string['view_logs'] = "View logs";
+$string['destiny_site'] = "Destiny Site";

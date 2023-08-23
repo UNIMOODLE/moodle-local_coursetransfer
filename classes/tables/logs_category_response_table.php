@@ -41,13 +41,13 @@ defined('MOODLE_INTERNAL') || die;
 require_once('../../lib/tablelib.php');
 
 /**
- * Class logs_course_response_table
+ * Class logs_category_response_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class logs_course_response_table extends table_sql {
+class logs_category_response_table extends table_sql {
 
     /**
      * constructor.
@@ -63,12 +63,9 @@ class logs_course_response_table extends table_sql {
         $this->define_columns([
                 'id',
                 'siteurl',
-                'origin_course_id',
-                'destiny_course_id',
+                'origin_category_id',
                 'status',
-                'origin_activities',
-                'configuration',
-                'backupsize',
+                'origin_category_courses',
                 'userid',
                 'timemodified',
                 'timecreated',
@@ -78,12 +75,9 @@ class logs_course_response_table extends table_sql {
         $this->define_headers([
                 get_string('request_id', 'local_coursetransfer'),
                 get_string('destiny_site', 'local_coursetransfer'),
-                get_string('origin_course_id', 'local_coursetransfer'),
-                get_string('destiny_course_id', 'local_coursetransfer'),
+                get_string('origin_category_id', 'local_coursetransfer'),
                 get_string('status', 'local_coursetransfer'),
-                get_string('origin_activities', 'local_coursetransfer'),
-                get_string('configuration', 'local_coursetransfer'),
-                get_string('backupsize', 'local_coursetransfer'),
+                get_string('origin_category_courses', 'local_coursetransfer'),
                 get_string('userid', 'local_coursetransfer'),
                 get_string('timemodified', 'local_coursetransfer'),
                 get_string('timecreated', 'local_coursetransfer'),
@@ -117,27 +111,15 @@ class logs_course_response_table extends table_sql {
     }
 
     /**
-     * Col Origin Course ID
+     * Col Origin Category ID
      *
      * @param stdClass $row Full data of the current row.
      * @return string
      * @throws moodle_exception
      */
-    public function col_origin_course_id(stdClass $row): string {
-        $href = new moodle_url('/course/view.php', ['id' => $row->origin_course_id]);
-        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_course_id . '</a>';
-    }
-
-    /**
-     * Col Destiny Course ID
-     *
-     * @param stdClass $row Full data of the current row.
-     * @return string
-     * @throws moodle_exception
-     */
-    public function col_destiny_course_id(stdClass $row): string {
-        $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->destiny_course_id]);
-        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->destiny_course_id . '</a>';
+    public function col_origin_category_id(stdClass $row): string {
+        $href = new moodle_url('/course/index.php', ['categoryid' => $row->origin_category_id]);
+        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_category_id . '</a>';
     }
 
     /**
@@ -151,43 +133,30 @@ class logs_course_response_table extends table_sql {
         if ( (int)$row->status === coursetransfer_request::STATUS_ERROR ) {
             return '<button type="button" class="btn btn-danger label-status" data-container="body" data-toggle="popover"
              data-placement="bottom" data-content="'. $row->error_code . ': ' . $row->error_message .'">'
-                . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
-                    'local_coursetransfer') .'
+                    . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
+                            'local_coursetransfer') .'
             </button>';
         } else {
-            return '<label class="label-status text-' . coursetransfer::STATUS[$row->status]['alert'] . '">'
-                . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
-                    'local_coursetransfer') . '</label>';
+            $status = coursetransfer_request::get_status_category_request($row->id);
+            return '<label class="label-status text-' . coursetransfer::STATUS[$status]['alert'] . '">'
+                    . get_string('status_'.coursetransfer::STATUS[$status]['shortname'],
+                            'local_coursetransfer') . '</label>';
         }
     }
 
     /**
-     * Col Origin Activities
+     * Col Origin Category Courses selected
      *
      * @param stdClass $row Full data of the current row.
      * @return string
      * @throws moodle_exception
      */
-    public function col_origin_activities(stdClass $row): string {
+    public function col_origin_category_courses(stdClass $row): string {
         global $PAGE;
         $output = $PAGE->get_renderer('local_coursetransfer');
-        $component = new \local_coursetransfer\output\activities_component($row->origin_activities, $row->id);
-        return $output->render($component);
-    }
-
-    /**
-     * Col Configuration
-     *
-     * @param stdClass $row Full data of the current row.
-     * @return string
-     * @throws moodle_exception
-     */
-    public function col_configuration(stdClass $row): string {
-        global $PAGE;
-        $configuration = new configuration_course(
-                (int)$row->destiny_target, $row->destiny_remove_enrols, $row->destiny_remove_groups);
-        $output = $PAGE->get_renderer('local_coursetransfer');
-        $component = new configuration_component($configuration, $row->id);
+        $origincategoryrequests = !empty($row->origin_category_requests) ? $row->origin_category_requests : '';
+        $component = new \local_coursetransfer\output\category_course_component(
+                $origincategoryrequests, $row->siteurl, $row->id);
         return $output->render($component);
     }
 
@@ -202,16 +171,6 @@ class logs_course_response_table extends table_sql {
         $href = new moodle_url($row->siteurl . '/user/profile.php', ['id' => $row->userid]);
         $user = core_user::get_user($row->userid);
         return '<a href="' . $href->out(false) . '" target="_blank">' . fullname($user) . '</a>';
-    }
-
-    /**
-     * Col Size
-     *
-     * @param stdClass $row Full data of the current row.
-     * @return string
-     */
-    public function col_backupsize(stdClass $row): string {
-        return !is_null($row->origin_backup_size) ? $row->origin_backup_size : '-';
     }
 
     /**
