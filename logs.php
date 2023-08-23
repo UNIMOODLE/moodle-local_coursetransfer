@@ -33,11 +33,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_coursetransfer\coursetransfer_request;
+
 require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $USER;
 
 $title = get_string('logs_page', 'local_coursetransfer');
+
+$type = optional_param('type', coursetransfer_request::TYPE_COURSE, PARAM_INT);
+$direction = optional_param('direction', coursetransfer_request::DIRECTION_REQUEST, PARAM_INT);
 
 require_login();
 
@@ -51,6 +56,39 @@ $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
 
-$page = new \local_coursetransfer\output\logs_page();
+switch ($type) {
+    case coursetransfer_request::TYPE_COURSE:
+        if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
+            $page = new \local_coursetransfer\output\logs_course_request_page();
+        } else {
+            $page = new \local_coursetransfer\output\logs_course_response_page();
+        }
+        break;
+    case coursetransfer_request::TYPE_CATEGORY:
+        if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
+            $page = new \local_coursetransfer\output\logs_category_request_page();
+        } else {
+            $page = new \local_coursetransfer\output\logs_category_response_page();
+        }
+        break;
+    case coursetransfer_request::TYPE_REMOVE_COURSE:
+        if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
+            $page = new \local_coursetransfer\output\logs_course_remove_request_page();
+        } else {
+            $page = new \local_coursetransfer\output\logs_course_remove_response_page();
+        }
+        break;
+    case coursetransfer_request::TYPE_REMOVE_CATEGORY:
+        if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
+            $page = new \local_coursetransfer\output\logs_category_remove_request_page();
+        } else {
+            $page = new \local_coursetransfer\output\logs_category_remove_response_page();
+        }
+        break;
+    default:
+        throw new moodle_exception('TYPE NOT VALID');
+}
+
+
 echo $output->render($page);
 echo $OUTPUT->footer();

@@ -64,6 +64,7 @@ $string['origin_site_help'] = "The site of origin, is where the course you want 
 $string['request_id'] = "Request ID";
 $string['siteurl'] = "Origin Site";
 $string['origin_course_id'] = "Origin Course ID";
+$string['destiny_course_id'] = "Destiny Course ID";
 $string['status'] = "Status";
 $string['origin_activities'] = "Origin Activities";
 $string['configuration'] = "Config";

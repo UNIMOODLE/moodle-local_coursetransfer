@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class logs_table
+ * Class logs_course_request_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
@@ -41,22 +41,18 @@ defined('MOODLE_INTERNAL') || die;
 require_once('../../lib/tablelib.php');
 
 /**
- * Class logs_table
+ * Class logs_course_request_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class logs_table extends table_sql {
-
-    /** @var int PAGE SIZE */
-    const PAGE_SIZE = 20;
+class logs_course_request_table extends table_sql {
 
     /**
      * constructor.
      *
      * @param string $uniqueid
-     * @param stdClass $course
      * @throws coding_exception
      * @throws moodle_exception
      */
@@ -65,14 +61,24 @@ class logs_table extends table_sql {
         parent::__construct($uniqueid);
 
         $this->define_columns([
-            'id', 'siteurl', 'origin_course_id', 'status', 'origin_activities',
-                    'configuration', 'backupsize', 'userid', 'timemodified', 'timecreated'
+                'id',
+                'siteurl',
+                'origin_course_id',
+                'destiny_course_id',
+                'status',
+                'origin_activities',
+                'configuration',
+                'backupsize',
+                'userid',
+                'timemodified',
+                'timecreated'
         ]);
 
         $this->define_headers([
                 get_string('request_id', 'local_coursetransfer'),
                 get_string('siteurl', 'local_coursetransfer'),
                 get_string('origin_course_id', 'local_coursetransfer'),
+                get_string('destiny_course_id', 'local_coursetransfer'),
                 get_string('status', 'local_coursetransfer'),
                 get_string('origin_activities', 'local_coursetransfer'),
                 get_string('configuration', 'local_coursetransfer'),
@@ -118,6 +124,18 @@ class logs_table extends table_sql {
     public function col_origin_course_id(stdClass $row): string {
         $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->origin_course_id]);
         return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_course_id . '</a>';
+    }
+
+    /**
+     * Col Destiny Course ID
+     *
+     * @param stdClass $row Full data of the current row.
+     * @return string
+     * @throws moodle_exception
+     */
+    public function col_destiny_course_id(stdClass $row): string {
+        $href = new moodle_url('/course/view.php', ['id' => $row->destiny_course_id]);
+        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->destiny_course_id . '</a>';
     }
 
     /**
