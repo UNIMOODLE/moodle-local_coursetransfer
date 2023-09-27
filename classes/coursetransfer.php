@@ -138,9 +138,18 @@ class coursetransfer {
         global $DB;
         $res = new stdClass();
         $res->host = $destinysite;
-        $record = $DB->get_record('local_coursetransfer_destiny', ['id' => $destinysite]);
-        if ($record) {
-            $res->token = $record->token;
+        $compare = $DB->sql_compare_text('host');
+        $compareplaceholder = $DB->sql_compare_text(':host');
+        $records = $DB->get_records_sql(
+                "SELECT id, host, token
+                    FROM {local_coursetransfer_destiny}
+                    WHERE {$compare} = {$compareplaceholder}",
+                [
+                        'host' => $destinysite,
+                ]
+        );
+        if ($records) {
+            $res->token = $records[0]->token;
             return
             [
                 'success' => true,
@@ -375,10 +384,18 @@ class coursetransfer {
     public static function get_site_by_url(string $url): stdClass {
         global $DB;
         $res = new stdClass();
-        $record = $DB->get_record('local_coursetransfer_origin', ['host' => $url]);
-        if ($record) {
-            $res->host = $record->host;
-            $res->token = $record->token;
+        $compare = $DB->sql_compare_text('host');
+        $compareplaceholder = $DB->sql_compare_text(':host');
+        $records = $DB->get_records_sql(
+                "SELECT id, host, token
+                    FROM {local_coursetransfer_destiny}
+                    WHERE {$compare} = {$compareplaceholder}",
+                [
+                        'host' => $url,
+                ]
+        if ($records) {
+            $res->host = $records[0]->host;
+            $res->token = $records[0]->token;
         } else {
             throw new moodle_exception('SITE NOT VALID');
         }
