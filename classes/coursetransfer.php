@@ -393,6 +393,7 @@ class coursetransfer {
                 [
                         'host' => $url,
                 ]
+        );
         if ($records) {
             $res->host = $records[0]->host;
             $res->token = $records[0]->token;
