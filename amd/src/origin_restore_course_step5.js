@@ -85,7 +85,7 @@ define([
             let destinyid = this.destinyid;
             let sessiondata = JSON.parse(sessionStorage.getItem($("[data-course-sessionStorageId]")
                 .attr("data-course-sessionStorageId")));
-            let configuration = [];
+            let configuration = {};
             sessiondata.course.configuration.forEach(function(config) {
                 configuration[config.name] = config.selected;
             });
@@ -99,6 +99,7 @@ define([
                     sections: sessiondata.course.sections,
                 }
             };
+            console.log(request);
             Ajax.call([request])[0].done(function(response) {
                 if (response.success) {
                     window.location.href = response.data.nexturl;

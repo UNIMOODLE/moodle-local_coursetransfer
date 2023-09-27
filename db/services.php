@@ -29,6 +29,7 @@ use local_coursetransfer\external\remove_external;
 use local_coursetransfer\external\restore_category_external;
 use local_coursetransfer\external\restore_course_external;
 use local_coursetransfer\external\restore_external;
+use local_coursetransfer\external\sites_external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -223,6 +224,33 @@ $functions = [
             'loginrequired' => true
     ],
 
+    'local_coursetransfer_site_add' => [
+            'classname' => sites_external::class,
+            'methodname' => 'site_add',
+            'description' => 'Site Add',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_site_edit' => [
+            'classname' => sites_external::class,
+            'methodname' => 'site_edit',
+            'description' => 'Site Edit',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_site_remove' => [
+            'classname' => sites_external::class,
+            'methodname' => 'site_remove',
+            'description' => 'Site Remove',
+            'type' => 'write',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
 ];
 
 $services = [
@@ -247,7 +275,10 @@ $services = [
             'local_coursetransfer_origin_remove_step3',
             'local_coursetransfer_origin_remove_cat_step3',
             'local_coursetransfer_origin_remove_course',
-            'local_coursetransfer_origin_remove_category'
+            'local_coursetransfer_origin_remove_category',
+            'local_coursetransfer_site_add',
+            'local_coursetransfer_site_edit',
+            'local_coursetransfer_site_remove'
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,

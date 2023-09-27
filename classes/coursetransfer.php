@@ -98,12 +98,11 @@ class coursetransfer {
      * @throws dml_exception
      */
     public static function get_origin_sites(): array {
+        global $DB;
         $items = [];
-        $originsites = get_config('local_coursetransfer', 'origin_sites');
-        $originsites = explode(PHP_EOL, $originsites);
-        foreach ($originsites as $site) {
-            $site = explode(';', $site);
-            $items[] = $site[0];
+        $records = $DB->get_records('local_coursetransfer_origin');
+        foreach ($records as $record) {
+            $items[$record->id] = $record->host;
         }
         return $items;
     }
@@ -136,42 +135,34 @@ class coursetransfer {
      * @throws dml_exception
      */
     public static function verify_destiny_site(string $destinysite): array {
+        global $DB;
         $res = new stdClass();
         $res->host = $destinysite;
-        $founded = false;
-        $originsites = get_config('local_coursetransfer', 'destiny_sites');
-        $originsites = explode(PHP_EOL, $originsites);
-        foreach ($originsites as $site) {
-            $site = explode(';', $site);
-            if ($destinysite === $site[0]) {
-                $res->token = $site[1];
-                $founded = true;
-                break;
-            }
-        }
-        if (!$founded) {
+        $record = $DB->get_record('local_coursetransfer_destiny', ['id' => $destinysite]);
+        if ($record) {
+            $res->token = $record->token;
             return
-                [
-                    'success' => false,
-                    'data' => new stdClass(),
-                    'error' =>
-                        [
-                            'code' => '200300',
-                            'msg' => 'Destiny site not founded'
-                        ]
-                ];
-        }
-
-        return
             [
                 'success' => true,
                 'data' => $res,
                 'error' =>
                     [
-                        'code' => '',
-                        'msg' => ''
+                    'code' => '',
+                    'msg' => ''
                     ]
             ];
+        } else {
+            return
+            [
+                'success' => false,
+                'data' => new stdClass(),
+                'error' =>
+                        [
+                                'code' => '200300',
+                                'msg' => 'Destiny site not founded'
+                        ]
+            ];
+        }
     }
 
     /**
@@ -270,21 +261,15 @@ class coursetransfer {
      *
      * @param string $originurl
      * @return string
-     * @throws dml_exception
+     * @throws dml_exception|moodle_exception
      */
     public static function get_token_origin_site(string $originurl): string {
-        $token = '';
-        $host = parse_url($originurl, PHP_URL_HOST);
-        $scheme = parse_url($originurl, PHP_URL_SCHEME);
-        $reshost = $scheme . '://' . $host;
-        $originsites = get_config('local_coursetransfer', 'origin_sites');
-        $originsites = explode(PHP_EOL, $originsites);
-        foreach ($originsites as $site) {
-            $site = explode(';', $site);
-            if ($site[0] === $reshost) {
-                $token = $site[1];
-                break;
-            }
+        global $DB;
+        $record = $DB->get_record('local_coursetransfer_origin', ['id' => $originurl]);
+        if ($record) {
+            $token = $record->token;
+        } else {
+            throw new moodle_exception('SITE NOT VALID');
         }
         return $token;
     }
@@ -361,24 +346,19 @@ class coursetransfer {
     }
 
     /**
-     * @param int $position
+     * @param int $id
      * @return stdClass
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_site_by_position(int $position): stdClass {
-        $originsites = get_config('local_coursetransfer', 'origin_sites');
-        $originsites = explode(PHP_EOL, $originsites);
+    public static function get_site_by_position(int $id): stdClass {
+        global $DB;
         $res = new stdClass();
-        if (isset($originsites[$position])) {
-            $site = $originsites[$position];
-            $site = explode(';', $site);
-            if (isset($site[0]) && isset($site[1])) {
-                $res->host = $site[0];
-                $res->token = $site[1];
-            }
-        }
-        if (empty($res->host) || empty($res->token)) {
+        $record = $DB->get_record('local_coursetransfer_origin', ['id' => $id]);
+        if ($record) {
+            $res->host = $record->host;
+            $res->token = $record->token;
+        } else {
             throw new moodle_exception('SITE NOT VALID');
         }
         return $res;
@@ -393,18 +373,13 @@ class coursetransfer {
      * @throws moodle_exception
      */
     public static function get_site_by_url(string $url): stdClass {
-        $originsites = get_config('local_coursetransfer', 'origin_sites');
-        $originsites = explode(PHP_EOL, $originsites);
+        global $DB;
         $res = new stdClass();
-        foreach ($originsites as $originsite) {
-            $site = explode(';', $originsite);
-            if ($site[0] === $url) {
-                $res->host = $site[0];
-                $res->token = $site[1];
-                break;
-            }
-        }
-        if (empty($res->host) || empty($res->token)) {
+        $record = $DB->get_record('local_coursetransfer_origin', ['host' => $url]);
+        if ($record) {
+            $res->host = $record->host;
+            $res->token = $record->token;
+        } else {
             throw new moodle_exception('SITE NOT VALID');
         }
         return $res;
