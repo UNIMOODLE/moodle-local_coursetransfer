@@ -43,6 +43,11 @@ define([
         REMOVE: '[data-action="remove"]',
     };
 
+    let REGIONS = {
+        CREATE : '#createSite',
+        EDIT : '#editSite-'
+    };
+
     /**
      * @param {String} region
      * @param {String} type
@@ -61,7 +66,7 @@ define([
     sites.prototype.clickCreate = function(e) {
         let button = $(e.currentTarget);
         button.attr('disabled', true);
-        let createregion = this.node.find('#createDestiny');
+        let createregion = this.node.find(REGIONS.CREATE);
         let host = createregion.find('#host').val();
         let token = createregion.find('#token').val();
 
@@ -87,7 +92,7 @@ define([
     sites.prototype.clickEdit = function(e) {
         let button = $(e.currentTarget);
         let siteid = button.data('id');
-        let editregion = this.node.find('#destinyEdit' + siteid);
+        let editregion = this.node.find(REGIONS.EDIT + siteid);
         let host = editregion.find('#host').val();
         let token = editregion.find('#token').val();
         button.attr('disabled', true);

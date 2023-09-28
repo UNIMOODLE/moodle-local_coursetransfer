@@ -15,29 +15,29 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
   }}
 {{!
-  @template local_coursetransfer/destiny_sites_page
+  @template local_coursetransfer/sites_page
 
   Example context (json):
 
 }}
-<div class="local_coursetransfer" data-region="destiny_sites_page" >
+<div class="local_coursetransfer" data-region="sites_page" >
 
     <a class="btn btn-outline-primary mb-4" href="{{ back }}">Volver a configuración</a>
 
-    <p>{{#str}} setting_destiny_sites_desc, local_coursetransfer {{/str}}</p>
+    <p>{{ desc }}</p>
 
     <div>
         <!-- Button trigger modal -->
-        <button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#createDestiny">
-           Crear un sitio de Destino
+        <button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#createSite">
+           Crear un sitio
         </button>
 
         <!-- Modal -->
-        <div class="modal fade" id="createDestiny" tabindex="-1" role="dialog" aria-labelledby="createDestiny" aria-hidden="true">
+        <div class="modal fade" id="createSite" tabindex="-1" role="dialog" aria-labelledby="createSite" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Crear un sitio de Destino</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Crear un sitio</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -46,13 +46,13 @@
                         <form data-region="create-form">
                             <div class="form-group">
                                 <label for="host">Host</label>
-                                <input type="text" class="form-control" id="host" aria-describedby="emailHelp" placeholder="URL de destino">
-                                <small id="hostHelp" class="form-text text-muted">Añada la URL del host de destino</small>
+                                <input type="text" class="form-control" id="host" aria-describedby="emailHelp" placeholder="URL del sitio">
+                                <small id="hostHelp" class="form-text text-muted">Añada la URL del host</small>
                             </div>
                             <div class="form-group">
                                 <label for="token">Token</label>
-                                <input type="text" class="form-control" id="token" placeholder="Token de destino">
-                                <small id="tokenHelp" class="form-text text-muted">Añada el Token de destino</small>
+                                <input type="text" class="form-control" id="token" placeholder="Token del sitio">
+                                <small id="tokenHelp" class="form-text text-muted">Añada el Token</small>
                             </div>
                         </form>
                     </div>
@@ -74,7 +74,7 @@
 
 {{#js}}
     require(['local_coursetransfer/sites'], function(sites) {
-        sites.initSites('[data-region="destiny_sites_page"]', 'destiny');
+        sites.initSites('[data-region="sites_page"]', '{{ type }}');
     });
 {{/js}}
 

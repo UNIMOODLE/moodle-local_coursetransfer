@@ -98,9 +98,8 @@ class coursetransfer {
      * @throws dml_exception
      */
     public static function get_origin_sites(): array {
-        global $DB;
         $items = [];
-        $records = $DB->get_records('local_coursetransfer_origin');
+        $records = coursetransfer_sites::list('origin');
         foreach ($records as $record) {
             $items[$record->id] = $record->host;
         }
@@ -133,23 +132,14 @@ class coursetransfer {
      * @param string $destinysite
      * @return array
      * @throws dml_exception
+     * @throws moodle_exception
      */
     public static function verify_destiny_site(string $destinysite): array {
-        global $DB;
         $res = new stdClass();
         $res->host = $destinysite;
-        $compare = $DB->sql_compare_text('host');
-        $compareplaceholder = $DB->sql_compare_text(':host');
-        $records = $DB->get_records_sql(
-                "SELECT id, host, token
-                    FROM {local_coursetransfer_destiny}
-                    WHERE {$compare} = {$compareplaceholder}",
-                [
-                        'host' => $destinysite,
-                ]
-        );
-        if ($records) {
-            $res->token = $records[0]->token;
+        $record = coursetransfer_sites::get_by_host('destiny', $destinysite);
+        if ($record && isset($record->token)) {
+            $res->token = $record->token;
             return
             [
                 'success' => true,
@@ -273,12 +263,23 @@ class coursetransfer {
      * @throws dml_exception|moodle_exception
      */
     public static function get_token_origin_site(string $originurl): string {
-        global $DB;
-        $record = $DB->get_record('local_coursetransfer_origin', ['id' => $originurl]);
-        if ($record) {
-            $token = $record->token;
-        } else {
-            throw new moodle_exception('SITE NOT VALID');
+        $token = '';
+        $host = parse_url($originurl, PHP_URL_HOST);
+        $scheme = parse_url($originurl, PHP_URL_SCHEME);
+        $reshost = $scheme . '://' . $host;
+        $originsites = coursetransfer_sites::list('origin');
+        if ($originsites) {
+            foreach ($originsites as $site) {
+                if (isset($site->host) && isset($site->token)) {
+                    if ($site->host === $reshost) {
+                        $token = $site->token;
+                        break;
+                    }
+                }
+            }
+        }
+        if (empty($token)) {
+            throw new moodle_exception('DOWLOAD TOKEN IS INVALID');
         }
         return $token;
     }
@@ -361,10 +362,9 @@ class coursetransfer {
      * @throws moodle_exception
      */
     public static function get_site_by_position(int $id): stdClass {
-        global $DB;
         $res = new stdClass();
-        $record = $DB->get_record('local_coursetransfer_origin', ['id' => $id]);
-        if ($record) {
+        $record = coursetransfer_sites::get('origin', $id);
+        if (isset($record->host) && isset($record->token)) {
             $res->host = $record->host;
             $res->token = $record->token;
         } else {
@@ -382,21 +382,11 @@ class coursetransfer {
      * @throws moodle_exception
      */
     public static function get_site_by_url(string $url): stdClass {
-        global $DB;
         $res = new stdClass();
-        $compare = $DB->sql_compare_text('host');
-        $compareplaceholder = $DB->sql_compare_text(':host');
-        $records = $DB->get_records_sql(
-                "SELECT id, host, token
-                    FROM {local_coursetransfer_destiny}
-                    WHERE {$compare} = {$compareplaceholder}",
-                [
-                        'host' => $url,
-                ]
-        );
-        if ($records) {
-            $res->host = $records[0]->host;
-            $res->token = $records[0]->token;
+        $record = coursetransfer_sites::get_by_host('origin', $url);
+        if (isset($record->host) && isset($record->token)) {
+            $res->host = $record->host;
+            $res->token = $record->token;
         } else {
             throw new moodle_exception('SITE NOT VALID');
         }

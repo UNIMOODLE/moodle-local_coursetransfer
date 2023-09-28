@@ -52,7 +52,7 @@ $output = $PAGE->get_renderer('local_coursetransfer');
 echo $OUTPUT->header();
 
 if (is_siteadmin()) {
-    $page = new \local_coursetransfer\output\destiny_sites_page();
+    $page = new \local_coursetransfer\output\sites_page('destiny');
     echo $output->render($page);
 }
 echo $OUTPUT->footer();

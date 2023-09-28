@@ -25,7 +25,7 @@
 namespace local_coursetransfer\output;
 
 use coding_exception;
-use local_coursetransfer\tables\destiny_sites_table;
+use local_coursetransfer\tables\sites_table;
 use moodle_exception;
 use moodle_url;
 use renderable;
@@ -34,19 +34,24 @@ use stdClass;
 use templatable;
 
 /**
- * destiny_sites_page
+ * sites_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 3iPunt {@link https://tresipunt.com/}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class destiny_sites_page implements renderable, templatable {
+class sites_page implements renderable, templatable {
+
+    /** @var string Type */
+    protected $type;
 
     /**
      *  constructor.
      *
+     * @param string $type
      */
-    public function __construct() {
+    public function __construct(string $type) {
+        $this->type = $type;
     }
 
     /**
@@ -61,31 +66,29 @@ class destiny_sites_page implements renderable, templatable {
         $data->table = $this->get_table();
         $back = new moodle_url('/admin/settings.php', ['section' => 'local_coursetransfer']);
         $data->back = $back->out(false);
+        $data->type = $this->type;
+        $data->desc = get_string('setting_' . $this->type . '_sites_desc', 'local_coursetransfer');
         return $data;
     }
-
-    /**
-     * Get logs Table.
-     *
-     * @return string
-     */
 
     /**
      * Get Table.
      *
      * @return string
+     * @throws coding_exception
+     * @throws moodle_exception
      */
     protected function get_table(): string {
-        $table = new destiny_sites_table();
+        $table = new sites_table($this->type);
         $table->is_downloadable(false);
         $table->pageable(false);
-        $select = 'ctd.*';
-        $from = '{local_coursetransfer_destiny} ctd';
+        $select = 'cto.*';
+        $from = '{local_coursetransfer_'. $this->type . '} cto';
         $where = '1 = 1';
         $table->set_sql($select, $from, $where);
         $table->sortable(false, 'id', SORT_DESC);
         $table->collapsible(false);
-        $url = new moodle_url('/local/coursetransfer/destinysites.php');
+        $url = new moodle_url('/local/coursetransfer/'. $this->type . 'sites.php');
         $table->define_baseurl($url);
         ob_start();
         $table->out(200, true, false);
