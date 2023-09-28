@@ -88,7 +88,7 @@ class coursetransfer_sites {
                 ]
         );
         if ($records) {
-            return $records[0];
+            return current($records);
         } else {
             throw new moodle_exception('SITE NOT VALID');
         }
