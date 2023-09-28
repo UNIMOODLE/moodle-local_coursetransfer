@@ -224,4 +224,5 @@ $string['host_url'] = "Host URL";
 $string['host_token'] = "Host Token";
 $string['test'] = "Prueba";
 $string['actions'] = "Acciones";
+$string['log_page'] = "Detalle del Log";
 
