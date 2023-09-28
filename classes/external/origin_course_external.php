@@ -81,8 +81,10 @@ class origin_course_external extends external_api {
                 $res = $authres['data'];
                 $courses = enrol_get_users_courses($res->id);
                 foreach ($courses as $course) {
+                    $url = new \moodle_url('/course/view.php', ['id' => $course->id]);
                     $item = new stdClass();
                     $item->id = $course->id;
+                    $item->url = $url->out(false);
                     $item->fullname = $course->fullname;
                     $item->shortname = $course->shortname;
                     $item->idnumber = $course->idnumber;
@@ -127,6 +129,7 @@ class origin_course_external extends external_api {
                 'data' => new external_multiple_structure(new external_single_structure(
                     array(
                         'id' => new external_value(PARAM_INT, 'Course ID'),
+                        'url' => new external_value(PARAM_RAW, 'URL', VALUE_OPTIONAL),
                         'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
                         'shortname' => new external_value(PARAM_TEXT, 'Shortname', VALUE_OPTIONAL),
                         'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
