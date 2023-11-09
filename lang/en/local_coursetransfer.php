@@ -230,3 +230,4 @@ $string['host_token_desc'] = "Add Host Token";
 $string['delete_site'] = "Delete site";
 $string['delete_site_question'] = "Are you sure to delete this site?";
 $string['edit_site'] = "Edit site";
+$string['view_error'] = "View error";

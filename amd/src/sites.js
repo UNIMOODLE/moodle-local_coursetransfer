@@ -125,6 +125,9 @@ define([
         let $button = $(e.currentTarget);
         let siteid = $button.data('id');
         $button.attr('disabled', true);
+        $button.addClass('btn-light', true);
+        $button.removeClass('btn-success', true);
+        $button.removeClass('btn-danger', true);
         let $buttonerror = $('[data-target="#error-' + siteid + '"]');
         $buttonerror.addClass('hidden');
         $buttonerror.data('content', '');
@@ -142,9 +145,13 @@ define([
             console.log(response);
             if (response.success) {
                 $button.find(REGIONS.TEST_OK).removeClass('hidden');
+                $button.addClass('btn-success', true);
+                $button.removeClass('btn-light', true);
             } else {
                 $button.find(REGIONS.TEST_KO).removeClass('hidden');
                 $buttonerror.removeClass('hidden');
+                $button.addClass('btn-danger', true);
+                $button.removeClass('btn-light', true);
                 $buttonerror.data('content', response.error.msg);
             }
         }).fail(function(fail) {

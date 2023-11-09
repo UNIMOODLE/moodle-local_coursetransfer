@@ -84,13 +84,13 @@
     </div>
 
     <button type="button" class="btn btn-light btn-sm" data-toggle="modal" data-action="test" data-target="#test-{{ id }}" data-id="{{ id }}">
-        <i class="fa fa-check hidden" data-region="test-ok" aria-hidden="true" style="color: forestgreen"></i>
-        <i class="fa fa-times hidden" data-region="test-ko" aria-hidden="true" style="color: red"></i>
+        <i class="fa fa-check hidden" data-region="test-ok" aria-hidden="true" style="color: white"></i>
+        <i class="fa fa-times hidden" data-region="test-ko" aria-hidden="true" style="color: white"></i>
         {{#str}} test, local_coursetransfer {{/str}}
     </button>
 
     <button type="button" data-target="#error-{{ id }}" class="btn btn-danger hidden btn-sm" data-container="body" data-toggle="popover" data-placement="top" data-content="">
-        {{#str}} error {{/str}}
+        {{#str}} view_error, local_coursetransfer {{/str}}
     </button>
 </div>
 

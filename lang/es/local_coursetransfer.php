@@ -232,3 +232,4 @@ $string['host_token_desc'] = "Añada el Token del host";
 $string['delete_site'] = "Borrar sitio";
 $string['delete_site_question'] = "¿Estas seguro de borrar este sitio?";
 $string['edit_site'] = "Editar sitio";
+$string['view_error'] = "Ver error";
