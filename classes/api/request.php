@@ -24,6 +24,7 @@
 
 namespace local_coursetransfer\api;
 
+use coding_exception;
 use dml_exception;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\models\configuration_course;
@@ -332,6 +333,7 @@ class request {
      * @param string $wsname
      * @param array $params
      * @return response
+     * @throws coding_exception
      */
     protected function req(string $wsname, array $params): response {
         $curl = curl_init();
@@ -373,9 +375,12 @@ class request {
                 return new response(false, null, [$error]);
             }
         } catch (\Exception $e) {
+            $message = $e->getMessage() === 'Syntax error' ?
+                    get_string('site_url_invalid', 'local_coursetransfer') :
+                    $e->getMessage();
             $error = new stdClass();
             $error->code = '200003';
-            $error->msg = $wsname . ': ' . $e->getMessage();
+            $error->msg = $wsname . ': ' . $message;
             return new response(false, null, [$error]);
         }
     }
