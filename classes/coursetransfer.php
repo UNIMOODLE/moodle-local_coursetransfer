@@ -370,7 +370,7 @@ class coursetransfer {
             $res->host = $record->host;
             $res->token = $record->token;
         } else {
-            throw new moodle_exception('SITE NOT VALID');
+            throw new moodle_exception($type . ' site not valid: ' . $id);
         }
         return $res;
     }
@@ -390,7 +390,7 @@ class coursetransfer {
             $res->host = $record->host;
             $res->token = $record->token;
         } else {
-            throw new moodle_exception('SITE NOT VALID');
+            throw new moodle_exception('Origin site not valid: ' . $url);
         }
         return $res;
     }

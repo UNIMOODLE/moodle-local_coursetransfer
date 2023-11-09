@@ -51,7 +51,7 @@ class coursetransfer_sites {
         if ($record) {
             return $record;
         } else {
-            throw new moodle_exception('SITE NOT VALID');
+            throw new moodle_exception($type . ' site not valid: ' . $id);
         }
     }
 
@@ -90,7 +90,7 @@ class coursetransfer_sites {
         if ($records) {
             return current($records);
         } else {
-            throw new moodle_exception('SITE NOT VALID');
+            throw new moodle_exception($type . ' site not valid: ' . $host);
         }
     }
 }
