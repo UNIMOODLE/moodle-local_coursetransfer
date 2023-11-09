@@ -365,11 +365,11 @@ class request {
                 } else if (!empty($response->msg)) {
                     $message = $response->msg;
                 } else {
-                    $message = get_string('error_not_controlled2', 'local_coursetransfer');
+                    $message = get_string('error_not_controlled', 'local_coursetransfer');
                 }
                 $error = new stdClass();
                 $error->code = '200002';
-                $error->msg = $message;
+                $error->msg = $wsname . ' - ' . $message;
                 return new response(false, null, [$error]);
             }
         } catch (\Exception $e) {
