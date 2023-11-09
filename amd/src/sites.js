@@ -125,6 +125,11 @@ define([
         let $button = $(e.currentTarget);
         let siteid = $button.data('id');
         $button.attr('disabled', true);
+        let $buttonerror = $('[data-target="#error-' + siteid + '"]');
+        $buttonerror.addClass('hidden');
+        $buttonerror.data('content', '');
+        $button.find(REGIONS.TEST_OK).addClass('hidden');
+        $button.find(REGIONS.TEST_KO).addClass('hidden');
         const request = {
             methodname: SERVICES.SITE_TEST,
             args: {
@@ -134,12 +139,6 @@ define([
         };
         Ajax.call([request])[0].done(function(response) {
             $button.attr('disabled', false);
-            let siteid = $button.data('id');
-            let $buttonerror = $('[data-target="#error-' + siteid + '"]');
-            $button.find(REGIONS.TEST_OK).addClass('hidden');
-            $button.find(REGIONS.TEST_KO).addClass('hidden');
-            $buttonerror.addClass('hidden');
-            $buttonerror.data('content', '');
             console.log(response);
             if (response.success) {
                 $button.find(REGIONS.TEST_OK).removeClass('hidden');
