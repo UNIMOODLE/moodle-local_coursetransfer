@@ -39,6 +39,7 @@ use local_coursetransfer\api\request;
 use local_coursetransfer\api\response;
 use local_coursetransfer\factory\category;
 use local_coursetransfer\factory\course;
+use local_coursetransfer\factory\role;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\models\configuration_category;
 use local_coursetransfer\models\configuration_course;
@@ -357,13 +358,14 @@ class coursetransfer {
 
     /**
      * @param int $id
+     * @param string $type
      * @return stdClass
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_site_by_position(int $id): stdClass {
+    public static function get_site_by_position(int $id, string $type = 'origin'): stdClass {
         $res = new stdClass();
-        $record = coursetransfer_sites::get('origin', $id);
+        $record = coursetransfer_sites::get($type, $id);
         if (isset($record->host) && isset($record->token)) {
             $res->host = $record->host;
             $res->token = $record->token;
@@ -656,6 +658,7 @@ class coursetransfer {
     /**
      * Restore Course.
      *
+     * @param int $userid
      * @param stdClass $site
      * @param int $destinycourseid
      * @param int $origincourseid
@@ -663,12 +666,12 @@ class coursetransfer {
      * @param array|null $sections
      * @return array
      */
-    public static function restore_course(
+    public static function restore_course(int $userid,
             stdClass $site, int $destinycourseid, int $origincourseid,
             configuration_course $configuration, array $sections = []): array {
 
         try {
-            return self::restore_course_unity($site, $destinycourseid, $origincourseid, $configuration, $sections);
+            return self::restore_course_unity($userid, $site, $destinycourseid, $origincourseid, $configuration, $sections);
         } catch (moodle_exception $e) {
             $error = [
                     'code' => '200330',
@@ -782,6 +785,7 @@ class coursetransfer {
     /**
      * Restore Category.
      *
+     * @param int $userid
      * @param stdClass $site
      * @param int $destinycategoryid
      * @param int $origincategoryid
@@ -790,7 +794,7 @@ class coursetransfer {
      * @return array
      */
     public static function restore_category(
-            stdClass $site, int $destinycategoryid, int $origincategoryid,
+            int $userid, stdClass $site, int $destinycategoryid, int $origincategoryid,
             configuration_category $configuration, array $courses = []): array {
 
         try {
@@ -838,7 +842,7 @@ class coursetransfer {
 
                 // 3. Request Restore Course.
                 $courseres = self::restore_course_unity(
-                        $site, $destinycourseid, $origincourseid, $configurationcourse, [], $requestobject->id);
+                        $userid, $site, $destinycourseid, $origincourseid, $configurationcourse, [], $requestobject->id);
 
                 if (!$courseres['success']) {
                     $success = false;
@@ -876,6 +880,7 @@ class coursetransfer {
     /**
      * Restore Course Unity.
      *
+     * @param int $userid
      * @param stdClass $site
      * @param int $destinycourseid
      * @param int $origincourseid
@@ -886,7 +891,7 @@ class coursetransfer {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    protected static function restore_course_unity(stdClass $site, int $destinycourseid, int $origincourseid,
+    protected static function restore_course_unity(int $userid, stdClass $site, int $destinycourseid, int $origincourseid,
             configuration_course $configuration, array $sections = [], int $requestcatid = null): array {
 
         $errors = [];
@@ -897,7 +902,8 @@ class coursetransfer {
 
         // 2. Call CURL Origin Backup Course.
         $request = new request($site);
-        $res = $request->origin_backup_course($requestobject->id, $origincourseid, $destinycourseid, $configuration, $sections);
+        $res = $request->origin_backup_course(
+                $userid, $requestobject->id, $origincourseid, $destinycourseid, $configuration, $sections);
         // 3. Success or Errors.
         if ($res->success) {
             // 4a. Update Request DB Completed.
@@ -991,6 +997,51 @@ class coursetransfer {
             $courses += $cat->get_courses_count();
         }
         return $courses;
+    }
+
+    /**
+     * Postinstall.
+     *
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function postinstall(): ?string {
+        // 1. Create Role.
+        $roleid = role::create_roles();
+
+        // 2. Add Permission.
+        role::add_capability($roleid, 'moodle/category:viewcourselist');
+        role::add_capability($roleid, 'moodle/course:view');
+        role::add_capability($roleid, 'moodle/course:create');
+        role::add_capability($roleid, 'moodle/backup:backuptargetimport');
+        role::add_capability($roleid, 'moodle/backup:backupcourse');
+        role::add_capability($roleid, 'moodle/backup:backupactivity');
+        role::add_capability($roleid, 'moodle/backup:backupsection');
+        role::add_capability($roleid, 'moodle/backup:downloadfile');
+        role::add_capability($roleid, 'moodle/backup:userinfo');
+        role::add_capability($roleid, 'moodle/backup:anonymise');
+        role::add_capability($roleid, 'moodle/backup:configure');
+        role::add_capability($roleid, 'webservice/rest:use');
+        role::add_capability($roleid, 'moodle/restore:restoreactivity');
+        role::add_capability($roleid, 'moodle/restore:restorecourse');
+        role::add_capability($roleid, 'moodle/restore:restoresection');
+        role::add_capability($roleid, 'moodle/restore:restoretargetimport');
+        role::add_capability($roleid, 'moodle/restore:uploadfile');
+        role::add_capability($roleid, 'moodle/restore:rolldates');
+        role::add_capability($roleid, 'moodle/restore:userinfo');
+        role::add_capability($roleid, 'moodle/restore:viewautomatedfilearea');
+        role::add_capability($roleid, 'moodle/restore:createuser');
+        role::add_capability($roleid, 'moodle/site:maintenanceaccess');
+        role::add_capability($roleid, 'moodle/course:delete');
+        role::add_capability($roleid, 'moodle/category:manage');
+
+        // 3. Create User.
+        $userid = user::create_user($roleid);
+
+        // 4. Create Token.
+        return user::create_token($userid);
+
     }
 
 }

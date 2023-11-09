@@ -142,6 +142,7 @@ class request {
     /**
      * Origin back up course remote.
      *
+     * @param int $userid
      * @param int $requestid
      * @param int $origincourseid
      * @param int $destinycourseid
@@ -150,12 +151,13 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function origin_backup_course(int $requestid, int $origincourseid, int $destinycourseid,
+    public function origin_backup_course(int $userid, int $requestid, int $origincourseid, int $destinycourseid,
                  configuration_course $configuration, array $sections =[]): response {
-        global $USER, $CFG;
+        global $CFG;
+        $user = \core_user::get_user($userid);
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params['field']};
+        $params['value'] = $user->{$params['field']};
         $params['courseid'] = $origincourseid;
         $params['destinycourseid'] = $destinycourseid;
         $params['requestid'] = $requestid;
@@ -258,6 +260,35 @@ class request {
     }
 
     /**
+     * Site Origin test.
+     *
+     * @return response
+     * @throws dml_exception
+     */
+    public function site_origin_test(): response {
+        global $USER, $CFG;
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params['field']};
+        $params['destinysite'] = $CFG->wwwroot;
+        return $this->req('local_coursetransfer_site_origin_test', $params);
+    }
+
+    /**
+     * Site Destiny test.
+     *
+     * @return response
+     * @throws dml_exception
+     */
+    public function site_destiny_test(): response {
+        global $USER;
+        $params = [];
+        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
+        $params['value'] = $USER->{$params['field']};
+        return $this->req('local_coursetransfer_site_destiny_test', $params);
+    }
+
+    /**
      * Origin remove course remote.
      *
      * @param int $requestid
@@ -323,13 +354,18 @@ class request {
         try {
             $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
             curl_close($curl);
-            if (isset($response->success) && isset($response->data) && isset($response->errors)) {
-                return new response($response->success, $response->data, $response->errors);
+            if (isset($response->success) && isset($response->errors)) {
+                $data = isset($response->data) ? $response->data : null;
+                return new response($response->success, $data, $response->errors);
             } else {
                 if (!empty($response->message)) {
                     $message = $response->message;
+                } else if (!empty($response->exception)) {
+                    $message = $response->exception;
+                } else if (!empty($response->msg)) {
+                    $message = $response->msg;
                 } else {
-                    $message = get_string('error_not_controlled', 'local_coursetransfer');
+                    $message = get_string('error_not_controlled2', 'local_coursetransfer');
                 }
                 $error = new stdClass();
                 $error->code = '200002';

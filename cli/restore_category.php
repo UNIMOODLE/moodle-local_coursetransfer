@@ -147,13 +147,12 @@ try {
 
     // 2. User Login.
     $user = core_user::get_user_by_username(user::USERNAME_WS);
-    complete_user_login($user);
 
     // 3. Restore Category.
     $destiny = core_course_category::get($destinycategoryid);
     $site = coursetransfer::get_site_by_url($siteurl);
 
-    $res = coursetransfer::restore_category($site, $destiny->id, $origincategoryid, $configuration);
+    $res = coursetransfer::restore_category($user->id, $site, $destiny->id, $origincategoryid, $configuration);
 
     // 4. Success or Errors.
     $errors = array_merge($errors, $res['errors']);

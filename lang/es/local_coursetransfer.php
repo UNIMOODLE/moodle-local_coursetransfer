@@ -225,4 +225,10 @@ $string['host_token'] = "Host Token";
 $string['test'] = "Prueba";
 $string['actions'] = "Acciones";
 $string['log_page'] = "Detalle del Log";
-
+$string['create_site'] = "Crear un sitio";
+$string['back_config'] = "Volver a configuración";
+$string['host_url_desc'] = "Añada la URL del host";
+$string['host_token_desc'] = "Añada el Token del host";
+$string['delete_site'] = "Borrar sitio";
+$string['delete_site_question'] = "¿Estas seguro de borrar este sitio?";
+$string['edit_site'] = "Editar sitio";

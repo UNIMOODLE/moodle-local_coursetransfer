@@ -180,6 +180,7 @@ class restore_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function origin_restore_step4(int $siteurl, array $courses, array $configuration): array {
+        global $USER;
         self::validate_parameters(
             self::origin_restore_step4_parameters(),
                 [
@@ -212,7 +213,7 @@ class restore_external extends external_api {
                     $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups'],
                     $configuration['origin_enrol_users']);
                 $res = coursetransfer::restore_course(
-                        $site, $destinycourseid, $course['courseid'], $configuration, []);
+                        $USER, $site, $destinycourseid, $course['courseid'], $configuration, []);
                 if (!$res['success']) {
                     $errors = $res['errors'];
                 } else {
@@ -287,6 +288,7 @@ class restore_external extends external_api {
      */
     public static function origin_restore_cat_step4(
             int $siteurl, int $catid, int $destinyid, array $configuration): array {
+        global $USER;
         self::validate_parameters(
             self::origin_restore_cat_step4_parameters(),
                 [
@@ -308,7 +310,7 @@ class restore_external extends external_api {
             $configuration = new configuration_category(\backup::TARGET_NEW_COURSE,
                     0, 0, $configuration['origin_enrolusers']);
 
-            $res = coursetransfer::restore_category($site, $destinyid, $catid, $configuration);
+            $res = coursetransfer::restore_category($USER->id, $site, $destinyid, $catid, $configuration);
 
             if (!$res['success']) {
                 $errors = $res['errors'];

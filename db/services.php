@@ -251,6 +251,33 @@ $functions = [
             'loginrequired' => true
     ],
 
+    'local_coursetransfer_site_test' => [
+            'classname' => sites_external::class,
+            'methodname' => 'site_test',
+            'description' => 'Site Test',
+            'type' => 'read',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_site_origin_test' => [
+            'classname' => sites_external::class,
+            'methodname' => 'origin_test',
+            'description' => 'Site Origin Test',
+            'type' => 'read',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_site_destiny_test' => [
+            'classname' => sites_external::class,
+            'methodname' => 'destiny_test',
+            'description' => 'Site Destiny Test',
+            'type' => 'read',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
 ];
 
 $services = [
@@ -278,7 +305,10 @@ $services = [
             'local_coursetransfer_origin_remove_category',
             'local_coursetransfer_site_add',
             'local_coursetransfer_site_edit',
-            'local_coursetransfer_site_remove'
+            'local_coursetransfer_site_remove',
+            'local_coursetransfer_site_test',
+            'local_coursetransfer_site_origin_test',
+            'local_coursetransfer_site_destiny_test'
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,

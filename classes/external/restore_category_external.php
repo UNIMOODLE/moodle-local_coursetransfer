@@ -173,6 +173,8 @@ class restore_category_external extends external_api {
     public static function new_origin_restore_category_step4(
             int $siteurl, int $categoryid, int $destinyid, array $courses): array {
 
+        global $USER;
+
         self::validate_parameters(
                 self::new_origin_restore_category_step4_parameters(),
                 [
@@ -193,7 +195,7 @@ class restore_category_external extends external_api {
             $site = coursetransfer::get_site_by_position($siteurl);
             $configuration = new configuration_category(
                     \backup::TARGET_NEW_COURSE, false, false);
-            $res = coursetransfer::restore_category($site, $destinyid, $categoryid, $configuration, $courses);
+            $res = coursetransfer::restore_category($USER->id, $site, $destinyid, $categoryid, $configuration, $courses);
             $errors = array_merge($errors, $res['errors']);
             $success = $res['success'];
 

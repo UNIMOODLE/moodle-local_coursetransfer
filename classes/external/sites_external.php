@@ -107,7 +107,6 @@ class sites_external extends external_api {
             }
         }
 
-
         return [
             'success' => $success,
             'errors' => $errors,
@@ -203,7 +202,6 @@ class sites_external extends external_api {
             }
         }
 
-
         return [
                 'success' => $success,
                 'errors' => $errors,
@@ -287,7 +285,6 @@ class sites_external extends external_api {
             }
         }
 
-
         return [
                 'success' => $success,
                 'errors' => $errors,
@@ -313,6 +310,283 @@ class sites_external extends external_api {
                                         'id' => new external_value(PARAM_INT, 'Site ID', VALUE_OPTIONAL)
                                 )
                         )
+                )
+        );
+    }
+
+
+
+    /**
+     * @return external_function_parameters
+     */
+    public static function site_test_parameters(): external_function_parameters {
+        return new external_function_parameters(
+                array(
+                        'type' => new external_value(PARAM_TEXT, 'Type: destiny or origin'),
+                        'id' => new external_value(PARAM_INT, 'Host ID')
+                )
+        );
+    }
+
+    /**
+     *
+     *
+     * @param string $type
+     * @param int $id
+     * @return array
+     * @throws invalid_parameter_exception
+     */
+    public static function site_test(string $type, int $id): array {
+        self::validate_parameters(
+                self::site_test_parameters(),
+                [
+                        'type' => $type,
+                        'id' => $id
+                ]
+        );
+
+        $success = false;
+        $error = [
+                'code' => '',
+                'msg' => ''
+        ];
+        $data = new stdClass();
+        $data->id = $id;
+
+        if ($type !== 'destiny' && $type !== 'origin') {
+            $error = [
+                            'code' => '800002',
+                            'msg' => 'TYPE INVALID'
+                    ];
+        } else {
+            try {
+                if ($type === 'origin') {
+                    $site = coursetransfer::get_site_by_position($id);
+                    $request = new request($site);
+                    $res = $request->site_origin_test();
+                    if ($res->success) {
+                        $success = true;
+                    } else {
+                        $success = false;
+                        $error = empty($res->errors) ? null : $res->errors[0];
+                        $error = [
+                                'code' => !is_null($error) ? $error->code : '',
+                                'msg' => !is_null($error) ? $error->msg : '',
+                        ];
+                    }
+                } else if ($type === 'destiny') {
+                    $site = coursetransfer::get_site_by_position($id, 'destiny');
+                    $request = new request($site);
+                    $res = $request->site_destiny_test();
+                    if ($res->success) {
+                        $success = true;
+                    } else {
+                        $success = false;
+                        $error = empty($res->errors) ? null : $res->errors[0];
+                        $error = [
+                                'code' => !is_null($error) ? $error->code : '',
+                                'msg' => !is_null($error) ? $error->msg : '',
+                        ];
+                    }
+                }
+            } catch (moodle_exception $e) {
+                $error = [
+                        'code' => '800001',
+                        'msg' => $e->getMessage()
+                ];
+            }
+        }
+
+        return [
+                'success' => $success,
+                'error' => $error,
+                'data' => $data
+        ];
+    }
+
+    /**
+     * @return external_single_structure
+     */
+    public static function site_test_returns(): external_single_structure {
+        return new external_single_structure(
+                array(
+                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                        'error' => new external_single_structure(
+                                array(
+                                        'code' => new external_value(PARAM_TEXT, 'Code'),
+                                        'msg' => new external_value(PARAM_RAW, 'Message')
+                                )
+                        ),
+                        'data' => new external_single_structure(
+                                array(
+                                        'id' => new external_value(PARAM_INT, 'Site ID', VALUE_OPTIONAL)
+                                )
+                        )
+                )
+        );
+    }
+
+    /**
+     * @return external_function_parameters
+     */
+    public static function origin_test_parameters(): external_function_parameters {
+        return new external_function_parameters(
+                array(
+                        'field' => new external_value(PARAM_TEXT, 'Field'),
+                        'value' => new external_value(PARAM_TEXT, 'Value'),
+                        'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site URL')
+                )
+        );
+    }
+
+    /**
+     * Origin Test
+     *
+     * @param string $field
+     * @param string $value
+     * @param string $destinysite
+     *
+     *
+     * @return array
+     * @throws invalid_parameter_exception
+     */
+    public static function origin_test(string $field, string $value, string $destinysite): array {
+
+        self::validate_parameters(
+                self::origin_test_parameters(), [
+                        'field' => $field,
+                        'value' => $value,
+                        'destinysite' => $destinysite
+                ]
+        );
+
+        $errors = [];
+        $data = new stdClass();
+
+        try {
+            $authres = coursetransfer::auth_user($field, $value);
+            if ($authres['success']) {
+                $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
+                if ($verifydestiny['success']) {
+                    $sitedestiny = coursetransfer::get_site_by_url($destinysite);
+                    $request = new request($sitedestiny);
+                    $res = $request->site_destiny_test();
+                    if ($res->success) {
+                        $success = true;
+                    } else {
+                        $success = false;
+                        $errors = $res->errors;
+                    }
+                } else {
+                    $success = false;
+                    $errors[] = $verifydestiny['error'];
+                }
+            } else {
+                $success = false;
+                $errors[] = $authres['error'];
+            }
+        } catch (moodle_exception $e) {
+            $success = false;
+            $errors[] = [
+                       'code' => '200081',
+                       'msg' => $e->getMessage()
+                    ];
+        }
+
+        return [
+                'success' => $success,
+                'errors' => $errors,
+                'data' => $data
+        ];
+    }
+
+    /**
+     * @return external_single_structure
+     */
+    public static function origin_test_returns(): external_single_structure {
+        return new external_single_structure(
+                array(
+                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                        'errors' => new external_multiple_structure(new external_single_structure(
+                                array(
+                                        'code' => new external_value(PARAM_TEXT, 'Code'),
+                                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                                ), PARAM_TEXT, 'Errors'
+                        )),
+                )
+        );
+    }
+
+    /**
+     * @return external_function_parameters
+     */
+    public static function destiny_test_parameters(): external_function_parameters {
+        return new external_function_parameters(
+                array(
+                        'field' => new external_value(PARAM_TEXT, 'Field'),
+                        'value' => new external_value(PARAM_TEXT, 'Value')
+                )
+        );
+    }
+
+    /**
+     * Origin Test
+     *
+     * @param string $field
+     * @param string $value
+     *
+     *
+     * @return array
+     * @throws invalid_parameter_exception
+     */
+    public static function destiny_test(string $field, string $value): array {
+
+        self::validate_parameters(
+                self::destiny_test_parameters(), [
+                        'field' => $field,
+                        'value' => $value
+                ]
+        );
+
+        $errors = [];
+        $data = new stdClass();
+
+        try {
+            $authres = coursetransfer::auth_user($field, $value);
+            if ($authres['success']) {
+                $success = true;
+            } else {
+                $success = false;
+                $errors[] = $authres['error'];
+            }
+        } catch (moodle_exception $e) {
+            $success = false;
+            $errors[] = [
+                    'code' => '200061',
+                    'msg' => $e->getMessage()
+            ];
+        }
+
+        return [
+                'success' => $success,
+                'errors' => $errors,
+                'data' => $data
+        ];
+    }
+
+    /**
+     * @return external_single_structure
+     */
+    public static function destiny_test_returns(): external_single_structure {
+        return new external_single_structure(
+                array(
+                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                        'errors' => new external_multiple_structure(new external_single_structure(
+                                array(
+                                        'code' => new external_value(PARAM_TEXT, 'Code'),
+                                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                                ), PARAM_TEXT, 'Errors'
+                        )),
                 )
         );
     }

@@ -179,4 +179,16 @@ class renderer extends plugin_renderer_base {
         return parent::render_from_template('local_coursetransfer/origin_restore_page', $data);
     }
 
+    /**
+     * Defer to template.
+     *
+     * @param actions_site_component $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_actions_site_component(actions_site_component $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/components/actions_site_component', $data);
+    }
+
 }

@@ -195,6 +195,8 @@ class restore_course_external extends external_api {
      */
     public static function new_origin_restore_course_step5(int $siteurl, int $courseid, int $destinyid,
                                                            array $configuration, array $sections): array {
+
+        global $USER;
         self::validate_parameters(
             self::new_origin_restore_course_step5_parameters(),
             [
@@ -218,7 +220,7 @@ class restore_course_external extends external_api {
                     \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
             $configuration = new configuration_course(
                     $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups']);
-            $res = coursetransfer::restore_course($site, $destinyid, $courseid, $configuration, $sections);
+            $res = coursetransfer::restore_course($USER->id, $site, $destinyid, $courseid, $configuration, $sections);
             $success = $res['success'];
             if (!$success) {
                 $errors = $res['errors'];

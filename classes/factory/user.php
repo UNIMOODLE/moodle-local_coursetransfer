@@ -24,6 +24,10 @@
 
 namespace local_coursetransfer\factory;
 
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->libdir . '/externallib.php');
+
 use coding_exception;
 use context_system;
 use dml_exception;
@@ -64,11 +68,13 @@ class user {
      * Create Token.
      *
      * @param int $userid
+     * @return string|null
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function create_token(int $userid) {
+    public static function create_token(int $userid): ?string {
         global $DB;
+        $token = null;
         $user = \core_user::get_user($userid);
         $externalserviceid = $DB->get_field('external_services',
                 'id', array('component' => 'local_coursetransfer'));
@@ -81,8 +87,6 @@ class user {
             $userauthorized->validuntil = '';
             $userauthorized->timecreated = time();
             $DB->insert_record('external_services_users', $userauthorized);
-
-            $token = null;
 
             $usertokens = $DB->get_records('external_tokens', array(
                     'userid' => $user->id,
@@ -97,13 +101,14 @@ class user {
             }
             if ($token === null) {
                 try {
-                    external_generate_token(EXTERNAL_TOKEN_PERMANENT, $externalserviceid,
+                    $token = external_generate_token(EXTERNAL_TOKEN_PERMANENT, $externalserviceid,
                             $user->id, context_system::instance());
                 } catch (moodle_exception $e) {
                     debugging("Can't generate Token!!", serialize($e));
                 }
             }
         }
+        return $token;
     }
 
     /**
