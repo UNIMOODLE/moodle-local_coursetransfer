@@ -73,6 +73,11 @@
                                 <option value="{{ id }}">{{ name }} ({{ shortname }})</option>
                             {{/ destinies }}
                         </select>
+                        <select class="hidden" name="destinycategoryid" data-action="destiny-category" data-courseid="{{ id }}">
+                            {{# categories }}
+                                <option value="{{ id }}">{{{ name }}}</option>
+                            {{/ categories }}
+                        </select>
                     </td>
                 </tr>
             {{/ courses }}
@@ -186,6 +191,9 @@
         box-shadow: none;
     }
     div[data-region='origin_restore_step4_page'] select[data-action="destiny"] {
+        max-width: 200px;
+    }
+    div[data-region='origin_restore_step4_page'] select[data-action="destiny-category"] {
         max-width: 200px;
     }
 </style>

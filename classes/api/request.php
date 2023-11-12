@@ -227,16 +227,18 @@ class request {
      *
      * @param string $fileurl
      * @param int $requestid
+     * @param int $filesize
      * @return response
+     * @throws coding_exception
      * @throws dml_exception
      */
-    public function destiny_backup_course_completed(string $fileurl, int $requestid): response {
+    public function destiny_backup_course_completed(string $fileurl, int $requestid, int $filesize): response {
         global $USER;
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
         $params['value'] = $USER->{$params['field']};
         $params['requestid'] = $requestid;
-        $params['backupsize'] = coursetransfer::get_backup_size();
+        $params['backupsize'] = $filesize;
         $params['fileurl'] = $fileurl;
         return $this->req('local_coursetransfer_destiny_backup_course_completed', $params);
     }
@@ -245,18 +247,26 @@ class request {
      * Origin back up course remote.
      *
      * @param int $requestid
+     * @param string $error
      * @param array $result
+     * @param int $filesize
      * @return response
+     * @throws coding_exception
      * @throws dml_exception
      */
-    public function destiny_backup_course_error(int $requestid, array $result): response {
+    public function destiny_backup_course_error(int $requestid, string $error, array $result = [], $filesize = 0): response {
         global $USER;
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
         $params['value'] = $USER->{$params['field']};
         $params['requestid'] = $requestid;
-        $params['errorcode'] = '200001';
-        $params['errormsg'] = json_encode($result);
+        $params['backupsize'] = $filesize;
+        $params['errorcode'] = '205001';
+        if (empty($result)) {
+            $params['errormsg'] = $error;
+        } else {
+            $params['errormsg'] = json_encode($result);
+        }
         return $this->req('local_coursetransfer_destiny_backup_course_error', $params);
     }
 
@@ -295,7 +305,7 @@ class request {
      * @param int $requestid
      * @param int $origincourseid
      * @return response
-     * @throws dml_exception
+     * @throws dml_exception|coding_exception
      */
     public function origin_remove_course(int $requestid, int $origincourseid): response {
         global $USER, $CFG;

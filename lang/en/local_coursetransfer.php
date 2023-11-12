@@ -24,7 +24,7 @@
 
 $string['pluginname'] = 'Course Transfer';
 $string['pluginname_header_general'] = 'General';
-$string['setting_destiny_restore_course_max_size'] = 'Maximum course size to be restored';
+$string['setting_destiny_restore_course_max_size'] = 'Maximum course size to be restored (MB)';
 $string['setting_destiny_restore_course_max_size_desc'] = 'Limit of the size of the backup copy (MBZ file)of the origin course to be restored in MB.';
 $string['setting_destiny_sites'] = 'Destiny sites';
 $string['setting_destiny_sites_link'] = 'Destiny sites Management';
@@ -231,3 +231,6 @@ $string['delete_site'] = "Delete site";
 $string['delete_site_question'] = "Are you sure to delete this site?";
 $string['edit_site'] = "Edit site";
 $string['view_error'] = "View error";
+$string['backupsize_larger'] = "The backup size is greater than allowed";
+$string['restore_origin_remove'] = "Delete origin course";
+$string['restore_origin_remove_desc'] = "The origin course will be deleted once restored";

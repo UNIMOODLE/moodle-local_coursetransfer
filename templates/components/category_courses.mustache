@@ -24,7 +24,8 @@
     <thead>
     <tr>
         <th></th>
-        <th>{{#str}} step2_course_id, local_coursetransfer {{/str}}</th>
+        <th>{{#str}} origin_course_id, local_coursetransfer {{/str}}</th>
+        <th>{{#str}} destiny_course_id, local_coursetransfer {{/str}}</th>
         <th>{{#str}} step2_course_name, local_coursetransfer {{/str}}</th>
         <th>{{#str}} step2_course_shortname, local_coursetransfer {{/str}}</th>
         <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
@@ -33,6 +34,7 @@
         {{# has_status }}
             <th>{{#str}} status, local_coursetransfer {{/str}}</th>
         {{/ has_status }}
+        <th>{{#str}} log_page, local_coursetransfer {{/str}}</th>
     </tr>
     </thead>
     <tbody>
@@ -43,7 +45,8 @@
                        data-action="select"
                        data-courseid="{{ id }}"
                        {{# disabled }}disabled{{/ disabled }} {{# checked }}checked{{/ checked }}></td>
-            <td id="courseid"><a href="{{ url }}" target="_blank">{{ id }}</a></td>
+            <td id="origin_id">{{ origin_id }}</td>
+            <td id="destiny_course_id"><a href="{{ destiny_url }}" target="_blank">{{ destiny_course_id }}</a></td>
             <td>{{ fullname }}</td>
             <td>{{ shortname }}</td>
             <td>{{ idnumber }}</td>
@@ -52,6 +55,7 @@
             {{# has_status }}
                 <td>{{ status }}</td>
             {{/ has_status }}
+            <td><a href="{{ log_url }}" target="_blank">{{#str}} log_page, local_coursetransfer {{/str}}</a></td>
         </tr>
     {{/ category.courses }}
     </tbody>

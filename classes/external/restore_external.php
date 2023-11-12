@@ -154,7 +154,8 @@ class restore_external extends external_api {
                         'courses' => new external_multiple_structure(new external_single_structure(
                                 array(
                                         'courseid' => new external_value(PARAM_INT, 'Origin Course ID'),
-                                        'destinyid' => new external_value(PARAM_INT, 'Destiny Course ID')
+                                        'destinyid' => new external_value(PARAM_INT, 'Destiny Course ID'),
+                                        'categorydestiny' => new external_value(PARAM_INT, 'Destiny Category ID')
                                 )
                         )),
                         'configuration' => new external_single_structure(
@@ -164,6 +165,7 @@ class restore_external extends external_api {
                                         'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
                                         'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
                                         'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Restore User Data'),
+                                        'origin_remove_course' => new external_value(PARAM_BOOL, 'Origin Remove Course'),
                                 )
                         ),
                 )
@@ -201,7 +203,11 @@ class restore_external extends external_api {
             foreach ($courses as $course) {
                 if ((int)$course['destinyid'] === 0) {
                     $target = \backup::TARGET_NEW_COURSE;
-                    $category = core_course_category::get_default();
+                    if ((int)$course['categorydestiny'] === 0) {
+                        $category = core_course_category::get_default();
+                    } else {
+                        $category = core_course_category::get((int)$course['categorydestiny']);
+                    }
                     $destinycourseid = \local_coursetransfer\factory\course::create(
                         $category, 'Remote Restoring in process...', 'IN-PROGRESS-' . time());
                 } else {
@@ -209,11 +215,11 @@ class restore_external extends external_api {
                         \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
                     $destinycourseid = $course['destinyid'];
                 }
-                $configuration = new configuration_course(
+                $config = new configuration_course(
                     $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups'],
-                    $configuration['origin_enrol_users']);
+                    $configuration['origin_enrol_users'], $configuration['origin_remove_course']);
                 $res = coursetransfer::restore_course(
-                        $USER, $site, $destinycourseid, $course['courseid'], $configuration, []);
+                        $USER->id, $site, $destinycourseid, $course['courseid'], $config, []);
                 if (!$res['success']) {
                     $errors = $res['errors'];
                 } else {

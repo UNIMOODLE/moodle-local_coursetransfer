@@ -84,7 +84,7 @@ define([
                 if ($(item).prop('checked')) {
                     let destiny = $('[data-action="destiny"][data-courseid="' + courseid + '"]').val();
                     let course = {
-                        courseid: courseid, destinyid: destiny
+                        courseid: courseid, destinyid: destiny, categorydestiny: 0
                     };
                     courses.push(course);
                 }

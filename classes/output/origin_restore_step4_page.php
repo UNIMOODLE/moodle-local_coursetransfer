@@ -24,6 +24,7 @@
 
 namespace local_coursetransfer\output;
 
+use core_course\reportbuilder\local\entities\course_category;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -56,13 +57,10 @@ class origin_restore_step4_page extends origin_restore_step_page {
                 ['current' => false, 'num' => 3],
                 ['current' => true, 'num' => 4]
         ];
-        $backurl = new moodle_url(
-                '/local/coursetransfer/origin_restore.php',
+        $backurl = new moodle_url(self::URL,
                 ['step' => 3, 'site' => $this->site, 'type' => 'courses']
         );
-        $tableurl = new moodle_url(
-                '/local/coursetransfer/origin_restore.php'
-        );
+        $tableurl = new moodle_url(self::URL);
         $data->table_url = $tableurl->out(false);
         $data->back_url = $backurl->out(false);
         $data->next_url_disabled = false;
@@ -71,6 +69,7 @@ class origin_restore_step4_page extends origin_restore_step_page {
         $site = coursetransfer::get_site_by_position($siteposition);
         $data->host = $site->host;
         $data->has_origin_user_data = true;
+        $data->can_remove_origin_course = true;
 
         try {
             $request = new request($site);
@@ -87,10 +86,19 @@ class origin_restore_step4_page extends origin_restore_step_page {
                             'shortname' => $cd->shortname
                     ];
                 }
+                $cats = [];
+                $categories = \core_course_category::get_all();
+                foreach ($categories as $cat) {
+                    $ct = new stdClass();
+                    $ct->id = $cat->id;
+                    $ct->name = $cat->get_nested_name();
+                    $cats[] = $ct;
+                }
                 foreach ($courses as $c) {
                     $c->destinies = $destinies;
                     $datacourses[] = $c;
                 }
+                $data->categories = $cats;
                 $data->courses = $datacourses;
                 $data->haserrors = false;
             } else {

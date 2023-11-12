@@ -56,15 +56,11 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
                 ['current' => true, 'num' => 3],
                 ['current' => false, 'num' => 4]
         ];
-        $tableurl = new moodle_url(
-                '/local/coursetransfer/origin_restore.php'
-        );
-        $backurl = new moodle_url(
-                '/local/coursetransfer/origin_restore.php',
+        $tableurl = new moodle_url(self::URL);
+        $backurl = new moodle_url(self::URL,
                 ['step' => 2, 'site' => $this->site, 'type' => 'categories']
         );
-        $nexturl = new moodle_url(
-            '/local/coursetransfer/origin_restore.php',
+        $nexturl = new moodle_url(self::URL,
             ['step' => 4, 'site' => $this->site, 'type' => 'categories']
         );
         $data->table_url = $tableurl->out(false);
@@ -117,7 +113,10 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
             }
         } else {
             $data->haserrors = true;
-            $errors[] = ['code' => '200111', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $errors[] = [
+                    'code' => '200111',
+                    'msg' => get_string('error_validate_site', 'local_coursetransfer')
+            ];
             $data->errors = $errors;
         }
         $data->button = true;

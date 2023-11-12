@@ -52,7 +52,7 @@ class destiny_course_callback_external extends external_api {
                 'field' => new external_value(PARAM_TEXT, 'Field'),
                 'value' => new external_value(PARAM_TEXT, 'Value'),
                 'requestid' => new external_value(PARAM_INT, 'Request ID'),
-                'backupsize' => new external_value(PARAM_INT, 'Backup Size (MB)'),
+                'backupsize' => new external_value(PARAM_INT, 'Backup Size (Bytes)'),
                 'fileurl' => new external_value(PARAM_RAW, 'File URL'),
             )
         );
@@ -96,6 +96,7 @@ class destiny_course_callback_external extends external_api {
                     $origintoken = coursetransfer::get_token_origin_site($fileurl);
                     $finalurl = $fileurl . '?token=' . $origintoken;
                     $request->status = coursetransfer_request::STATUS_BACKUP;
+                    $request->origin_backup_size = $backupsize;
                     coursetransfer_request::insert_or_update($request, $requestid);
                     coursetransfer::create_task_download_course($request, $finalurl);
                     $data->id = $request->id;
@@ -159,6 +160,7 @@ class destiny_course_callback_external extends external_api {
                 'field' => new external_value(PARAM_TEXT, 'Field'),
                 'value' => new external_value(PARAM_TEXT, 'Value'),
                 'requestid' => new external_value(PARAM_INT, 'Request ID'),
+                'backupsize' => new external_value(PARAM_INT, 'Backup Size (Bytes)'),
                 'errorcode' => new external_value(PARAM_INT, 'Error Code'),
                 'errormsg' => new external_value(PARAM_TEXT, 'Error Message'),
             )
@@ -171,20 +173,21 @@ class destiny_course_callback_external extends external_api {
      * @param string $field
      * @param string $value
      * @param int $requestid
+     * @param int $backupsize
      * @param int $errorcode
      * @param string $errormsg
      *
      * @return array
      * @throws invalid_parameter_exception
-     * @throws moodle_exception
      */
-    public static function destiny_backup_course_error(string $field, string $value, int $requestid,
+    public static function destiny_backup_course_error(string $field, string $value, int $requestid, int $backupsize,
                                                        int $errorcode, string $errormsg): array {
         self::validate_parameters(
             self::destiny_backup_course_error_parameters(), [
                 'field' => $field,
                 'value' => $value,
                 'requestid' => $requestid,
+                'backupsize' => $backupsize,
                 'errorcode' => $errorcode,
                 'errormsg' => $errormsg
             ]
@@ -199,6 +202,7 @@ class destiny_course_callback_external extends external_api {
             if ($authres['success']) {
                 $request = coursetransfer_request::get($requestid);
                 if ($request) {
+                    $request->origin_backup_size = $backupsize;
                     $request->error_code = $errorcode;
                     $request->error_message = $errormsg;
                     $request->status = coursetransfer_request::STATUS_ERROR;

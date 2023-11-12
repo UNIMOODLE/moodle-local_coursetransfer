@@ -193,10 +193,17 @@ class origin_restore_course_table extends table_sql {
      * Col Size
      *
      * @param stdClass $row Full data of the current row.
-     * @return int
+     * @return string
+     * @throws coding_exception
      */
-    public function col_backupsize(stdClass $row): int {
-        return !is_null($row->origin_backup_size) ? $row->origin_backup_size : 0;
+    public function col_backupsize(stdClass $row): string {
+        $bytes = !is_null($row->origin_backup_size) ? (int)$row->origin_backup_size : null;
+        if (!is_null($bytes)) {
+            $mb = display_size($bytes, 3, 'MB');
+        } else {
+            $mb = '-';
+        }
+        return $mb;
     }
 
     /**

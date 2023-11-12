@@ -117,11 +117,11 @@ $siteurl = $options['site_url'];
 $origincourseid = !is_null($options['origin_course_id']) ? (int) $options['origin_course_id'] : null;
 $destinycourseid = !is_null($options['destiny_course_id']) ? (int) $options['destiny_course_id'] : null;
 $destinycategoryid = !is_null($options['destiny_category_id']) ? (int) $options['destiny_category_id'] : null;
-$originenrolusers = $options['origin_enrolusers'] === 'true' ? 1 : 0;
+$originenrolusers = ($options['origin_enrolusers'] === 'true' || (int)$options['origin_enrolusers'] === 1) ? 1 : 0;
 $destinytarget = !is_null($options['destiny_target']) ? (int) $options['destiny_target'] : null;
-$destinyremoveenrols = $options['destiny_remove_enrols'] === 'true' ? 1 : 0;
-$destinyremovegroups = $options['destiny_remove_groups'] === 'true' ? 1 : 0;
-$originremovecourse = $options['origin_remove_course'] === 'true' ? 1 : 0;
+$destinyremoveenrols = ($options['destiny_remove_enrols'] === 'true' || (int)$options['destiny_remove_enrols'] === 1) ? 1 : 0;
+$destinyremovegroups = ($options['destiny_remove_groups'] === 'true' || (int)$options['destiny_remove_groups'] === 1) ? 1 : 0;
+$originremovecourse = ($options['origin_remove_course'] === 'true' ||(int) $options['origin_remove_course'] === 1) ? 1 : 0;
 $destinynotremoveactivities = '';
 $originscheduledatetime = (int) $options['origin_schedule_datetime'];
 

@@ -70,7 +70,10 @@ class configuration_component implements renderable, templatable {
         $data->destiny_merge_activities = $this->configuration->destinytarget === backup::TARGET_EXISTING_ADDING;
         $data->destiny_remove_enrols = $this->configuration->destinyremoveenrols;
         $data->destiny_remove_groups = $this->configuration->destinyremovegroups;
+        $data->origin_remove_course = $this->configuration->originremovecourse;
         $data->course_new = $this->configuration->destinytarget === backup::TARGET_NEW_COURSE;
+        $data->has_origin_user_data = true;
+        $data->can_remove_origin_course = true;
         return $data;
     }
 }

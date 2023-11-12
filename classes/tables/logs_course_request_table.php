@@ -185,7 +185,8 @@ class logs_course_request_table extends table_sql {
     public function col_configuration(stdClass $row): string {
         global $PAGE;
         $configuration = new configuration_course(
-                (int)$row->destiny_target, $row->destiny_remove_enrols, $row->destiny_remove_groups);
+                (int)$row->destiny_target, $row->destiny_remove_enrols, $row->destiny_remove_groups,
+                $row->origin_enrolusers, $row->origin_remove_course);
         $output = $PAGE->get_renderer('local_coursetransfer');
         $component = new configuration_component($configuration, $row->id);
         return $output->render($component);
@@ -209,9 +210,16 @@ class logs_course_request_table extends table_sql {
      *
      * @param stdClass $row Full data of the current row.
      * @return string
+     * @throws coding_exception
      */
     public function col_backupsize(stdClass $row): string {
-        return !is_null($row->origin_backup_size) ? $row->origin_backup_size : '-';
+        $bytes = !is_null($row->origin_backup_size) ? (int)$row->origin_backup_size : null;
+        if (!is_null($bytes)) {
+            $mb = display_size($bytes, 3, 'MB');
+        } else {
+            $mb = '-';
+        }
+        return $mb;
     }
 
     /**

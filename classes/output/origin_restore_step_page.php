@@ -39,6 +39,8 @@ use templatable;
  */
 class origin_restore_step_page implements renderable, templatable {
 
+    const URL = '/local/coursetransfer/origin_restore.php';
+
     /** @var int Site */
     protected $site;
 

@@ -28,6 +28,8 @@ use coding_exception;
 use dml_exception;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
+use moodle_exception;
+use moodle_url;
 use renderable;
 use renderer_base;
 use stdClass;
@@ -69,6 +71,8 @@ class category_course_component implements renderable, templatable {
      *
      * @param renderer_base $output
      * @return stdClass
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
         $category = new stdClass();
@@ -86,6 +90,7 @@ class category_course_component implements renderable, templatable {
      * @return array
      * @throws dml_exception
      * @throws coding_exception
+     * @throws moodle_exception
      */
     protected function get_courses_data(): array {
         $cs = [];
@@ -93,7 +98,8 @@ class category_course_component implements renderable, templatable {
         foreach ($requests as $reqid) {
             $request = coursetransfer_request::get($reqid);
             $c = new stdClass();
-            $c->id = $request->origin_course_id;
+            $c->origin_id = $request->origin_course_id;
+            $c->destiny_course_id = $request->destiny_course_id;
             $c->fullname = $request->origin_course_fullname;
             $c->shortname = $request->origin_course_shortname;
             $c->idnumber = $request->origin_course_idnumber;
@@ -110,6 +116,12 @@ class category_course_component implements renderable, templatable {
             }
             $c->checked = true;
             $c->disabled = true;
+            $logurl = new moodle_url('/local/coursetransfer/origin_restore_course.php',
+                    ['id' => $request->destiny_course_id]);
+            $urldes = new moodle_url('/course/view.php',
+                    ['id' => $request->destiny_course_id]);
+            $c->log_url = $logurl->out(false);
+            $c->destiny_url = $urldes->out(false);
             $cs[] = $c;
         }
         return $cs;

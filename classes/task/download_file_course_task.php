@@ -84,8 +84,36 @@ class download_file_course_task extends \core\task\adhoc_task {
             coursetransfer_request::insert_or_update($request, $request->id);
 
             if (!is_null($request->request_category_id)) {
-                $this->log('** Course of Category Request **');
                 coursetransfer_request::update_status_request_cat($request->request_category_id);
+                $this->log('Update Status Category Request');
+            }
+
+            if ($request->origin_remove_course) {
+                $this->log('Origin Course Removing...');
+                try {
+                    $site = coursetransfer::get_site_by_url($request->siteurl);
+                    $resrem = coursetransfer::remove_course($site, $request->origin_course_id);
+                    if (isset($resrem['data']['requestid'])) {
+                        $requesremtid = $resrem['data']['requestid'];
+                        $requestrem = coursetransfer_request::get($requesremtid);
+                        if (!$resrem['success']) {
+                            $errors = $resrem['errors'];
+                            $requestrem->status = coursetransfer_request::STATUS_ERROR;
+                            $requestrem->error_code = $errors[0]->code;
+                            $requestrem->error_message = $errors[0]->msg;
+                            coursetransfer_request::insert_or_update($requestrem, $requesremtid);
+                            $this->log('Origin Course Removed not working. Error: ' . json_encode($errors));
+                        } else {
+                            $requestrem->status = coursetransfer_request::STATUS_COMPLETED;
+                            coursetransfer_request::insert_or_update($requestrem, $requesremtid);
+                            $this->log('Origin Course Removed!');
+                        }
+                    } else {
+                        $this->log('Origin Course Removed not working. ERROR NOT CONTROLLED');
+                    }
+                } catch (moodle_exception $e) {
+                    $this->log('Origin Course Removed not working. Error: ' . $e->getMessage());
+                }
             }
 
         } catch (\Exception $e) {

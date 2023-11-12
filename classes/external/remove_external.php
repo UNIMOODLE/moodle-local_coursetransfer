@@ -102,6 +102,7 @@ class remove_external extends external_api {
                     $object->origin_course_id = $course->id;
                     $object->origin_course_fullname = $course->fullname;
                     $object->origin_course_shortname = $course->shortname;
+                    $object->origin_course_idnumber = $course->idnumber;
                     $object->origin_category_id = $course->category;
                     $cat = core_course_category::get($course->category);
                     $object->origin_category_idnumber = $cat->idnumber;
@@ -116,8 +117,14 @@ class remove_external extends external_api {
                     $object->status = coursetransfer_request::STATUS_IN_PROGRESS;
 
                     $requestoriginid = coursetransfer_request::insert_or_update($object);
+                    $data->request_origin_id = $requestoriginid;
+                    $data->course_fullname = $course->fullname;
+                    $data->course_shortname = $course->shortname;
+                    $data->course_idnumber = $course->idnumber;
+                    $data->course_category_id = $object->origin_category_id;
+                    $data->course_category_name = $object->origin_category_name;
+                    $data->course_category_idnumber = $object->origin_category_idnumber;
 
-                    // TODO. Crear task de borrado de curso.
                     $res = \core_course_external::delete_courses(array($course->id));
 
                     if (count($res['warnings']) > 0) {

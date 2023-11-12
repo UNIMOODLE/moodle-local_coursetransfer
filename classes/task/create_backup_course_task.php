@@ -30,6 +30,7 @@ use dml_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\coursetransfer_sites;
 use moodle_exception;
 use stdClass;
 
@@ -97,21 +98,27 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
             }
 
             $result = $bc->get_results();
-            $site = $this->get_custom_data()->destinysite;
+            $siteid = $this->get_custom_data()->destinysite;
+            $site = coursetransfer_sites::get('destiny', $siteid);
             $requestid = $this->get_custom_data()->requestid;
             $request = new request($site);
 
             $requestorigin = coursetransfer_request::get($this->get_custom_data()->requestoriginid);
             if ($bc->get_status() === \backup::STATUS_FINISHED_OK) {
-                $fileurl = coursetransfer::create_backupfile_url($bc->get_courseid(), $result['backup_destination']);
-                if ($requestorigin) {
-                    $requestorigin->fileurl = $fileurl;
-                    coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                $resfileurl = coursetransfer::create_backupfile_url($bc->get_courseid(), $result['backup_destination']);
+                if ($resfileurl->success) {
+                    if ($requestorigin) {
+                        $requestorigin->fileurl = $resfileurl->fileurl;
+                        $requestorigin->origin_backup_size = $resfileurl->filesize;
+                        coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                    }
+                    $res = $request->destiny_backup_course_completed($resfileurl->fileurl, $requestid, $resfileurl->filesize);
+                    $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
+                } else {
+                    $res = $request->destiny_backup_course_error($requestid, $resfileurl->error, [], $resfileurl->filesize);
                 }
-                $res = $request->destiny_backup_course_completed($fileurl, $requestid);
-                $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
             } else {
-                $res = $request->destiny_backup_course_error($requestid, $result);
+                $res = $request->destiny_backup_course_error($requestid, '', $result);
             }
             if (!$res->success) {
                 $requestorigin->status = coursetransfer_request::STATUS_ERROR;

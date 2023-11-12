@@ -141,6 +141,7 @@ class coursetransfer {
         $record = coursetransfer_sites::get_by_host('destiny', $destinysite);
         if ($record && isset($record->token)) {
             $res->token = $record->token;
+            $res->id = $record->id;
             return
             [
                 'success' => true,
@@ -293,17 +294,7 @@ class coursetransfer {
      */
     public static function get_backup_size_estimated(int $courseid): int {
         // TODO: calcular tamaño estimado del backup.
-        return 320;
-    }
-
-    /**
-     * Get Backup Size Estimated
-     *
-     * @return int
-     */
-    public static function get_backup_size(): int {
-        // TODO: calcular tamaño del backup.
-        return 150;
+        return 0;
     }
 
     /**
@@ -435,7 +426,7 @@ class coursetransfer {
         $asynctask->set_custom_data(
                 [
                         'backupid' => $backupid,
-                        'destinysite' => $destinysite,
+                        'destinysite' => $destinysite->id,
                         'requestid' => $requestid,
                         'requestoriginid' => $requestoriginid
                 ]);
@@ -621,38 +612,63 @@ class coursetransfer {
      *
      * @param int $courseid
      * @param stored_file $file
-     * @return string
-     * @throws file_exception
-     * @throws stored_file_creation_exception
+     * @return stdClass
      */
-    public static function create_backupfile_url(int $courseid, stored_file $file): string {
-        $context = context_course::instance($courseid);
-        $fs = get_file_storage();
-        $timestamp = time();
+    public static function create_backupfile_url(int $courseid, stored_file $file): stdClass {
+        $res = new stdClass();
+        $error = '';
+        $url = '';
+        $filesize = 0;
 
-        $filerecord = array(
-                'contextid' => $context->id,
-                'component' => 'local_coursetransfer',
-                'filearea' => 'backup',
-                'itemid' => $timestamp,
-                'filepath' => '/',
-                'filename' => 'backup.mbz',
-                'timecreated' => $timestamp,
-                'timemodified' => $timestamp
-        );
-        $storedfile = $fs->create_file_from_storedfile($filerecord, $file);
-        $file->delete();
+        try {
+            $context = context_course::instance($courseid);
+            $fs = get_file_storage();
+            $timestamp = time();
 
-        // Make the link.
-        $fileurl = moodle_url::make_webservice_pluginfile_url(
-                $storedfile->get_contextid(),
-                $storedfile->get_component(),
-                $storedfile->get_filearea(),
-                $storedfile->get_itemid(),
-                $storedfile->get_filepath(),
-                $storedfile->get_filename()
-        );
-        return $fileurl->out(true);
+            $filerecord = array(
+                    'contextid' => $context->id,
+                    'component' => 'local_coursetransfer',
+                    'filearea' => 'backup',
+                    'itemid' => $timestamp,
+                    'filepath' => '/',
+                    'filename' => 'backup.mbz',
+                    'timecreated' => $timestamp,
+                    'timemodified' => $timestamp
+            );
+            $storedfile = $fs->create_file_from_storedfile($filerecord, $file);
+
+
+            $filesize = $storedfile->get_filesize();
+            $file->delete();
+
+            // Make the link.
+            $fileurl = moodle_url::make_webservice_pluginfile_url(
+                    $storedfile->get_contextid(),
+                    $storedfile->get_component(),
+                    $storedfile->get_filearea(),
+                    $storedfile->get_itemid(),
+                    $storedfile->get_filepath(),
+                    $storedfile->get_filename()
+            );
+            $success = true;
+            $url = $fileurl->out(true);
+            $sizeconfig = (int)get_config('local_coursetransfer', 'destiny_restore_course_max_size');
+            if ($filesize > ($sizeconfig * 1000000)) {
+                $success = false;
+                $error = get_string('backupsize_larger', 'local_coursetransfer');
+                $error .= ': (' . ($filesize / 1000000) . ' MB) > ' . $sizeconfig . ' MB';
+            }
+        } catch (moodle_exception $e) {
+            $success = false;
+            $error = $e->getMessage();
+        }
+
+        $res->fileurl = $url;
+        $res->success = $success;
+        $res->error = $error;
+        $res->filesize = $filesize;
+
+        return $res;
     }
 
     /**
@@ -895,7 +911,6 @@ class coursetransfer {
             configuration_course $configuration, array $sections = [], int $requestcatid = null): array {
 
         $errors = [];
-
         // 1. Request DB.
         $requestobject = coursetransfer_request::set_request_restore_course(
                 $site, $destinycourseid, $origincourseid, $configuration, $sections, $requestcatid);

@@ -35,7 +35,8 @@ define([
         };
 
         let ACTIONS = {
-            RESTORE: '[data-action="execute-restore"]'
+            RESTORE: '[data-action="execute-restore"]',
+            CATEGORIES: '[data-action="destiny-category"]'
         };
 
         /**
@@ -56,6 +57,9 @@ define([
                     $(seldestiny).prop('selected', true);
                     let row = 'tr[data-action="course"][data-courseid="' + courseid + '"]';
                     $(row).prop('selected', true).removeClass('hidden');
+                    if (destinyid === 0) {
+                        $('[data-action="destiny-category"][data-courseid="' + courseid + '"]').removeClass('hidden');
+                    }
                 });
                 this.data.configuration.forEach(function(config) {
                     let item = $('#' + config.name);
@@ -68,7 +72,24 @@ define([
                 let errors = [{code: '100078', msg: 'error_session_cache'}];
                 this.renderErrors(errors, alertbox);
             }
+            this.node.find('[data-action="destiny-category"]').on('change', this.changeCategory.bind(this));
         }
+
+        originRestoreStep4.prototype.changeCategory = function(e) {
+            let $select = $(e.currentTarget);
+            let catvalue = $select.val();
+            let catcourse = $select.data('courseid');
+            let courses = this.data.courses;
+            let newcourses = [];
+            courses.forEach(function(course) {
+                if (course.courseid === catcourse) {
+                    course.categorydestiny = catvalue;
+                }
+                newcourses.push(course);
+            });
+            this.data.courses = newcourses;
+            sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data));
+        };
 
         originRestoreStep4.prototype.clickNext = function(e) {
             this.node.find(ACTIONS.RESTORE).prop('disabled', true);
@@ -79,18 +100,41 @@ define([
             });
 
             let alertbox = this.node.find(".alert");
+            let config = {
+                destiny_merge_activities: false,
+                destiny_remove_activities: false,
+                destiny_remove_groups: false,
+                destiny_remove_enrols: false,
+                origin_enrol_users: false,
+                origin_remove_course: false
+            };
+            if (configuration['destiny_merge_activities']) {
+                config.destiny_merge_activities = configuration['destiny_merge_activities'];
+            }
+            if (configuration['destiny_remove_activities']) {
+                config.destiny_remove_activities = configuration['destiny_remove_activities'];
+            }
+            if (configuration['destiny_remove_groups']) {
+                config.destiny_remove_groups = configuration['destiny_remove_groups'];
+            }
+            if (configuration['destiny_remove_enrols']) {
+                config.destiny_remove_enrols = configuration['destiny_remove_enrols'];
+            }
+            if (configuration['origin_enrol_users']) {
+                config.origin_enrol_users = configuration['origin_enrol_users'];
+            }
+            if (configuration['origin_remove_course']) {
+                config.origin_remove_course = configuration['origin_remove_course'];
+            }
+            if (configuration['origin_remove_course2']) {
+                config.origin_remove_course2 = configuration['origin_remove_course2'];
+            }
             const request = {
                 methodname: SERVICES.ORIGIN_RESTORE_STEP4,
                 args: {
                     siteurl: this.site,
                     courses: this.data.courses,
-                    configuration: {
-                        destiny_merge_activities: configuration['destiny_merge_activities'],
-                        destiny_remove_activities: configuration['destiny_remove_activities'],
-                        destiny_remove_groups: configuration['destiny_remove_groups'],
-                        destiny_remove_enrols: configuration['destiny_remove_enrols'],
-                        origin_enrol_users: configuration['origin_enrol_users']
-                    },
+                    configuration: config,
                 }
             };
             let that = this;

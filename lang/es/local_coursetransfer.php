@@ -24,7 +24,7 @@
 
 $string['pluginname'] = 'Restaurar cursos remotos';
 $string['pluginname_header_general'] = 'General';
-$string['setting_destiny_restore_course_max_size'] = 'Tamaño máximo del curso a restaurar';
+$string['setting_destiny_restore_course_max_size'] = 'Tamaño máximo del curso a restaurar (MB)';
 $string['setting_destiny_restore_course_max_size_desc'] = 'Límite en el tamaño de la copia de seguridad (archivo MBZ) del curso origen a restaurar en MB.';
 $string['setting_destiny_sites'] = 'Sitios destino';
 $string['setting_destiny_sites_link'] = 'Gestión de Sitios destino';
@@ -233,3 +233,6 @@ $string['delete_site'] = "Borrar sitio";
 $string['delete_site_question'] = "¿Estas seguro de borrar este sitio?";
 $string['edit_site'] = "Editar sitio";
 $string['view_error'] = "Ver error";
+$string['backupsize_larger'] = "El tamaño del backup es mayor al permitido";
+$string['restore_origin_remove'] = "Eliminar el curso de origen";
+$string['restore_origin_remove_desc'] = "El curso de origen será eliminado una vez restaurado";
