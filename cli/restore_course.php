@@ -200,7 +200,7 @@ try {
     // 3. Restore Course.
     $destiny = get_course($destinycourseid);
     $site = coursetransfer::get_site_by_url($siteurl);
-    $res = coursetransfer::restore_course($user->id, $site, $destiny->id, $origincourseid, $configuration);
+    $res = coursetransfer::restore_course($user, $site, $destiny->id, $origincourseid, $configuration);
 
     // 4. Success or Errors.
     $errors = array_merge($errors, $res['errors']);

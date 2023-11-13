@@ -262,11 +262,10 @@ class remove_external extends external_api {
 
                     $requestoriginid = coursetransfer_request::insert_or_update($object);
 
-                    // TODO. Crear tarea de borrado de categoría.
-                    $catogories = [
+                    $categories = [
                             ['id' => $category->id, 'recursive' => 1]
                     ];
-                    \core_course_external::delete_categories($catogories);
+                    \core_course_external::delete_categories($categories);
 
                     $object->status = coursetransfer_request::STATUS_COMPLETED;
                     coursetransfer_request::insert_or_update($object, $requestoriginid);

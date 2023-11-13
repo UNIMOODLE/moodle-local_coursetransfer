@@ -67,6 +67,7 @@ class restore_course_external extends external_api {
      * @throws moodle_exception
      */
     public static function new_origin_restore_course_step1(int $siteurl, int $courseid): array {
+        global $USER;
         self::validate_parameters(
             self::new_origin_restore_course_step1_parameters(),
             [
@@ -88,7 +89,7 @@ class restore_course_external extends external_api {
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
             $request = new request($site);
-            $res = $request->origin_has_user();
+            $res = $request->origin_has_user($USER);
             if ($res->success) {
                 $data = $res->data;
                 $nexturl = new moodle_url(

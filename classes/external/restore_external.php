@@ -69,6 +69,7 @@ class restore_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function origin_restore_step1(int $siteurl, string $type): array {
+        global $USER;
         self::validate_parameters(
             self::origin_restore_step1_parameters(),
             [
@@ -90,7 +91,7 @@ class restore_external extends external_api {
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
             $request = new request($site);
-            $res = $request->origin_has_user();
+            $res = $request->origin_has_user($USER);
             if ($res->success) {
                 $data = $res->data;
                 $nexturl = new moodle_url(
@@ -274,7 +275,8 @@ class restore_external extends external_api {
                         'destinyid' => new external_value(PARAM_INT, 'Destiny Category Id'),
                         'configuration' => new external_single_structure(
                                 array(
-                                        'origin_enrolusers' => new external_value(PARAM_BOOL, 'Origin Enrol Users')
+                                        'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Enrol Users'),
+                                        'origin_remove_category' => new external_value(PARAM_BOOL, 'Origin Remove Category'),
                                 )
                         ),
                 )
@@ -314,9 +316,10 @@ class restore_external extends external_api {
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
             $configuration = new configuration_category(\backup::TARGET_NEW_COURSE,
-                    0, 0, $configuration['origin_enrolusers']);
+                    0, 0, $configuration['origin_enrol_users'],
+                    $configuration['origin_remove_category']);
 
-            $res = coursetransfer::restore_category($USER->id, $site, $destinyid, $catid, $configuration);
+            $res = coursetransfer::restore_category($USER, $site, $destinyid, $catid, $configuration);
 
             if (!$res['success']) {
                 $errors = $res['errors'];

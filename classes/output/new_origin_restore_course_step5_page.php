@@ -48,6 +48,7 @@ class new_origin_restore_course_step5_page extends new_origin_restore_course_ste
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        global $USER;
         $siteposition = required_param('site', PARAM_RAW);
         $restoreid = required_param('restoreid', PARAM_INT);
         $destinyid = required_param('id', PARAM_INT);
@@ -74,7 +75,7 @@ class new_origin_restore_course_step5_page extends new_origin_restore_course_ste
             $data->haserrors = false;
             try {
                 $request = new request($site);
-                $res = $request->origin_get_course_detail($restoreid);
+                $res = $request->origin_get_course_detail($restoreid, $USER);
                 if ($res->success) {
                     $data->course = $res->data;
                     if (isset($data->course->sections)) {

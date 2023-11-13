@@ -126,9 +126,6 @@ define([
             if (configuration['origin_remove_course']) {
                 config.origin_remove_course = configuration['origin_remove_course'];
             }
-            if (configuration['origin_remove_course2']) {
-                config.origin_remove_course2 = configuration['origin_remove_course2'];
-            }
             const request = {
                 methodname: SERVICES.ORIGIN_RESTORE_STEP4,
                 args: {

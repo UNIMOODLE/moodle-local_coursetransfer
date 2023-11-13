@@ -26,7 +26,6 @@ namespace local_coursetransfer\api;
 
 use coding_exception;
 use dml_exception;
-use local_coursetransfer\coursetransfer;
 use local_coursetransfer\models\configuration_course;
 use stdClass;
 
@@ -44,7 +43,7 @@ require_once($CFG->libdir . '/filelib.php');
  */
 class request {
 
-    const TIMEOUT = 10;
+    const TIMEOUT = 1;
 
     /** @var string Host */
     public $host;
@@ -66,45 +65,57 @@ class request {
     }
 
     /**
-     * Origen Has User?
+     * Get Request Params.
      *
-     * @return response
+     * @param stdClass $user
+     * @return array
      * @throws dml_exception
      */
-    public function origin_has_user(): response {
+    protected function get_request_params(stdClass $user): array {
         global $USER;
+        $user = is_null($user) ? $USER : $user;
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params['field']};
+        $params['value'] = $user->{$params['field']};
+        return $params;
+    }
+
+    /**
+     * Origen Has User?
+     *
+     * @param stdClass|null $user
+     * @return response
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function origin_has_user(stdClass $user = null): response {
+        $params = $this->get_request_params($user);
         return $this->req('local_coursetransfer_origin_has_user', $params);
     }
 
     /**
      * Origen Get courses.
      *
+     * @param stdClass|null $user
      * @return response
+     * @throws coding_exception
      * @throws dml_exception
      */
-    public function origin_get_categories(): response {
-        global $USER;
-        $params = [];
-        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params['field']};
+    public function origin_get_categories(stdClass $user = null): response {
+        $params = $this->get_request_params($user);
         return $this->req('local_coursetransfer_origin_get_categories', $params);
     }
-
 
     /**
      * Origen Get courses.
      *
+     * @param stdClass|null $user
      * @return response
+     * @throws coding_exception
      * @throws dml_exception
      */
-    public function origin_get_courses(): response {
-        global $USER;
-        $params = [];
-        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params['field']};
+    public function origin_get_courses(stdClass $user = null): response {
+        $params = $this->get_request_params($user);
         return $this->req('local_coursetransfer_origin_get_courses', $params);
     }
 
@@ -112,14 +123,13 @@ class request {
      * Origen Get course detail.
      *
      * @param int $courseid
+     * @param stdClass|null $user
      * @return response
+     * @throws coding_exception
      * @throws dml_exception
      */
-    public function origin_get_course_detail(int $courseid): response {
-        global $USER;
-        $params = [];
-        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params['field']};
+    public function origin_get_course_detail(int $courseid, stdClass $user = null): response {
+        $params = $this->get_request_params($user);
         $params['courseid'] = $courseid;
         return $this->req('local_coursetransfer_origin_get_course_detail', $params);
     }
@@ -128,14 +138,13 @@ class request {
      * Origen Get category detail.
      *
      * @param int $categoryid
+     * @param stdClass|null $user
      * @return response
+     * @throws coding_exception
      * @throws dml_exception
      */
-    public function origin_get_category_detail(int $categoryid): response {
-        global $USER;
-        $params = [];
-        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params['field']};
+    public function origin_get_category_detail(int $categoryid, stdClass $user = null): response {
+        $params = $this->get_request_params($user);
         $params['categoryid'] = $categoryid;
         return $this->req('local_coursetransfer_origin_get_category_detail', $params);
     }
@@ -143,22 +152,20 @@ class request {
     /**
      * Origin back up course remote.
      *
-     * @param int $userid
+     * @param stdClass $user
      * @param int $requestid
      * @param int $origincourseid
      * @param int $destinycourseid
      * @param configuration_course $configuration
      * @param array $sections If array empty [], all sections and all activities will be backup.
      * @return response
+     * @throws coding_exception
      * @throws dml_exception
      */
-    public function origin_backup_course(int $userid, int $requestid, int $origincourseid, int $destinycourseid,
+    public function origin_backup_course(stdClass $user, int $requestid, int $origincourseid, int $destinycourseid,
                  configuration_course $configuration, array $sections =[]): response {
         global $CFG;
-        $user = \core_user::get_user($userid);
-        $params = [];
-        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $user->{$params['field']};
+        $params = $this->get_request_params($user);
         $params['courseid'] = $origincourseid;
         $params['destinycourseid'] = $destinycourseid;
         $params['requestid'] = $requestid;
@@ -166,6 +173,177 @@ class request {
         $params = array_merge($params, $this->serialize_configuration($configuration));
         $params = array_merge($params, $this->serialize_sections($sections));
         return $this->req('local_coursetransfer_origin_backup_course', $params);
+    }
+
+    /**
+     * Origin back up course remote.
+     *
+     * @param string $fileurl
+     * @param int $requestid
+     * @param int $filesize
+     * @param stdClass|null $user
+     * @return response
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function destiny_backup_course_completed(
+            string $fileurl, int $requestid, int $filesize, stdClass $user = null): response {
+        $params = $this->get_request_params($user);
+        $params['requestid'] = $requestid;
+        $params['backupsize'] = $filesize;
+        $params['fileurl'] = $fileurl;
+        return $this->req('local_coursetransfer_destiny_backup_course_completed', $params);
+    }
+
+    /**
+     * Origin back up course remote.
+     *
+     * @param stdClass $user
+     * @param int $requestid
+     * @param string $error
+     * @param array $result
+     * @param int $filesize
+     * @return response
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function destiny_backup_course_error(
+            stdClass $user, int $requestid, string $error, array $result = [], $filesize = 0): response {
+        $params = $this->get_request_params($user);
+        $params['requestid'] = $requestid;
+        $params['backupsize'] = $filesize;
+        $params['errorcode'] = '205001';
+        if (empty($result)) {
+            $params['errormsg'] = $error;
+        } else {
+            $params['errormsg'] = json_encode($result);
+        }
+        return $this->req('local_coursetransfer_destiny_backup_course_error', $params);
+    }
+
+    /**
+     * Site Origin test.
+     *
+     * @param stdClass|null $user
+     * @return response
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function site_origin_test(stdClass $user = null): response {
+        global $CFG;
+        $params = $this->get_request_params($user);
+        $params['destinysite'] = $CFG->wwwroot;
+        return $this->req('local_coursetransfer_site_origin_test', $params);
+    }
+
+    /**
+     * Site Destiny test.
+     *
+     * @param stdClass|null $user
+     * @return response
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function site_destiny_test(stdClass $user = null): response {
+        $params = $this->get_request_params($user);
+        return $this->req('local_coursetransfer_site_destiny_test', $params);
+    }
+
+    /**
+     * Origin remove course remote.
+     *
+     * @param int $requestid
+     * @param int $origincourseid
+     * @param stdClass|null $user
+     * @return response
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function origin_remove_course(int $requestid, int $origincourseid, stdClass $user = null): response {
+        global $CFG;
+        $params = $this->get_request_params($user);
+        $params['courseid'] = $origincourseid;
+        $params['requestid'] = $requestid;
+        $params['destinysite'] = $CFG->wwwroot;
+        return $this->req('local_coursetransfer_origin_remove_course', $params);
+    }
+
+    /**
+     * Origin remove category remote.
+     *
+     * @param int $requestid
+     * @param int $origincatid
+     * @param stdClass|null $user
+     * @return response
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function origin_remove_category(int $requestid, int $origincatid, stdClass $user = null): response {
+        global $CFG;
+        $params = $this->get_request_params($user);
+        $params['catid'] = $origincatid;
+        $params['requestid'] = $requestid;
+        $params['destinysite'] = $CFG->wwwroot;
+        return $this->req('local_coursetransfer_origin_remove_category', $params);
+    }
+
+    /**
+     * Request.
+     *
+     * @param string $wsname
+     * @param array $params
+     * @return response
+     * @throws coding_exception
+     */
+    protected function req(string $wsname, array $params): response {
+        $curl = curl_init();
+        $params['wstoken'] = $this->token;
+        $params['wsfunction'] = $wsname;
+        $params['moodlewsrestformat'] = 'json';
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->host . '/webservice/rest/server.php',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => self::TIMEOUT,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $params,
+        ));
+        $response = curl_exec($curl);
+        try {
+            $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+            var_dump($response);
+            curl_close($curl);
+            if (isset($response->success) && isset($response->errors)) {
+                $data = isset($response->data) ? $response->data : null;
+                return new response($response->success, $data, $response->errors);
+            } else {
+                if (!empty($response->message)) {
+                    $message = $response->message;
+                } else if (!empty($response->exception)) {
+                    $message = $response->exception;
+                } else if (!empty($response->msg)) {
+                    $message = $response->msg;
+                } else {
+                    $message = get_string('error_not_controlled', 'local_coursetransfer');
+                }
+                $error = new stdClass();
+                $error->code = '200002';
+                $error->msg = $wsname . ' - ' . $message;
+                return new response(false, null, [$error]);
+            }
+        } catch (\Exception $e) {
+            $message = $e->getMessage() === 'Syntax error' ?
+                    get_string('site_url_invalid', 'local_coursetransfer') :
+                    $e->getMessage();
+            $error = new stdClass();
+            $error->code = '200003';
+            $error->msg = $wsname . ': ' . $message;
+            return new response(false, null, [$error]);
+        }
     }
 
     /**
@@ -220,179 +398,6 @@ class request {
             ++$sectionindex;
         }
         return $res;
-    }
-
-    /**
-     * Origin back up course remote.
-     *
-     * @param string $fileurl
-     * @param int $requestid
-     * @param int $filesize
-     * @return response
-     * @throws coding_exception
-     * @throws dml_exception
-     */
-    public function destiny_backup_course_completed(string $fileurl, int $requestid, int $filesize): response {
-        global $USER;
-        $params = [];
-        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params['field']};
-        $params['requestid'] = $requestid;
-        $params['backupsize'] = $filesize;
-        $params['fileurl'] = $fileurl;
-        return $this->req('local_coursetransfer_destiny_backup_course_completed', $params);
-    }
-
-    /**
-     * Origin back up course remote.
-     *
-     * @param int $requestid
-     * @param string $error
-     * @param array $result
-     * @param int $filesize
-     * @return response
-     * @throws coding_exception
-     * @throws dml_exception
-     */
-    public function destiny_backup_course_error(int $requestid, string $error, array $result = [], $filesize = 0): response {
-        global $USER;
-        $params = [];
-        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params['field']};
-        $params['requestid'] = $requestid;
-        $params['backupsize'] = $filesize;
-        $params['errorcode'] = '205001';
-        if (empty($result)) {
-            $params['errormsg'] = $error;
-        } else {
-            $params['errormsg'] = json_encode($result);
-        }
-        return $this->req('local_coursetransfer_destiny_backup_course_error', $params);
-    }
-
-    /**
-     * Site Origin test.
-     *
-     * @return response
-     * @throws dml_exception
-     */
-    public function site_origin_test(): response {
-        global $USER, $CFG;
-        $params = [];
-        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params['field']};
-        $params['destinysite'] = $CFG->wwwroot;
-        return $this->req('local_coursetransfer_site_origin_test', $params);
-    }
-
-    /**
-     * Site Destiny test.
-     *
-     * @return response
-     * @throws dml_exception
-     */
-    public function site_destiny_test(): response {
-        global $USER;
-        $params = [];
-        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params['field']};
-        return $this->req('local_coursetransfer_site_destiny_test', $params);
-    }
-
-    /**
-     * Origin remove course remote.
-     *
-     * @param int $requestid
-     * @param int $origincourseid
-     * @return response
-     * @throws dml_exception|coding_exception
-     */
-    public function origin_remove_course(int $requestid, int $origincourseid): response {
-        global $USER, $CFG;
-        $params = [];
-        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params['field']};
-        $params['courseid'] = $origincourseid;
-        $params['requestid'] = $requestid;
-        $params['destinysite'] = $CFG->wwwroot;
-        return $this->req('local_coursetransfer_origin_remove_course', $params);
-    }
-
-    /**
-     * Origin remove category remote.
-     *
-     * @param int $requestid
-     * @param int $origincatid
-     * @return response
-     * @throws dml_exception
-     */
-    public function origin_remove_category(int $requestid, int $origincatid): response {
-        global $USER, $CFG;
-        $params = [];
-        $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
-        $params['value'] = $USER->{$params['field']};
-        $params['catid'] = $origincatid;
-        $params['requestid'] = $requestid;
-        $params['destinysite'] = $CFG->wwwroot;
-        return $this->req('local_coursetransfer_origin_remove_category', $params);
-    }
-
-    /**
-     * Request.
-     *
-     * @param string $wsname
-     * @param array $params
-     * @return response
-     * @throws coding_exception
-     */
-    protected function req(string $wsname, array $params): response {
-        $curl = curl_init();
-        $params['wstoken'] = $this->token;
-        $params['wsfunction'] = $wsname;
-        $params['moodlewsrestformat'] = 'json';
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->host . '/webservice/rest/server.php',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => self::TIMEOUT,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $params,
-        ));
-        $response = curl_exec($curl);
-        try {
-            $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
-            curl_close($curl);
-            if (isset($response->success) && isset($response->errors)) {
-                $data = isset($response->data) ? $response->data : null;
-                return new response($response->success, $data, $response->errors);
-            } else {
-                if (!empty($response->message)) {
-                    $message = $response->message;
-                } else if (!empty($response->exception)) {
-                    $message = $response->exception;
-                } else if (!empty($response->msg)) {
-                    $message = $response->msg;
-                } else {
-                    $message = get_string('error_not_controlled', 'local_coursetransfer');
-                }
-                $error = new stdClass();
-                $error->code = '200002';
-                $error->msg = $wsname . ' - ' . $message;
-                return new response(false, null, [$error]);
-            }
-        } catch (\Exception $e) {
-            $message = $e->getMessage() === 'Syntax error' ?
-                    get_string('site_url_invalid', 'local_coursetransfer') :
-                    $e->getMessage();
-            $error = new stdClass();
-            $error->code = '200003';
-            $error->msg = $wsname . ': ' . $message;
-            return new response(false, null, [$error]);
-        }
     }
 }
 

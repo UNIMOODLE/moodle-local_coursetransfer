@@ -48,6 +48,7 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        global $USER;
         $data = new stdClass();
         $data->button = true;
         $data->steps = [
@@ -69,6 +70,8 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
         $site = coursetransfer::get_site_by_position($this->site);
 
         $data->host = $site->host;
+        $data->has_origin_user_data = true;
+        $data->can_remove_origin_course = true;
 
         $cats = \core_course_category::get_all();
         $destinies = [];
@@ -100,7 +103,7 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
             $data->haserrors = false;
             try {
                 $request = new request($site);
-                $res = $request->origin_get_category_detail($restoreid);
+                $res = $request->origin_get_category_detail($restoreid, $USER);
                 if ($res->success) {
                     $data->category = $res->data;
                 } else {

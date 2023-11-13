@@ -48,7 +48,7 @@ class logs_course_request_page extends logs_page {
         parent::__construct();
         $uniqid = uniqid('', true);
         $this->table = new logs_course_request_table($uniqid);
-        $this->url = new moodle_url('/local/coursetransfer/logs_page.php');
+        $this->url = new moodle_url(self::PAGE);
         $this->selects = [
                 'type' => [
                         [
@@ -86,6 +86,5 @@ class logs_course_request_page extends logs_page {
                 ],
         ];
     }
-
 
 }

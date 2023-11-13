@@ -65,6 +65,7 @@ class origin_remove_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function origin_remove_step1(int $siteurl, string $type): array {
+        global $USER;
         self::validate_parameters(
                 self::origin_remove_step1_parameters(),
                 [
@@ -86,7 +87,7 @@ class origin_remove_external extends external_api {
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
             $request = new request($site);
-            $res = $request->origin_has_user();
+            $res = $request->origin_has_user($USER);
             if ($res->success) {
                 $data = $res->data;
                 $nexturl = new moodle_url(

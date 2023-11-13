@@ -83,15 +83,54 @@ class download_file_course_task extends \core\task\adhoc_task {
             $request->status = coursetransfer_request::STATUS_COMPLETED;
             coursetransfer_request::insert_or_update($request, $request->id);
 
+            $site = coursetransfer::get_site_by_url($request->siteurl);
             if (!is_null($request->request_category_id)) {
-                coursetransfer_request::update_status_request_cat($request->request_category_id);
+                $reqcat = coursetransfer_request::update_status_request_cat($request->request_category_id);
                 $this->log('Update Status Category Request');
+                $remcaterrorcode = null;
+                $remcaterrormsg = null;
+                if ($reqcat->status === coursetransfer_request::STATUS_COMPLETED) {
+                    if ($reqcat->origin_remove_category) {
+                        $this->log('Origin Category Removing...');
+                        try {
+                            $resremcat = coursetransfer::remove_category($site, $request->origin_category_id);
+                            if (isset($resremcat['data']['requestid'])) {
+                                $remcatrequestid = $resremcat['data']['requestid'];
+                                $requestremcat = coursetransfer_request::get($remcatrequestid);
+                                if (!$resremcat['success']) {
+                                    $errors = $resremcat['errors'];
+                                    $requestremcat->status = coursetransfer_request::STATUS_ERROR;
+                                    $requestremcat->error_code = $errors[0]->code;
+                                    $requestremcat->error_message = $errors[0]->msg;
+                                    $remcaterrormsg = 'Origin Category Removed not working. Error: ' . json_encode($errors);
+                                    $this->log($remcaterrormsg);
+                                    $remcaterrorcode = $requestremcat->error_code;
+                                } else {
+                                    $request->status = coursetransfer_request::STATUS_COMPLETED;
+                                    $this->log('Origin Category Removed!');
+                                }
+                                coursetransfer_request::insert_or_update($requestremcat, $remcatrequestid);
+                            } else {
+                                $remcaterrorcode = '540010';
+                                $remcaterrormsg = 'Origin Category Removed not working. ERROR NOT CONTROLLED';
+                                $this->log($remcaterrormsg);
+                            }
+                        } catch (moodle_exception $e) {
+                            $remcaterrorcode = '540011';
+                            $remcaterrormsg = 'Origin Category Removed not working. Error: ' . $e->getMessage();
+                            $this->log($remcaterrormsg);
+                        }
+                    }
+                }
+                $request->error_code = $remcaterrorcode;
+                $request->error_message = $remcaterrormsg;
             }
 
-            if ($request->origin_remove_course) {
+            if ($request->origin_remove_course && !$request->origin_remove_category) {
                 $this->log('Origin Course Removing...');
+                $remcouerrorcode = null;
+                $remcouerrormsg = null;
                 try {
-                    $site = coursetransfer::get_site_by_url($request->siteurl);
                     $resrem = coursetransfer::remove_course($site, $request->origin_course_id);
                     if (isset($resrem['data']['requestid'])) {
                         $requesremtid = $resrem['data']['requestid'];
@@ -101,19 +140,26 @@ class download_file_course_task extends \core\task\adhoc_task {
                             $requestrem->status = coursetransfer_request::STATUS_ERROR;
                             $requestrem->error_code = $errors[0]->code;
                             $requestrem->error_message = $errors[0]->msg;
-                            coursetransfer_request::insert_or_update($requestrem, $requesremtid);
-                            $this->log('Origin Course Removed not working. Error: ' . json_encode($errors));
+                            $remcouerrormsg = 'Origin Course Removed not working. Error: ' . json_encode($errors);
+                            $this->log($remcouerrormsg);
+                            $remcouerrorcode = $requestrem->error_code;
                         } else {
                             $requestrem->status = coursetransfer_request::STATUS_COMPLETED;
-                            coursetransfer_request::insert_or_update($requestrem, $requesremtid);
                             $this->log('Origin Course Removed!');
                         }
+                        coursetransfer_request::insert_or_update($requestrem, $requesremtid);
                     } else {
-                        $this->log('Origin Course Removed not working. ERROR NOT CONTROLLED');
+                        $remcouerrorcode = '540022';
+                        $remcouerrormsg = 'Origin Course Removed not working. ERROR NOT CONTROLLED';
+                        $this->log($remcouerrormsg);
                     }
                 } catch (moodle_exception $e) {
-                    $this->log('Origin Course Removed not working. Error: ' . $e->getMessage());
+                    $remcouerrorcode = '540021';
+                    $remcouerrormsg = 'Origin Course Removed not working. Error: ' . $e->getMessage();
+                    $this->log($remcouerrormsg);
                 }
+                $request->error_code = $remcouerrorcode;
+                $request->error_message = $remcouerrormsg;
             }
 
         } catch (\Exception $e) {

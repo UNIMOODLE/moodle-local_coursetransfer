@@ -43,6 +43,8 @@ use templatable;
  */
 class logs_page implements renderable, templatable {
 
+    const PAGE = '/local/coursetransfer/logs.php';
+
     /** @var int Type  */
     protected $type;
 
@@ -109,7 +111,7 @@ class logs_page implements renderable, templatable {
         $table->collapsible(false);
         $table->define_baseurl($this->url);
         ob_start();
-        $table->out(200, true, false);
+        $table->out(10, true, false);
         $tablecontent = ob_get_contents();
         ob_end_clean();
         return $tablecontent;

@@ -48,6 +48,7 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        global $USER;
         $data = new stdClass();
         $siteposition = required_param('site', PARAM_INT);
         $restoreid = required_param('restoreid', PARAM_INT);
@@ -84,7 +85,7 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
             $data->haserrors = false;
             try {
                 $request = new request($site);
-                $res = $request->origin_get_category_detail($restoreid);
+                $res = $request->origin_get_category_detail($restoreid, $USER);
                 if ($res->success) {
                     $data->category = $res->data;
                 } else {

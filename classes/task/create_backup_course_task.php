@@ -99,6 +99,8 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
 
             $result = $bc->get_results();
             $siteid = $this->get_custom_data()->destinysite;
+            $userid = $bc->get_userid();
+            $user = \core_user::get_user($userid);
             $site = coursetransfer_sites::get('destiny', $siteid);
             $requestid = $this->get_custom_data()->requestid;
             $request = new request($site);
@@ -112,13 +114,14 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
                         $requestorigin->origin_backup_size = $resfileurl->filesize;
                         coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
                     }
-                    $res = $request->destiny_backup_course_completed($resfileurl->fileurl, $requestid, $resfileurl->filesize);
+                    $res = $request->destiny_backup_course_completed(
+                            $resfileurl->fileurl, $requestid, $resfileurl->filesize, $user);
                     $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
                 } else {
-                    $res = $request->destiny_backup_course_error($requestid, $resfileurl->error, [], $resfileurl->filesize);
+                    $res = $request->destiny_backup_course_error($user, $requestid, $resfileurl->error, [], $resfileurl->filesize);
                 }
             } else {
-                $res = $request->destiny_backup_course_error($requestid, '', $result);
+                $res = $request->destiny_backup_course_error($user, $requestid, '', $result);
             }
             if (!$res->success) {
                 $requestorigin->status = coursetransfer_request::STATUS_ERROR;

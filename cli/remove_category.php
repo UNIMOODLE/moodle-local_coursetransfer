@@ -25,7 +25,7 @@
 
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\factory\user;
-use local_coursetransfer\models\configuration_category;
+use local_coursetransfer\models\configuration_course;
 
 define('CLI_SCRIPT', 1);
 
@@ -34,26 +34,16 @@ global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
-$usage = 'CLI de restauracion de categorias.
+$usage = 'CLI for delete category.
 
 Usage:
-    # php restore_category.php
+    # php remove_category.php
         --site_url=<site_url>
-        --origin_category_id=<courseid>
-        --destiny_category_id=<categoryid>
-        --origin_enrolusers=<enrolusers>
-        --destiny_remove_enrols=<destiny_remove_enrols>
-        --destiny_remove_groups=<destiny_remove_groups>
-        --origin_remove_category=<origin_remove_category>
+        --origin_category_id=<origin_category_id>
         --origin_schedule_datetime=<origin_schedule_datetime>
 
     --site_url=<site_url> Origin Site URL (string)
-    --origin_category_id=<courseid> Origin Course ID (int).
-    --destiny_category_id=<courseid> Destiny Course ID (int). (Optional - New Category)
-    --origin_enrolusers=<enrolusers> Origin Enrol users (Boolean).
-    --destiny_remove_enrols=<destiny_remove_enrols> Destiny Remove Enrols (Boolean).
-    --destiny_remove_groups=<destiny_remove_groups> Destiny Remove Groups (Boolean).
-    --origin_remove_category=<origin_remove_category> Origin Remove Category (Boolean).
+    --origin_category_id=<origin_category_id>  Origin Category ID (int).
     --origin_schedule_datetime=<origin_schedule_datetime>  Date in UNIX timestamp (int).
 
 Options:
@@ -63,25 +53,19 @@ Description.
 
 Examples:
 
-    # php local/coursetransfer/restore_category.php
+    # php local/coursetransfer/cli/remove_category.php
         --site_url=https://origen.dominio
         --origin_category_id=12
-        --destiny_category_id=12
-        --origin_enrolusers=true
-        --origin_remove_category=false
         --origin_schedule_datetime=1679404952
 ';
 
 list($options, $unrecognised) = cli_get_params([
-        'help' => false,
-        'site_url' => null,
-        'origin_category_id' => null,
-        'destiny_category_id' => null,
-        'origin_enrolusers' => false,
-        'origin_remove_category' => false,
-        'origin_schedule_datetime' => 0
+    'help' => false,
+    'site_url' => null,
+    'origin_category_id' => null,
+    'origin_schedule_datetime' => 0
 ], [
-        'h' => 'help'
+    'h' => 'help'
 ]);
 
 if ($unrecognised) {
@@ -96,9 +80,6 @@ if ($options['help']) {
 
 $siteurl = $options['site_url'];
 $origincategoryid = !is_null($options['origin_category_id']) ? (int) $options['origin_category_id'] : null;
-$destinycategoryid = !is_null($options['destiny_category_id']) ? (int) $options['destiny_category_id'] : null;
-$originenrolusers = $options['origin_enrolusers'] === 'true' ? 1 : 0;
-$originremovecategory = $options['origin_remove_category'] === 'true' ? 1 : 0;
 $originscheduledatetime = (int) $options['origin_schedule_datetime'];
 
 if (empty($siteurl)) {
@@ -114,51 +95,22 @@ if ( $origincategoryid === null ) {
     exit(128);
 }
 
-if ($destinycategoryid !== null) {
-    try {
-        $category = core_course_category::get($destinycategoryid);
-    } catch (moodle_exception $e) {
-        cli_writeln('300501: ' . $e->getMessage());
-        exit(1);
-    }
-} else {
-    try {
-        $category = core_course_category::create(['name' => get_string('defaultcategoryname')]);
-    } catch (moodle_exception $e) {
-        cli_writeln('300502: ' . $e->getMessage());
-        exit(1);
-    }
-}
-$destinycategoryid = $category->id;
-
-if ( !in_array((int)$originenrolusers, [0, 1])) {
-    cli_writeln( get_string('origin_enrolusers_boolean', 'local_coursetransfer') );
-    exit(128);
-}
-
 $errors = [];
 
 try {
 
-    // 1. Setup Configuration.
-    $configuration = new configuration_category(
-            backup::TARGET_NEW_COURSE, false, false, $originenrolusers,
-            $originremovecategory);
-
     // 2. User Login.
     $user = core_user::get_user_by_username(user::USERNAME_WS);
 
-    // 3. Restore Category.
-    $destiny = core_course_category::get($destinycategoryid);
     $site = coursetransfer::get_site_by_url($siteurl);
-
-    $res = coursetransfer::restore_category($user, $site, $destiny->id, $origincategoryid, $configuration);
+    $res = coursetransfer::remove_category($site, $origincategoryid, $user);
 
     // 4. Success or Errors.
     $errors = array_merge($errors, $res['errors']);
     $success = $res['success'];
     if ($success) {
-        cli_writeln('THE RESTORATION HAS STARTED - VIEW LOG IN: view_log_request.php --requestid=' .
+        // 5a. Rename new course.
+        cli_writeln('THE CATEGORY REMOVE HAS STARTED - VIEW LOG IN: view_log_request.php --requestid=' .
                 $res['data']['requestid']);
         exit(0);
     } else {
@@ -167,8 +119,6 @@ try {
     }
 
 } catch (moodle_exception $e) {
-    cli_writeln('300510: ' . $e->getMessage());
+    cli_writeln('300500: ' . $e->getMessage());
     exit(1);
 }
-
-

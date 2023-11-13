@@ -48,6 +48,7 @@ class new_origin_restore_course_step2_page  extends new_origin_restore_course_st
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        global $USER;
         $data = new stdClass();
         $siteposition = required_param('site', PARAM_INT);
         $data->button = true;
@@ -73,7 +74,7 @@ class new_origin_restore_course_step2_page  extends new_origin_restore_course_st
 
         try {
             $request = new request($site);
-            $res = $request->origin_get_courses();
+            $res = $request->origin_get_courses($USER);
             if ($res->success) {
                 $data->courses = $res->data;
                 $data->haserrors = false;

@@ -60,11 +60,10 @@ class origin_remove_page_step3 implements renderable, templatable {
      *
      * @param renderer_base $output
      * @return stdClass
-     * @throws coding_exception
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-
+        global $USER;
         $data = new stdClass();
         $data->steps = [
                 ['current' => false, 'num' => 1],
@@ -85,7 +84,7 @@ class origin_remove_page_step3 implements renderable, templatable {
         $data->host = $site->host;
         try {
             $request = new request($site);
-            $res = $request->origin_get_courses();
+            $res = $request->origin_get_courses($USER);
             if ($res->success) {
                 $courses = $res->data;
                 $datacourses = [];

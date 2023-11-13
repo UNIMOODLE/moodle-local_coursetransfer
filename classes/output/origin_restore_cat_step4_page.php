@@ -48,6 +48,7 @@ class origin_restore_cat_step4_page extends origin_restore_step_page {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        global $USER;
         $restoreid = required_param('restoreid', PARAM_INT);
         $siteposition = required_param('site', PARAM_RAW);
         $data = new stdClass();
@@ -98,7 +99,7 @@ class origin_restore_cat_step4_page extends origin_restore_step_page {
             $data->haserrors = false;
             try {
                 $request = new request($site);
-                $res = $request->origin_get_category_detail($restoreid);
+                $res = $request->origin_get_category_detail($restoreid, $USER);
                 if ($res->success) {
                     $data->category = $res->data;
                 } else {
@@ -119,6 +120,8 @@ class origin_restore_cat_step4_page extends origin_restore_step_page {
         $data->next_url_disabled = false;
         $data->siteurl = $site->host;
         $data->destinies = $destinies;
+        $data->has_origin_user_data = true;
+        $data->can_remove_origin_course = true;
         return $data;
     }
 }

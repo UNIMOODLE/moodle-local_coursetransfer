@@ -49,6 +49,7 @@ class origin_restore_step4_page extends origin_restore_step_page {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        global $USER;
         $data = new stdClass();
         $data->button = true;
         $data->steps = [
@@ -73,7 +74,7 @@ class origin_restore_step4_page extends origin_restore_step_page {
 
         try {
             $request = new request($site);
-            $res = $request->origin_get_courses();
+            $res = $request->origin_get_courses($USER);
             if ($res->success) {
                 $courses = $res->data;
                 $datacourses = [];

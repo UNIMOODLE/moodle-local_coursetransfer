@@ -64,6 +64,7 @@ class origin_remove_page_cat_step3 implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        global $USER;
         $removeid = required_param('removeid', PARAM_INT);
 
         $data = new stdClass();
@@ -88,7 +89,7 @@ class origin_remove_page_cat_step3 implements renderable, templatable {
             $data->haserrors = false;
             try {
                 $request = new request($site);
-                $res = $request->origin_get_category_detail($removeid);
+                $res = $request->origin_get_category_detail($removeid, $USER);
                 if ($res->success) {
                     $data->category = $res->data;
                 } else {

@@ -79,15 +79,23 @@ define([
                 configuration[config.name] = config.selected;
             });
             let alertbox = this.node.find(".alert");
+            let config = {
+                origin_enrol_users: false,
+                origin_remove_category: false
+            };
+            if (configuration['origin_enrol_users']) {
+                config.origin_enrol_users = configuration['origin_enrol_users'];
+            }
+            if (configuration['origin_remove_category']) {
+                config.origin_remove_category = configuration['origin_remove_category'];
+            }
             const request = {
                 methodname: SERVICES.ORIGIN_RESTORE_STEP4,
                 args: {
                     siteurl: this.site,
                     catid: this.data.catid,
                     destinyid: this.data.destinyid,
-                    configuration: {
-                        origin_enrolusers: configuration['origin_enrolusers']
-                    },
+                    configuration: config,
                 }
             };
             let that = this;

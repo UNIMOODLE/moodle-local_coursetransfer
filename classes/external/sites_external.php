@@ -337,6 +337,7 @@ class sites_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function site_test(string $type, int $id): array {
+        global $USER;
         self::validate_parameters(
                 self::site_test_parameters(),
                 [
@@ -363,7 +364,7 @@ class sites_external extends external_api {
                 if ($type === 'origin') {
                     $site = coursetransfer::get_site_by_position($id);
                     $request = new request($site);
-                    $res = $request->site_origin_test();
+                    $res = $request->site_origin_test($USER);
                     if ($res->success) {
                         $success = true;
                     } else {
@@ -377,7 +378,7 @@ class sites_external extends external_api {
                 } else if ($type === 'destiny') {
                     $site = coursetransfer::get_site_by_position($id, 'destiny');
                     $request = new request($site);
-                    $res = $request->site_destiny_test();
+                    $res = $request->site_destiny_test($USER);
                     if ($res->success) {
                         $success = true;
                     } else {
@@ -451,7 +452,7 @@ class sites_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function origin_test(string $field, string $value, string $destinysite): array {
-
+        global $USER;
         self::validate_parameters(
                 self::origin_test_parameters(), [
                         'field' => $field,
@@ -470,7 +471,7 @@ class sites_external extends external_api {
                 if ($verifydestiny['success']) {
                     $sitedestiny = coursetransfer::get_site_by_url($destinysite);
                     $request = new request($sitedestiny);
-                    $res = $request->site_destiny_test();
+                    $res = $request->site_destiny_test($USER);
                     if ($res->success) {
                         $success = true;
                     } else {

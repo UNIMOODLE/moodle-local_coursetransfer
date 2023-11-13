@@ -60,11 +60,10 @@ class origin_remove_page_cat_step2 implements renderable, templatable {
      *
      * @param renderer_base $output
      * @return stdClass
-     * @throws coding_exception
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-
+        global $USER;
         $data = new stdClass();
         $data->steps = [
                 ['current' => false, 'num' => 1],
@@ -87,7 +86,7 @@ class origin_remove_page_cat_step2 implements renderable, templatable {
         $site = coursetransfer::get_site_by_position($this->site);
         try {
             $request = new request($site);
-            $res = $request->origin_get_categories();
+            $res = $request->origin_get_categories($USER);
             if ($res->success) {
                 $data->categories = $res->data;
                 $data->haserrors = false;
