@@ -31,17 +31,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_coursetransfer\external\destiny_course_callback_external;
-use local_coursetransfer\external\origin_category_external;
-use local_coursetransfer\external\origin_course_backup_external;
-use local_coursetransfer\external\origin_course_external;
-use local_coursetransfer\external\origin_remove_external;
-use local_coursetransfer\external\origin_user_external;
-use local_coursetransfer\external\remove_external;
-use local_coursetransfer\external\restore_category_external;
-use local_coursetransfer\external\restore_course_external;
-use local_coursetransfer\external\restore_external;
-use local_coursetransfer\external\sites_external;
+use local_coursetransfer\external\backend\destiny_course_callback_external;
+use local_coursetransfer\external\backend\origin_category_external;
+use local_coursetransfer\external\backend\origin_course_backup_external;
+use local_coursetransfer\external\backend\origin_course_external;
+use local_coursetransfer\external\backend\origin_user_external;
+use local_coursetransfer\external\backend\remove_external;
+use local_coursetransfer\external\frontend\origin_remove_external;
+use local_coursetransfer\external\frontend\restore_category_external;
+use local_coursetransfer\external\frontend\restore_course_external;
+use local_coursetransfer\external\frontend\restore_external;
+use local_coursetransfer\external\frontend\sites_external;
 
 defined('MOODLE_INTERNAL') || die();
 

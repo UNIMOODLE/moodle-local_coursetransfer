@@ -33,6 +33,9 @@
 
 namespace local_coursetransfer\output;
 
+use local_coursetransfer\output\origin_restore\origin_restore_category_page;
+use local_coursetransfer\output\origin_restore\origin_restore_course_page;
+use local_coursetransfer\output\origin_restore\origin_restore_page;
 use moodle_exception;
 use plugin_renderer_base;
 
@@ -58,6 +61,35 @@ class renderer extends plugin_renderer_base {
         $data = $page->export_for_template($this);
         return parent::render_from_template('local_coursetransfer/index_page', $data);
     }
+
+    /**
+     * Defer to template.
+     *
+     * @param origin_restore_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_origin_restore_page(origin_restore_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/origin_restore/origin_restore_page', $data);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Defer to template.
@@ -176,18 +208,6 @@ class renderer extends plugin_renderer_base {
     public function render_origin_restore_category_page(origin_restore_category_page $page) {
         $data = $page->export_for_template($this);
         return parent::render_from_template('local_coursetransfer/origin_restore_category_page', $data);
-    }
-
-    /**
-     * Defer to template.
-     *
-     * @param origin_restore_page $page
-     * @return bool|string
-     * @throws moodle_exception
-     */
-    public function render_origin_restore_page(origin_restore_page $page) {
-        $data = $page->export_for_template($this);
-        return parent::render_from_template('local_coursetransfer/origin_restore_page', $data);
     }
 
     /**

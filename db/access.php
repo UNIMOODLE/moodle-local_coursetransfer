@@ -35,99 +35,111 @@ defined('MOODLE_INTERNAL') || die;
 
 $capabilities = array(
 
-    'local/coursetransfer:origin_view_courses' => array(
-        'captype' => 'read',
+    //'local/coursetransfer:origin_view_courses' => array(
+    //    'captype' => 'read',
+    //    'contextlevel' => CONTEXT_SYSTEM,
+    //    'archetypes' => array(
+    //        'guest' => CAP_PROHIBIT,
+    //        'manager' => CAP_ALLOW,
+    //        'editingteacher' => CAP_ALLOW,
+    //        'teacher' => CAP_PROHIBIT,
+    //        'student' => CAP_PROHIBIT
+    //    )
+    //),
+
+    'local/coursetransfer:origin_restore' => array(
+        'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
             'guest' => CAP_PROHIBIT,
-            'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_PROHIBIT,
-            'student' => CAP_PROHIBIT
-        )
-    ),
-
-    'local/coursetransfer:origin_restore_course' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'guest' => CAP_PROHIBIT,
-            'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_PROHIBIT,
-            'student' => CAP_PROHIBIT
-        )
-    ),
-
-    'local/coursetransfer:origin_restore_course_users' => array(
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'guest' => CAP_PROHIBIT,
-            'manager' => CAP_ALLOW,
+            'manager' => CAP_PROHIBIT,
             'editingteacher' => CAP_PROHIBIT,
             'teacher' => CAP_PROHIBIT,
             'student' => CAP_PROHIBIT
         )
     ),
 
-    'local/coursetransfer:destiny_restore_content_remove' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'guest' => CAP_PROHIBIT,
-            'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_PROHIBIT,
-            'student' => CAP_PROHIBIT
-        )
-    ),
+    //'local/coursetransfer:origin_restore_course' => array(
+    //    'captype' => 'write',
+    //    'contextlevel' => CONTEXT_COURSE,
+    //    'archetypes' => array(
+    //        'guest' => CAP_PROHIBIT,
+    //        'manager' => CAP_ALLOW,
+    //        'editingteacher' => CAP_ALLOW,
+    //        'teacher' => CAP_PROHIBIT,
+    //        'student' => CAP_PROHIBIT
+    //    )
+    //),
 
-    'local/coursetransfer:destiny_restore_merge' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'guest' => CAP_PROHIBIT,
-            'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_PROHIBIT,
-            'student' => CAP_PROHIBIT
-        )
-    ),
+    //'local/coursetransfer:origin_restore_course_users' => array(
+    //    'captype' => 'read',
+    //    'contextlevel' => CONTEXT_COURSE,
+    //    'archetypes' => array(
+    //        'guest' => CAP_PROHIBIT,
+    //        'manager' => CAP_ALLOW,
+    //        'editingteacher' => CAP_PROHIBIT,
+    //        'teacher' => CAP_PROHIBIT,
+    //        'student' => CAP_PROHIBIT
+    //    )
+    //),
 
-    'local/coursetransfer:destiny_restore_enrol_remove' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'guest' => CAP_PROHIBIT,
-            'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_PROHIBIT,
-            'student' => CAP_PROHIBIT
-        )
-    ),
+    //'local/coursetransfer:destiny_restore_content_remove' => array(
+    //    'captype' => 'write',
+    //    'contextlevel' => CONTEXT_COURSE,
+    //    'archetypes' => array(
+    //        'guest' => CAP_PROHIBIT,
+    //        'manager' => CAP_ALLOW,
+    //        'editingteacher' => CAP_ALLOW,
+    //        'teacher' => CAP_PROHIBIT,
+    //        'student' => CAP_PROHIBIT
+    //    )
+    //),
 
-    'local/coursetransfer:destiny_restore_groups_remove' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'guest' => CAP_PROHIBIT,
-            'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_PROHIBIT,
-            'student' => CAP_PROHIBIT
-        )
-    ),
+    //'local/coursetransfer:destiny_restore_merge' => array(
+    //    'captype' => 'write',
+    //    'contextlevel' => CONTEXT_COURSE,
+    //    'archetypes' => array(
+    //        'guest' => CAP_PROHIBIT,
+    //        'manager' => CAP_ALLOW,
+    //        'editingteacher' => CAP_ALLOW,
+    //        'teacher' => CAP_PROHIBIT,
+    //        'student' => CAP_PROHIBIT
+    //    )
+    //),
 
-    'local/coursetransfer:origin_remove_course' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'guest' => CAP_PROHIBIT,
-            'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_PROHIBIT,
-            'teacher' => CAP_PROHIBIT,
-            'student' => CAP_PROHIBIT
-        )
-    )
+    //'local/coursetransfer:destiny_restore_enrol_remove' => array(
+    //    'captype' => 'write',
+    //    'contextlevel' => CONTEXT_COURSE,
+    //    'archetypes' => array(
+    //        'guest' => CAP_PROHIBIT,
+    //        'manager' => CAP_ALLOW,
+    //        'editingteacher' => CAP_ALLOW,
+    //        'teacher' => CAP_PROHIBIT,
+    //        'student' => CAP_PROHIBIT
+    //    )
+    //),
+
+    //'local/coursetransfer:destiny_restore_groups_remove' => array(
+    //    'captype' => 'write',
+    //    'contextlevel' => CONTEXT_COURSE,
+    //    'archetypes' => array(
+    //        'guest' => CAP_PROHIBIT,
+    //        'manager' => CAP_ALLOW,
+    //        'editingteacher' => CAP_ALLOW,
+    //        'teacher' => CAP_PROHIBIT,
+    //        'student' => CAP_PROHIBIT
+    //    )
+    //),
+
+    //'local/coursetransfer:origin_remove_course' => array(
+    //    'captype' => 'write',
+    //    'contextlevel' => CONTEXT_COURSE,
+    //    'archetypes' => array(
+    //        'guest' => CAP_PROHIBIT,
+    //        'manager' => CAP_ALLOW,
+    //        'editingteacher' => CAP_PROHIBIT,
+    //        'teacher' => CAP_PROHIBIT,
+    //        'student' => CAP_PROHIBIT
+    //    )
+    //)
 );

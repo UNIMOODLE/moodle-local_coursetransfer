@@ -54,7 +54,7 @@ require_once($CFG->libdir . '/filelib.php');
  */
 class request {
 
-    const TIMEOUT = 1;
+    const TIMEOUT = 20;
 
     /** @var string Host */
     public $host;
@@ -326,7 +326,6 @@ class request {
         $response = curl_exec($curl);
         try {
             $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
-            var_dump($response);
             curl_close($curl);
             if (isset($response->success) && isset($response->errors)) {
                 $data = isset($response->data) ? $response->data : null;

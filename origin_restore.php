@@ -31,6 +31,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_coursetransfer\output\origin_restore\origin_restore_cat_step2_page;
+use local_coursetransfer\output\origin_restore\origin_restore_cat_step3_page;
+use local_coursetransfer\output\origin_restore\origin_restore_cat_step4_page;
+use local_coursetransfer\output\origin_restore\origin_restore_page;
+use local_coursetransfer\output\origin_restore\origin_restore_step2_page;
+use local_coursetransfer\output\origin_restore\origin_restore_step3_page;
+use local_coursetransfer\output\origin_restore\origin_restore_step4_page;
+
 require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $USER;
@@ -49,34 +57,43 @@ $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
 
-$step = optional_param('step', null, PARAM_INT);
-switch ($step) {
-    case 2:
-        $type = required_param('type', PARAM_TEXT);
-        if ($type === 'categories') {
-            $page = new \local_coursetransfer\output\origin_restore_cat_step2_page();
-        } else {
-            $page = new \local_coursetransfer\output\origin_restore_step2_page();
-        }
-        break;
-    case 3:
-        $type = required_param('type', PARAM_TEXT);
-        if ($type === 'categories') {
-            $page = new \local_coursetransfer\output\origin_restore_cat_step3_page();
-        } else {
-            $page = new \local_coursetransfer\output\origin_restore_step3_page();
-        }
-        break;
-    case 4:
-        $type = required_param('type', PARAM_TEXT);
-        if ($type === 'categories') {
-            $page = new \local_coursetransfer\output\origin_restore_cat_step4_page();
-        } else {
-            $page = new \local_coursetransfer\output\origin_restore_step4_page();
-        }
-        break;
-    default:
-        $page = new \local_coursetransfer\output\origin_restore_page();
+if (has_capability('local/coursetransfer:origin_restore', context_system::instance())) {
+    $step = optional_param('step', null, PARAM_INT);
+    switch ($step) {
+        case 2:
+            $type = required_param('type', PARAM_TEXT);
+            if ($type === 'categories') {
+                $page = new origin_restore_cat_step2_page();
+            } else {
+                $page = new origin_restore_step2_page();
+            }
+            break;
+        case 3:
+            $type = required_param('type', PARAM_TEXT);
+            if ($type === 'categories') {
+                $page = new origin_restore_cat_step3_page();
+            } else {
+                $page = new origin_restore_step3_page();
+            }
+            break;
+        case 4:
+            $type = required_param('type', PARAM_TEXT);
+            if ($type === 'categories') {
+                $page = new origin_restore_cat_step4_page();
+            } else {
+                $page = new origin_restore_step4_page();
+            }
+            break;
+        default:
+            $page = new origin_restore_page();
+    }
+} else {
+    $page = new \local_coursetransfer\output\error_page(
+            get_string('forbidden', 'local_coursetransfer'),
+            get_string('you_have_not_permission', 'local_coursetransfer'),
+            'danger',
+            get_string('error')
+    );
 }
 
 echo $output->render($page);

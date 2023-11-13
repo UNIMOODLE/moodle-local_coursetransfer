@@ -31,7 +31,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_coursetransfer\external;
+namespace local_coursetransfer\external\backend;
 
 use core_course_category;
 use external_api;

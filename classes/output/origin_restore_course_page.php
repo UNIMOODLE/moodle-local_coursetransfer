@@ -31,7 +31,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_coursetransfer\output;
+namespace local_coursetransfer\output\origin_restore;
 
 use coding_exception;
 use local_coursetransfer\coursetransfer_request;

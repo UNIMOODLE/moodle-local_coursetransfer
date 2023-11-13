@@ -31,7 +31,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_coursetransfer\external;
+namespace local_coursetransfer\external\frontend;
 
 use core_course_category;
 use external_api;
@@ -229,8 +229,7 @@ class restore_external extends external_api {
                 $config = new configuration_course(
                     $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups'],
                     $configuration['origin_enrol_users'], $configuration['origin_remove_course']);
-                $res = coursetransfer::restore_course(
-                        $USER->id, $site, $destinycourseid, $course['courseid'], $config, []);
+                $res = coursetransfer::restore_course($USER, $site, $destinycourseid, $course['courseid'], $config, []);
                 if (!$res['success']) {
                     $errors = $res['errors'];
                 } else {

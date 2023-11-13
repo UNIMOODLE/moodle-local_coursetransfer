@@ -31,15 +31,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_coursetransfer\output;
+namespace local_coursetransfer\output\origin_restore;
 
+use local_coursetransfer\api\request;
+use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use moodle_url;
 use renderer_base;
 use stdClass;
 
 /**
- * origin_restore_step3_page
+ * origin_restore_cat_step4_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -47,7 +49,7 @@ use stdClass;
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_step3_page extends origin_restore_step_page {
+class origin_restore_cat_step4_page extends origin_restore_step_page {
 
     /**
      * Export for Template.
@@ -57,25 +59,78 @@ class origin_restore_step3_page extends origin_restore_step_page {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        global $USER;
+        $restoreid = required_param('restoreid', PARAM_INT);
+        $siteposition = required_param('site', PARAM_RAW);
         $data = new stdClass();
         $data->button = true;
         $data->steps = [
                 ['current' => false, 'num' => 1],
                 ['current' => false,  'num' => 2],
-                ['current' => true, 'num' => 3],
-                ['current' => false, 'num' => 4]
+                ['current' => false, 'num' => 3],
+                ['current' => true, 'num' => 4]
         ];
         $tableurl = new moodle_url(self::URL);
         $backurl = new moodle_url(self::URL,
-                ['step' => 2, 'site' => $this->site, 'type' => 'courses']
+                ['step' => 3, 'site' => $this->site, 'type' => 'categories', 'restoreid' => $restoreid]
         );
         $nexturl = new moodle_url(self::URL,
-            ['step' => 4, 'site' => $this->site, 'type' => 'courses']
+            ['step' => 5, 'site' => $this->site, 'type' => 'categories']
         );
         $data->table_url = $tableurl->out(false);
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
+        $site = coursetransfer::get_site_by_position($this->site);
+        $data->siteposition = $siteposition;
+        $cats = \core_course_category::get_all();
+        $destinies = [];
+        foreach ($cats as $cat) {
+            $des = new stdClass();
+            $des->id = $cat->id;
+            $name = '';
+            $parents = $cat->get_parents();
+            foreach ($parents as $parent) {
+                $catp = \core_course_category::get($parent);
+                if ($name !== '') {
+                    $name .= ' > ' . $catp->name;
+                } else {
+                    $name .= $catp->name;
+                }
+            }
+            if ($name !== '') {
+                $name .= ' > ' . $cat->name;
+            } else {
+                $name .= $cat->name;
+            }
+            $des->name = $name;
+            $des->idnumber = $cat->idnumber;
+            $destinies[] = $des;
+        }
+        if (coursetransfer::validate_origin_site($site->host)) {
+            $data->haserrors = false;
+            try {
+                $request = new request($site);
+                $res = $request->origin_get_category_detail($restoreid, $USER);
+                if ($res->success) {
+                    $data->category = $res->data;
+                } else {
+                    $data->errors = $res->errors;
+                    $data->haserrors = true;
+                }
+            } catch (moodle_exception $e) {
+                $data->errors = ['code' => '200110', 'msg' => $e->getMessage()];
+                $data->haserrors = true;
+            }
+        } else {
+            $data->haserrors = true;
+            $errors[] = ['code' => '200111',
+                    'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $data->errors = $errors;
+        }
+        $data->button = true;
         $data->next_url_disabled = false;
+        $data->siteurl = $site->host;
+        $data->destinies = $destinies;
         $data->has_origin_user_data = true;
         $data->can_remove_origin_course = true;
         return $data;

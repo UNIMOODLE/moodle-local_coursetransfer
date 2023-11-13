@@ -1,0 +1,52 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/error_page
+
+  Example context (json):
+
+}}
+<div data-region="local_coursetransfer_error_page">
+    <div class="card text-center mt-6" style="width: 18rem;">
+        <div class="card-body">
+            <h5 class="card-title">{{ title }}</h5>
+            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            <p class="card-text">{{ msg }}</p>
+            <span class="btn btn-{{ level }}">{{ levelstr }}</span>
+        </div>
+    </div>
+</div>
+<style>
+    [data-region="local_coursetransfer_error_page"] {
+        display: flex;
+        justify-content: center;
+        align-content: center;
+    }
+    [data-region="local_coursetransfer_error_page"] i.fa.fa-exclamation-triangle {
+        font-size: 38px;
+        margin-bottom: 10px;
+        margin-top: 5px;
+        color: orange;
+    }
+</style>

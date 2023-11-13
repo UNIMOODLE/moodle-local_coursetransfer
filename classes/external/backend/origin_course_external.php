@@ -31,7 +31,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_coursetransfer\external;
+namespace local_coursetransfer\external\backend;
 
 use core_course_category;
 use external_api;
@@ -42,6 +42,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
+use moodle_url;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -51,7 +52,7 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
-class origin_categories_external extends external_api {
+class origin_course_external extends external_api {
     /**
      * @return external_function_parameters
      */
@@ -89,11 +90,13 @@ class origin_categories_external extends external_api {
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
-                $res = $authres['data'];
-                $courses = enrol_get_users_courses($res->id);
+                $user = $authres['data'];
+                $courses = coursetransfer::get_courses_user($user);
                 foreach ($courses as $course) {
+                    $url = new moodle_url('/course/view.php', ['id' => $course->id]);
                     $item = new stdClass();
                     $item->id = $course->id;
+                    $item->url = $url->out(false);
                     $item->fullname = $course->fullname;
                     $item->shortname = $course->shortname;
                     $item->idnumber = $course->idnumber;
@@ -110,7 +113,7 @@ class origin_categories_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '200021',
+                    'code' => '200061',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -138,6 +141,7 @@ class origin_categories_external extends external_api {
                 'data' => new external_multiple_structure(new external_single_structure(
                     array(
                         'id' => new external_value(PARAM_INT, 'Course ID'),
+                        'url' => new external_value(PARAM_RAW, 'URL', VALUE_OPTIONAL),
                         'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
                         'shortname' => new external_value(PARAM_TEXT, 'Shortname', VALUE_OPTIONAL),
                         'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
@@ -212,7 +216,7 @@ class origin_categories_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '200022',
+                    'code' => 200062,
                     'msg' => $e->getMessage()
                 ];
         }

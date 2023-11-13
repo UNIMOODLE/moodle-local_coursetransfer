@@ -31,17 +31,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_coursetransfer\output;
+namespace local_coursetransfer\output\origin_restore;
 
-use local_coursetransfer\api\request;
-use local_coursetransfer\coursetransfer;
-use moodle_exception;
+use local_coursetransfer\forms\origin_restore_form;
 use moodle_url;
+use renderable;
 use renderer_base;
 use stdClass;
+use templatable;
 
 /**
- * origin_restore_cat_step2_page
+ * origin_restore_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -49,52 +49,25 @@ use stdClass;
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_cat_step2_page extends origin_restore_step_page {
+class origin_restore_page implements renderable, templatable {
+
+    const PAGE = '/local/coursetransfer/origin_restore.php';
 
     /**
      * Export for Template.
      *
      * @param renderer_base $output
      * @return stdClass
-     * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        global $USER;
+        $url = new moodle_url(self::PAGE);
+        $form = new origin_restore_form($url->out(false));
         $data = new stdClass();
         $data->button = true;
-        $data->steps = [
-                ['current' => false, 'num' => 1],
-                ['current' => true,  'num' => 2],
-                ['current' => false, 'num' => 3],
-                ['current' => false, 'num' => 4]
-        ];
-        $backurl = new moodle_url(self::URL);
-        $nexturl = new moodle_url(self::URL,
-            ['step' => 3, 'site' => $this->site, 'type' => 'categories']
-        );
-        $data->table_url = $backurl->out(false);
-        $data->back_url = $backurl->out(false);
-        $data->next_url = $nexturl->out(false);
-        $site = coursetransfer::get_site_by_position($this->site);
-        $data->host = $site->host;
-
-        try {
-            $request = new request($site);
-            $res = $request->origin_get_categories($USER);
-            if ($res->success) {
-                $data->categories = $res->data;
-                $data->haserrors = false;
-            } else {
-                $data->errors = $res->errors;
-                $data->haserrors = true;
-            }
-        } catch (moodle_exception $e) {
-            $data->errors = ['code' => '200100', 'msg' => $e->getMessage()];
-            $data->haserrors = true;
-        }
-        $data->button = true;
-        $data->next_url_disabled = true;
-        $data->siteurl = $site->host;
+        $data->new_url = $url->out(false);
+        $data->steps = origin_restore_step_page::get_steps(1);
+        $data->form = $form->render();
         return $data;
     }
+
 }

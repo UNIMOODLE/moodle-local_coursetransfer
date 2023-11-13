@@ -41,6 +41,7 @@ use cm_info;
 use coding_exception;
 use context_course;
 use core_course_category;
+use core_user;
 use course_modinfo;
 use dml_exception;
 use local_coursetransfer\api\request;
@@ -184,29 +185,16 @@ class coursetransfer {
      */
     public static function auth_user(string $field, string $value): array {
         global $DB;
-
         if (in_array($field, self::FIELDS_USER)) {
             $res = $DB->get_record('user', [$field => $value]);
             if ($res) {
-                if ($res->username === user::USERNAME_WS) {
-                    $hascourse = true;
-                } else {
-                    $courses = enrol_get_users_courses($res->id);
-                    $hascourse = false;
-                    foreach ($courses as $course) {
-                        $context = \context_course::instance($course->id);
-                        if (has_capability('moodle/backup:backupcourse', $context, $res->id)) {
-                            $hascourse = true;
-                            break;
-                        }
-                    }
-                }
-
+                $user = core_user::get_user($res->id);
+                $hascourse = self::has_course($user);
                 if ($hascourse) {
                     return
                         [
                             'success' => true,
-                            'data' => $res,
+                            'data' => $user,
                             'error' =>
                                 [
                                     'code' => '',
@@ -220,7 +208,7 @@ class coursetransfer {
                             'data' => new stdClass(),
                             'error' =>
                                 [
-                                    'code' => '200310',
+                                    'code' => 'RCEP1-0003',
                                     'msg' => get_string('user_does_not_have_courses', 'local_coursetransfer')
                                 ]
                         ];
@@ -233,7 +221,7 @@ class coursetransfer {
                         'data' => new stdClass(),
                         'error' =>
                             [
-                                'code' => '200311',
+                                'code' => 'RCEP1-0002',
                                 'msg' => get_string('user_not_found', 'local_coursetransfer')
                             ]
                     ];
@@ -246,7 +234,7 @@ class coursetransfer {
                     'data' => new stdClass(),
                     'error' =>
                         [
-                            'code' => '200312',
+                            'code' => 'RCEP1-0001',
                             'msg' => get_string('field_not_valid', 'local_coursetransfer')
                         ]
                 ];
@@ -1041,6 +1029,7 @@ class coursetransfer {
         role::add_capability($roleid, 'moodle/category:viewcourselist');
         role::add_capability($roleid, 'moodle/course:view');
         role::add_capability($roleid, 'moodle/course:create');
+        role::add_capability($roleid, 'moodle/course:viewhiddencourses');
         role::add_capability($roleid, 'moodle/backup:backuptargetimport');
         role::add_capability($roleid, 'moodle/backup:backupcourse');
         role::add_capability($roleid, 'moodle/backup:backupactivity');
@@ -1069,6 +1058,45 @@ class coursetransfer {
         // 4. Create Token.
         return user::create_token($userid);
 
+    }
+
+    /**
+     * Has course?
+     *
+     * @param stdClass $user
+     * @return bool
+     * @throws coding_exception
+     */
+    public static function has_course(stdClass $user): bool {
+        $hascourse = false;
+        $cs = enrol_get_all_users_courses($user->id);
+        foreach ($cs as $course) {
+            $context = \context_course::instance($course->id);
+            if (has_capability('moodle/backup:backupcourse', $context, $user->id)) {
+                $hascourse = true;
+                break;
+            }
+        }
+        return $hascourse;
+    }
+
+    /**
+     * Get Courses User.
+     *
+     * @param stdClass $user
+     * @return array
+     * @throws coding_exception
+     */
+    public static function get_courses_user(stdClass $user): array {
+        $courses = [];
+        $cs = enrol_get_all_users_courses($user->id);
+        foreach ($cs as $course) {
+            $context = \context_course::instance($course->id);
+            if (has_capability('moodle/backup:backupcourse', $context, $user->id)) {
+                $courses[] = $course;
+            }
+        }
+        return $courses;
     }
 
 }

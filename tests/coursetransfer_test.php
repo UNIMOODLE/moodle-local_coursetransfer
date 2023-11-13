@@ -123,7 +123,6 @@ class coursetransfer_test extends advanced_testcase {
      * @throws moodle_exception
      */
     public function test_restore_course() {
-        global $CFG;
         $destinytarget = 2;
         $destinyremoveenrols = false;
         $destinyremovegroups = false;
@@ -138,7 +137,7 @@ class coursetransfer_test extends advanced_testcase {
         $configuration = new configuration_course(
                 $destinytarget, $destinyremoveenrols, $destinyremovegroups, $originenrolusers,
                 $originremovecourse, $destinynotremoveactivities);
-        $res = coursetransfer::restore_course($this->user->id, $site, $destinycourseid, $origincourseid, $configuration);
+        $res = coursetransfer::restore_course($this->user, $site, $destinycourseid, $origincourseid, $configuration);
 
         var_dump($res);
 

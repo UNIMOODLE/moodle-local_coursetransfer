@@ -31,7 +31,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_coursetransfer\external;
+namespace local_coursetransfer\external\frontend;
 
 use external_api;
 use external_function_parameters;
@@ -41,7 +41,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
-use local_coursetransfer\models\configuration_course;
+use local_coursetransfer\models\configuration_category;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -53,16 +53,16 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
-class restore_course_external extends external_api {
+class restore_category_external extends external_api {
 
     /**
      * @return external_function_parameters
      */
-    public static function new_origin_restore_course_step1_parameters(): external_function_parameters {
+    public static function new_origin_restore_category_step1_parameters(): external_function_parameters {
         return new external_function_parameters(
             array(
                 'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                'courseid' => new external_value(PARAM_INT, 'Course ID')
+                'categoryid' => new external_value(PARAM_INT, 'Category ID')
             )
         );
     }
@@ -71,19 +71,19 @@ class restore_course_external extends external_api {
      *
      *
      * @param int $siteurl
-     * @param int $courseid
+     * @param int $categoryid
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function new_origin_restore_course_step1(int $siteurl, int $courseid): array {
+    public static function new_origin_restore_category_step1(int $siteurl, int $categoryid): array {
         global $USER;
         self::validate_parameters(
-            self::new_origin_restore_course_step1_parameters(),
+            self::new_origin_restore_category_step1_parameters(),
             [
                 'siteurl' => $siteurl,
-                'courseid' => $courseid
+                'categoryid' => $categoryid
             ]
         );
 
@@ -104,18 +104,18 @@ class restore_course_external extends external_api {
             if ($res->success) {
                 $data = $res->data;
                 $nexturl = new moodle_url(
-                    '/local/coursetransfer/origin_restore_course.php',
-                    ['id' => $courseid, 'new' => 1, 'step' => 2, 'site' => $siteurl]
+                    '/local/coursetransfer/origin_restore_category.php',
+                    ['id' => $categoryid, 'new' => 1, 'step' => 2, 'site' => $siteurl]
                 );
                 $data->nexturl = $nexturl->out(false);
                 $success = true;
             } else {
-                $errors = $res->errors;
+                $errors[] = $res->errors;
             }
         } catch (moodle_exception $e) {
             $errors[] =
                 [
-                    'code' => '200091',
+                    'code' => '200081',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -130,14 +130,14 @@ class restore_course_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function new_origin_restore_course_step1_returns(): external_single_structure {
+    public static function new_origin_restore_category_step1_returns(): external_single_structure {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
                     array(
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_RAW, 'Message')
+                        'msg' => new external_value(PARAM_TEXT, 'Message')
                     )
                 )),
                 'data' => new external_single_structure(
@@ -157,120 +157,95 @@ class restore_course_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function new_origin_restore_course_step5_parameters(): external_function_parameters {
+    public static function new_origin_restore_category_step4_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
-                'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                'courseid' => new external_value(PARAM_INT, 'Course ID'),
-                'destinyid' => new external_value(PARAM_INT, 'Destiny ID'),
-                'configuration' => new external_single_structure(
-                    array(
-                        'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
-                        'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
-                        'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
-                        'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities')
-                    )
-                ),
-                'sections' => new external_multiple_structure(new external_single_structure(
-                    array(
-                        'sectionnum' => new external_value(PARAM_INT, 'Section Number'),
-                        'sectionid' => new external_value(PARAM_INT, 'Section ID'),
-                        'sectionname' => new external_value(PARAM_TEXT, 'Section Name'),
-                        'selected' => new external_value(PARAM_BOOL, 'Selected'),
-                        'activities' => new external_multiple_structure(new external_single_structure(
-                            array(
-                                'cmid' => new external_value(PARAM_INT, 'CMID'),
-                                'name' => new external_value(PARAM_TEXT, 'Name'),
-                                'instance' => new external_value(PARAM_INT, 'Instance ID'),
-                                'modname' => new external_value(PARAM_TEXT, 'Module Name'),
-                                'selected' => new external_value(PARAM_BOOL, 'Selected'),
-                            )
+                array(
+                        'siteurl' => new external_value(PARAM_INT, 'Site Url'),
+                        'categoryid' => new external_value(PARAM_INT, 'Category ID'),
+                        'destinyid' => new external_value(PARAM_INT, 'Category Destiny ID'),
+                        'courses' => new external_multiple_structure(new external_single_structure(
+                                array(
+                                        'id' => new external_value(PARAM_INT, 'Course ID'),
+                                )
                         ))
-                    )
-                ))
-            )
+                )
         );
     }
 
     /**
      *
-     *
      * @param int $siteurl
-     * @param int $courseid
+     * @param int $categoryid
      * @param int $destinyid
-     * @param array $configuration
-     * @param array $sections
-     *
+     * @param array $courses
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function new_origin_restore_course_step5(int $siteurl, int $courseid, int $destinyid,
-                                                           array $configuration, array $sections): array {
+    public static function new_origin_restore_category_step4(
+            int $siteurl, int $categoryid, int $destinyid, array $courses): array {
 
         global $USER;
+
         self::validate_parameters(
-            self::new_origin_restore_course_step5_parameters(),
-            [
-                'siteurl' => $siteurl,
-                'courseid' => $courseid,
-                'destinyid' => $destinyid,
-                'configuration' => $configuration,
-                'sections' => $sections
-            ]
+                self::new_origin_restore_category_step4_parameters(),
+                [
+                        'siteurl' => $siteurl,
+                        'categoryid' => $categoryid,
+                        'destinyid' => $destinyid,
+                        'courses' => $courses
+                ]
         );
 
         $success = false;
         $errors = [];
         $data = new stdClass();
-        $nexturl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $destinyid]);
+        $nexturl = new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $destinyid]);
         $data->nexturl = $nexturl->out(false);
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
-            $target = $configuration['destiny_merge_activities'] ?
-                    \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
-            $configuration = new configuration_course(
-                    $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups']);
-            $res = coursetransfer::restore_course($USER->id, $site, $destinyid, $courseid, $configuration, $sections);
+            $configuration = new configuration_category(
+                    \backup::TARGET_NEW_COURSE, false, false);
+            $res = coursetransfer::restore_category($USER, $site, $destinyid, $categoryid, $configuration, $courses);
+            $errors = array_merge($errors, $res['errors']);
             $success = $res['success'];
-            if (!$success) {
-                $errors = $res['errors'];
-            }
+
         } catch (moodle_exception $e) {
             $errors[] =
-                [
-                    'code' => '200092',
-                    'msg' => $e->getMessage()
-                ];
+                    [
+                            'code' => '030363',
+                            'msg' => $e->getMessage()
+                    ];
         }
 
         return [
-            'success' => $success,
-            'errors' => $errors,
-            'data' => $data
+                'success' => $success,
+                'errors' => $errors,
+                'data' => $data
         ];
     }
 
     /**
      * @return external_single_structure
      */
-    public static function new_origin_restore_course_step5_returns(): external_single_structure {
+    public static function new_origin_restore_category_step4_returns(): external_single_structure {
         return new external_single_structure(
-            array(
-                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                'data' => new external_single_structure(
-                        array(
-                                'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#')
-                        )
-                ),
-                'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
-                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_RAW, 'Message')
-                    )
-                ))
-            )
+                array(
+                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                        'data' => new external_single_structure(
+                                array(
+                                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
+                                )
+                        ),
+                        'errors' => new external_multiple_structure(new external_single_structure(
+                                array(
+                                        'code' => new external_value(PARAM_TEXT, 'Code'),
+                                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                                )
+                        ))
+                )
         );
     }
+
 };

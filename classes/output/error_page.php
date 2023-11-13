@@ -34,13 +34,16 @@
 namespace local_coursetransfer\output;
 
 use coding_exception;
+use local_coursetransfer\tables\sites_table;
+use moodle_exception;
+use moodle_url;
 use renderable;
 use renderer_base;
 use stdClass;
 use templatable;
 
 /**
- * origin_restore_step_page
+ * error_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -48,21 +51,35 @@ use templatable;
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_restore_step_page implements renderable, templatable {
+class error_page implements renderable, templatable {
 
-    const URL = '/local/coursetransfer/origin_restore.php';
+    /** @var string Title */
+    protected $title;
 
-    /** @var int Site */
-    protected $site;
+    /** @var string Message Error */
+    protected $msg;
+
+    /** @var string Level - danger, warning, info ... */
+    protected $level;
+
+    /** @var string Level */
+    protected $levelstr;
 
     /**
-     *  constructor.
+     * constructor.
      *
-     * @throws coding_exception
+     * @param string $title
+     * @param string $msg
+     * @param string $level
+     * @param string $levelstr
      */
-    public function __construct() {
-        $this->site = required_param('site', PARAM_INT);
+    public function __construct(string $title, string $msg, string $level, string $levelstr) {
+        $this->msg = $msg;
+        $this->title = $title;
+        $this->level = $level;
+        $this->levelstr = $levelstr;
     }
+
 
     /**
      * Export for Template.
@@ -71,6 +88,11 @@ class origin_restore_step_page implements renderable, templatable {
      * @return stdClass
      */
     public function export_for_template(renderer_base $output): stdClass {
-        return new stdClass();
+        $data = new stdClass();
+        $data->title = $this->title;
+        $data->msg = $this->msg;
+        $data->level = $this->level;
+        $data->levelstr = $this->levelstr;
+        return $data;
     }
 }
