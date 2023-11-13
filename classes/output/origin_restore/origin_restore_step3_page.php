@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\output\origin_restore;
 
+use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use moodle_url;
 use renderer_base;
@@ -57,6 +58,7 @@ class origin_restore_step3_page extends origin_restore_step_page {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        global $USER;
         $data = new stdClass();
         $data->button = true;
         $data->steps = self::get_steps(3);
@@ -71,8 +73,12 @@ class origin_restore_step3_page extends origin_restore_step_page {
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $data->next_url_disabled = false;
-        $data->has_origin_user_data = true;
-        $data->can_remove_origin_course = true;
+        $data->has_origin_user_data = coursetransfer::has_origin_user_data($USER);
+        $data->can_remove_origin_course = coursetransfer::can_remove_origin_course($USER);
+        $data->can_destiny_restore_merge = coursetransfer::can_destiny_restore_merge($USER);
+        $data->can_destiny_restore_content_remove = coursetransfer::can_destiny_restore_content_remove($USER);
+        $data->can_destiny_restore_groups_remove = coursetransfer::can_destiny_restore_groups_remove($USER);
+        $data->can_destiny_restore_enrol_remove = coursetransfer::can_destiny_restore_enrol_remove($USER);
         return $data;
     }
 }

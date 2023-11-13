@@ -62,13 +62,7 @@ class origin_restore_cat_step2_page extends origin_restore_step_page {
         global $USER;
         $data = new stdClass();
         $data->button = true;
-        $data->steps = [
-                ['current' => false, 'num' => 1],
-                ['current' => true,  'num' => 2],
-                ['current' => false, 'num' => 3],
-                ['current' => false, 'num' => 4]
-        ];
-        $data->steps = self::get_steps(3);
+        $data->steps = self::get_steps(2);
         $backurl = new moodle_url(self::URL);
         $nexturl = new moodle_url(self::URL,
             ['step' => 3, 'site' => $this->site, 'type' => 'categories']
@@ -78,25 +72,31 @@ class origin_restore_cat_step2_page extends origin_restore_step_page {
         $data->next_url = $nexturl->out(false);
         $site = coursetransfer::get_site_by_position($this->site);
         $data->host = $site->host;
-
-        try {
-            $request = new request($site);
-            $res = $request->origin_get_categories($USER);
-            if ($res->success) {
-                $data->categories = $res->data;
-                $data->haserrors = false;
-            } else {
-                $data->errors = $res->errors;
+        $context = \context_system::instance();
+        if (has_capability('local/coursetransfer:origin_view_courses', $context)) {
+            try {
+                $request = new request($site);
+                $res = $request->origin_get_categories($USER);
+                if ($res->success) {
+                    $data->categories = $res->data;
+                    $data->haserrors = false;
+                } else {
+                    $data->errors = $res->errors;
+                    $data->haserrors = true;
+                }
+            } catch (moodle_exception $e) {
+                $data->errors = ['code' => '41002', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
-        } catch (moodle_exception $e) {
-            $data->errors = ['code' => '200100', 'msg' => $e->getMessage()];
+        } else {
+            $data->errors = [
+                    'code' => '41001',
+                    'msg' => get_string('you_have_not_permission', 'local_coursetransfer')];
             $data->haserrors = true;
         }
         $data->button = true;
         $data->next_url_disabled = true;
         $data->siteurl = $site->host;
-        var_dump($data->steps);
         return $data;
     }
 }

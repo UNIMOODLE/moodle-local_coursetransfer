@@ -148,7 +148,10 @@ class origin_course_backup_external extends external_api {
                 $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
                 if ($verifydestiny['success']) {
                     if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id))) {
-                        $res = $authres['data'];
+                        $user = $authres['data'];
+                        $cat = core_course_category::get($course->category);
+
+                        // Create Request Object.
                         $object = new stdClass();
                         $object->type = coursetransfer_request::TYPE_COURSE;
                         $object->siteurl = $destinysite;
@@ -159,15 +162,15 @@ class origin_course_backup_external extends external_api {
                         $object->origin_course_fullname = $course->fullname;
                         $object->origin_course_shortname = $course->shortname;
                         $object->origin_category_id = $course->category;
-                        $cat = core_course_category::get($course->category);
                         $object->origin_category_idnumber = $cat->idnumber;
                         $object->origin_category_name = $cat->name;
-
                         $object->origin_enrolusers = $configuration['origin_enrol_users'];
+                        $object->origin_remove_course = $configuration['origin_remove_course'];
+                        $object->origin_remove_category = null;
                         $object->origin_schedule_datetime = null;
                         $object->origin_remove_activities = 0;
-
                         $object->origin_activities = json_encode($sections);
+                        $object->origin_category_requests = null;
                         $object->origin_backup_size = null;
                         $object->origin_backup_size_estimated = coursetransfer::get_backup_size_estimated($course->id);
                         $object->origin_backup_url = null;
@@ -175,34 +178,32 @@ class origin_course_backup_external extends external_api {
                         $object->destiny_category_id = null;
                         $object->destiny_remove_enrols = $configuration['destiny_remove_enrols'];
                         $object->destiny_remove_groups = $configuration['destiny_remove_groups'];
-                        $object->origin_remove_course = $configuration['origin_remove_course'];
                         $object->destiny_target = $configuration['destiny_target'];
-
                         $object->error_code = null;
                         $object->error_message = null;
-
-                        $object->userid = $res->id;
+                        $object->userid = $user->id;
                         $object->status = coursetransfer_request::STATUS_IN_PROGRESS;
 
                         $requestoriginid = coursetransfer_request::insert_or_update($object);
+
                         coursetransfer::create_task_backup_course(
-                                $course->id, $res->id, $verifydestiny['data'], $requestid, $requestoriginid, $sections,
+                                $course->id, $user->id, $verifydestiny['data'], $requestid, $requestoriginid, $sections,
                                 $configuration['origin_enrol_users']);
+
                         $data->origin_backup_size_estimated = $object->origin_backup_size_estimated;
                         $data->request_origin_id = $requestoriginid;
                         $data->course_fullname = $course->fullname;
                         $data->course_shortname = $course->shortname;
                         $data->course_idnumber = $course->idnumber;
                         $data->course_category_id = $course->category;
-                        $category = core_course_category::get($course->category);
-                        $data->course_category_name = $category->name;
-                        $data->course_category_idnumber = $category->idnumber;
+                        $data->course_category_name = $cat->name;
+                        $data->course_category_idnumber = $cat->idnumber;
                         $success = true;
                     } else {
                         $success = false;
                         $errors[] =
                                 [
-                                        'code' => '200052',
+                                        'code' => '130002',
                                         'msg' => 'USER HAS NOT CAPABILITY'
                                 ];
                     }
@@ -218,7 +219,7 @@ class origin_course_backup_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '200051',
+                    'code' => '130001',
                     'msg' => $e->getMessage()
                 ];
         }

@@ -32,6 +32,14 @@
  */
 
 use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\output\logs\logs_category_remove_request_page;
+use local_coursetransfer\output\logs\logs_category_remove_response_page;
+use local_coursetransfer\output\logs\logs_category_request_page;
+use local_coursetransfer\output\logs\logs_category_response_page;
+use local_coursetransfer\output\logs\logs_course_remove_request_page;
+use local_coursetransfer\output\logs\logs_course_remove_response_page;
+use local_coursetransfer\output\logs\logs_course_request_page;
+use local_coursetransfer\output\logs\logs_course_response_page;
 
 require_once('../../config.php');
 
@@ -57,30 +65,30 @@ echo $OUTPUT->header();
 switch ($type) {
     case coursetransfer_request::TYPE_COURSE:
         if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
-            $page = new \local_coursetransfer\output\logs_course_request_page();
+            $page = new logs_course_request_page();
         } else {
-            $page = new \local_coursetransfer\output\logs_course_response_page();
+            $page = new logs_course_response_page();
         }
         break;
     case coursetransfer_request::TYPE_CATEGORY:
         if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
-            $page = new \local_coursetransfer\output\logs_category_request_page();
+            $page = new logs_category_request_page();
         } else {
-            $page = new \local_coursetransfer\output\logs_category_response_page();
+            $page = new logs_category_response_page();
         }
         break;
     case coursetransfer_request::TYPE_REMOVE_COURSE:
         if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
-            $page = new \local_coursetransfer\output\logs_course_remove_request_page();
+            $page = new logs_course_remove_request_page();
         } else {
-            $page = new \local_coursetransfer\output\logs_course_remove_response_page();
+            $page = new logs_course_remove_response_page();
         }
         break;
     case coursetransfer_request::TYPE_REMOVE_CATEGORY:
         if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
-            $page = new \local_coursetransfer\output\logs_category_remove_request_page();
+            $page = new logs_category_remove_request_page();
         } else {
-            $page = new \local_coursetransfer\output\logs_category_remove_response_page();
+            $page = new logs_category_remove_response_page();
         }
         break;
     default:

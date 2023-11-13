@@ -223,7 +223,7 @@ class request {
         $params = $this->get_request_params($user);
         $params['requestid'] = $requestid;
         $params['backupsize'] = $filesize;
-        $params['errorcode'] = '205001';
+        $params['errorcode'] = '120003';
         if (empty($result)) {
             $params['errormsg'] = $error;
         } else {
@@ -341,7 +341,7 @@ class request {
                     $message = get_string('error_not_controlled', 'local_coursetransfer');
                 }
                 $error = new stdClass();
-                $error->code = '200002';
+                $error->code = '120002';
                 $error->msg = $wsname . ' - ' . $message;
                 return new response(false, null, [$error]);
             }
@@ -350,7 +350,7 @@ class request {
                     get_string('site_url_invalid', 'local_coursetransfer') :
                     $e->getMessage();
             $error = new stdClass();
-            $error->code = '200003';
+            $error->code = '120001';
             $error->msg = $wsname . ': ' . $message;
             return new response(false, null, [$error]);
         }

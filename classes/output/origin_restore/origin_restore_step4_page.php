@@ -74,45 +74,58 @@ class origin_restore_step4_page extends origin_restore_step_page {
         $data->siteposition = $siteposition;
         $site = coursetransfer::get_site_by_position($siteposition);
         $data->host = $site->host;
-        $data->has_origin_user_data = true;
-        $data->can_remove_origin_course = true;
-
-        try {
-            $request = new request($site);
-            $res = $request->origin_get_courses($USER);
-            if ($res->success) {
-                $courses = $res->data;
-                $datacourses = [];
-                $coursesdest = get_courses();
-                $destinies = [];
-                foreach ($coursesdest as $cd) {
-                    $destinies[] = [
-                            'id' => $cd->id,
-                            'name' => $cd->fullname,
-                            'shortname' => $cd->shortname
-                    ];
+        $data->has_origin_user_data = coursetransfer::has_origin_user_data($USER);
+        $data->can_remove_origin_course = coursetransfer::can_remove_origin_course($USER);
+        $data->can_destiny_restore_merge = coursetransfer::can_destiny_restore_merge($USER);
+        $data->can_destiny_restore_content_remove = coursetransfer::can_destiny_restore_content_remove($USER);
+        $data->can_destiny_restore_groups_remove = coursetransfer::can_destiny_restore_groups_remove($USER);
+        $data->can_destiny_restore_enrol_remove = coursetransfer::can_destiny_restore_enrol_remove($USER);
+        $context = \context_system::instance();
+        if (has_capability('local/coursetransfer:origin_view_courses', $context)) {
+            try {
+                $request = new request($site);
+                $res = $request->origin_get_courses($USER);
+                if ($res->success) {
+                    $courses = $res->data;
+                    $datacourses = [];
+                    $coursesdest = coursetransfer::get_courses_user($USER);
+                    $destinies = [];
+                    if (coursetransfer::can_restore_in_not_new_course($USER)) {
+                        foreach ($coursesdest as $cd) {
+                            $destinies[] = [
+                                    'id' => $cd->id,
+                                    'name' => $cd->fullname,
+                                    'shortname' => $cd->shortname
+                            ];
+                        }
+                    }
+                    $cats = [];
+                    $categories = coursetransfer::get_categories_user($USER);
+                    foreach ($categories as $cat) {
+                        $ct = new stdClass();
+                        $ct->id = $cat->id;
+                        $ct->name = $cat->get_nested_name();
+                        $cats[] = $ct;
+                    }
+                    foreach ($courses as $c) {
+                        $c->destinies = $destinies;
+                        $datacourses[] = $c;
+                    }
+                    $data->categories = $cats;
+                    $data->courses = $datacourses;
+                    $data->haserrors = false;
+                } else {
+                    $data->errors = $res->errors;
+                    $data->haserrors = true;
                 }
-                $cats = [];
-                $categories = \core_course_category::get_all();
-                foreach ($categories as $cat) {
-                    $ct = new stdClass();
-                    $ct->id = $cat->id;
-                    $ct->name = $cat->get_nested_name();
-                    $cats[] = $ct;
-                }
-                foreach ($courses as $c) {
-                    $c->destinies = $destinies;
-                    $datacourses[] = $c;
-                }
-                $data->categories = $cats;
-                $data->courses = $datacourses;
-                $data->haserrors = false;
-            } else {
-                $data->errors = $res->errors;
+            } catch (moodle_exception $e) {
+                $data->errors = ['code' => '40002', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
-        } catch (moodle_exception $e) {
-            $data->errors = ['code' => 'RCEP4-0002', 'msg' => $e->getMessage()];
+        } else {
+            $data->errors = [
+                    'code' => '40001',
+                    'msg' => get_string('you_have_not_permission', 'local_coursetransfer')];
             $data->haserrors = true;
         }
         return $data;

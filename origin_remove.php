@@ -31,6 +31,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_coursetransfer\output\origin_remove\origin_remove_page;
+use local_coursetransfer\output\origin_remove\origin_remove_page_cat_step2;
+use local_coursetransfer\output\origin_remove\origin_remove_page_cat_step3;
+use local_coursetransfer\output\origin_remove\origin_remove_page_step2;
+use local_coursetransfer\output\origin_remove\origin_remove_page_step3;
+
 require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $USER;
@@ -52,26 +58,26 @@ echo $OUTPUT->header();
 $step = optional_param('step', 1, PARAM_INT);
 switch ($step) {
     case 1:
-        $page = new \local_coursetransfer\output\origin_remove_page();
+        $page = new origin_remove_page();
         break;
     case 2:
         $type = required_param('type', PARAM_TEXT);
         if ($type === 'categories') {
-            $page = new \local_coursetransfer\output\origin_remove_page_cat_step2();
+            $page = new origin_remove_page_cat_step2();
         } else {
-            $page = new \local_coursetransfer\output\origin_remove_page_step2();
+            $page = new origin_remove_page_step2();
         }
         break;
     case 3:
         $type = required_param('type', PARAM_TEXT);
         if ($type === 'categories') {
-            $page = new \local_coursetransfer\output\origin_remove_page_cat_step3();
+            $page = new origin_remove_page_cat_step3();
         } else {
-            $page = new \local_coursetransfer\output\origin_remove_page_step3();
+            $page = new origin_remove_page_step3();
         }
         break;
     default:
-        $page = new \local_coursetransfer\output\origin_remove_page();
+        $page = new origin_remove_page();
 }
 
 echo $output->render($page);

@@ -167,8 +167,8 @@ class coursetransfer {
                 'data' => new stdClass(),
                 'error' =>
                         [
-                                'code' => '200300',
-                                'msg' => 'Destiny site not founded'
+                                'code' => '110007',
+                                'msg' => 'Destination site not founded'
                         ]
             ];
         }
@@ -208,7 +208,7 @@ class coursetransfer {
                             'data' => new stdClass(),
                             'error' =>
                                 [
-                                    'code' => 'RCEP1-0003',
+                                    'code' => '11006',
                                     'msg' => get_string('user_does_not_have_courses', 'local_coursetransfer')
                                 ]
                         ];
@@ -221,7 +221,7 @@ class coursetransfer {
                         'data' => new stdClass(),
                         'error' =>
                             [
-                                'code' => 'RCEP1-0002',
+                                'code' => '11005',
                                 'msg' => get_string('user_not_found', 'local_coursetransfer')
                             ]
                     ];
@@ -234,7 +234,7 @@ class coursetransfer {
                     'data' => new stdClass(),
                     'error' =>
                         [
-                            'code' => 'RCEP1-0001',
+                            'code' => '11004',
                             'msg' => get_string('field_not_valid', 'local_coursetransfer')
                         ]
                 ];
@@ -596,7 +596,7 @@ class coursetransfer {
 
         } catch (\Exception $e) {
             $request->status = coursetransfer_request::STATUS_ERROR;
-            $request->error_code = '200320';
+            $request->error_code = '110003';
             $request->error_message = $e->getMessage();
             coursetransfer_request::insert_or_update($request, $request->id);
         }
@@ -684,7 +684,7 @@ class coursetransfer {
             return self::restore_course_unity($user, $site, $destinycourseid, $origincourseid, $configuration, $sections);
         } catch (moodle_exception $e) {
             $error = [
-                    'code' => '200330',
+                    'code' => '110002',
                     'msg' => $e->getMessage()
             ];
             $errors[] = $error;
@@ -880,7 +880,7 @@ class coursetransfer {
             ];
         } catch (moodle_exception $e) {
             $error = [
-                    'code' => '200340',
+                    'code' => '110001',
                     'msg' => $e->getMessage()
             ];
             $errors[] = $error;
@@ -977,11 +977,12 @@ class coursetransfer {
      * Get Subcategories.
      *
      * @param core_course_category $category
+     * @param stdClass|null $user
      * @return core_course_category[]
      */
-    public static function get_subcategories(core_course_category $category): array {
+    public static function get_subcategories(core_course_category $category, stdClass $user = null): array {
         $categories = [];
-        self::get_childs($category, $categories);
+        self::get_childs($category, $categories, $user);
         return $categories;
     }
 
@@ -990,12 +991,15 @@ class coursetransfer {
      *
      * @param core_course_category $category
      * @param array $categories
+     * @param stdClass|null $user
      */
-    public static function get_childs(core_course_category $category, array &$categories) {
+    public static function get_childs(core_course_category $category, array &$categories, stdClass $user = null) {
         if ($category->get_children_count() > 0) {
             foreach ($category->get_children() as $child) {
-                $categories[] = $child;
-                self::get_childs($child, $categories);
+                if ($child->is_uservisible($user)) {
+                    $categories[] = $child;
+                    self::get_childs($child, $categories);
+                }
             }
         };
     }
@@ -1069,10 +1073,10 @@ class coursetransfer {
      */
     public static function has_course(stdClass $user): bool {
         $hascourse = false;
-        $cs = enrol_get_all_users_courses($user->id);
+        $cs = get_courses();
         foreach ($cs as $course) {
             $context = \context_course::instance($course->id);
-            if (has_capability('moodle/backup:backupcourse', $context, $user->id)) {
+            if (has_capability('moodle/backup:backupcourse', $context, $user->id) && (int)$course->id !== 1) {
                 $hascourse = true;
                 break;
             }
@@ -1089,14 +1093,158 @@ class coursetransfer {
      */
     public static function get_courses_user(stdClass $user): array {
         $courses = [];
-        $cs = enrol_get_all_users_courses($user->id);
+        $cs = get_courses();
         foreach ($cs as $course) {
-            $context = \context_course::instance($course->id);
-            if (has_capability('moodle/backup:backupcourse', $context, $user->id)) {
+            if (self::filter_course($course, $user)) {
                 $courses[] = $course;
             }
         }
         return $courses;
+    }
+
+    /**
+     * Get Categories User.
+     *
+     * @param stdClass $user
+     * @return array
+     */
+    public static function get_categories_user(stdClass $user): array {
+        $categories = [];
+        $cs = \core_course_category::get_all();
+        foreach ($cs as $cat) {
+            if (self::filter_category($cat, $user)) {
+                $categories[] = $cat;
+            }
+        }
+        return $categories;
+    }
+
+    /**
+     * Filter Course.
+     *
+     * @param stdClass $course
+     * @param stdClass $user
+     * @return bool
+     * @throws coding_exception
+     */
+    protected static function filter_course(stdClass $course, stdClass $user): bool {
+        $context = \context_course::instance($course->id);
+        if (!has_capability('moodle/backup:backupcourse', $context, $user->id)) {
+            return false;
+        }
+        if ((int)$course->id === 1) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Filter Category.
+     *
+     * @param core_course_category $cat
+     * @param stdClass $user
+     * @return bool
+     */
+    protected static function filter_category(core_course_category $cat, stdClass $user): bool {
+        if ($cat->is_uservisible($user)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Can remove origin course?
+     *
+     * @param stdClass $user
+     * @return false
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function can_remove_origin_course(stdClass $user): bool {
+        $context = \context_system::instance();
+        return has_capability('local/coursetransfer:origin_remove_course', $context, $user->id);
+    }
+
+    /**
+     * Has origin user data?
+     *
+     * @param stdClass $user
+     * @return false
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function has_origin_user_data(stdClass $user): bool {
+        $context = \context_system::instance();
+        return has_capability('local/coursetransfer:origin_restore_course_users', $context, $user->id);
+    }
+
+    /**
+     * Can destiny restore merge?
+     *
+     * @param stdClass $user
+     * @return false
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function can_destiny_restore_merge(stdClass $user): bool {
+        $context = \context_system::instance();
+        return has_capability('local/coursetransfer:destiny_restore_merge', $context, $user->id);
+    }
+
+    /**
+     * Can Destination restore content remove?
+     *
+     * @param stdClass $user
+     * @return false
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function can_destiny_restore_content_remove(stdClass $user): bool {
+        $context = \context_system::instance();
+        return has_capability('local/coursetransfer:destiny_restore_content_remove', $context, $user->id);
+    }
+
+    /**
+     * Can Destination restore groups remove?
+     *
+     * @param stdClass $user
+     * @return false
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function can_destiny_restore_groups_remove(stdClass $user): bool {
+        $context = \context_system::instance();
+        return has_capability('local/coursetransfer:destiny_restore_groups_remove', $context, $user->id);
+    }
+
+    /**
+     * Can Destination restore enrols remove?
+     *
+     * @param stdClass $user
+     * @return false
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function can_destiny_restore_enrol_remove(stdClass $user): bool {
+        $context = \context_system::instance();
+        return has_capability('local/coursetransfer:destiny_restore_enrol_remove', $context, $user->id);
+    }
+
+    /**
+     * Can restore in not new course?
+     *
+     * @param stdClass $user
+     * @return false
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function can_restore_in_not_new_course(stdClass $user): bool {
+        $context = \context_system::instance();
+        if (has_capability('local/coursetransfer:destiny_restore_content_remove', $context, $user->id) &&
+                has_capability('local/coursetransfer:destiny_restore_merge', $context, $user->id)) {
+            return true;
+        }
+        return false;
     }
 
 }

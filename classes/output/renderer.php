@@ -33,9 +33,24 @@
 
 namespace local_coursetransfer\output;
 
-use local_coursetransfer\output\origin_restore\origin_restore_category_page;
-use local_coursetransfer\output\origin_restore\origin_restore_course_page;
+use local_coursetransfer\output\components\actions_site_component;
+use local_coursetransfer\output\components\activities_component;
+use local_coursetransfer\output\components\category_course_component;
+use local_coursetransfer\output\components\configuration_component;
+use local_coursetransfer\output\origin_restore\origin_restore_cat_step2_page;
+use local_coursetransfer\output\origin_restore\origin_restore_cat_step3_page;
+use local_coursetransfer\output\origin_restore\origin_restore_cat_step4_page;
 use local_coursetransfer\output\origin_restore\origin_restore_page;
+use local_coursetransfer\output\origin_restore\origin_restore_step2_page;
+use local_coursetransfer\output\origin_restore\origin_restore_step3_page;
+use local_coursetransfer\output\origin_restore\origin_restore_step4_page;
+use local_coursetransfer\output\origin_restore_category\origin_restore_category_page;
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step1_page;
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step2_page;
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step3_page;
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step4_page;
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step5_page;
+use local_coursetransfer\output\origin_restore_course\origin_restore_course_page;
 use moodle_exception;
 use plugin_renderer_base;
 
@@ -51,7 +66,6 @@ use plugin_renderer_base;
 class renderer extends plugin_renderer_base {
 
     /**
-     * Defer to template.
      *
      * @param index_page $page
      * @return bool|string
@@ -63,7 +77,6 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
-     * Defer to template.
      *
      * @param origin_restore_page $page
      * @return bool|string
@@ -74,22 +87,71 @@ class renderer extends plugin_renderer_base {
         return parent::render_from_template('local_coursetransfer/origin_restore/origin_restore_page', $data);
     }
 
+    /**
+     *
+     * @param origin_restore_step2_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_origin_restore_step2_page(origin_restore_step2_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/origin_restore/origin_restore_step2_page', $data);
+    }
 
+    /**
+     *
+     * @param origin_restore_step3_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_origin_restore_step3_page(origin_restore_step3_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/origin_restore/origin_restore_step3_page', $data);
+    }
 
+    /**
+     *
+     * @param origin_restore_step4_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_origin_restore_step4_page(origin_restore_step4_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/origin_restore/origin_restore_step4_page', $data);
+    }
 
+    /**
+     *
+     * @param origin_restore_cat_step2_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_origin_restore_cat_step2_page(origin_restore_cat_step2_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/origin_restore/origin_restore_cat_step2_page', $data);
+    }
 
+    /**
+     *
+     * @param origin_restore_cat_step3_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_origin_restore_cat_step3_page(origin_restore_cat_step3_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/origin_restore/origin_restore_cat_step3_page', $data);
+    }
 
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     *
+     * @param origin_restore_cat_step4_page $page
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_origin_restore_cat_step4_page(origin_restore_cat_step4_page $page) {
+        $data = $page->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/origin_restore/origin_restore_cat_step4_page', $data);
+    }
 
     /**
      * Defer to template.
@@ -100,7 +162,8 @@ class renderer extends plugin_renderer_base {
      */
     public function render_origin_restore_course_page(origin_restore_course_page $page) {
         $data = $page->export_for_template($this);
-        return parent::render_from_template('local_coursetransfer/origin_restore_course_page', $data);
+        return parent::render_from_template(
+                'local_coursetransfer/origin_restore_course/origin_restore_course_page', $data);
     }
 
     /**
@@ -112,7 +175,8 @@ class renderer extends plugin_renderer_base {
      */
     public function render_new_origin_restore_course_step1_page(new_origin_restore_course_step1_page $page) {
         $data = $page->export_for_template($this);
-        return parent::render_from_template('local_coursetransfer/new_origin_restore_course_step1_page', $data);
+        return parent::render_from_template(
+                'local_coursetransfer/origin_restore_course/new_origin_restore_course_step1_page', $data);
     }
 
     /**
@@ -124,7 +188,8 @@ class renderer extends plugin_renderer_base {
      */
     public function render_new_origin_restore_course_step2_page(new_origin_restore_course_step2_page $page) {
         $data = $page->export_for_template($this);
-        return parent::render_from_template('local_coursetransfer/new_origin_restore_course_step2_page', $data);
+        return parent::render_from_template(
+                'local_coursetransfer/origin_restore_course/new_origin_restore_course_step2_page', $data);
     }
 
     /**
@@ -136,7 +201,8 @@ class renderer extends plugin_renderer_base {
      */
     public function render_new_origin_restore_course_step3_page(new_origin_restore_course_step3_page $page) {
         $data = $page->export_for_template($this);
-        return parent::render_from_template('local_coursetransfer/new_origin_restore_course_step3_page', $data);
+        return parent::render_from_template(
+                'local_coursetransfer/origin_restore_course/new_origin_restore_course_step3_page', $data);
     }
 
     /**
@@ -148,7 +214,8 @@ class renderer extends plugin_renderer_base {
      */
     public function render_new_origin_restore_course_step4_page(new_origin_restore_course_step4_page $page) {
         $data = $page->export_for_template($this);
-        return parent::render_from_template('local_coursetransfer/new_origin_restore_course_step4_page', $data);
+        return parent::render_from_template(
+                'local_coursetransfer/origin_restore_course/new_origin_restore_course_step4_page', $data);
     }
     /**
      * Defer to template.
@@ -159,43 +226,8 @@ class renderer extends plugin_renderer_base {
      */
     public function render_new_origin_restore_course_step5_page(new_origin_restore_course_step5_page $page) {
         $data = $page->export_for_template($this);
-        return parent::render_from_template('local_coursetransfer/new_origin_restore_course_step5_page', $data);
-    }
-
-    /**
-     * Defer to template.
-     *
-     * @param activities_component $component
-     * @return bool|string
-     * @throws moodle_exception
-     */
-    public function render_activities_component(activities_component $component) {
-        $data = $component->export_for_template($this);
-        return parent::render_from_template('local_coursetransfer/table_activities_component', $data);
-    }
-
-    /**
-     * Defer to template.
-     *
-     * @param category_course_component $component
-     * @return bool|string
-     * @throws moodle_exception
-     */
-    public function render_category_course_component(category_course_component $component) {
-        $data = $component->export_for_template($this);
-        return parent::render_from_template('local_coursetransfer/table_category_course_component', $data);
-    }
-
-    /**
-     * Defer to template.
-     *
-     * @param configuration_component $component
-     * @return bool|string
-     * @throws moodle_exception
-     */
-    public function render_configuration_component(configuration_component $component) {
-        $data = $component->export_for_template($this);
-        return parent::render_from_template('local_coursetransfer/table_configuration_component', $data);
+        return parent::render_from_template(
+                'local_coursetransfer/origin_restore_course/new_origin_restore_course_step5_page', $data);
     }
 
     /**
@@ -207,7 +239,43 @@ class renderer extends plugin_renderer_base {
      */
     public function render_origin_restore_category_page(origin_restore_category_page $page) {
         $data = $page->export_for_template($this);
-        return parent::render_from_template('local_coursetransfer/origin_restore_category_page', $data);
+        return parent::render_from_template('local_coursetransfer/origin_restore_category/origin_restore_category_page', $data);
+    }
+
+    /**
+     * Defer to template.
+     *
+     * @param activities_component $component
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_activities_component(activities_component $component) {
+        $data = $component->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/tables/table_activities_component', $data);
+    }
+
+    /**
+     * Defer to template.
+     *
+     * @param category_course_component $component
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_category_course_component(category_course_component $component) {
+        $data = $component->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/tables/table_category_course_component', $data);
+    }
+
+    /**
+     * Defer to template.
+     *
+     * @param configuration_component $component
+     * @return bool|string
+     * @throws moodle_exception
+     */
+    public function render_configuration_component(configuration_component $component) {
+        $data = $component->export_for_template($this);
+        return parent::render_from_template('local_coursetransfer/tables/table_configuration_component', $data);
     }
 
     /**

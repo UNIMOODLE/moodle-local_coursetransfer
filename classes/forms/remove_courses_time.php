@@ -70,7 +70,9 @@ class remove_courses_time extends moodleform {
                 [ 'now' => 'Ahora mismo', 'programmed' => 'Programada']);
         $mform->addHelpButton('course_categories', 'course_categories', 'local_coursetransfer');
 
-        $mform->addElement('date_time_selector', 'assesstimestart', get_string('remove_date_time', 'local_coursetransfer'),);
+        $mform->addElement(
+                'date_time_selector', 'assesstimestart',
+                get_string('remove_date_time', 'local_coursetransfer'));
         $mform->disabledIf('date_time_selector', 'select', 'eq', 'now');
     }
 

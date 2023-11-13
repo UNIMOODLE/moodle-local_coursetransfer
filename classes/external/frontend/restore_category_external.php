@@ -115,7 +115,7 @@ class restore_category_external extends external_api {
         } catch (moodle_exception $e) {
             $errors[] =
                 [
-                    'code' => '200081',
+                    'code' => '45012',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -210,11 +210,10 @@ class restore_category_external extends external_api {
             $res = coursetransfer::restore_category($USER, $site, $destinyid, $categoryid, $configuration, $courses);
             $errors = array_merge($errors, $res['errors']);
             $success = $res['success'];
-
         } catch (moodle_exception $e) {
             $errors[] =
                     [
-                            'code' => '030363',
+                            'code' => '45011',
                             'msg' => $e->getMessage()
                     ];
         }

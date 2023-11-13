@@ -31,6 +31,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_coursetransfer\output\sites_page;
+
 require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $USER;
@@ -50,7 +52,7 @@ $output = $PAGE->get_renderer('local_coursetransfer');
 echo $OUTPUT->header();
 
 if (is_siteadmin()) {
-    $page = new \local_coursetransfer\output\sites_page('destiny');
+    $page = new sites_page('destiny');
     echo $output->render($page);
 }
 echo $OUTPUT->footer();

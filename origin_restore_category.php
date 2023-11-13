@@ -31,10 +31,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_coursetransfer\output\new_origin_restore_category_step1_page;
-use local_coursetransfer\output\new_origin_restore_category_step2_page;
-use local_coursetransfer\output\new_origin_restore_category_step3_page;
-use local_coursetransfer\output\new_origin_restore_category_step4_page;
+use local_coursetransfer\output\origin_restore_category\new_origin_restore_category_step1_page;
+use local_coursetransfer\output\origin_restore_category\new_origin_restore_category_step2_page;
+use local_coursetransfer\output\origin_restore_category\new_origin_restore_category_step3_page;
+use local_coursetransfer\output\origin_restore_category\new_origin_restore_category_step4_page;
+use local_coursetransfer\output\origin_restore_category\origin_restore_category_page;
 
 require_once('../../config.php');
 
@@ -79,7 +80,7 @@ if ($isnew) {
             throw new moodle_exception('STEP NOT VALID');
     }
 } else {
-    $page = new \local_coursetransfer\output\origin_restore_category_page($category);
+    $page = new origin_restore_category_page($category);
 }
 echo $output->render($page);
 echo $OUTPUT->footer();

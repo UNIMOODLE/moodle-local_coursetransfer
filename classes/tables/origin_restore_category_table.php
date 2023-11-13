@@ -39,6 +39,7 @@ use core_user;
 use DateTime;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\output\components\category_course_component;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -170,8 +171,7 @@ class origin_restore_category_table extends table_sql {
         global $PAGE;
         $output = $PAGE->get_renderer('local_coursetransfer');
         $origincategoryrequests = !empty($row->origin_category_requests) ? $row->origin_category_requests : '';
-        $component = new \local_coursetransfer\output\category_course_component(
-                $origincategoryrequests, $row->siteurl, $row->id);
+        $component = new category_course_component($origincategoryrequests, $row->siteurl, $row->id);
         return $output->render($component);
     }
 

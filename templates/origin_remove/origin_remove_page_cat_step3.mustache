@@ -1,0 +1,160 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/origin_remove/origin_remove_step3_cat_page
+
+  Example context (json):
+
+}}
+<div class="local_coursetransfer" data-region="origin_remove_step3_cat_page" data-nexturl="{{ next_url }}">
+
+    {{> local_coursetransfer/components/stepbystep }}
+
+    <h3 class="h3">{{#str}} remove_category_page, local_coursetransfer {{/str}}</h3>
+
+    {{# haserrors }}
+        {{> local_coursetransfer/components/alert }}
+    {{/ haserrors }}
+
+    {{^ haserrors }}
+        <h3 class="h3">{{#str}} summary, local_coursetransfer {{/str}}</h3>
+        <p>{{#str}} origin_remove_step3_cat_desc, local_coursetransfer {{/str}}</p>
+
+        <hr>
+
+        <h4 class="h4">{{#str}} step5_restore_origin_site, local_coursetransfer {{/str}}</h4>
+
+        <div class="origin-site">{{ host }}</div>
+
+        <hr>
+
+        <h4 class="h4">{{#str}} origin_remove_category_step3, local_coursetransfer {{/str}}</h4>
+
+        {{> local_coursetransfer/components/category_details }}
+
+        <div class="alert alert-danger hidden" role="alert"></div>
+    {{/ haserrors }}
+
+    <div class="button-container">
+        <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
+        <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
+        <button type="button" class="btn btn-primary" data-action="execute-restore">{{#str}} execute_restore, local_coursetransfer {{/str}}</button>
+    </div>
+
+</div>
+<style>
+    body#page-local-coursetransfer-origin_remove .page-header-headings .h2 {
+        display: none;
+    }
+    #page-local-coursetransfer-origin_restore .main-inner {
+        max-width: 100% !important;
+    }
+    div[data-region='origin_remove_step3_cat_page'] {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    div[data-region='origin_remove_step3_cat_page'] div[data-region="stepbystep"] {
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+    }
+    div[data-region='origin_remove_step3_cat_page'] h3.h2 {
+        font-size: 24px;
+        font-weight: 600;
+        width: 100%;
+        padding: 10px;
+        text-align: left;
+    }
+    div[data-region='origin_remove_step3_cat_page'] h3.h3 {
+        font-size: 28px;
+        font-weight: 600;
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+    }
+    div[data-region='origin_remove_step3_cat_page'] table {
+        width: 100%;
+    }
+    div[data-region='origin_remove_step3_cat_page'] .text-white {
+        padding: 0 10px;
+    }
+    div[data-region='origin_remove_step3_cat_page'] table tr {
+        font-size: 14px;
+        font-weight: 400;
+    }
+    div[data-region='origin_remove_step3_cat_page'] table th {
+        border-bottom: 2px solid #9396AA;
+        padding: 10px;
+    }
+    div[data-region='origin_remove_step3_cat_page'] table td {
+        border-top: 1px solid #D7D8E2;
+        padding: 10px;
+    }
+    div[data-region='origin_remove_step3_cat_page'] tbody {
+        color: #7C7C7C;
+    }
+    div[data-region='origin_remove_step3_cat_page'] p {
+        font-size: 16px;
+        font-weight: 400;
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+    }
+    div[data-region='origin_remove_step3_cat_page'] div.button-container {
+        padding: 10px;
+    }
+    div[data-region='origin_remove_step3_cat_page'] div.button-container a.btn-primary {
+        background: #0D6EFD;
+    }
+    div[data-region='origin_remove_step3_cat_page'] div.button-container a.btn-light {
+        border: 1px solid black;
+    }
+    div[data-region='origin_remove_step3_cat_page'] tr.selected {
+        color: black;
+        background-color: #F7F9FC;
+    }
+    div[data-region='origin_remove_step3_cat_page'] input[type="radio"]:checked, input[type="radio"]:active {
+        box-shadow: none;
+    }
+    div[data-region='origin_remove_step3_cat_page'] div.origin-site {
+        width: 50%;
+        border: 1px solid black;
+        border-radius: 10px;
+        margin: 10px 0;
+        padding: 20px 0;
+        text-align: center;
+        font-size: 16px;
+        font-weight: 400;
+    }
+</style>
+{{#js}}
+    require(['local_coursetransfer/origin_remove_step3_cat_page'], function(originRemoveCatStep3) {
+        originRemoveCatStep3.initOriginRemoveCatStep3('[data-region="origin_remove_step3_cat_page"]', '{{ siteposition }}', {{removeid}});
+    });
+{{/js}}
+

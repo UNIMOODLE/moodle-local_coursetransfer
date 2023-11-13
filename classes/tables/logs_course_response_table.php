@@ -39,7 +39,8 @@ use DateTime;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\models\configuration_course;
-use local_coursetransfer\output\configuration_component;
+use local_coursetransfer\output\components\activities_component;
+use local_coursetransfer\output\components\configuration_component;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -182,7 +183,7 @@ class logs_course_response_table extends table_sql {
     public function col_origin_activities(stdClass $row): string {
         global $PAGE;
         $output = $PAGE->get_renderer('local_coursetransfer');
-        $component = new \local_coursetransfer\output\activities_component($row->origin_activities, $row->id);
+        $component = new activities_component($row->origin_activities, $row->id);
         return $output->render($component);
     }
 

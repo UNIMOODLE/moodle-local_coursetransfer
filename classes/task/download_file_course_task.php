@@ -98,6 +98,8 @@ class download_file_course_task extends \core\task\adhoc_task {
             coursetransfer_request::insert_or_update($request, $request->id);
 
             $site = coursetransfer::get_site_by_url($request->siteurl);
+
+            // Category Request logical.
             if (!is_null($request->request_category_id)) {
                 $reqcat = coursetransfer_request::update_status_request_cat($request->request_category_id);
                 $this->log('Update Status Category Request');
@@ -125,12 +127,12 @@ class download_file_course_task extends \core\task\adhoc_task {
                                 }
                                 coursetransfer_request::insert_or_update($requestremcat, $remcatrequestid);
                             } else {
-                                $remcaterrorcode = '540010';
+                                $remcaterrorcode = '640002';
                                 $remcaterrormsg = 'Origin Category Removed not working. ERROR NOT CONTROLLED';
                                 $this->log($remcaterrormsg);
                             }
                         } catch (moodle_exception $e) {
-                            $remcaterrorcode = '540011';
+                            $remcaterrorcode = '640001';
                             $remcaterrormsg = 'Origin Category Removed not working. Error: ' . $e->getMessage();
                             $this->log($remcaterrormsg);
                         }
@@ -140,6 +142,7 @@ class download_file_course_task extends \core\task\adhoc_task {
                 $request->error_message = $remcaterrormsg;
             }
 
+            // Remove origen course logical.
             if ($request->origin_remove_course && !$request->origin_remove_category) {
                 $this->log('Origin Course Removing...');
                 $remcouerrorcode = null;
@@ -163,12 +166,12 @@ class download_file_course_task extends \core\task\adhoc_task {
                         }
                         coursetransfer_request::insert_or_update($requestrem, $requesremtid);
                     } else {
-                        $remcouerrorcode = '540022';
+                        $remcouerrorcode = '640004';
                         $remcouerrormsg = 'Origin Course Removed not working. ERROR NOT CONTROLLED';
                         $this->log($remcouerrormsg);
                     }
                 } catch (moodle_exception $e) {
-                    $remcouerrorcode = '540021';
+                    $remcouerrorcode = '640003';
                     $remcouerrormsg = 'Origin Course Removed not working. Error: ' . $e->getMessage();
                     $this->log($remcouerrormsg);
                 }
@@ -179,7 +182,7 @@ class download_file_course_task extends \core\task\adhoc_task {
         } catch (\Exception $e) {
             $this->log($e->getMessage());
             $request->status = coursetransfer_request::STATUS_ERROR;
-            $request->error_code = '200200';
+            $request->error_code = '140000';
             $request->error_message = $e->getMessage();
             coursetransfer_request::insert_or_update($request, $request->id);
         }

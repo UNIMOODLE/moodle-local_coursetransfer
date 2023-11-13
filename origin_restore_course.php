@@ -30,6 +30,14 @@
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step1_page;
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step2_page;
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step3_page;
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step4_page;
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step5_page;
+use local_coursetransfer\output\origin_restore_course\origin_restore_course_page;
+
 require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $USER;
@@ -49,7 +57,6 @@ $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->set_url('/local/coursetransfer/origin_restore_course.php');
 
-
 $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
@@ -57,25 +64,25 @@ if ($isnew) {
     $step = required_param('step', PARAM_INT);
     switch ($step) {
         case 1:
-            $page = new \local_coursetransfer\output\new_origin_restore_course_step1_page($course);
+            $page = new new_origin_restore_course_step1_page($course);
             break;
         case 2:
-            $page = new \local_coursetransfer\output\new_origin_restore_course_step2_page($course);
+            $page = new new_origin_restore_course_step2_page($course);
             break;
         case 3:
-            $page = new \local_coursetransfer\output\new_origin_restore_course_step3_page($course);
+            $page = new new_origin_restore_course_step3_page($course);
             break;
         case 4:
-            $page = new \local_coursetransfer\output\new_origin_restore_course_step4_page($course);
+            $page = new new_origin_restore_course_step4_page($course);
             break;
         case 5:
-            $page = new \local_coursetransfer\output\new_origin_restore_course_step5_page($course);
+            $page = new new_origin_restore_course_step5_page($course);
             break;
         default:
             throw new moodle_exception('STEP NOT VALID');
     }
 } else {
-    $page = new \local_coursetransfer\output\origin_restore_course_page($course);
+    $page = new origin_restore_course_page($course);
 }
 echo $output->render($page);
 echo $OUTPUT->footer();

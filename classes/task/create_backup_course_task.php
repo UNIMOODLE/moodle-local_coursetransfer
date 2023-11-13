@@ -107,7 +107,6 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
                 // Retrying isn't going to fix it, so marked operation as failed.
                 $bc->set_status(\backup::STATUS_FINISHED_ERR);
                 mtrace('Bad backup controller status, is: ' . $status . ' should be 700, marking job as failed.');
-
             }
 
             $result = $bc->get_results();

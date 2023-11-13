@@ -90,24 +90,23 @@ class origin_category_external extends external_api {
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
-                $res = $authres['data'];
-                $categories = core_course_category::get_all();
+                $user = $authres['data'];
+                $categories = coursetransfer::get_categories_user($user);
                 foreach ($categories as $category) {
-                    if ($category->is_uservisible($res)) {
-                        $item = new stdClass();
-                        $item->id = $category->id;
-                        $item->name = $category->name;
-                        $item->idnumber = $category->idnumber;
-                        $item->parentid = $category->parent;
-                        $categoryparent = core_course_category::get($item->parentid);
-                        $item->parentname = $categoryparent->name;
-                        $item->totalcourses = $category->get_courses_count();
-                        $subcategories = coursetransfer::get_subcategories($category);
-                        $item->totalsubcategories = count($subcategories);
-                        $item->totalcourseschild = coursetransfer::get_subcategories_numcourses(
-                                $category->get_courses_count(), $subcategories);
-                        $data[] = $item;
-                    }
+                    // TODO. review total count courses and child for user.
+                    $item = new stdClass();
+                    $item->id = $category->id;
+                    $item->name = $category->name;
+                    $item->idnumber = $category->idnumber;
+                    $item->parentid = $category->parent;
+                    $categoryparent = core_course_category::get($item->parentid);
+                    $item->parentname = $categoryparent->name;
+                    $item->totalcourses = $category->get_courses_count();
+                    $subcategories = coursetransfer::get_subcategories($category, $user);
+                    $item->totalsubcategories = count($subcategories);
+                    $item->totalcourseschild = coursetransfer::get_subcategories_numcourses(
+                            $category->get_courses_count(), $subcategories);
+                    $data[] = $item;
                 }
             } else {
                 $success = false;
@@ -117,7 +116,7 @@ class origin_category_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '200041',
+                    'code' => '440028',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -200,42 +199,49 @@ class origin_category_external extends external_api {
             ];
 
         try {
-            $category = core_course_category::get($categoryid);
-            $categoryparent = core_course_category::get($category->parent);
-            $courses = [];
-            $subcategories = coursetransfer::get_subcategories($category);
-            array_unshift($subcategories, $category);
-            foreach ($subcategories as $sub) {
-                foreach ($sub->get_courses() as $c) {
-                    $courseurl = new moodle_url('/course/view.php', ['id' => $c->id]);
-                    $course = new stdClass();
-                    $course->id = $c->id;
-                    $course->url = $courseurl->out(false);
-                    $course->fullname = $c->fullname;
-                    $course->shortname = $c->shortname;
-                    $course->idnumber = $c->idnumber;
-                    $course->categoryid = $c->category;
-                    $ccategory = core_course_category::get($c->category);
-                    $course->categoryname = $ccategory->name;
-                    $course->categoryidnumber = $ccategory->idnumber;
-                    $courses[] = $course;
+            $authres = coursetransfer::auth_user($field, $value);
+            if ($authres['success']) {
+                // TODO. review total count courses and child for user.
+                $category = core_course_category::get($categoryid);
+                $categoryparent = core_course_category::get($category->parent);
+                $courses = [];
+                $subcategories = coursetransfer::get_subcategories($category);
+                array_unshift($subcategories, $category);
+                foreach ($subcategories as $sub) {
+                    foreach ($sub->get_courses() as $c) {
+                        $courseurl = new moodle_url('/course/view.php', ['id' => $c->id]);
+                        $course = new stdClass();
+                        $course->id = $c->id;
+                        $course->url = $courseurl->out(false);
+                        $course->fullname = $c->fullname;
+                        $course->shortname = $c->shortname;
+                        $course->idnumber = $c->idnumber;
+                        $course->categoryid = $c->category;
+                        $ccategory = core_course_category::get($c->category);
+                        $course->categoryname = $ccategory->name;
+                        $course->categoryidnumber = $ccategory->idnumber;
+                        $courses[] = $course;
+                    }
                 }
+                $parentname = !empty($categoryparent->name) ? $categoryparent->name : get_string('top');
+                $data = [
+                        'id' => $category->id,
+                        'name' => $category->name,
+                        'idnumber' => $category->idnumber,
+                        'parentid' => $category->parent,
+                        'parentname' => $parentname,
+                        'courses' => $courses
+                ];
+                $success = true;
+            } else {
+                $success = false;
+                $errors[] = $authres['error'];
             }
-            $parentname = !empty($categoryparent->name) ? $categoryparent->name : get_string('top');
-            $data = [
-                'id' => $category->id,
-                'name' => $category->name,
-                'idnumber' => $category->idnumber,
-                'parentid' => $category->parent,
-                'parentname' => $parentname,
-                'courses' => $courses
-            ];
-            $success = true;
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] =
                 [
-                    'code' => 200042,
+                    'code' => '44001',
                     'msg' => $e->getMessage()
                 ];
         }

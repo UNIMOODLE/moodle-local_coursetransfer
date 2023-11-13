@@ -92,7 +92,7 @@ Examples:
         --destiny_remove_groups=false
         --origin_remove_course=false
         --origin_schedule_datetime=1679404952
-        --destiny_not_remove_activities=[]
+        --destiny_not_remove_activities=[3,234,234]
 ';
 
 list($options, $unrecognised) = cli_get_params([
@@ -157,7 +157,7 @@ if ( empty($destinycourseid) && ($destinytarget === backup::TARGET_NEW_COURSE)) 
         try {
             $category = core_course_category::get($destinycategoryid);
         } catch (moodle_exception $e) {
-            cli_writeln('300501: ' . $e->getMessage());
+            cli_writeln('30001: ' . $e->getMessage());
             exit(1);
         }
     } else {
@@ -231,6 +231,6 @@ try {
 } catch (moodle_exception $e) {
     // 5b. Remove new course.
     delete_course($destinycourseid, false);
-    cli_writeln('300500: ' . $e->getMessage());
+    cli_writeln('30002: ' . $e->getMessage());
     exit(1);
 }

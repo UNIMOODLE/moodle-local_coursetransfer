@@ -113,7 +113,7 @@ class origin_course_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '200061',
+                    'code' => '43002',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -199,24 +199,30 @@ class origin_course_external extends external_api {
             ];
 
         try {
-            $course = get_course($courseid);
-            $category = core_course_category::get($course->category);
-            $data = [
-                'id' => $course->id,
-                'fullname' => $course->fullname,
-                'shortname' => $course->shortname,
-                'idnumber' => $course->idnumber,
-                'categoryid' => $course->category,
-                'categoryname' => $category->name,
-                'backupsizeestimated' => coursetransfer::get_backup_size_estimated($course->id),
-                'sections' => coursetransfer::get_sections_with_activities($course->id)
-            ];
-            $success = true;
+            $authres = coursetransfer::auth_user($field, $value);
+            if ($authres['success']) {
+                $course = get_course($courseid);
+                $category = core_course_category::get($course->category);
+                $data = [
+                        'id' => $course->id,
+                        'fullname' => $course->fullname,
+                        'shortname' => $course->shortname,
+                        'idnumber' => $course->idnumber,
+                        'categoryid' => $course->category,
+                        'categoryname' => $category->name,
+                        'backupsizeestimated' => coursetransfer::get_backup_size_estimated($course->id),
+                        'sections' => coursetransfer::get_sections_with_activities($course->id)
+                ];
+                $success = true;
+            } else {
+                $success = false;
+                $errors[] = $authres['error'];
+            }
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] =
                 [
-                    'code' => 200062,
+                    'code' => '43001',
                     'msg' => $e->getMessage()
                 ];
         }

@@ -34,7 +34,7 @@
 namespace local_coursetransfer\tables;
 
 use coding_exception;
-use local_coursetransfer\output\actions_site_component;
+use local_coursetransfer\output\components\actions_site_component;
 use moodle_exception;
 use moodle_url;
 use stdClass;

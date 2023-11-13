@@ -52,6 +52,23 @@
             </div>
         </li>
         {{/can_remove_origin_course }}
+        <li class="configuration-group">
+            <div class="checkbox">
+                <input class="configuration-checkbox" id="origin_schedule" type="checkbox">
+            </div>
+            <div class="config-info">
+                <div class="config-title">{{#str}} origin_schedule, local_coursetransfer {{/str}}</div>
+                <div class="config-desc">{{#str}} origin_schedule_desc, local_coursetransfer {{/str}}</div>
+            </div>
+        </li>
+        <li class="configuration-group ml-6">
+            <div class="config-info">
+                <div class="config-title">{{#str}} origin_schedule_datetime, local_coursetransfer {{/str}}</div>
+            </div>
+            <div class="checkbox">
+                <input class="configuration-checkbox" id="origin_schedule" type="datetime-local" disabled>
+            </div>
+        </li>
     </ul>
 </div>
 <style>

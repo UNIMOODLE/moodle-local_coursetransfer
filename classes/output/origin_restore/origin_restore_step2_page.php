@@ -71,38 +71,47 @@ class origin_restore_step2_page extends origin_restore_step_page {
         $data->table_url = $tableurl->out(false);
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
+        $data->next_url_disabled = true;
         $site = coursetransfer::get_site_by_position($this->site);
-
-        try {
-            $request = new request($site);
-            $res = $request->origin_get_courses($USER);
-            if ($res->success) {
-                $courses = $res->data;
-                $datacourses = [];
-                $coursesdest = get_courses();
-                $destinies = [];
-                foreach ($coursesdest as $cd) {
-                    $destinies[] = [
-                            'id' => $cd->id,
-                            'name' => $cd->fullname,
-                            'shortname' => $cd->shortname
-                    ];
+        $context = \context_system::instance();
+        if (has_capability('local/coursetransfer:origin_view_courses', $context)) {
+            try {
+                $request = new request($site);
+                $res = $request->origin_get_courses($USER);
+                if ($res->success) {
+                    $courses = $res->data;
+                    $datacourses = [];
+                    $coursesdest = coursetransfer::get_courses_user($USER);
+                    $destinies = [];
+                    if (coursetransfer::can_restore_in_not_new_course($USER)) {
+                        foreach ($coursesdest as $cd) {
+                            $destinies[] = [
+                                    'id' => $cd->id,
+                                    'name' => $cd->fullname,
+                                    'shortname' => $cd->shortname
+                            ];
+                        }
+                    }
+                    foreach ($courses as $c) {
+                        $c->destinies = $destinies;
+                        $datacourses[] = $c;
+                    }
+                    $data->courses = $datacourses;
+                    $data->haserrors = false;
+                } else {
+                    $data->errors = $res->errors;
+                    $data->haserrors = true;
                 }
-                foreach ($courses as $c) {
-                    $c->destinies = $destinies;
-                    $datacourses[] = $c;
-                }
-                $data->courses = $datacourses;
-                $data->haserrors = false;
-            } else {
-                $data->errors = $res->errors;
+            } catch (moodle_exception $e) {
+                $data->errors = ['code' => '40002', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
-        } catch (moodle_exception $e) {
-            $data->errors = ['code' => 'RCEP4-0001', 'msg' => $e->getMessage()];
+        } else {
+            $data->errors = [
+                    'code' => '40001',
+                    'msg' => get_string('you_have_not_permission', 'local_coursetransfer')];
             $data->haserrors = true;
         }
-        $data->next_url_disabled = true;
         return $data;
     }
 }

@@ -115,7 +115,7 @@ class restore_course_external extends external_api {
         } catch (moodle_exception $e) {
             $errors[] =
                 [
-                    'code' => '200091',
+                    'code' => '45002',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -240,7 +240,7 @@ class restore_course_external extends external_api {
         } catch (moodle_exception $e) {
             $errors[] =
                 [
-                    'code' => '200092',
+                    'code' => '45001',
                     'msg' => $e->getMessage()
                 ];
         }

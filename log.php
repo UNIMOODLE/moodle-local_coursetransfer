@@ -31,6 +31,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_coursetransfer\output\logs\log_page;
+
 require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $USER;
@@ -52,7 +54,7 @@ $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
 
-$page = new \local_coursetransfer\output\log_page($id);
+$page = new log_page($id);
 
 echo $output->render($page);
 echo $OUTPUT->footer();

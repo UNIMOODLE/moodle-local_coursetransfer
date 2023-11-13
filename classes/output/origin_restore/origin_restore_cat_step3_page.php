@@ -62,12 +62,7 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
         global $USER;
         $data = new stdClass();
         $data->button = true;
-        $data->steps = [
-                ['current' => false, 'num' => 1],
-                ['current' => false,  'num' => 2],
-                ['current' => true, 'num' => 3],
-                ['current' => false, 'num' => 4]
-        ];
+        $data->steps = self::get_steps(3);
         $tableurl = new moodle_url(self::URL);
         $backurl = new moodle_url(self::URL,
                 ['step' => 2, 'site' => $this->site, 'type' => 'categories']
@@ -81,8 +76,8 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
         $site = coursetransfer::get_site_by_position($this->site);
 
         $data->host = $site->host;
-        $data->has_origin_user_data = true;
-        $data->can_remove_origin_course = true;
+        $data->has_origin_user_data = coursetransfer::has_origin_user_data($USER);
+        $data->can_remove_origin_course = coursetransfer::can_remove_origin_course($USER);
 
         $cats = \core_course_category::get_all();
         $destinies = [];
@@ -122,13 +117,13 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
                     $data->haserrors = true;
                 }
             } catch (moodle_exception $e) {
-                $data->errors = ['code' => '200110', 'msg' => $e->getMessage()];
+                $data->errors = ['code' => '41012', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {
             $data->haserrors = true;
             $errors[] = [
-                    'code' => '200111',
+                    'code' => '41011',
                     'msg' => get_string('error_validate_site', 'local_coursetransfer')
             ];
             $data->errors = $errors;

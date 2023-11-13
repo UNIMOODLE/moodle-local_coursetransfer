@@ -37,9 +37,8 @@ use advanced_testcase;
 use coding_exception;
 use core_user;
 use dml_exception;
-use externallib_advanced_testcase;
 use invalid_parameter_exception;
-use local_coursetransfer\external\sites_external;
+use local_coursetransfer\external\frontend\sites_external;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\models\configuration_course;
 use moodle_exception;
@@ -108,9 +107,7 @@ class coursetransfer_test extends advanced_testcase {
      * @throws moodle_exception
      */
     protected function setup_config() {
-        global $CFG;
         $token = coursetransfer::postinstall();
-        var_dump($_SERVER);
         $this->user = core_user::get_user_by_username(user::USERNAME_WS);
         sites_external::site_add('origin', self::URL, $token);
     }

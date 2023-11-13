@@ -1,0 +1,133 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/origin_restore_category/new_origin_restore_category_step3_page
+
+  Example context (json):
+
+}}
+<div class="local_coursetransfer" data-region="new_origin_restore_category_step3_page">
+
+    {{> local_coursetransfer/components/stepbystep }}
+
+    <h3 class="h3">{{#str}} steps_restore_title_cat, local_coursetransfer {{/str}}</h3>
+
+    <p>{{#str}} step3_restore_desc_cat, local_coursetransfer {{/str}}</p>
+
+    {{# haserrors }}
+        {{> local_coursetransfer/components/alert }}
+    {{/ haserrors }}
+
+    {{^ haserrors }}
+        {{> local_coursetransfer/components/category_details }}
+
+        <h3 class="h2">{{#str}} step3_category_list, local_coursetransfer {{/str}}{{ categoryname }}</h3>
+
+        {{> local_coursetransfer/components/category_courses }}
+
+        <div class="alert alert-danger hidden" role="alert"></div>
+    {{/ haserrors }}
+
+    {{> local_coursetransfer/components/action_buttons }}
+
+</div>
+<style>
+    div[data-region='new_origin_restore_category_step3_page'] {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] div[data-region="stepbystep"] {
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] h3.h2 {
+        font-size: 24px;
+        font-weight: 600;
+        width: 100%;
+        padding: 10px;
+        text-align: left;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] h3.h3 {
+        font-size: 28px;
+        font-weight: 600;
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] table {
+        width: 100%;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] table tr {
+        font-size: 14px;
+        font-weight: 400;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] table th {
+        border-bottom: 2px solid #9396AA;
+        padding: 10px;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] table td {
+        border-top: 1px solid #D7D8E2;
+        padding: 10px;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] tbody {
+        color: #7C7C7C;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] p {
+        font-size: 16px;
+        font-weight: 400;
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] div.button-container {
+        padding: 10px;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] .text-white {
+        padding: 0 10px;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] div.button-container a.btn-primary {
+        background: #0D6EFD;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] div.button-container a.btn-light {
+        border: 1px solid black;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] tr.selected {
+        color: black;
+        background-color: #F7F9FC;
+    }
+    div[data-region='new_origin_restore_category_step3_page'] input[type="radio"]:checked, input[type="radio"]:active {
+        box-shadow: none;
+    }
+</style>
+
+{{#js}}
+    require(['local_coursetransfer/origin_restore_category_step3'], function(restoreCategoryStep3) {
+        restoreCategoryStep3.initRestoreCategoryStep3('[data-region="new_origin_restore_category_step3_page"]', '{{ next_url }}');
+    });
+{{/js}}
