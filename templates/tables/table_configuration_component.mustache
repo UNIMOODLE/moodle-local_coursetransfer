@@ -112,7 +112,6 @@
                     </ul>
                     <h5>{{#str}} restore_origin_data, local_coursetransfer {{/str}}</h5>
                     <ul class="configuration-list">
-                        {{#has_origin_user_data }}
                             <li class="configuration-group">
                                 <div class="checkbox">
                                     {{#origin_enrol_users}}
@@ -127,8 +126,6 @@
                                     <div class="config-desc">{{#str}} restore_origin_user_data_desc, local_coursetransfer {{/str}}</div>
                                 </div>
                             </li>
-                        {{/has_origin_user_data }}
-                        {{#can_remove_origin_course }}
                             <li class="configuration-group">
                                 <div class="checkbox">
                                     {{#origin_remove_course}}
@@ -143,7 +140,28 @@
                                     <div class="config-desc">{{#str}} restore_origin_remove_desc, local_coursetransfer {{/str}}</div>
                                 </div>
                             </li>
-                        {{/can_remove_origin_course }}
+                        <li class="configuration-group">
+                            <div class="checkbox">
+                                {{#origin_schedule}}
+                                    <i class="fa fa-check-circle-o text-success" aria-hidden="true"></i>
+                                {{/origin_schedule}}
+                                {{^origin_schedule}}
+                                    <i class="fa fa-circle-o text-muted" aria-hidden="true"></i>
+                                {{/origin_schedule}}
+                            </div>
+                            <div class="config-info">
+                                <div class="config-title">{{#str}} origin_schedule, local_coursetransfer {{/str}}</div>
+                                <div class="config-desc">{{#str}} origin_schedule_desc, local_coursetransfer {{/str}}</div>
+                            </div>
+                        </li>
+                        <li class="configuration-group ml-6">
+                            <div class="config-info">
+                                <div class="config-title">{{#str}} origin_schedule_datetime, local_coursetransfer {{/str}}</div>
+                            </div>
+                            <div class="checkbox">
+                                <input class="configuration-checkbox" id="origin_schedule" type="datetime-local" value="{{origin_schedule_datetime}}" disabled>
+                            </div>
+                        </li>
                     </ul>
                 </div>
                 <div class="modal-footer">

@@ -54,6 +54,8 @@ use templatable;
  */
 class origin_restore_category_page implements renderable, templatable {
 
+    const PAGE = '/local/coursetransfer/origin_restore_category.php';
+
     /** @var core_course_category Category */
     protected $category;
 
@@ -75,11 +77,7 @@ class origin_restore_category_page implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $newurl = new moodle_url(
-            '/local/coursetransfer/origin_restore_category.php',
-            ['id' => $this->category->id, 'new' => 1, 'step' => 1]
-        );
-
+        $newurl = new moodle_url(self::PAGE, ['id' => $this->category->id, 'new' => 1, 'step' => 1]);
         $data = new stdClass();
         $data->new_url = $newurl->out(false);
         $data->table = $this->get_restore_table();
@@ -112,9 +110,8 @@ class origin_restore_category_page implements renderable, templatable {
         $table->sortable(true, 'timemodified', SORT_DESC);
         $table->collapsible(false);
         $table->define_baseurl(
-            new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $this->category->id])
+            new moodle_url(self::PAGE, ['id' => $this->category->id])
         );
-
         ob_start();
         $table->out(200, true, false);
         $tablecontent = ob_get_contents();

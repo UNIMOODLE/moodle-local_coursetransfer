@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\output\origin_restore_course;
 
+use context_course;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -62,22 +63,18 @@ class new_origin_restore_course_step3_page extends new_origin_restore_course_ste
         global $USER;
         $data = new stdClass();
         $siteposition = required_param('site', PARAM_INT);
-        $backurl = new moodle_url(
-            '/local/coursetransfer/origin_restore_course.php',
-            ['id' => $this->course->id, 'new' => 1, 'step' => 2, 'site' => $siteposition]
-        );
-        $tableurl = new moodle_url(
-            '/local/coursetransfer/origin_restore_course.php',
-            ['id' => $this->course->id]
-        );
-        $data->back_url = $backurl->out(false);
-        $data->table_url = $tableurl->out(false);
         $restoreid = required_param('restoreid', PARAM_INT);
-        $data->steps = [ ["current" => false, "num" => 1], ["current" => false, "num" => 2],
-            ["current" => true, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
+        $backurl = new moodle_url(self::PAGE, ['id' => $this->course->id, 'new' => 1, 'step' => 2, 'site' => $siteposition]);
+        $url = new moodle_url(self::PAGE, ['id' => $this->course->id]);
+        $nexturl = new moodle_url(self::PAGE,
+                ['id' => $this->course->id, 'new' => 1, 'step' => 4, 'site' => $siteposition, 'restoreid' => $restoreid]);
+        $data->back_url = $backurl->out(false);
+        $data->table_url = $url->out(false);        $data->next_url = $nexturl->out(false);
+        $data->steps = self::get_steps(3);
+        $data->button = false;
+        $data->next_url_disabled = true;
         $errors = [];
         $site = coursetransfer::get_site_by_position($siteposition);
-
         if (coursetransfer::validate_origin_site($site->host)) {
             $data->haserrors = false;
             try {
@@ -85,6 +82,21 @@ class new_origin_restore_course_step3_page extends new_origin_restore_course_ste
                 $res = $request->origin_get_course_detail($restoreid, $USER);
                 if ($res->success) {
                     $data->course = $res->data;
+                    $data->course->sessionStorage_id = "local_coursetransfer_".$this->course->id."_".$data->course->id;
+                    $data->has_origin_user_data = false;
+                    $data->can_remove_origin_course = false;
+                    $data->can_destiny_restore_merge =
+                            coursetransfer::can_destiny_restore_merge($USER, context_course::instance($this->course->id));
+                    $data->can_destiny_restore_content_remove =
+                            coursetransfer::can_destiny_restore_content_remove($USER, context_course::instance($this->course->id));
+                    $data->can_destiny_restore_groups_remove = false;
+                    $data->can_destiny_restore_enrol_remove = false;
+                    $data->has_scheduled_time = false;
+                    $data->restore_this_course =
+                            $data->can_destiny_restore_merge || $data->can_destiny_restore_content_remove;
+                    $data->remove_in_destination =
+                            $data->can_destiny_restore_groups_remove || $data->can_destiny_restore_enrol_remove;
+                    $data->origin_course_configuration = $data->has_origin_user_data || $data->has_scheduled_time;
                     if (isset($data->course->sections)) {
                         for ($i = 0; $i < count($data->course->sections); $i++) {
                             $data->course->sections[$i]->hasactivities = count($data->course->sections[$i]->activities);
@@ -95,23 +107,14 @@ class new_origin_restore_course_step3_page extends new_origin_restore_course_ste
                     $data->haserrors = true;
                 }
             } catch (moodle_exception $e) {
-                $data->errors = ['code' => '200140', 'msg' => $e->getMessage()];
+                $data->errors = ['code' => '500012', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {
             $data->haserrors = true;
-            $errors[] = ['code' => '200141', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $errors[] = ['code' => '500011', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
-
-        $nexturl = new moodle_url(
-            '/local/coursetransfer/origin_restore_course.php',
-            ['id' => $this->course->id, 'new' => 1, 'step' => 4, 'site' => $siteposition, 'restoreid' => $restoreid]
-        );
-        $data->next_url = $nexturl->out(false);
-        $data->button = false;
-        $data->next_url_disabled = true;
-        $data->course->sessionStorage_id = "local_coursetransfer_".$this->course->id."_".$data->course->id;
         return $data;
     }
 }

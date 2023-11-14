@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\output\origin_restore_course;
 
+use context_course;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -62,51 +63,49 @@ class new_origin_restore_course_step4_page extends new_origin_restore_course_ste
         global $USER;
         $siteposition = required_param('site', PARAM_INT);
         $restoreid = required_param('restoreid', PARAM_INT);
-        $backurl = new moodle_url(
-            '/local/coursetransfer/origin_restore_course.php',
-            ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $siteposition, 'restoreid' => $restoreid]
-        );
-        $nexturl = new moodle_url(
-            '/local/coursetransfer/origin_restore_course.php',
+        $backurl = new moodle_url(self::PAGE,
+            ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $siteposition, 'restoreid' => $restoreid]);
+        $nexturl = new moodle_url(self::PAGE,
             ['id' => $this->course->id, 'new' => 1, 'step' => 5, 'site' => $siteposition, 'restoreid' => $restoreid]
         );
-        $tableurl = new moodle_url(
-            '/local/coursetransfer/origin_restore_course.php',
-            ['id' => $this->course->id]
-        );
+        $url = new moodle_url(self::PAGE, ['id' => $this->course->id]);
         $data = new stdClass();
         $data->restoreid = $restoreid;
         $data->button = false;
-        $data->steps = [ ["current" => false, "num" => 1], ["current" => false, "num" => 2],
-            ["current" => false, "num" => 3], ["current" => true, "num" => 4], ["current" => false, "num" => 5] ];
+        $data->steps = self::get_steps(4);
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
-        $data->table_url = $tableurl->out(false);
+        $data->table_url = $url->out(false);
+        $data->next_url_disabled = false;
         $site = coursetransfer::get_site_by_position($siteposition);
-
         if (coursetransfer::validate_origin_site($site->host)) {
             $data->haserrors = false;
             $request = new request($site);
             $res = $request->origin_get_course_detail($restoreid, $USER);
             if ($res->success) {
                 $data->course = $res->data;
+                $data->course->sessionStorage_id = "local_coursetransfer_".$this->course->id."_".$data->course->id;
+                $data->has_origin_user_data = false;
+                $data->can_remove_origin_course = false;
+                $data->can_destiny_restore_merge =
+                        coursetransfer::can_destiny_restore_merge($USER, context_course::instance($this->course->id));
+                $data->can_destiny_restore_content_remove =
+                        coursetransfer::can_destiny_restore_content_remove($USER, context_course::instance($this->course->id));
+                $data->can_destiny_restore_groups_remove = false;
+                $data->can_destiny_restore_enrol_remove = false;
+                $data->has_scheduled_time = false;
+                $data->restore_this_course = $data->can_destiny_restore_merge || $data->can_destiny_restore_content_remove;
+                $data->remove_in_destination = $data->can_destiny_restore_groups_remove || $data->can_destiny_restore_enrol_remove;
+                $data->origin_course_configuration = $data->has_origin_user_data || $data->has_scheduled_time;
             } else {
                 $data->errors = $res->errors;
                 $data->haserrors = true;
             }
         } else {
             $data->haserrors = true;
-            $errors[] = ['code' => '200150', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $errors[] = ['code' => '500021', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
-        $data->next_url_disabled = false;
-        $data->course->sessionStorage_id = "local_coursetransfer_".$this->course->id."_".$data->course->id;
-        $data->has_origin_user_data = false;
-        $data->can_remove_origin_course = false;
-        $data->can_destiny_restore_merge = coursetransfer::can_destiny_restore_merge($USER);
-        $data->can_destiny_restore_content_remove = coursetransfer::can_destiny_restore_content_remove($USER);
-        $data->can_destiny_restore_groups_remove = false;
-        $data->can_destiny_restore_enrol_remove = false;
         return $data;
     }
 

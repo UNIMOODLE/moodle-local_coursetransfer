@@ -43,6 +43,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\output\error_page;
 use moodle_exception;
 use stdClass;
 
@@ -146,11 +147,10 @@ class origin_course_backup_external extends external_api {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
+                $user = $authres['data'];
                 if ($verifydestiny['success']) {
-                    if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id))) {
-                        $user = $authres['data'];
-                        $cat = core_course_category::get($course->category);
-
+                    if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id), $user)) {
+                        $cat = core_course_category::get($course->category, MUST_EXIST);
                         // Create Request Object.
                         $object = new stdClass();
                         $object->type = coursetransfer_request::TYPE_COURSE;

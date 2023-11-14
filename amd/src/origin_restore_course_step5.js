@@ -100,13 +100,32 @@ define([
             sessiondata.course.configuration.forEach(function(config) {
                 configuration[config.name] = config.selected;
             });
+
+            let config = {
+                destiny_merge_activities: false,
+                destiny_remove_activities: false,
+                destiny_remove_groups: false,
+                destiny_remove_enrols: false
+            };
+            if (configuration['destiny_merge_activities']) {
+                config.destiny_merge_activities = configuration['destiny_merge_activities'];
+            }
+            if (configuration['destiny_remove_activities']) {
+                config.destiny_remove_activities = configuration['destiny_remove_activities'];
+            }
+            if (configuration['destiny_remove_groups']) {
+                config.destiny_remove_groups = configuration['destiny_remove_groups'];
+            }
+            if (configuration['destiny_remove_enrols']) {
+                config.destiny_remove_enrols = configuration['destiny_remove_enrols'];
+            }
             const request = {
                 methodname: SERVICES.RESTORE_COURSE_STEP5,
                 args: {
                     siteurl: siteurl,
                     courseid: courseid,
                     destinyid: destinyid,
-                    configuration: configuration,
+                    configuration: config,
                     sections: sessiondata.course.sections,
                 }
             };

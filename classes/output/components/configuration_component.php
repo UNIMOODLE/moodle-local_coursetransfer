@@ -34,6 +34,8 @@
 namespace local_coursetransfer\output\components;
 
 use backup;
+use context_course;
+use local_coursetransfer\coursetransfer;
 use local_coursetransfer\models\configuration_course;
 use renderable;
 use renderer_base;
@@ -83,8 +85,9 @@ class configuration_component implements renderable, templatable {
         $data->destiny_remove_groups = $this->configuration->destinyremovegroups;
         $data->origin_remove_course = $this->configuration->originremovecourse;
         $data->course_new = $this->configuration->destinytarget === backup::TARGET_NEW_COURSE;
-        $data->has_origin_user_data = true;
-        $data->can_remove_origin_course = true;
+        $data->origin_schedule = false;
+        $unixtime = 1699961983;
+        $data->origin_schedule_datetime = date("Y-m-d H:i:s", $unixtime);
         return $data;
     }
 }

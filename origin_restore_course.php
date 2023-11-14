@@ -50,9 +50,9 @@ $title = get_string('origin_restore_course', 'local_coursetransfer');
 
 $course = get_course($courseid);
 require_login($course);
-
+$context = context_course::instance($courseid);
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_context(context_course::instance($courseid));
+$PAGE->set_context($context);
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->set_url('/local/coursetransfer/origin_restore_course.php');
@@ -60,29 +60,39 @@ $PAGE->set_url('/local/coursetransfer/origin_restore_course.php');
 $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
-if ($isnew) {
-    $step = required_param('step', PARAM_INT);
-    switch ($step) {
-        case 1:
-            $page = new new_origin_restore_course_step1_page($course);
-            break;
-        case 2:
-            $page = new new_origin_restore_course_step2_page($course);
-            break;
-        case 3:
-            $page = new new_origin_restore_course_step3_page($course);
-            break;
-        case 4:
-            $page = new new_origin_restore_course_step4_page($course);
-            break;
-        case 5:
-            $page = new new_origin_restore_course_step5_page($course);
-            break;
-        default:
-            throw new moodle_exception('STEP NOT VALID');
+if (has_capability('local/coursetransfer:origin_restore_course', $context)) {
+    if ($isnew) {
+        $step = required_param('step', PARAM_INT);
+        switch ($step) {
+            case 1:
+                $page = new new_origin_restore_course_step1_page($course);
+                break;
+            case 2:
+                $page = new new_origin_restore_course_step2_page($course);
+                break;
+            case 3:
+                $page = new new_origin_restore_course_step3_page($course);
+                break;
+            case 4:
+                $page = new new_origin_restore_course_step4_page($course);
+                break;
+            case 5:
+                $page = new new_origin_restore_course_step5_page($course);
+                break;
+            default:
+                throw new moodle_exception('STEP NOT VALID');
+        }
+    } else {
+        $page = new origin_restore_course_page($course);
     }
 } else {
-    $page = new origin_restore_course_page($course);
+    $page = new \local_coursetransfer\output\error_page(
+            get_string('forbidden', 'local_coursetransfer'),
+            get_string('you_have_not_permission', 'local_coursetransfer'),
+            'danger',
+            get_string('error')
+    );
 }
+
 echo $output->render($page);
 echo $OUTPUT->footer();
