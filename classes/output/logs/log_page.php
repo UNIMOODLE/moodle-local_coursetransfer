@@ -73,7 +73,7 @@ class log_page implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();
         $record = coursetransfer_request::get($this->id);
-        $back = new moodle_url('/local/coursetransfer/logs.php');
+        $back = new moodle_url(logs_page::PAGE);
         $data->back = $back->out(false);
         $data->id = $this->id;
         $data->type = $record->type;

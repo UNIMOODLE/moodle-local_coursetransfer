@@ -76,21 +76,12 @@ class origin_remove_page_cat_step2 implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
         $data = new stdClass();
-        $data->steps = [
-                ['current' => false, 'num' => 1],
-                ['current' => true, 'num' => 2],
-                ['current' => false, 'num' => 3]
-        ];
-        $backurl = new moodle_url(
-                '/local/coursetransfer/origin_remove.php'
-        );
-        $nexturl = new moodle_url(
-                '/local/coursetransfer/origin_remove.php',
+        $data->steps = origin_remove_page::get_steps(2);
+        $backurl = new moodle_url(origin_remove_page::PAGE);
+        $nexturl = new moodle_url(origin_remove_page::PAGE,
                 ['step' => 3, 'site' => $this->site, 'type' => 'categories']
         );
-        $tableurl = new moodle_url(
-                '/local/coursetransfer/origin_remove.php'
-        );
+        $tableurl = new moodle_url(origin_remove_page::PAGE);
         $data->table_url = $tableurl->out(false);
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
@@ -106,7 +97,7 @@ class origin_remove_page_cat_step2 implements renderable, templatable {
                 $data->haserrors = true;
             }
         } catch (moodle_exception $e) {
-            $data->errors = ['code' => '200100', 'msg' => $e->getMessage()];
+            $data->errors = ['code' => '61001', 'msg' => $e->getMessage()];
             $data->haserrors = true;
         }
         $data->next_url_disabled = true;

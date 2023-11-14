@@ -34,6 +34,7 @@
 namespace local_coursetransfer\output\origin_remove;
 
 use local_coursetransfer\forms\origin_remove_form;
+use moodle_exception;
 use moodle_url;
 use renderable;
 use renderer_base;
@@ -51,6 +52,8 @@ use templatable;
  */
 class origin_remove_page implements renderable, templatable {
 
+    const PAGE = '/local/coursetransfer/origin_remove.php';
+
     /**
      *  constructor.
      *
@@ -63,25 +66,33 @@ class origin_remove_page implements renderable, templatable {
      *
      * @param renderer_base $output
      * @return stdClass
+     * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $url = new moodle_url(
-                '/local/coursetransfer/origin_remove.php?step=1',
-        );
+        $url = new moodle_url(self::PAGE, ['step' => 1]);
         $form = new origin_remove_form($url->out(false));
-
         $data = new stdClass();
-        $data->steps = [
-                ['current' => true, 'num' => 1],
-                ['current' => false, 'num' => 2],
-                ['current' => false, 'num' => 3]
-        ];
+        $data->steps = self::get_steps(1);
         $data->button = true;
         $data->next_url = $url->out(false);
         $data->next_url_disabled = false;
         $data->form = $form->render();
-
         return $data;
+    }
+
+    /**
+     * Get Steps.
+     *
+     * @param int $current
+     * @return array|array[]
+     */
+    public static function get_steps(int $current): array {
+        $steps = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $step = ['current' => $current === $i, 'num' => $i];
+            $steps[] = $step;
+        }
+        return $steps;
     }
 
 }

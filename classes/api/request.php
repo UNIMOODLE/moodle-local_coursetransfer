@@ -78,11 +78,11 @@ class request {
     /**
      * Get Request Params.
      *
-     * @param stdClass $user
+     * @param stdClass|null $user
      * @return array
      * @throws dml_exception
      */
-    protected function get_request_params(stdClass $user): array {
+    protected function get_request_params(stdClass $user = null): array {
         global $USER;
         $user = is_null($user) ? $USER : $user;
         $params = [];
