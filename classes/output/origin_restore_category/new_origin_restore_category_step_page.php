@@ -50,6 +50,8 @@ use templatable;
  */
 class new_origin_restore_category_step_page implements renderable, templatable {
 
+    const PAGE = '/local/coursetransfer/origin_restore_category.php';
+
     /** @var core_course_category Category */
     protected $category;
 
@@ -70,5 +72,20 @@ class new_origin_restore_category_step_page implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         return new stdClass();
+    }
+
+    /**
+     * Get Steps.
+     *
+     * @param int $current
+     * @return array|array[]
+     */
+    public static function get_steps(int $current): array {
+        $steps = [];
+        for ($i = 1; $i <= 4; $i++) {
+            $step = ['current' => $current === $i, 'num' => $i];
+            $steps[] = $step;
+        }
+        return $steps;
     }
 }

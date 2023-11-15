@@ -63,26 +63,15 @@ class new_origin_restore_category_step2_page  extends new_origin_restore_categor
         $data = new stdClass();
         $siteposition = required_param('site', PARAM_INT);
         $data->button = true;
-        $data->steps = [ ['current' => false, 'num' => 1], ['current' => true, 'num' => 2],
-            ['current' => false, 'num' => 3], ['current' => false, 'num' => 4] ];
-        $backurl = new moodle_url(
-            '/local/coursetransfer/origin_restore_category.php',
-            ['id' => $this->category->id, 'new' => 1, 'step' => 1]
-        );
-        $tableurl = new moodle_url(
-            '/local/coursetransfer/origin_restore_category.php',
-            ['id' => $this->category->id]
-        );
+        $data->steps = self::get_steps(2);
+        $backurl = new moodle_url(self::PAGE, ['id' => $this->category->id, 'new' => 1, 'step' => 1]);
+        $tableurl = new moodle_url(self::PAGE, ['id' => $this->category->id]);
         $data->categoryid = $this->category->id;
-        $nexturl = new moodle_url(
-            '/local/coursetransfer/origin_restore_category.php',
-            ['id' => $this->category->id, 'new' => 1, 'step' => 3, 'site' => $siteposition]
-        );
+        $nexturl = new moodle_url(self::PAGE, ['id' => $this->category->id, 'new' => 1, 'step' => 3, 'site' => $siteposition]);
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $data->table_url = $tableurl->out(false);
         $site = coursetransfer::get_site_by_position($siteposition);
-
         try {
             $request = new request($site);
             $res = $request->origin_get_categories($USER);
@@ -94,7 +83,7 @@ class new_origin_restore_category_step2_page  extends new_origin_restore_categor
                 $data->haserrors = true;
             }
         } catch (moodle_exception $e) {
-            $data->errors = ['code' => '200100', 'msg' => $e->getMessage()];
+            $data->errors = ['code' => '500041', 'msg' => $e->getMessage()];
             $data->haserrors = true;
         }
         $data->button = true;

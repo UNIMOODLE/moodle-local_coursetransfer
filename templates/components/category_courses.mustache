@@ -31,8 +31,13 @@
     <thead>
     <tr>
         <th></th>
+        {{# has_logs }}
         <th>{{#str}} origin_course_id, local_coursetransfer {{/str}}</th>
         <th>{{#str}} destiny_course_id, local_coursetransfer {{/str}}</th>
+        {{/ has_logs }}
+        {{^ has_logs }}
+            <th>{{#str}} step2_course_id, local_coursetransfer {{/str}}</th>
+        {{/ has_logs }}
         <th>{{#str}} step2_course_name, local_coursetransfer {{/str}}</th>
         <th>{{#str}} step2_course_shortname, local_coursetransfer {{/str}}</th>
         <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
@@ -41,7 +46,9 @@
         {{# has_status }}
             <th>{{#str}} status, local_coursetransfer {{/str}}</th>
         {{/ has_status }}
+        {{# has_logs }}
         <th>{{#str}} log_page, local_coursetransfer {{/str}}</th>
+        {{/ has_logs }}
     </tr>
     </thead>
     <tbody>
@@ -52,8 +59,13 @@
                        data-action="select"
                        data-courseid="{{ id }}"
                        {{# disabled }}disabled{{/ disabled }} {{# checked }}checked{{/ checked }}></td>
+            {{# has_logs }}
             <td id="origin_id">{{ origin_id }}</td>
             <td id="destiny_course_id"><a href="{{ destiny_url }}" target="_blank">{{ destiny_course_id }}</a></td>
+            {{/ has_logs }}
+            {{^ has_logs }}
+                <td id="courseid"><a href="{{ url }}" target="_blank">{{ id }}</a></td>
+            {{/ has_logs }}
             <td>{{ fullname }}</td>
             <td>{{ shortname }}</td>
             <td>{{ idnumber }}</td>
@@ -62,8 +74,10 @@
             {{# has_status }}
                 <td>{{ status }}</td>
             {{/ has_status }}
-            <td><a href="{{ log_url }}" target="_blank">{{#str}} log_page, local_coursetransfer {{/str}}</a></td>
-        </tr>
+            {{# has_logs }}
+                <td><a href="{{ log_url }}" target="_blank">{{#str}} log_page, local_coursetransfer {{/str}}</a></td>
+            {{/ has_logs }}
+            </tr>
     {{/ category.courses }}
     </tbody>
 </table>

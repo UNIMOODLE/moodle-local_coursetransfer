@@ -79,18 +79,11 @@ class origin_remove_page_cat_step3 implements renderable, templatable {
         $removeid = required_param('removeid', PARAM_INT);
 
         $data = new stdClass();
-        $data->steps = [
-                ['current' => false, 'num' => 1],
-                ['current' => true, 'num' => 2],
-                ['current' => false, 'num' => 3]
-        ];
-        $backurl = new moodle_url(
-                '/local/coursetransfer/origin_remove.php',
+        $data->steps = origin_remove_page::get_steps(3);
+        $backurl = new moodle_url(origin_remove_page::PAGE,
                 ['step' => 2, 'site' => $this->site, 'type' => 'categories']
         );
-        $tableurl = new moodle_url(
-                '/local/coursetransfer/origin_remove.php'
-        );
+        $tableurl = new moodle_url(origin_remove_page::PAGE);
         $data->table_url = $tableurl->out(false);
         $data->back_url = $backurl->out(false);
         $site = coursetransfer::get_site_by_position($this->site);
@@ -108,12 +101,12 @@ class origin_remove_page_cat_step3 implements renderable, templatable {
                     $data->haserrors = true;
                 }
             } catch (moodle_exception $e) {
-                $data->errors = ['code' => '200110', 'msg' => $e->getMessage()];
+                $data->errors = ['code' => '61003', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {
             $data->haserrors = true;
-            $errors[] = ['code' => '200111', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $errors[] = ['code' => '61002', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
         $data->next_url_disabled = true;

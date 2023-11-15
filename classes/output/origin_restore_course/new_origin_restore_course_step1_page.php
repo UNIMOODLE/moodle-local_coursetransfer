@@ -58,21 +58,14 @@ class new_origin_restore_course_step1_page extends new_origin_restore_course_ste
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $backurl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
-        $tableurl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id]);
-
+        $backurl = new moodle_url(self::PAGE, ['id' => $this->course->id]);
+        $url = new moodle_url(self::PAGE, ['id' => $this->course->id, 'new' => 1, 'step' => 2 ]);
         $data = new stdClass();
         $data->button = true;
         $data->courseid = $this->course->id;
-        $data->steps = [ ["current" => true, "num" => 1], ["current" => false, "num" => 2],
-            ["current" => false, "num" => 3], ["current" => false, "num" => 4], ["current" => false, "num" => 5] ];
+        $data->steps = self::get_steps(1);
         $data->back_url = $backurl->out(false);
-        $data->table_url = $tableurl->out(false);
-
-        $url = new moodle_url(
-            '/local/coursetransfer/origin_restore_course.php',
-            ['id' => $this->course->id, 'new' => 1, 'step' => 2 ]
-        );
+        $data->table_url = $url->out(false);
         $form = new new_origin_restore_course_step1_form($url->out(false));
         $data->form = $form->render();
         $data->next_url_disabled = false;

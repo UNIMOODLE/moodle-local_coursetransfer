@@ -28,6 +28,7 @@
 
 }}
 <div data-region="restore_course_config">
+    {{#restore_this_course }}
     <h5>{{#str}} restoretocurrentcourse, backup {{/str}}</h5>
     <ul class="configuration-list">
         {{#can_destiny_restore_merge }}
@@ -53,6 +54,8 @@
         </li>
         {{/can_destiny_restore_content_remove }}
     </ul>
+    {{/restore_this_course }}
+    {{#remove_in_destination }}
     <h5>{{#str}} deleteindestiny, local_coursetransfer {{/str}}</h5>
     <ul class="configuration-list">
         {{#can_destiny_restore_groups_remove }}
@@ -78,6 +81,8 @@
         </li>
         {{/can_destiny_restore_enrol_remove }}
     </ul>
+    {{/remove_in_destination }}
+    {{#origin_course_configuration }}
     <h5>{{#str}} restore_origin_data, local_coursetransfer {{/str}}</h5>
     <ul class="configuration-list">
         {{#has_origin_user_data }}
@@ -102,6 +107,7 @@
             </div>
         </li>
         {{/can_remove_origin_course }}
+        {{#has_scheduled_time }}
         <li class="configuration-group">
             <div class="checkbox">
                 <input class="configuration-checkbox" id="origin_schedule" type="checkbox">
@@ -116,12 +122,12 @@
                 <div class="config-title">{{#str}} origin_schedule_datetime, local_coursetransfer {{/str}}</div>
             </div>
             <div class="checkbox">
-                <input class="configuration-checkbox" id="origin_schedule" type="datetime-local" disabled>
+                <input class="configuration-checkbox" id="origin_schedule_datetime" type="datetime-local" disabled>
             </div>
         </li>
+        {{/has_scheduled_time }}
     </ul>
-    <ul class="configuration-list">
-    </ul>
+     {{/origin_course_configuration }}
 </div>
 <style>
     div[data-region='restore_course_config']{

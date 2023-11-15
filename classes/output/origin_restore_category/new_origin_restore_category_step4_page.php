@@ -63,27 +63,17 @@ class new_origin_restore_category_step4_page extends new_origin_restore_category
         $siteposition = required_param('site', PARAM_RAW);
         $restoreid = required_param('restoreid', PARAM_INT);
         $destinyid = required_param('id', PARAM_INT);
-        $backurl = new moodle_url(
-            '/local/coursetransfer/origin_restore_category.php',
-            [
+        $backurl = new moodle_url(self::PAGE, [
                     'id' => $this->category->id,
                     'new' => 1, 'step' => 3, 'site' => $siteposition, 'restoreid' => $restoreid]
         );
-        $tableurl = new moodle_url(
-            '/local/coursetransfer/origin_restore_category.php',
-            ['id' => $this->category->id]
-        );
+        $tableurl = new moodle_url(self::PAGE, ['id' => $this->category->id]);
         $data = new stdClass();
         $data->button = false;
         $data->restoreid = $restoreid;
         $data->destinyid = $destinyid;
         $data->siteposition = $siteposition;
-        $data->steps = [
-                ['current' => false, 'num' => 1],
-                ['current' => false, 'num' => 2],
-                ['current' => false, 'num' => 3],
-                ['current' => true,  'num' => 4]
-        ];
+        $data->steps = self::get_steps(4);
         $data->back_url = $backurl->out(false);
         $data->table_url = $tableurl->out(false);
         $site = coursetransfer::get_site_by_position($siteposition);
@@ -95,21 +85,21 @@ class new_origin_restore_category_step4_page extends new_origin_restore_category
                 $res = $request->origin_get_category_detail($restoreid, $USER);
                 if ($res->success) {
                     $data->category = $res->data;
+                    $data->category->sessionStorage_id = "local_coursetransfer_".$this->category->id."_".$data->restoreid;
                 } else {
                     $data->errors = $res->errors;
                     $data->haserrors = true;
                 }
             } catch (moodle_exception $e) {
-                $data->errors = ['code' => '200121', 'msg' => $e->getMessage()];
+                $data->errors = ['code' => '500062', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {
             $data->haserrors = true;
-            $errors[] = ['code' => '200122',
+            $errors[] = ['code' => '500061',
                     'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
-        $data->category->sessionStorage_id = "local_coursetransfer_".$this->category->id."_".$data->restoreid;
         return $data;
     }
 

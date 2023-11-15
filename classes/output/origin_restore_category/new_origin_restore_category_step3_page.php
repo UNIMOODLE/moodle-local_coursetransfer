@@ -63,23 +63,11 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
         $data = new stdClass();
         $siteposition = required_param('site', PARAM_INT);
         $restoreid = required_param('restoreid', PARAM_INT);
-        $data->steps = [
-                ['current' => false, 'num' => 1],
-                ['current' => false, 'num' => 2],
-                ['current' => true,  'num' => 3],
-                ['current' => false, 'num' => 4]
-        ];
-        $backurl = new moodle_url(
-            '/local/coursetransfer/origin_restore_category.php',
-            ['id' => $this->category->id, 'new' => 1, 'step' => 2, 'site' => $siteposition]
-        );
-        $tableurl = new moodle_url(
-            '/local/coursetransfer/origin_restore_category.php',
-            ['id' => $this->category->id]
-        );
+        $data->steps = self::get_steps(3);
+        $backurl = new moodle_url(self::PAGE, ['id' => $this->category->id, 'new' => 1, 'step' => 2, 'site' => $siteposition]);
+        $tableurl = new moodle_url(self::PAGE, ['id' => $this->category->id]);
         $data->categoryid = $this->category->id;
-        $nexturl = new moodle_url(
-            '/local/coursetransfer/origin_restore_category.php',
+        $nexturl = new moodle_url(self::PAGE,
             [
                     'id' => $this->category->id,
                     'new' => 1, 'step' => 4,
@@ -91,7 +79,6 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
         $data->next_url = $nexturl->out(false);
         $data->table_url = $tableurl->out(false);
         $site = coursetransfer::get_site_by_position($siteposition);
-
         if (coursetransfer::validate_origin_site($site->host)) {
             $data->haserrors = false;
             try {
@@ -99,24 +86,24 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
                 $res = $request->origin_get_category_detail($restoreid, $USER);
                 if ($res->success) {
                     $data->category = $res->data;
+                    $data->category->sessionStorage_id = "local_coursetransfer_".$this->category->id."_".$restoreid;
                 } else {
                     $data->errors = $res->errors;
                     $data->haserrors = true;
                 }
             } catch (moodle_exception $e) {
-                $data->errors = ['code' => '200110', 'msg' => $e->getMessage()];
+                $data->errors = ['code' => '500052', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {
             $data->haserrors = true;
             $errors[] = [
-                    'code' => '200111',
+                    'code' => '500051',
                     'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
         $data->button = true;
         $data->next_url_disabled = true;
-        $data->category->sessionStorage_id = "local_coursetransfer_".$this->category->id."_".$restoreid;
         return $data;
     }
 }

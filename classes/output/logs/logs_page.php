@@ -90,7 +90,7 @@ class logs_page implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $formurl = new moodle_url('/local/coursetransfer/logs.php');
+        $formurl = new moodle_url(self::PAGE);
         $restoreurl = new moodle_url('/local/coursetransfer/origin_restore.php');
         $data = new stdClass();
         $data->table = $this->get_logs_table();

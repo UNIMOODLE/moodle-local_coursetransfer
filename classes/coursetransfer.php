@@ -36,9 +36,11 @@ namespace local_coursetransfer;
 use backup;
 use backup_controller;
 use base_plan_exception;
+use base_setting;
 use base_setting_exception;
 use cm_info;
 use coding_exception;
+use context;
 use context_course;
 use core_course_category;
 use core_user;
@@ -398,6 +400,7 @@ class coursetransfer {
     public static function create_task_backup_course(
             int $courseid, int $userid, stdClass $destinysite, int $requestid, int $requestoriginid,
             array $sections, int $rootusers = 0) {
+
         $bc = new backup_controller(
                 backup::TYPE_1COURSE, $courseid,
                 backup::FORMAT_MOODLE,
@@ -405,10 +408,16 @@ class coursetransfer {
                 backup::MODE_GENERAL, $userid,
                 backup::RELEASESESSION_NO);
         $bc->set_status(backup::STATUS_AWAITING);
+        $bc->set_status(backup::STATUS_AWAITING);
+        $bc->get_plan()->get_setting('users')->set_status(base_setting::NOT_LOCKED);
         $bc->get_plan()->get_setting('users')->set_value($rootusers);
+        $bc->get_plan()->get_setting('role_assignments')->set_status(base_setting::NOT_LOCKED);
         $bc->get_plan()->get_setting('role_assignments')->set_value($rootusers);
+        $bc->get_plan()->get_setting('comments')->set_status(base_setting::NOT_LOCKED);
         $bc->get_plan()->get_setting('comments')->set_value($rootusers);
+        $bc->get_plan()->get_setting('badges')->set_status(base_setting::NOT_LOCKED);
         $bc->get_plan()->get_setting('badges')->set_value($rootusers);
+        $bc->get_plan()->get_setting('userscompletion')->set_status(base_setting::NOT_LOCKED);
         $bc->get_plan()->get_setting('userscompletion')->set_value($rootusers);
 
         self::set_value_settings_section_activities($bc, $courseid, $rootusers, $sections);
@@ -1182,12 +1191,11 @@ class coursetransfer {
      * Can destiny restore merge?
      *
      * @param stdClass $user
+     * @param context $context
      * @return false
      * @throws coding_exception
-     * @throws dml_exception
      */
-    public static function can_destiny_restore_merge(stdClass $user): bool {
-        $context = \context_system::instance();
+    public static function can_destiny_restore_merge(stdClass $user, context $context): bool {
         return has_capability('local/coursetransfer:destiny_restore_merge', $context, $user->id);
     }
 
@@ -1195,12 +1203,11 @@ class coursetransfer {
      * Can Destination restore content remove?
      *
      * @param stdClass $user
+     * @param context $context
      * @return false
      * @throws coding_exception
-     * @throws dml_exception
      */
-    public static function can_destiny_restore_content_remove(stdClass $user): bool {
-        $context = \context_system::instance();
+    public static function can_destiny_restore_content_remove(stdClass $user, context $context): bool {
         return has_capability('local/coursetransfer:destiny_restore_content_remove', $context, $user->id);
     }
 

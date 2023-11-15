@@ -64,17 +64,22 @@ class category_course_component implements renderable, templatable {
     /** @var string Origin Site URL */
     protected $siteurl;
 
+    /** @var bool Has logs? */
+    protected $haslogs;
+
     /**
      *  constructor.
      *
      * @param string $requests
      * @param string $siteurl
      * @param int $id
+     * @param bool $logs
      */
-    public function __construct(string $requests, string $siteurl, int $id) {
+    public function __construct(string $requests, string $siteurl, int $id, bool $logs = false) {
         $this->id = $id;
         $this->requests = $requests;
         $this->siteurl = $siteurl;
+        $this->haslogs = $logs;
     }
 
     /**
@@ -84,6 +89,7 @@ class category_course_component implements renderable, templatable {
      * @return stdClass
      * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
         $category = new stdClass();
@@ -92,6 +98,7 @@ class category_course_component implements renderable, templatable {
         $data->id = $this->id;
         $data->category = $category;
         $data->has_status = true;
+        $data->has_logs = $this->haslogs;
         return $data;
     }
 

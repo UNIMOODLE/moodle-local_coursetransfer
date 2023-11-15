@@ -42,6 +42,10 @@
     {{^ haserrors }}
         {{> local_coursetransfer/components/category_details }}
 
+        <h4 class="h4">{{#str}} step4_config_title, local_coursetransfer {{/str}}</h4>
+
+        {{> local_coursetransfer/components/cat_configuration }}
+
         <h3 class="h2">{{#str}} step3_category_list, local_coursetransfer {{/str}}{{ categoryname }}</h3>
 
         {{> local_coursetransfer/components/category_courses }}

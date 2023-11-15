@@ -54,6 +54,8 @@ use templatable;
  */
 class origin_restore_course_page implements renderable, templatable {
 
+    const PAGE = '/local/coursetransfer/origin_restore_course.php';
+
     /** @var stdClass Course */
     protected $course;
 
@@ -75,11 +77,9 @@ class origin_restore_course_page implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $newurl = new moodle_url(
-            '/local/coursetransfer/origin_restore_course.php',
+        $newurl = new moodle_url(self::PAGE,
             ['id' => $this->course->id, 'new' => 1, 'step' => 1]
         );
-
         $data = new stdClass();
         $data->new_url = $newurl->out(false);
         $data->table = $this->get_restore_table();
@@ -99,7 +99,7 @@ class origin_restore_course_page implements renderable, templatable {
         $table->is_downloadable(false);
         $table->pageable(false);
         $select = 'csr.id, csr.siteurl, csr.origin_course_id, csr.status,
-                    csr.origin_activities, csr.destiny_target, csr.destiny_remove_enrols, 
+                    csr.origin_activities, csr.destiny_target, csr.destiny_remove_enrols,
                     csr.destiny_remove_groups, csr.origin_backup_size,
                     csr.error_code, csr.error_message, csr.userid, csr.timemodified, csr.timecreated';
         $from = '{local_coursetransfer_request} csr';
@@ -113,7 +113,7 @@ class origin_restore_course_page implements renderable, templatable {
         $table->sortable(true, 'timemodified', SORT_DESC);
         $table->collapsible(false);
         $table->define_baseurl(
-            new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $this->course->id])
+            new moodle_url(self::PAGE, ['id' => $this->course->id])
         );
 
         ob_start();

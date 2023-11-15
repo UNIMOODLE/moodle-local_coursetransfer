@@ -56,28 +56,38 @@ $output = $PAGE->get_renderer('local_coursetransfer');
 echo $OUTPUT->header();
 
 $step = optional_param('step', 1, PARAM_INT);
-switch ($step) {
-    case 1:
-        $page = new origin_remove_page();
-        break;
-    case 2:
-        $type = required_param('type', PARAM_TEXT);
-        if ($type === 'categories') {
-            $page = new origin_remove_page_cat_step2();
-        } else {
-            $page = new origin_remove_page_step2();
-        }
-        break;
-    case 3:
-        $type = required_param('type', PARAM_TEXT);
-        if ($type === 'categories') {
-            $page = new origin_remove_page_cat_step3();
-        } else {
-            $page = new origin_remove_page_step3();
-        }
-        break;
-    default:
-        $page = new origin_remove_page();
+if (has_capability('local/coursetransfer:origin_remove_course', context_system::instance())) {
+
+    switch ($step) {
+        case 1:
+            $page = new origin_remove_page();
+            break;
+        case 2:
+            $type = required_param('type', PARAM_TEXT);
+            if ($type === 'categories') {
+                $page = new origin_remove_page_cat_step2();
+            } else {
+                $page = new origin_remove_page_step2();
+            }
+            break;
+        case 3:
+            $type = required_param('type', PARAM_TEXT);
+            if ($type === 'categories') {
+                $page = new origin_remove_page_cat_step3();
+            } else {
+                $page = new origin_remove_page_step3();
+            }
+            break;
+        default:
+            $page = new origin_remove_page();
+    }
+} else {
+    $page = new \local_coursetransfer\output\error_page(
+            get_string('forbidden', 'local_coursetransfer'),
+            get_string('you_have_not_permission', 'local_coursetransfer'),
+            'danger',
+            get_string('error')
+    );
 }
 
 echo $output->render($page);

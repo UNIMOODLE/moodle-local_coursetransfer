@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\external\frontend;
 
+use context_system;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -113,7 +114,7 @@ class origin_remove_external extends external_api {
         } catch (moodle_exception $e) {
             $errors[] =
                     [
-                            'code' => '200301',
+                            'code' => '60105',
                             'msg' => $e->getMessage()
                     ];
         }
@@ -177,6 +178,7 @@ class origin_remove_external extends external_api {
      * @throws invalid_parameter_exception|moodle_exception
      */
     public static function origin_remove_step3(int $siteurl, array $courses): array {
+        global $USER;
         self::validate_parameters(
                 self::origin_remove_step3_parameters(),
                 [
@@ -193,39 +195,47 @@ class origin_remove_external extends external_api {
         ]);
         $data->nexturl = $nexturl->out(false);
 
-        try {
-            $site = coursetransfer::get_site_by_position($siteurl);
-            foreach ($courses as $course) {
-                $res = coursetransfer::remove_course($site, $course['id']);
-                if (isset($res['data']['requestid'])) {
-                    $requestid = $res['data']['requestid'];
-                    if (!$res['success']) {
-                        $errors = $res['errors'];
-                        $request = coursetransfer_request::get($requestid);
-                        $request->status = coursetransfer_request::STATUS_ERROR;
-                        $request->error_code = $errors[0]->code;
-                        $request->error_message = $errors[0]->msg;
-                        coursetransfer_request::insert_or_update($request, $requestid);
+        if (has_capability('local/coursetransfer:origin_remove_course', context_system::instance())) {
+            try {
+                $site = coursetransfer::get_site_by_position($siteurl);
+                foreach ($courses as $course) {
+                    $res = coursetransfer::remove_course($site, $course['id'], $USER);
+                    if (isset($res['data']['requestid'])) {
+                        $requestid = $res['data']['requestid'];
+                        if (!$res['success']) {
+                            $errors = $res['errors'];
+                            $request = coursetransfer_request::get($requestid);
+                            $request->status = coursetransfer_request::STATUS_ERROR;
+                            $request->error_code = $errors[0]->code;
+                            $request->error_message = $errors[0]->msg;
+                            coursetransfer_request::insert_or_update($request, $requestid);
+                        } else {
+                            $success = true;
+                            $errors = $res['errors'];
+                            $request = coursetransfer_request::get($requestid);
+                            $request->status = coursetransfer_request::STATUS_COMPLETED;
+                            coursetransfer_request::insert_or_update($request, $requestid);
+                        }
                     } else {
-                        $success = true;
-                        $errors = $res['errors'];
-                        $request = coursetransfer_request::get($requestid);
-                        $request->status = coursetransfer_request::STATUS_COMPLETED;
-                        coursetransfer_request::insert_or_update($request, $requestid);
+                        $errors[] =
+                                [
+                                        'code' => '60105',
+                                        'msg' => 'NOT CONTROLLED'
+                                ];
                     }
-                } else {
-                    $errors[] =
-                            [
-                                    'code' => '201102',
-                                    'msg' => 'NOT CONTROLLED'
-                            ];
                 }
+            } catch (moodle_exception $e) {
+                $errors[] =
+                        [
+                                'code' => '60104',
+                                'msg' => $e->getMessage()
+                        ];
             }
-        } catch (moodle_exception $e) {
+        } else {
             $errors[] =
                     [
-                            'code' => '201101',
-                            'msg' => $e->getMessage()
+                            'code' => '60103',
+                            'msg' => get_string('you_have_not_permission', 'local_coursetransfer')
                     ];
         }
 
@@ -279,6 +289,7 @@ class origin_remove_external extends external_api {
      * @throws invalid_parameter_exception|moodle_exception
      */
     public static function origin_remove_cat_step3(int $siteurl, int $catid): array {
+        global $USER;
         self::validate_parameters(
                 self::origin_remove_cat_step3_parameters(),
                 [
@@ -294,38 +305,45 @@ class origin_remove_external extends external_api {
                 'type' => coursetransfer_request::TYPE_REMOVE_CATEGORY
         ]);
         $data->nexturl = $nexturl->out(false);
-
-        try {
-            $site = coursetransfer::get_site_by_position($siteurl);
-            $res = coursetransfer::remove_category($site, $catid);
-            if (isset($res['data']['requestid'])) {
-                $requestid = $res['data']['requestid'];
-                if (!$res['success']) {
-                    $errors = $res['errors'];
-                    $request = coursetransfer_request::get($requestid);
-                    $request->status = coursetransfer_request::STATUS_ERROR;
-                    $request->error_code = $errors[0]->code;
-                    $request->error_message = $errors[0]->msg;
-                    coursetransfer_request::insert_or_update($request, $requestid);
+        if (has_capability('local/coursetransfer:origin_remove_course', context_system::instance())) {
+            try {
+                $site = coursetransfer::get_site_by_position($siteurl);
+                $res = coursetransfer::remove_category($site, $catid, $USER);
+                if (isset($res['data']['requestid'])) {
+                    $requestid = $res['data']['requestid'];
+                    if (!$res['success']) {
+                        $errors = $res['errors'];
+                        $request = coursetransfer_request::get($requestid);
+                        $request->status = coursetransfer_request::STATUS_ERROR;
+                        $request->error_code = $errors[0]->code;
+                        $request->error_message = $errors[0]->msg;
+                        coursetransfer_request::insert_or_update($request, $requestid);
+                    } else {
+                        $success = true;
+                        $errors = $res['errors'];
+                        $request = coursetransfer_request::get($requestid);
+                        $request->status = coursetransfer_request::STATUS_COMPLETED;
+                        coursetransfer_request::insert_or_update($request, $requestid);
+                    }
                 } else {
-                    $success = true;
-                    $errors = $res['errors'];
-                    $request = coursetransfer_request::get($requestid);
-                    $request->status = coursetransfer_request::STATUS_COMPLETED;
-                    coursetransfer_request::insert_or_update($request, $requestid);
+                    $errors[] =
+                            [
+                                    'code' => '60102',
+                                    'msg' => 'NOT CONTROLLED'
+                            ];
                 }
-            } else {
+            } catch (moodle_exception $e) {
                 $errors[] =
                         [
-                                'code' => '201102',
-                                'msg' => 'NOT CONTROLLED'
+                                'code' => '60101',
+                                'msg' => $e->getMessage()
                         ];
             }
-        } catch (moodle_exception $e) {
+        } else {
             $errors[] =
                     [
-                            'code' => '202101',
-                            'msg' => $e->getMessage()
+                            'code' => '60100',
+                            'msg' => get_string('you_have_not_permission', 'local_coursetransfer')
                     ];
         }
 

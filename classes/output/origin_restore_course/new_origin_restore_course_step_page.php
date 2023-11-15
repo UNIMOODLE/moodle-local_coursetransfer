@@ -49,6 +49,8 @@ use templatable;
  */
 class new_origin_restore_course_step_page implements renderable, templatable {
 
+    const PAGE = '/local/coursetransfer/origin_restore_course.php';
+
     /** @var stdClass Course */
     protected $course;
 
@@ -69,5 +71,20 @@ class new_origin_restore_course_step_page implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         return new stdClass();
+    }
+
+    /**
+     * Get Steps.
+     *
+     * @param int $current
+     * @return array|array[]
+     */
+    public static function get_steps(int $current): array {
+        $steps = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $step = ['current' => $current === $i, 'num' => $i];
+            $steps[] = $step;
+        }
+        return $steps;
     }
 }
