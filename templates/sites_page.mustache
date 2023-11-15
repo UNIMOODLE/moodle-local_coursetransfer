@@ -13,7 +13,14 @@
 
     You should have received a copy of the GNU General Public License
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-  }}
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
 {{!
   @template local_coursetransfer/sites_page
 
@@ -22,14 +29,14 @@
 }}
 <div class="local_coursetransfer" data-region="sites_page" >
 
-    <a class="btn btn-outline-primary mb-4" href="{{ back }}">Volver a configuración</a>
+    <a class="btn btn-outline-primary mb-4" href="{{ back }}">{{#str}} back_config, local_coursetransfer {{/str}}</a>
 
     <p>{{ desc }}</p>
 
     <div>
         <!-- Button trigger modal -->
         <button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#createSite">
-           Crear un sitio
+           {{#str}} create_site, local_coursetransfer {{/str}}
         </button>
 
         <!-- Modal -->
@@ -37,7 +44,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Crear un sitio</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">{{#str}} create_site, local_coursetransfer {{/str}}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -45,20 +52,20 @@
                     <div class="modal-body">
                         <form data-region="create-form">
                             <div class="form-group">
-                                <label for="host">Host</label>
-                                <input type="text" class="form-control" id="host" aria-describedby="emailHelp" placeholder="URL del sitio">
-                                <small id="hostHelp" class="form-text text-muted">Añada la URL del host</small>
+                                <label for="host">{{#str}} host_url, local_coursetransfer {{/str}}</label>
+                                <input type="text" class="form-control" id="host" aria-describedby="emailHelp" placeholder="{{#str}} host_url, local_coursetransfer {{/str}}">
+                                <small id="hostHelp" class="form-text text-muted">{{#str}} host_url_desc, local_coursetransfer {{/str}}</small>
                             </div>
                             <div class="form-group">
-                                <label for="token">Token</label>
-                                <input type="text" class="form-control" id="token" placeholder="Token del sitio">
-                                <small id="tokenHelp" class="form-text text-muted">Añada el Token</small>
+                                <label for="token">{{#str}} host_token, local_coursetransfer {{/str}}</label>
+                                <input type="text" class="form-control" id="token" placeholder="{{#str}} host_token, local_coursetransfer {{/str}}">
+                                <small id="tokenHelp" class="form-text text-muted">{{#str}} host_token_desc, local_coursetransfer {{/str}}</small>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" data-action="create">Crear sitio</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{#str}} cancel {{/str}}</button>
+                        <button type="button" class="btn btn-primary" data-action="create">{{#str}} create_site, local_coursetransfer {{/str}}</button>
                     </div>
                 </div>
             </div>

@@ -14,11 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * Capability definitions for the Course Transfer plugin.
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -38,6 +47,18 @@ $capabilities = array(
         )
     ),
 
+    'local/coursetransfer:origin_restore' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'guest' => CAP_PROHIBIT,
+            'manager' => CAP_PROHIBIT,
+            'editingteacher' => CAP_PROHIBIT,
+            'teacher' => CAP_PROHIBIT,
+            'student' => CAP_PROHIBIT
+        )
+    ),
+
     'local/coursetransfer:origin_restore_course' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -50,6 +71,18 @@ $capabilities = array(
         )
     ),
 
+    'local/coursetransfer:origin_remove_course' => array(
+            'captype' => 'write',
+            'contextlevel' => CONTEXT_COURSE,
+            'archetypes' => array(
+                    'guest' => CAP_PROHIBIT,
+                    'manager' => CAP_ALLOW,
+                    'editingteacher' => CAP_PROHIBIT,
+                    'teacher' => CAP_PROHIBIT,
+                    'student' => CAP_PROHIBIT
+            )
+    ),
+
     'local/coursetransfer:origin_restore_course_users' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
@@ -60,6 +93,30 @@ $capabilities = array(
             'teacher' => CAP_PROHIBIT,
             'student' => CAP_PROHIBIT
         )
+    ),
+
+    'local/coursetransfer:destiny_restore_enrol_remove' => array(
+            'captype' => 'write',
+            'contextlevel' => CONTEXT_COURSE,
+            'archetypes' => array(
+                    'guest' => CAP_PROHIBIT,
+                    'manager' => CAP_ALLOW,
+                    'editingteacher' => CAP_ALLOW,
+                    'teacher' => CAP_PROHIBIT,
+                    'student' => CAP_PROHIBIT
+            )
+    ),
+
+    'local/coursetransfer:destiny_restore_groups_remove' => array(
+            'captype' => 'write',
+            'contextlevel' => CONTEXT_COURSE,
+            'archetypes' => array(
+                    'guest' => CAP_PROHIBIT,
+                    'manager' => CAP_ALLOW,
+                    'editingteacher' => CAP_ALLOW,
+                    'teacher' => CAP_PROHIBIT,
+                    'student' => CAP_PROHIBIT
+            )
     ),
 
     'local/coursetransfer:destiny_restore_content_remove' => array(
@@ -86,39 +143,4 @@ $capabilities = array(
         )
     ),
 
-    'local/coursetransfer:destiny_restore_enrol_remove' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'guest' => CAP_PROHIBIT,
-            'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_PROHIBIT,
-            'student' => CAP_PROHIBIT
-        )
-    ),
-
-    'local/coursetransfer:destiny_restore_groups_remove' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'guest' => CAP_PROHIBIT,
-            'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_PROHIBIT,
-            'student' => CAP_PROHIBIT
-        )
-    ),
-
-    'local/coursetransfer:origin_remove_course' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'guest' => CAP_PROHIBIT,
-            'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_PROHIBIT,
-            'teacher' => CAP_PROHIBIT,
-            'student' => CAP_PROHIBIT
-        )
-    )
 );

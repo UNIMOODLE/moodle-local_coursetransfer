@@ -14,17 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * Class sites_table
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace local_coursetransfer\tables;
 
 use coding_exception;
+use local_coursetransfer\output\components\actions_site_component;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -35,10 +45,12 @@ defined('MOODLE_INTERNAL') || die;
 require_once('../../lib/tablelib.php');
 
 /**
- * Class sites_table
+ * sites_table
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sites_table extends table_sql {
@@ -123,79 +135,13 @@ class sites_table extends table_sql {
      *
      * @param stdClass $row Full data of the current row.
      * @return string
+     * @throws coding_exception
      */
     public function col_actions(stdClass $row): string {
-        $html = '<!-- Button trigger modal -->
-<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#' . $this->type . 'Delete' . $row->id . '">
-  Borrar
-</button>
-
-<!-- Modal -->
-<div class="modal fade" id="' . $this->type . 'Delete' . $row->id . '" tabindex="-1" role="dialog" aria-labelledby="' . $this->type . 'Delete' . $row->id . '" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Borrar sitio ' . $row->id . '</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p><b>¿Estas seguro de borrar este sitio?</b></p>
-        <p>' . $row->host . '</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        <button type="button" data-action="remove" data-id="' . $row->id . '" class="btn btn-danger">Borrar</button>
-      </div>
-    </div>
-  </div>
-</div>';
-
-        $html .= '<!-- Button trigger modal -->
-<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#editSite-' . $row->id . '">
-  Editar
-</button>
-
-<!-- Modal -->
-<div class="modal fade" id="editSite-' . $row->id .
-                '" tabindex="-1" role="dialog" aria-labelledby="editSite-' . $row->id . '" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Editar sitio ' . $row->id . '</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form data-region="edit-form" data-id="' . $row->id . '" style="text-align: left">
-            <div class="form-group">
-                <label for="host">Host</label>
-                <input type="text" value="' . $row->host .
-                '" class="form-control" id="host" aria-describedby="emailHelp" placeholder="URL del sitio">
-                <small id="hostHelp" class="form-text text-muted">Añada la URL del host</small>
-            </div>
-            <div class="form-group">
-                <label for="token">Token</label>
-                <input type="text" value="' . $row->token . '" class="form-control" id="token" placeholder="Token">
-                <small id="tokenHelp" class="form-text text-muted">Añada el Token</small>
-            </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        <button type="button" data-action="edit" data-id="' . $row->id . '" class="btn btn-primary">Guardar</button>
-      </div>
-    </div>
-  </div>
-</div>';
-
-        $html .= '<button disabled type="button" class="btn btn-light" data-toggle="modal" data-target="#test' .
-                $row->id . '">
-  Test
-</button>';
-        return $html;
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_coursetransfer');
+        $component = new actions_site_component($this->type, $row);
+        return $output->render($component);
     }
 
 }

@@ -14,13 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * CLI script
+ * Cli Script
  *
- *
- * @package     local_coursetransfer
- * @copyright   2023 Tresipunt
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use local_coursetransfer\coursetransfer;
@@ -118,14 +127,14 @@ if ($destinycategoryid !== null) {
     try {
         $category = core_course_category::get($destinycategoryid);
     } catch (moodle_exception $e) {
-        cli_writeln('300501: ' . $e->getMessage());
+        cli_writeln('30011: ' . $e->getMessage());
         exit(1);
     }
 } else {
     try {
         $category = core_course_category::create(['name' => get_string('defaultcategoryname')]);
     } catch (moodle_exception $e) {
-        cli_writeln('300502: ' . $e->getMessage());
+        cli_writeln('30012: ' . $e->getMessage());
         exit(1);
     }
 }
@@ -147,13 +156,12 @@ try {
 
     // 2. User Login.
     $user = core_user::get_user_by_username(user::USERNAME_WS);
-    complete_user_login($user);
 
     // 3. Restore Category.
     $destiny = core_course_category::get($destinycategoryid);
     $site = coursetransfer::get_site_by_url($siteurl);
 
-    $res = coursetransfer::restore_category($site, $destiny->id, $origincategoryid, $configuration);
+    $res = coursetransfer::restore_category($user, $site, $destiny->id, $origincategoryid, $configuration);
 
     // 4. Success or Errors.
     $errors = array_merge($errors, $res['errors']);
@@ -168,7 +176,7 @@ try {
     }
 
 } catch (moodle_exception $e) {
-    cli_writeln('300510: ' . $e->getMessage());
+    cli_writeln('30013: ' . $e->getMessage());
     exit(1);
 }
 

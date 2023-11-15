@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle Workplace https://moodle.com/workplace based on Moodle
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,26 +12,31 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
 //
-// Moodle Workplace™ Code is the collection of software scripts
-// (plugins and modifications, and any derivations thereof) that are
-// exclusively owned and licensed by Moodle under the terms of this
-// proprietary Moodle Workplace License ("MWL") alongside Moodle's open
-// software package offering which itself is freely downloadable at
-// "download.moodle.org" and which is provided by Moodle under a single
-// GNU General Public License version 3.0, dated 29 June 2007 ("GPL").
-// MWL is strictly controlled by Moodle Pty Ltd and its certified
-// premium partners. Wherever conflicting terms exist, the terms of the
-// MWL are binding and shall prevail.
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Origin Restore Course.
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step1_page;
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step2_page;
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step3_page;
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step4_page;
+use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step5_page;
+use local_coursetransfer\output\origin_restore_course\origin_restore_course_page;
 
 require_once('../../config.php');
 
@@ -45,40 +50,49 @@ $title = get_string('origin_restore_course', 'local_coursetransfer');
 
 $course = get_course($courseid);
 require_login($course);
-
+$context = context_course::instance($courseid);
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_context(context_course::instance($courseid));
+$PAGE->set_context($context);
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->set_url('/local/coursetransfer/origin_restore_course.php');
 
-
 $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
-if ($isnew) {
-    $step = required_param('step', PARAM_INT);
-    switch ($step) {
-        case 1:
-            $page = new \local_coursetransfer\output\new_origin_restore_course_step1_page($course);
-            break;
-        case 2:
-            $page = new \local_coursetransfer\output\new_origin_restore_course_step2_page($course);
-            break;
-        case 3:
-            $page = new \local_coursetransfer\output\new_origin_restore_course_step3_page($course);
-            break;
-        case 4:
-            $page = new \local_coursetransfer\output\new_origin_restore_course_step4_page($course);
-            break;
-        case 5:
-            $page = new \local_coursetransfer\output\new_origin_restore_course_step5_page($course);
-            break;
-        default:
-            throw new moodle_exception('STEP NOT VALID');
+if (has_capability('local/coursetransfer:origin_restore_course', $context)) {
+    if ($isnew) {
+        $step = required_param('step', PARAM_INT);
+        switch ($step) {
+            case 1:
+                $page = new new_origin_restore_course_step1_page($course);
+                break;
+            case 2:
+                $page = new new_origin_restore_course_step2_page($course);
+                break;
+            case 3:
+                $page = new new_origin_restore_course_step3_page($course);
+                break;
+            case 4:
+                $page = new new_origin_restore_course_step4_page($course);
+                break;
+            case 5:
+                $page = new new_origin_restore_course_step5_page($course);
+                break;
+            default:
+                throw new moodle_exception('STEP NOT VALID');
+        }
+    } else {
+        $page = new origin_restore_course_page($course);
     }
 } else {
-    $page = new \local_coursetransfer\output\origin_restore_course_page($course);
+    $page = new \local_coursetransfer\output\error_page(
+            get_string('forbidden', 'local_coursetransfer'),
+            get_string('you_have_not_permission', 'local_coursetransfer'),
+            'danger',
+            get_string('error')
+    );
 }
+
 echo $output->render($page);
 echo $OUTPUT->footer();

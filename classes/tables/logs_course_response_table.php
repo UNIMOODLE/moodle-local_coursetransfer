@@ -14,11 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * Class logs_course_request_table
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,7 +39,8 @@ use DateTime;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\models\configuration_course;
-use local_coursetransfer\output\configuration_component;
+use local_coursetransfer\output\components\activities_component;
+use local_coursetransfer\output\components\configuration_component;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -41,10 +51,12 @@ defined('MOODLE_INTERNAL') || die;
 require_once('../../lib/tablelib.php');
 
 /**
- * Class logs_course_response_table
+ * logs_course_response_table
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class logs_course_response_table extends table_sql {
@@ -171,7 +183,7 @@ class logs_course_response_table extends table_sql {
     public function col_origin_activities(stdClass $row): string {
         global $PAGE;
         $output = $PAGE->get_renderer('local_coursetransfer');
-        $component = new \local_coursetransfer\output\activities_component($row->origin_activities, $row->id);
+        $component = new activities_component($row->origin_activities, $row->id);
         return $output->render($component);
     }
 
@@ -185,7 +197,8 @@ class logs_course_response_table extends table_sql {
     public function col_configuration(stdClass $row): string {
         global $PAGE;
         $configuration = new configuration_course(
-                (int)$row->destiny_target, $row->destiny_remove_enrols, $row->destiny_remove_groups);
+                (int)$row->destiny_target, $row->destiny_remove_enrols, $row->destiny_remove_groups,
+        $row->origin_enrolusers, $row->origin_remove_course);
         $output = $PAGE->get_renderer('local_coursetransfer');
         $component = new configuration_component($configuration, $row->id);
         return $output->render($component);
@@ -209,9 +222,16 @@ class logs_course_response_table extends table_sql {
      *
      * @param stdClass $row Full data of the current row.
      * @return string
+     * @throws coding_exception
      */
     public function col_backupsize(stdClass $row): string {
-        return !is_null($row->origin_backup_size) ? $row->origin_backup_size : '-';
+        $bytes = !is_null($row->origin_backup_size) ? (int)$row->origin_backup_size : null;
+        if (!is_null($bytes)) {
+            $mb = display_size($bytes, 3, 'MB');
+        } else {
+            $mb = '-';
+        }
+        return $mb;
     }
 
     /**

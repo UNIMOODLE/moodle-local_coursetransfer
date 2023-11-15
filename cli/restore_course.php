@@ -14,13 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * CLI script
+ * Cli Script
  *
- *
- * @package     local_coursetransfer
- * @copyright   2023 Tresipunt
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use local_coursetransfer\coursetransfer;
@@ -83,7 +92,7 @@ Examples:
         --destiny_remove_groups=false
         --origin_remove_course=false
         --origin_schedule_datetime=1679404952
-        --destiny_not_remove_activities=[]
+        --destiny_not_remove_activities=[3,234,234]
 ';
 
 list($options, $unrecognised) = cli_get_params([
@@ -117,11 +126,11 @@ $siteurl = $options['site_url'];
 $origincourseid = !is_null($options['origin_course_id']) ? (int) $options['origin_course_id'] : null;
 $destinycourseid = !is_null($options['destiny_course_id']) ? (int) $options['destiny_course_id'] : null;
 $destinycategoryid = !is_null($options['destiny_category_id']) ? (int) $options['destiny_category_id'] : null;
-$originenrolusers = $options['origin_enrolusers'] === 'true' ? 1 : 0;
+$originenrolusers = ($options['origin_enrolusers'] === 'true' || (int)$options['origin_enrolusers'] === 1) ? 1 : 0;
 $destinytarget = !is_null($options['destiny_target']) ? (int) $options['destiny_target'] : null;
-$destinyremoveenrols = $options['destiny_remove_enrols'] === 'true' ? 1 : 0;
-$destinyremovegroups = $options['destiny_remove_groups'] === 'true' ? 1 : 0;
-$originremovecourse = $options['origin_remove_course'] === 'true' ? 1 : 0;
+$destinyremoveenrols = ($options['destiny_remove_enrols'] === 'true' || (int)$options['destiny_remove_enrols'] === 1) ? 1 : 0;
+$destinyremovegroups = ($options['destiny_remove_groups'] === 'true' || (int)$options['destiny_remove_groups'] === 1) ? 1 : 0;
+$originremovecourse = ($options['origin_remove_course'] === 'true' ||(int) $options['origin_remove_course'] === 1) ? 1 : 0;
 $destinynotremoveactivities = '';
 $originscheduledatetime = (int) $options['origin_schedule_datetime'];
 
@@ -148,7 +157,7 @@ if ( empty($destinycourseid) && ($destinytarget === backup::TARGET_NEW_COURSE)) 
         try {
             $category = core_course_category::get($destinycategoryid);
         } catch (moodle_exception $e) {
-            cli_writeln('300501: ' . $e->getMessage());
+            cli_writeln('30001: ' . $e->getMessage());
             exit(1);
         }
     } else {
@@ -196,12 +205,11 @@ try {
 
     // 2. User Login.
     $user = core_user::get_user_by_username(user::USERNAME_WS);
-    complete_user_login($user);
 
     // 3. Restore Course.
     $destiny = get_course($destinycourseid);
     $site = coursetransfer::get_site_by_url($siteurl);
-    $res = coursetransfer::restore_course($site, $destiny->id, $origincourseid, $configuration);
+    $res = coursetransfer::restore_course($user, $site, $destiny->id, $origincourseid, $configuration);
 
     // 4. Success or Errors.
     $errors = array_merge($errors, $res['errors']);
@@ -223,6 +231,6 @@ try {
 } catch (moodle_exception $e) {
     // 5b. Remove new course.
     delete_course($destinycourseid, false);
-    cli_writeln('300500: ' . $e->getMessage());
+    cli_writeln('30002: ' . $e->getMessage());
     exit(1);
 }

@@ -1,5 +1,5 @@
 <?php
-// This file is part of the block_tresipuntsepe plugin for Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,15 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * user
- *
- * @package     local_coursetransfer
- * @copyright   2023 Tresipunt
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
+/**
+ *
+ * @package    local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 namespace local_coursetransfer\factory;
+
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->libdir . '/externallib.php');
 
 use coding_exception;
 use context_system;
@@ -30,6 +42,15 @@ use dml_exception;
 use moodle_exception;
 use stdClass;
 
+/**
+ * user
+ *
+ * @package    local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class user {
 
     const USERNAME_WS = 'local_coursetransfer_ws';
@@ -64,11 +85,13 @@ class user {
      * Create Token.
      *
      * @param int $userid
+     * @return string|null
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function create_token(int $userid) {
+    public static function create_token(int $userid): ?string {
         global $DB;
+        $token = null;
         $user = \core_user::get_user($userid);
         $externalserviceid = $DB->get_field('external_services',
                 'id', array('component' => 'local_coursetransfer'));
@@ -81,8 +104,6 @@ class user {
             $userauthorized->validuntil = '';
             $userauthorized->timecreated = time();
             $DB->insert_record('external_services_users', $userauthorized);
-
-            $token = null;
 
             $usertokens = $DB->get_records('external_tokens', array(
                     'userid' => $user->id,
@@ -97,13 +118,14 @@ class user {
             }
             if ($token === null) {
                 try {
-                    external_generate_token(EXTERNAL_TOKEN_PERMANENT, $externalserviceid,
+                    $token = external_generate_token(EXTERNAL_TOKEN_PERMANENT, $externalserviceid,
                             $user->id, context_system::instance());
                 } catch (moodle_exception $e) {
                     debugging("Can't generate Token!!", serialize($e));
                 }
             }
         }
+        return $token;
     }
 
     /**

@@ -14,22 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * @package     local_coursetransfer
- * @copyright   3iPunt <https://www.tresipunt.com/>
+ *
+ * @package    local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_coursetransfer\external\destiny_course_callback_external;
-use local_coursetransfer\external\origin_category_external;
-use local_coursetransfer\external\origin_course_backup_external;
-use local_coursetransfer\external\origin_course_external;
-use local_coursetransfer\external\origin_remove_external;
-use local_coursetransfer\external\origin_user_external;
-use local_coursetransfer\external\remove_external;
-use local_coursetransfer\external\restore_category_external;
-use local_coursetransfer\external\restore_course_external;
-use local_coursetransfer\external\restore_external;
-use local_coursetransfer\external\sites_external;
+use local_coursetransfer\external\backend\destiny_course_callback_external;
+use local_coursetransfer\external\backend\origin_category_external;
+use local_coursetransfer\external\backend\origin_course_backup_external;
+use local_coursetransfer\external\backend\origin_course_external;
+use local_coursetransfer\external\backend\origin_user_external;
+use local_coursetransfer\external\backend\remove_external;
+use local_coursetransfer\external\frontend\origin_remove_external;
+use local_coursetransfer\external\frontend\restore_category_external;
+use local_coursetransfer\external\frontend\restore_course_external;
+use local_coursetransfer\external\frontend\restore_external;
+use local_coursetransfer\external\frontend\sites_external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -251,6 +263,33 @@ $functions = [
             'loginrequired' => true
     ],
 
+    'local_coursetransfer_site_test' => [
+            'classname' => sites_external::class,
+            'methodname' => 'site_test',
+            'description' => 'Site Test',
+            'type' => 'read',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_site_origin_test' => [
+            'classname' => sites_external::class,
+            'methodname' => 'origin_test',
+            'description' => 'Site Origin Test',
+            'type' => 'read',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
+    'local_coursetransfer_site_destiny_test' => [
+            'classname' => sites_external::class,
+            'methodname' => 'destiny_test',
+            'description' => 'Site Destiny Test',
+            'type' => 'read',
+            'ajax' => true,
+            'loginrequired' => true
+    ],
+
 ];
 
 $services = [
@@ -278,7 +317,10 @@ $services = [
             'local_coursetransfer_origin_remove_category',
             'local_coursetransfer_site_add',
             'local_coursetransfer_site_edit',
-            'local_coursetransfer_site_remove'
+            'local_coursetransfer_site_remove',
+            'local_coursetransfer_site_test',
+            'local_coursetransfer_site_origin_test',
+            'local_coursetransfer_site_destiny_test'
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,

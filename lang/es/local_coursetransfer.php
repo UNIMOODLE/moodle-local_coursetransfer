@@ -14,46 +14,56 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
  * Strings for component 'assign', language 'es'
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $string['pluginname'] = 'Restaurar cursos remotos';
 $string['pluginname_header_general'] = 'General';
-$string['setting_destiny_restore_course_max_size'] = 'Tamaño máximo del curso a restaurar';
+$string['setting_destiny_restore_course_max_size'] = 'Tamaño máximo del curso a restaurar (MB)';
 $string['setting_destiny_restore_course_max_size_desc'] = 'Límite en el tamaño de la copia de seguridad (archivo MBZ) del curso origen a restaurar en MB.';
 $string['setting_destiny_sites'] = 'Sitios destino';
 $string['setting_destiny_sites_link'] = 'Gestión de Sitios destino';
-$string['setting_destiny_sites_desc'] = 'Listado de sitios destino, a los que se les podrá entregar las copias de seguridad de los cursos..';
+$string['setting_destiny_sites_desc'] = 'Listado de sitios destino, a los que se les podrá entregar las copias de seguridad de los cursos. Realiza una prueba para comprobar que todo está configurado correctamente, tanto en destino como origen.';
 $string['setting_origin_sites'] = 'Sitios origen';
 $string['setting_origin_sites_link'] = 'Gestión de Sitios origen';
-$string['setting_origin_sites_desc'] = 'Listado de sitios origen, a los que se les podrá pedir copias de seguridad de los cursos.';
+$string['setting_origin_sites_desc'] = 'Listado de sitios origen, a los que se les podrá pedir copias de seguridad de los cursos. Realiza una prueba para comprobar que todo está configurado correctamente, tanto en destino como origen.';
 $string['setting_origin_field_search_user'] = 'Campo usuario origen';
 $string['setting_origin_field_search_user_desc'] = 'Campo a utilizar para la búsqueda de un usuario en el sitio de origen.';
 $string['origin_restore_course'] = 'Restaurar curso en remoto';
-$string['origin_course_id_require'] = "Origin Course ID es obligatorio";
-$string['site_url_required'] = "Site URL es obligatorio";
-$string['site_url_invalid'] = "Site URL es inválido";
-$string['origin_category_id_require'] = "Origin Category ID es obligatorio";
+$string['origin_course_id_require'] = "Origin Course ID es obligatorio: --origin_course_id=12";
+$string['site_url_required'] = "Site URL es obligatorio: --site_url=https://origen.dominio";
+$string['site_url_invalid'] = "Site URL es inválido: --site_url=https://origen.dominio";
+$string['origin_category_id_require'] = "Origin Category ID es obligatorio: --origin_category_id=12";
 $string['categoryid_require'] = "Category ID es obligatorio";
 $string['courseid_require'] = "Course ID es obligatorio";
-$string['requestid_require'] = "Request ID es obligatorio";
-$string['destiny_target_is_incorrect'] = "Destiny Target es incorrecto, debe tener valores 2,3 o 4";
-$string['origin_course_id_integer'] = "Origin Course ID tiene que ser entero";
-$string['destiny_course_id_is_required'] = "Destiny Course ID es obligatorio";
+$string['requestid_require'] = "Request ID es obligatorio: --requestid=3";
+$string['destiny_target_is_incorrect'] = "Destiny Target es incorrecto, debe tener valores 2,3 o 4: --destiny_target=2";
+$string['origin_course_id_integer'] = "Origin Course ID tiene que ser entero: --origin_course_id=12";
+$string['destiny_course_id_is_required'] = "Destiny Course ID es obligatorio: --destiny_course_id=12";
 $string['destiny_course_id_isnot_correct'] = "Para destiny_target=2 no debe tener curso de destino, se creará nuevo curso";
-$string['destiny_category_id_integer'] = "Destiny Category ID tiene que ser entero";
-$string['origin_enrolusers_boolean'] = "Origin Enrol Users tiene que ser boolean";
-$string['destiny_remove_enrols_boolean'] = "Destiny Remove Enrols tiene que ser boolean";
-$string['destiny_remove_groups_booelan'] = "Destiny Remove Groups tiene que ser boolean";
-$string['origin_remove_course_boolean'] = "Origin Remove Course tiene que ser boolean";
-$string['origin_schedule_datetime_integer'] = "Origin Schedule Datetime tiene que ser entero";
-$string['destiny_not_remove_activities_invalid'] = "Destiny Not Remove Activities tiene que ser una cadena de cmid separados por coma";
-$string['origin_category_id_integer'] = "Origin Category ID tiene que ser entero";
+$string['destiny_category_id_integer'] = "Destiny Category ID tiene que ser entero: --destiny_category_id=101";
+$string['origin_enrolusers_boolean'] = "Origin Enrol Users tiene que ser boolean: --origin_enrolusers=true";
+$string['destiny_remove_enrols_boolean'] = "Destiny Remove Enrols tiene que ser boolean: --destiny_remove_enrols=false";
+$string['destiny_remove_groups_booelan'] = "Destiny Remove Groups tiene que ser boolean: --destiny_remove_groups=false";
+$string['origin_remove_course_boolean'] = "Origin Remove Course tiene que ser boolean: --origin_remove_course=false";
+$string['origin_schedule_datetime_integer'] = "Origin Schedule Datetime tiene que ser entero: --origin_schedule_datetime=1679404952";
+$string['destiny_not_remove_activities_invalid'] = "Destiny Not Remove Activities tiene que ser una cadena de cmid separados por coma de tipo array: --destiny_not_remove_activities=[3,234,234]";
+$string['origin_category_id_integer'] = "Origin Category ID tiene que ser entero: -origin_category_id=12";
 $string['categoryid_integer'] = "Category ID tiene que ser entero";
 $string['courseid_integer'] = "Course ID tiene que ser entero";
 $string['requestid_integer'] = "Request ID tiene que ser entero";
@@ -76,7 +86,7 @@ $string['backupsize'] = "Tamaño (MB)";
 $string['timemodified'] = "Fecha de modificación";
 $string['timecreated'] = "Fecha de creación";
 $string['user_not_found'] = "Usuario no encontrado en Moodle de Origen/Destino";
-$string['user_does_not_have_courses'] = "El usuario no tiene curso en el Moodle de Origen/Destino";
+$string['user_does_not_have_courses'] = "El usuario no tiene cursos en el Moodle de Origen";
 $string['field_not_valid'] = "El campo no es válido. Por favor, revisa la configuración del plugin";
 $string['steps_buttons_next'] = 'Siguiente';
 $string['steps_buttons_back'] = 'Atrás';
@@ -96,7 +106,7 @@ $string['step2_course_categoryid'] = "ID Categoría";
 $string['step2_course_categoryname'] = "Nombre Categoría";
 $string['step3_restore_desc'] = "Seleccionar detalles del curso";
 $string['step3_sections_title'] = "Secciones";
-$string['step4_restore_desc'] = "Configuración del curso seleccionado";
+$string['step4_restore_desc'] = "Seleccione las configuraciones para la restauración";
 $string['step4_config_title'] = "Configuración";
 $string['step5_restore_origin_site'] = "Sitio de origen";
 $string['step5_restore_selected_course'] = "Curso Seleccionado";
@@ -183,10 +193,10 @@ $string['restoretnewcourse'] = "Restauración realizada en un curso nuevo";
 $string['course_categories'] = "Restaurar cursos o categoría";
 $string['course_categories_help'] = "Seleccione cursos si quieres restaurar un listado de cursos, seleccione categoría si quiere restaurar una categoría completa o un listado de cursos de esa categoría";
 $string['origin_restore_courses_title'] = "Restaurar cursos de origen";
-$string['origin_restore_courses_desc'] = "Seleccione los cursos que quiere restaurar del sitio de origen y vincule el destino correspondiente";
+$string['origin_restore_courses_desc'] = "Seleccione los cursos que quiere restaurar del sitio de origen y vincule el destino correspondiente. Puede seleccionar en destino, nuevo curso, y así se creará un nuevo curso en destino. Más adelante podrá seleccionar categoría.";
 $string['origin_restore_courses_list'] = "Lista de cursos del sitio de origen";
 $string['step2_course_destiny'] = "Curso de Destino";
-$string['origin_restore_step4_desc'] = "Revisa los cursos seleccionados, su destino y la configuración antes de ejecutar la restauración remota";
+$string['origin_restore_step4_desc'] = "Revisa los cursos seleccionados, su destino y la configuración antes de ejecutar la restauración remota. Recuerde seleccionar la categoría de destino, si el curso a crear es nuevo";
 $string['origin_restore_category_title'] = "Restaurar categoría de origen";
 $string['origin_restore_category_desc'] = "Seleccione la categoría que quiere restaurar del sitio de origen";
 $string['step4_destiny_title'] = "Categoría de destino";
@@ -205,6 +215,7 @@ $string['remove_category_page'] = "Borrar categoría remota";
 $string['logs_page'] = "Registros ejecuciones";
 $string['course_completed_sections'] = "Restauración del curso completo";
 $string['restore_origin_data'] = "Configuración del curso de origen";
+$string['restore_origin_cat_data'] = "Configuración de la categoría y cursos de origen";
 $string['restore_origin_user_data'] = "Restaurar curso con datos de usuarios de origen";
 $string['restore_origin_user_data_desc'] = "El curso se restaurará con los datos de usuarios que existen en el curso de origen";
 $string['detail'] = "Detalle";
@@ -225,4 +236,31 @@ $string['host_token'] = "Host Token";
 $string['test'] = "Prueba";
 $string['actions'] = "Acciones";
 $string['log_page'] = "Detalle del Log";
-
+$string['create_site'] = "Crear un sitio";
+$string['back_config'] = "Volver a configuración";
+$string['host_url_desc'] = "Añada la URL del host";
+$string['host_token_desc'] = "Añada el Token del host";
+$string['delete_site'] = "Borrar sitio";
+$string['delete_site_question'] = "¿Estas seguro de borrar este sitio?";
+$string['edit_site'] = "Editar sitio";
+$string['view_error'] = "Ver error";
+$string['backupsize_larger'] = "El tamaño del backup es mayor al permitido";
+$string['restore_origin_remove'] = "Eliminar el curso de origen";
+$string['restore_origin_remove_desc'] = "El curso de origen será eliminado una vez restaurado";
+$string['restore_origin_cat_remove'] = "Eliminar la categoría de origen";
+$string['restore_origin_cat_remove_desc'] = "La categoría de origen será eliminada una vez restaurada completamente";
+$string['coursetransfer:origin_restore'] = "Restaurar cursos o categorías remotas";
+$string['coursetransfer:origin_restore_course'] = "Restaurar curso de plataforma origen";
+$string['coursetransfer:origin_remove_course'] = "Borrar curso de plataforma origen";
+$string['coursetransfer:origin_restore_course_users'] = "Restaurar curso con datos de usuarios de origen";
+$string['coursetransfer:origin_view_courses'] = "Ver cursos de plataforma origen";
+$string['coursetransfer:destiny_restore_enrol_remove'] = "Eliminar roles y matrículaciones en el curso de destino";
+$string['coursetransfer:destiny_restore_groups_remove'] = "Eliminar grupos y agrupamientos en el curso de destino";
+$string['coursetransfer:destiny_restore_content_remove'] = "Borrar el contenido del curso actual y después restaurar";
+$string['coursetransfer:destiny_restore_merge'] = "Fusionar la copia de seguridad con este curso";
+$string['forbidden'] = "Prohibido";
+$string['you_have_not_permission'] = "Usted no tiene permisos para ver esta página";
+$string['createnewcategory'] = "En nueva categoría...";
+$string['origin_schedule'] = "Ejecución en diferido";
+$string['origin_schedule_desc'] = "Si la tarea se ejecuta en diferido, seleccione la fecha de ejecución";
+$string['origin_schedule_datetime'] = "Fecha de ejecución";

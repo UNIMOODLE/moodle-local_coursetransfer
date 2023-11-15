@@ -1,0 +1,104 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/components/actions_site_component
+
+  Example context (json):
+
+}}
+<div data-region="actions_site_component">
+    <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#{{ type }}Delete{{ id }}">
+        {{#str}} delete {{/str}}
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="{{ type }}Delete{{ id }}" tabindex="-1" role="dialog" aria-labelledby="{{ type }}Delete{{ id }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">{{#str}} delete_site, local_coursetransfer {{/str}} {{ id }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><b>{{#str}} delete_site_question, local_coursetransfer {{/str}}</b></p>
+                    <p>{{ host }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{#str}} cancel {{/str}}</button>
+                    <button type="button" data-action="remove" data-id="{{ id }}" class="btn btn-danger">{{#str}} delete {{/str}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#editSite-{{ id }}">
+        {{#str}} edit {{/str}}
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="editSite-{{ id }}" tabindex="-1" role="dialog" aria-labelledby="editSite-{{ id }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">{{#str}} edit_site, local_coursetransfer {{/str}} {{ id }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form data-region="edit-form" data-id="{{ id }}" style="text-align: left">
+                        <div class="form-group">
+                            <label for="host">{{#str}} host_url, local_coursetransfer {{/str}}</label>
+                            <input type="text" value="{{ host }}" class="form-control" id="host" aria-describedby="hostHelp" placeholder="{{#str}} host_url, local_coursetransfer {{/str}}">
+                            <small id="hostHelp" class="form-text text-muted">{{#str}} host_url_desc, local_coursetransfer {{/str}}</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="token">{{#str}} host_token, local_coursetransfer {{/str}}</label>
+                            <input type="text" value="{{ token }}" class="form-control" id="token" placeholder="{{#str}} host_token, local_coursetransfer {{/str}}">
+                            <small id="tokenHelp" class="form-text text-muted">{{#str}} host_token_desc, local_coursetransfer {{/str}}</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{#str}} cancel {{/str}}</button>
+                    <button type="button" data-action="edit" data-id="{{ id }}" class="btn btn-primary">{{#str}} save {{/str}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-light btn-sm" data-toggle="modal" data-action="test" data-target="#test-{{ id }}" data-id="{{ id }}">
+        <i class="fa fa-check hidden" data-region="test-ok" aria-hidden="true" style="color: white"></i>
+        <i class="fa fa-times hidden" data-region="test-ko" aria-hidden="true" style="color: white"></i>
+        {{#str}} test, local_coursetransfer {{/str}}
+    </button>
+
+    <button type="button" data-target="#error-{{ id }}" class="btn btn-danger hidden btn-sm" data-container="body" data-toggle="popover" data-placement="top" data-content="">
+        {{#str}} view_error, local_coursetransfer {{/str}}
+    </button>
+</div>
+
+
