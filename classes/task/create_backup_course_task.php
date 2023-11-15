@@ -66,10 +66,11 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
         global $DB;
 
         $backupid = $this->get_custom_data()->backupid;
+        $istest = $this->get_custom_data()->istest;
         $bc = \backup_controller::load_controller($backupid);
+        $started = time();
 
         try {
-            $started = time();
 
             $this->log_start("Course Transfer Backup Starting...");
 
@@ -119,35 +120,49 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
 
             $requestorigin = coursetransfer_request::get($this->get_custom_data()->requestoriginid);
             if ($bc->get_status() === \backup::STATUS_FINISHED_OK) {
-                $resfileurl = coursetransfer::create_backupfile_url($bc->get_courseid(), $result['backup_destination']);
+                mtrace('Course Transfer Backup - Creating File ... ');
+                $resfileurl = coursetransfer::create_backupfile_url(
+                        $bc->get_courseid(), $result['backup_destination'], $requestorigin->id);
                 if ($resfileurl->success) {
+                    mtrace('Course Transfer Backup - Creating File OK');
                     if ($requestorigin) {
                         $requestorigin->fileurl = $resfileurl->fileurl;
+                        $requestorigin->origin_backup_url = $resfileurl->fileurl;
                         $requestorigin->origin_backup_size = $resfileurl->filesize;
                         coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
                     }
-                    $res = $request->destiny_backup_course_completed(
-                            $resfileurl->fileurl, $requestid, $resfileurl->filesize, $user);
+                    if (!$istest) {
+                        $res = $request->destiny_backup_course_completed(
+                                $resfileurl->fileurl, $requestid, $resfileurl->filesize, $user);
+                    }
                     $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
                 } else {
-                    $res = $request->destiny_backup_course_error($user, $requestid, $resfileurl->error, [], $resfileurl->filesize);
+                    mtrace('Course Transfer Backup - Creating File ERROR');
+                    if (!$istest) {
+                        $res = $request->destiny_backup_course_error(
+                                $user, $requestid, $resfileurl->error, [], $resfileurl->filesize);
+                    }
                 }
             } else {
-                $res = $request->destiny_backup_course_error($user, $requestid, '', $result);
+                if (!$istest) {
+                    $res = $request->destiny_backup_course_error($user, $requestid, '', $result);
+                }
             }
-            if (!$res->success) {
-                $requestorigin->status = coursetransfer_request::STATUS_ERROR;
-                $requestorigin->error_code = $res->errors[0]->code;
-                $requestorigin->error_message = $res->errors[0]->msg;
-                coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+            if (!$istest) {
+                if (!$res->success) {
+                    $requestorigin->status = coursetransfer_request::STATUS_ERROR;
+                    $requestorigin->error_code = $res->errors[0]->code;
+                    $requestorigin->error_message = $res->errors[0]->msg;
+                    coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                    mtrace('Course Transfer Backup ERROR: ' . $res->errors[0]->msg);
+                    $this->log(json_encode($res));
+                }
             }
             coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
-            $this->log(json_encode($res));
         } catch (moodle_exception $e) {
             mtrace('Course Transfer Backup ERROR: ' . $e->getMessage());
             $this->log($e->getMessage());
         }
-
         $this->log_finish("Course Transfer Backup Finishing...");
 
         $bc->destroy();

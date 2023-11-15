@@ -73,14 +73,15 @@ class coursetransfer_backup {
      * @param int $requestoriginid
      * @param array $sections
      * @param int $rootusers
+     * @param bool $istest
+     * @return bool
      * @throws base_plan_exception
      * @throws base_setting_exception
      * @throws moodle_exception
      */
     public static function create_task_backup_course(
             int $courseid, int $userid, stdClass $destinysite, int $requestid, int $requestoriginid,
-            array $sections, int $rootusers = 0): bool {
-
+            array $sections, int $rootusers = 0, bool $istest = false): bool {
         $bc = new backup_controller(
                 backup::TYPE_1COURSE, $courseid,
                 backup::FORMAT_MOODLE,
@@ -104,15 +105,16 @@ class coursetransfer_backup {
 
         $bc->set_execution(backup::EXECUTION_DELAYED);
         $bc->save_controller();
-        $backupid = $bc->get_backupid();
         $asynctask = new create_backup_course_task();
         $asynctask->set_blocking(false);
+        $backupid = $bc->get_backupid();
         $asynctask->set_custom_data(
                 [
                         'backupid' => $backupid,
                         'destinysite' => $destinysite->id,
                         'requestid' => $requestid,
-                        'requestoriginid' => $requestoriginid
+                        'requestoriginid' => $requestoriginid,
+                        'istest' => $istest
                 ]);
         $asynctask->set_userid($userid);
         return \core\task\manager::queue_adhoc_task($asynctask);

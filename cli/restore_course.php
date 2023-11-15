@@ -65,7 +65,7 @@ Usage:
                                       4: Merge the backup course into this course
                                       (Int Enum)
     --origin_course_id=<origin_course_id>  Origin Course ID (int).
-    --destiny_course_id=<destiny_course_id>  Destiny Course ID (int). (Optional - New Course)
+    --destiny_course_id=<destiny_course_id>  Destination Course ID (int). (Optional - New Course)
     --destiny_category_id=<destiny_category_id>  Category ID (int). (Optional - Superior Category)
     --origin_enrolusers=<origin_enrolusers>  Include enrolled users data. Default: false (Boolean).
     --destiny_remove_enrols=<destiny_remove_enrols> Remove Enrols (only in target: 4 - Remove Content) (Boolean).

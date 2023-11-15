@@ -72,14 +72,15 @@ class coursetransfer_download {
      *
      * @param stdClass $request
      * @param string $fileurl
+     * @return bool
      */
-    public static function create_task_download_course(stdClass $request, string $fileurl) {
+    public static function create_task_download_course(stdClass $request, string $fileurl): bool {
         $asynctask = new download_file_course_task();
         $asynctask->set_blocking(false);
         $asynctask->set_custom_data(
-                array('request' => $request, 'fileurl' => $fileurl)
+                array('requestid' => $request->id, 'fileurl' => $fileurl)
         );
-        \core\task\manager::queue_adhoc_task($asynctask);
+        return \core\task\manager::queue_adhoc_task($asynctask);
     }
 
 }
