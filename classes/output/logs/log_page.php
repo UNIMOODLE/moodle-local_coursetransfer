@@ -34,6 +34,7 @@
 namespace local_coursetransfer\output\logs;
 
 use coding_exception;
+use core\progress\display;
 use dml_exception;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
@@ -57,6 +58,18 @@ class log_page implements renderable, templatable {
     /** @var int Id  */
     protected $id;
 
+    public const STATUS = [
+        0 => 'Error',
+        1 => 'Not started',
+        10 => 'In progress',
+        30 => 'Alert',
+        50 => 'Download',
+        70 => 'Downloaded',
+        80 => 'Restore',
+        90 => 'Incompleted',
+        100 => 'Completed',
+    ];
+
     /**
      *  constructor.
      *
@@ -74,6 +87,8 @@ class log_page implements renderable, templatable {
      * @throws coding_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        global $DB;
+
         $data = new stdClass();
         $record = coursetransfer_request::get($this->id);
         $back = new moodle_url(logs_page::PAGE);
@@ -97,12 +112,22 @@ class log_page implements renderable, templatable {
         $data->origin_enrolusers = $this->get_bool($record->origin_enrolusers);
         $data->origin_remove_course = $this->get_bool($record->origin_remove_course);
         $data->origin_remove_category = $this->get_bool($record->origin_remove_category);
-        $data->origin_schedule_datetime = $record->origin_schedule_datetime;
+        if (isset($data->origin_schedule_datetime)) {
+            $data->origin_schedule_datetime = date("Y-m-d h:i:s", $record->origin_schedule_datetime);
+        }
         $data->origin_remove_activities = $record->origin_remove_activities;
-        $data->origin_activities = json_decode($record->origin_activities, JSON_PRETTY_PRINT);
+        $data->origin_activities = json_decode($record->origin_activities);
+        $data->has_sections = count($data->origin_activities) > 0;
+        if (isset($data->origin_activities)) {
+            for ($i = 0; $i < count($data->origin_activities); $i++) {
+                $data->origin_activities[$i]->hasactivities = count($data->origin_activities[$i]->activities);
+            }
+        }
         $data->origin_category_requests = $record->origin_category_requests;
-        $data->origin_backup_size = $record->origin_backup_size;
-        $data->origin_backup_size_estimated = $record->origin_backup_size_estimated;
+        $data->origin_backup_size = display_size($record->origin_backup_size, 3, 'MB');
+        if (isset($data->origin_backup_size_estimated)) {
+            $data->origin_backup_size_estimated = display_size($data->origin_backup_size_estimated, 3, 'MB');
+        }
         $data->origin_backup_url = $record->origin_backup_url;
         $data->destiny_course_id = $record->destiny_course_id;
         $data->destiny_category_id = $record->destiny_category_id;
@@ -112,9 +137,11 @@ class log_page implements renderable, templatable {
         $data->error_code = $record->error_code;
         $data->error_message = $record->error_message;
         $data->fileurl = $record->fileurl;
-        $data->userid = $record->userid;
-        $data->status = $record->status;
-        $data->timemodified = $record->timemodified;
+        $user = $DB->get_record('user', ['id' => $record->userid]);
+        $data->username = $user->username;
+
+        $data->status = self::STATUS[$record->status];
+        $data->timemodified = date("Y-m-d h:i:s", $record->timemodified);
         return $data;
     }
 
