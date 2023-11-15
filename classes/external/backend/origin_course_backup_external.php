@@ -42,7 +42,9 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_backup;
 use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\models\configuration_course;
 use local_coursetransfer\output\error_page;
 use moodle_exception;
 use stdClass;
@@ -121,8 +123,6 @@ class origin_course_backup_external extends external_api {
     public static function origin_backup_course(string $field, string $value, int $courseid, int $destinycourseid,
             int $requestid, string $destinysite, array $configuration, array $sections = []): array {
 
-        global $CFG;
-
         self::validate_parameters(
             self::origin_backup_course_parameters(), [
                 'field' => $field,
@@ -150,55 +150,54 @@ class origin_course_backup_external extends external_api {
                 $user = $authres['data'];
                 if ($verifydestiny['success']) {
                     if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id), $user)) {
-                        $cat = core_course_category::get($course->category, MUST_EXIST);
-                        // Create Request Object.
-                        $object = new stdClass();
-                        $object->type = coursetransfer_request::TYPE_COURSE;
-                        $object->siteurl = $destinysite;
-                        $object->direction = coursetransfer_request::DIRECTION_RESPONSE;
-                        $object->destiny_request_id = $requestid;
-                        $object->request_category_id = null;
-                        $object->origin_course_id = $course->id;
-                        $object->origin_course_fullname = $course->fullname;
-                        $object->origin_course_shortname = $course->shortname;
-                        $object->origin_category_id = $course->category;
-                        $object->origin_category_idnumber = $cat->idnumber;
-                        $object->origin_category_name = $cat->name;
-                        $object->origin_enrolusers = $configuration['origin_enrol_users'];
-                        $object->origin_remove_course = $configuration['origin_remove_course'];
-                        $object->origin_remove_category = null;
-                        $object->origin_schedule_datetime = null;
-                        $object->origin_remove_activities = 0;
-                        $object->origin_activities = json_encode($sections);
-                        $object->origin_category_requests = null;
-                        $object->origin_backup_size = null;
-                        $object->origin_backup_size_estimated = coursetransfer::get_backup_size_estimated($course->id);
-                        $object->origin_backup_url = null;
-                        $object->destiny_course_id = $destinycourseid;
-                        $object->destiny_category_id = null;
-                        $object->destiny_remove_enrols = $configuration['destiny_remove_enrols'];
-                        $object->destiny_remove_groups = $configuration['destiny_remove_groups'];
-                        $object->destiny_target = $configuration['destiny_target'];
-                        $object->error_code = null;
-                        $object->error_message = null;
-                        $object->userid = $user->id;
-                        $object->status = coursetransfer_request::STATUS_IN_PROGRESS;
 
-                        $requestoriginid = coursetransfer_request::insert_or_update($object);
+                        $config = new configuration_course(
+                                $configuration['destiny_target'],
+                                $configuration['destiny_remove_enrols'],
+                                $configuration['destiny_remove_groups'],
+                                $configuration['origin_enrol_users'],
+                                $configuration['origin_remove_course']
+                        );
+                        $requestorigin = coursetransfer_request::set_request_restore_course_response(
+                                $user,
+                                $requestid,
+                                $verifydestiny['data'],
+                                $destinycourseid,
+                                $course,
+                                $config,
+                                $sections);
 
-                        coursetransfer::create_task_backup_course(
+                        $requestoriginid = coursetransfer_request::insert_or_update($requestorigin);
+
+                        $resbackup = coursetransfer_backup::create_task_backup_course(
                                 $course->id, $user->id, $verifydestiny['data'], $requestid, $requestoriginid, $sections,
                                 $configuration['origin_enrol_users']);
 
-                        $data->origin_backup_size_estimated = $object->origin_backup_size_estimated;
-                        $data->request_origin_id = $requestoriginid;
-                        $data->course_fullname = $course->fullname;
-                        $data->course_shortname = $course->shortname;
-                        $data->course_idnumber = $course->idnumber;
-                        $data->course_category_id = $course->category;
-                        $data->course_category_name = $cat->name;
-                        $data->course_category_idnumber = $cat->idnumber;
-                        $success = true;
+                        if ($resbackup) {
+                            $requestorigin->id = $requestoriginid;
+                            $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
+
+                            coursetransfer_request::insert_or_update($requestorigin);
+
+                            $cat = core_course_category::get($course->category, MUST_EXIST);
+
+                            $data->origin_backup_size_estimated = $requestorigin->origin_backup_size_estimated;
+                            $data->request_origin_id = $requestoriginid;
+                            $data->course_fullname = $course->fullname;
+                            $data->course_shortname = $course->shortname;
+                            $data->course_idnumber = $course->idnumber;
+                            $data->course_category_id = $course->category;
+                            $data->course_category_name = $cat->name;
+                            $data->course_category_idnumber = $cat->idnumber;
+                            $success = true;
+                        } else {
+                            $success = false;
+                            $errors[] =
+                                    [
+                                            'code' => '130003',
+                                            'msg' => 'BACKUP NOT SAVE'
+                                    ];
+                        }
                     } else {
                         $success = false;
                         $errors[] =

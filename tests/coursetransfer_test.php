@@ -34,6 +34,7 @@
 namespace local_coursetransfer;
 
 use advanced_testcase;
+use backup;
 use coding_exception;
 use core_user;
 use dml_exception;
@@ -57,11 +58,11 @@ require_once($CFG->libdir . '/filelib.php');
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
+ * @group      local_coursetransfer
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_test extends advanced_testcase {
 
-    const URL = 'http://cncs.test';
 
     /** @var stdClass Origin Course */
     protected $origincourse;
@@ -71,6 +72,9 @@ class coursetransfer_test extends advanced_testcase {
 
     /** @var stdClass User */
     protected $user;
+
+    /** @var stdClass Site */
+    protected $site;
 
     /**
      * Tests Set UP.
@@ -107,39 +111,68 @@ class coursetransfer_test extends advanced_testcase {
      * @throws moodle_exception
      */
     protected function setup_config() {
+        global $CFG;
         $token = coursetransfer::postinstall();
         $this->user = core_user::get_user_by_username(user::USERNAME_WS);
-        sites_external::site_add('origin', self::URL, $token);
+        $res = sites_external::site_add('origin', $CFG->wwwroot, $token);
+        if ($res['success']) {
+            $site = coursetransfer_sites::get('origin', $res['data']->id);
+            $this->site = $site;
+        }
     }
 
     /**
-     * Tests restore_course.
+     * Tests backup.
      *
      * @covers coursetransfer::restore_course
-     * @throws dml_exception
      * @throws moodle_exception
      */
-    public function test_restore_course() {
-        $destinytarget = 2;
+    public function test_backup() {
+
+        $sections = [];
+        $originenrolusers = false;
+        $destinytarget = backup::TARGET_NEW_COURSE;
         $destinyremoveenrols = false;
         $destinyremovegroups = false;
-        $originenrolusers = false;
         $originremovecourse = false;
-        $destinynotremoveactivities = '';
 
-        $siteurl = self::URL;
-        $site = coursetransfer::get_site_by_url($siteurl);
-        $destinycourseid = $this->destinynewcourse->id;
-        $origincourseid = $this->origincourse->id;
         $configuration = new configuration_course(
-                $destinytarget, $destinyremoveenrols, $destinyremovegroups, $originenrolusers,
-                $originremovecourse, $destinynotremoveactivities);
-        $res = coursetransfer::restore_course($this->user, $site, $destinycourseid, $origincourseid, $configuration);
+                $destinytarget,
+                $destinyremoveenrols,
+                $destinyremovegroups,
+                $originenrolusers,
+                $originremovecourse
+        );
 
-        var_dump($res);
+        $requestdestination = coursetransfer_request::set_request_restore_course(
+                $this->user,
+                $this->site,
+                $this->destinynewcourse->id,
+                $this->origincourse->id,
+                $configuration,
+                $sections,
+                null);
 
-        $this->assertEquals('hola', 'adios');
-        $this->assertEquals('hola', 'hola');
+        $requestorigin = coursetransfer_request::set_request_restore_course_response(
+                $this->user,
+                $requestdestination->id,
+                $this->site,
+                $this->destinynewcourse->id,
+                $this->origincourse,
+                $configuration,
+                $sections);
+
+        $res = coursetransfer_backup::create_task_backup_course(
+                $this->origincourse->id,
+                $this->user->id,
+                $this->site,
+                $requestdestination->id,
+                $requestorigin->id,
+                $sections,
+                $originenrolusers
+        );
+
+        $this->assertTrue($res);
     }
 
 }

@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer;
 
+use core_course_category;
 use dml_exception;
 use local_coursetransfer\models\configuration_category;
 use local_coursetransfer\models\configuration_course;
@@ -288,6 +289,63 @@ class coursetransfer_request {
         $object->destiny_target = $configuration->destinytarget;
         $object->status = self::STATUS_NOT_STARTED;
         $object->userid = $userid;
+        $object->id = self::insert_or_update($object);
+        return $object;
+    }
+
+    /**
+     * Set Request Restore Course.
+     *
+     * @param stdClass $user
+     * @param int $destinyrequestid
+     * @param stdClass $destinysite
+     * @param int $destinycourseid
+     * @param stdClass $origincourse
+     * @param configuration_course $configuration $configuration
+     * @param array $sections
+     * @param int|null $requestcatid
+     * @return stdClass
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function set_request_restore_course_response(stdClass $user, int $destinyrequestid,
+            stdClass $destinysite, int $destinycourseid, stdClass $origincourse, configuration_course $configuration,
+            array $sections, int $requestcatid = null): stdClass {
+        global $USER;
+        $user = is_null($user) ? $USER : $user;
+        $origincat = core_course_category::get($origincourse->category, MUST_EXIST);
+
+        $object = new stdClass();
+        $object->type = self::TYPE_COURSE;
+        $object->siteurl = $destinysite->host;
+        $object->direction = self::DIRECTION_RESPONSE;
+        $object->destiny_request_id = $destinyrequestid;
+        $object->request_category_id = $requestcatid;
+        $object->origin_course_id = $origincourse->id;
+        $object->origin_course_fullname = $origincourse->fullname;
+        $object->origin_course_shortname = $origincourse->shortname;
+        $object->origin_category_id = $origincourse->category;
+        $object->origin_category_idnumber = $origincourse->idnumber;
+        $object->origin_category_name = $origincat->name;
+        $object->origin_enrolusers = $configuration->originenrolusers;
+        $object->origin_remove_course = $configuration->originremovecourse;
+        $object->origin_remove_category = null;
+        $object->origin_schedule_datetime = null;
+        $object->origin_remove_activities = 0;
+        $object->origin_activities = json_encode($sections);
+        $object->origin_category_requests = null;
+        $object->origin_backup_size = null;
+        $object->origin_backup_size_estimated = null;
+        $object->origin_backup_url = null;
+        $object->destiny_course_id = $destinycourseid;
+        $object->destiny_category_id = null;
+        $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
+        $object->destiny_remove_groups = $configuration->destinyremovegroups;
+        $object->destiny_target = $configuration->destinytarget;
+        $object->error_code = null;
+        $object->error_message = null;
+        $object->userid = $user->id;
+        $object->status = self::STATUS_NOT_STARTED;
         $object->id = self::insert_or_update($object);
         return $object;
     }

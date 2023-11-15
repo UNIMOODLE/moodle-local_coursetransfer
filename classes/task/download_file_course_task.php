@@ -37,6 +37,7 @@ use context_course;
 use dml_exception;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\coursetransfer_restore;
 use moodle_exception;
 
 /**
@@ -91,7 +92,7 @@ class download_file_course_task extends \core\task\adhoc_task {
             $request->status = coursetransfer_request::STATUS_DOWNLOADED;
             coursetransfer_request::insert_or_update($request, $request->id);
 
-            coursetransfer::create_task_restore_course($request, $file);
+            coursetransfer_restore::create_task_restore_course($request, $file);
 
             $this->log('Restore in Moodle Success!');
             $request->status = coursetransfer_request::STATUS_COMPLETED;
