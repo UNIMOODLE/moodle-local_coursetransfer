@@ -99,7 +99,7 @@ class log_page implements renderable, templatable {
         $data->origin_remove_category = $this->get_bool($record->origin_remove_category);
         $data->origin_schedule_datetime = $record->origin_schedule_datetime;
         $data->origin_remove_activities = $record->origin_remove_activities;
-        $data->origin_activities = $record->origin_activities;
+        $data->origin_activities = json_decode($record->origin_activities, JSON_PRETTY_PRINT);
         $data->origin_category_requests = $record->origin_category_requests;
         $data->origin_backup_size = $record->origin_backup_size;
         $data->origin_backup_size_estimated = $record->origin_backup_size_estimated;
@@ -108,7 +108,7 @@ class log_page implements renderable, templatable {
         $data->destiny_category_id = $record->destiny_category_id;
         $data->destiny_remove_enrols = $this->get_bool($record->destiny_remove_enrols);
         $data->destiny_remove_groups = $this->get_bool($record->destiny_remove_groups);
-        $data->destiny_target = $record->destiny_target;
+        $data->destiny_target = $this->get_target($record->destiny_target);
         $data->error_code = $record->error_code;
         $data->error_message = $record->error_message;
         $data->fileurl = $record->fileurl;
@@ -153,6 +153,23 @@ class log_page implements renderable, templatable {
                 return 'Respuesta';
             default:
                 return 'Dirección erronea';
+        }
+    }
+
+    /**
+     * Get Target.
+     *
+     * @param int $direction
+     * @return string
+     */
+    protected function get_target(int $direction): string {
+        switch ($direction) {
+            case 2:
+                return 'En Nuevo Curso';
+            case 3:
+                return 'Borrar contenido de destino';
+            default:
+                return 'Fusionar contenido en destino';
         }
     }
 
