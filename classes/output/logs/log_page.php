@@ -109,9 +109,12 @@ class log_page implements renderable, templatable {
         $data->origin_category_id = $record->origin_category_id;
         $data->origin_category_idnumber = $record->origin_category_idnumber;
         $data->origin_category_name = $record->origin_category_name;
-        $data->origin_enrolusers = $this->get_bool($record->origin_enrolusers);
-        $data->origin_remove_course = $this->get_bool($record->origin_remove_course);
-        $data->origin_remove_category = $this->get_bool($record->origin_remove_category);
+        is_null($record->origin_enrolusers) ? '' : $data->origin_enrolusers =
+            $this->get_bool($record->origin_enrolusers);
+        is_null($record->origin_remove_course) ? '' : $data->origin_remove_course =
+            $this->get_bool($record->origin_remove_course);
+        is_null($record->origin_remove_category) ? '' : $data->origin_remove_category =
+            $this->get_bool($record->origin_remove_category);
         if (isset($data->origin_schedule_datetime)) {
             $data->origin_schedule_datetime = date("Y-m-d h:i:s", $record->origin_schedule_datetime);
         }
@@ -131,9 +134,12 @@ class log_page implements renderable, templatable {
         $data->origin_backup_url = $record->origin_backup_url;
         $data->destiny_course_id = $record->destiny_course_id;
         $data->destiny_category_id = $record->destiny_category_id;
-        $data->destiny_remove_enrols = $this->get_bool($record->destiny_remove_enrols);
-        $data->destiny_remove_groups = $this->get_bool($record->destiny_remove_groups);
-        $data->destiny_target = $this->get_target($record->destiny_target);
+        is_null($record->destiny_remove_enrols) ? '' : $data->destiny_remove_enrols =
+            $this->get_bool($record->destiny_remove_enrols);
+        is_null($record->destiny_remove_groups) ? '' : $data->destiny_remove_groups =
+            $this->get_bool($record->destiny_remove_groups);
+        is_null($record->destiny_target) ? '' : $data->destiny_target =
+            $this->get_bool($record->destiny_target);
         $data->error_code = $record->error_code;
         $data->error_message = $record->error_message;
         $data->fileurl = $record->fileurl;
