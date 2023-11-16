@@ -42,6 +42,7 @@ use invalid_parameter_exception;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_download;
 use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\coursetransfer_sites;
 use moodle_exception;
 use stdClass;
 
@@ -105,10 +106,12 @@ class destiny_course_callback_external extends external_api {
             if ($authres['success']) {
                 $request = coursetransfer_request::get($requestid);
                 if ($request) {
-                    $origintoken = coursetransfer::get_token_origin_site($fileurl);
-                    $finalurl = $fileurl . '?token=' . $origintoken;
+                    $origin = coursetransfer_sites::get_by_host('origin', $request->siteurl);
+                    $finalurl = $fileurl . '?token=' . $origin->token;
                     $request->status = coursetransfer_request::STATUS_BACKUP;
                     $request->origin_backup_size = $backupsize;
+                    $request->origin_backup_url = $fileurl;
+                    $request->fileurl = $finalurl;
                     coursetransfer_request::insert_or_update($request, $requestid);
                     coursetransfer_download::create_task_download_course($request, $finalurl);
                     $data->id = $request->id;

@@ -255,35 +255,6 @@ class coursetransfer {
     }
 
     /**
-     * Get token Origin site
-     *
-     * @param string $originurl
-     * @return string
-     * @throws dml_exception|moodle_exception
-     */
-    public static function get_token_origin_site(string $originurl): string {
-        $token = '';
-        $host = parse_url($originurl, PHP_URL_HOST);
-        $scheme = parse_url($originurl, PHP_URL_SCHEME);
-        $reshost = $scheme . '://' . $host;
-        $originsites = coursetransfer_sites::list('origin');
-        if ($originsites) {
-            foreach ($originsites as $site) {
-                if (isset($site->host) && isset($site->token)) {
-                    if ($site->host === $reshost) {
-                        $token = $site->token;
-                        break;
-                    }
-                }
-            }
-        }
-        if (empty($token)) {
-            throw new moodle_exception('DOWLOAD TOKEN IS INVALID');
-        }
-        return $token;
-    }
-
-    /**
      * Get Backup Size Estimated
      *
      * @param int $courseid
@@ -390,7 +361,7 @@ class coursetransfer {
      * @param stored_file $file
      * @return stdClass
      */
-    public static function create_backupfile_url(int $courseid, stored_file $file): stdClass {
+    public static function create_backupfile_url(int $courseid, stored_file $file, int $requestoriginid): stdClass {
         $res = new stdClass();
         $error = '';
         $url = '';
@@ -405,7 +376,7 @@ class coursetransfer {
                     'contextid' => $context->id,
                     'component' => 'local_coursetransfer',
                     'filearea' => 'backup',
-                    'itemid' => $timestamp,
+                    'itemid' => $requestoriginid,
                     'filepath' => '/',
                     'filename' => 'backup.mbz',
                     'timecreated' => $timestamp,

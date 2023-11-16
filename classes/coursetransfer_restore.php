@@ -41,6 +41,7 @@ use base_setting_exception;
 use cm_info;
 use dml_exception;
 use local_coursetransfer\task\create_backup_course_task;
+use local_coursetransfer\task\restore_course_task;
 use moodle_exception;
 use restore_controller;
 use section_info;
@@ -67,6 +68,22 @@ require_once($CFG->dirroot . '/local/coursetransfer/classes/task/create_backup_c
 class coursetransfer_restore {
 
     /**
+     * Create task restore course.
+     *
+     * @param stdClass $request
+     * @param stored_file $file
+     * @return bool
+     */
+    public static function create_task_restore_course(stdClass $request, stored_file $file): bool {
+        $resasynctask = new restore_course_task();
+        $resasynctask->set_blocking(false);
+        $resasynctask->set_custom_data(
+                array('requestid' => $request->id, 'fileid' => $file->get_id())
+        );
+        return \core\task\manager::queue_adhoc_task($resasynctask);
+    }
+
+    /**
      * Create Task to restore Course.
      *
      * @param stdClass $request
@@ -74,7 +91,7 @@ class coursetransfer_restore {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function create_task_restore_course(stdClass $request, stored_file $file) {
+    public static function restore_course(stdClass $request, stored_file $file) {
         try {
             $courseid = (int)$request->destiny_course_id;
             $userid = (int)$request->userid;
