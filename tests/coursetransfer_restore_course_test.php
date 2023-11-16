@@ -349,12 +349,16 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 true,
                 true,
                 false);
-        $requestorigin3 = $this->test_restore_course($configuration3, $this->destinycourse3, $this->origincourse);
+        list($requestdestination3, $requestorigin3) = $this->test_restore_course(
+                $configuration3, $this->destinycourse3, $this->origincourse);
+        $this->validate_request_not_started($requestdestination3);
+
         // 4. Test in Destination Course. With Users and Groups. Merge Content and Users and Groups.
         // 5. Test in Destination Course. Remove Origin Course.
 
         // EXECUTE TASKS.
         $this->execute_tasks();
+
         // 1. Test New Course. Without Users.
         //$this->execute_restore($requestorigin1, $this->destinynewcourse1, $this->origincourse);
         //$this->execute_restore($requestorigin2, $this->destinycourse2, $this->origincourse);
@@ -372,7 +376,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
         //        ['group' => $this->group1, 'count' => 2], ['group' => $this->group2, 'count' => 1]]);
         // 3. Test in Destination Course. Without Users. Delete Content and Users and Groups.
         $this->validate_course_not_equals($this->destinycourse3, $this->origincourse);
-        $this->validate_request($requestorigin3);
+        $this->validate_request_completed($requestdestination3);
     }
 
     /**
@@ -383,14 +387,14 @@ class coursetransfer_restore_course_test extends advanced_testcase {
      * @param stdClass $coursedestiny
      * @param stdClass $courseorigin
      * @param array $sections
-     * @return stdClass
+     * @return array
      * @throws base_plan_exception
      * @throws base_setting_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
     protected function test_restore_course(
-            configuration_course $configuration, stdClass $coursedestiny, stdClass $courseorigin, $sections = []): stdClass {
+            configuration_course $configuration, stdClass $coursedestiny, stdClass $courseorigin, $sections = []): array {
 
         $requestdestination = coursetransfer_request::set_request_restore_course(
                 $this->user,
@@ -424,7 +428,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
 
         $this->assertTrue($restask);
 
-        return $requestorigin;
+        return [$requestdestination, $requestorigin];
 
     }
 
@@ -510,7 +514,40 @@ class coursetransfer_restore_course_test extends advanced_testcase {
      * @param stdClass $request
      * @throws dml_exception
      */
-    protected function validate_request(stdClass $request) {
+    protected function validate_request_not_started(stdClass $request) {
+        $request = coursetransfer_request::get($request->id);
+        $this->assertEquals(coursetransfer_request::STATUS_NOT_STARTED, (int)$request->status);
+    }
+
+    /**
+     * Validate Request.
+     *
+     * @param stdClass $request
+     * @throws dml_exception
+     */
+    protected function validate_request_in_backup(stdClass $request) {
+        $request = coursetransfer_request::get($request->id);
+        $this->assertEquals(coursetransfer_request::STATUS_BACKUP, (int)$request->status);
+    }
+
+    /**
+     * Validate Request.
+     *
+     * @param stdClass $request
+     * @throws dml_exception
+     */
+    protected function validate_request_in_downloaded(stdClass $request) {
+        $request = coursetransfer_request::get($request->id);
+        $this->assertEquals(coursetransfer_request::STATUS_DOWNLOADED, (int)$request->status);
+    }
+
+    /**
+     * Validate Request.
+     *
+     * @param stdClass $request
+     * @throws dml_exception
+     */
+    protected function validate_request_completed(stdClass $request) {
         $request = coursetransfer_request::get($request->id);
         $this->assertEquals(coursetransfer_request::STATUS_COMPLETED, (int)$request->status);
     }

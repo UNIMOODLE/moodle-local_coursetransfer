@@ -110,14 +110,15 @@ class coursetransfer_backup {
         $asynctask = new create_backup_course_task();
         $asynctask->set_blocking(false);
         $backupid = $bc->get_backupid();
-        $asynctask->set_custom_data(
-                [
-                        'backupid' => $backupid,
-                        'destinysite' => $destinysite->id,
-                        'requestid' => $requestid,
-                        'requestoriginid' => $requestoriginid,
-                        'istest' => $istest
-                ]);
+
+        $payload = [
+                'backupid' => $backupid,
+                'destinysite' => $destinysite->id,
+                'requestid' => $requestid,
+                'requestoriginid' => $requestoriginid,
+                'istest' => $istest
+        ];
+        $asynctask->set_custom_data($payload);
         $asynctask->set_userid($userid);
         return \core\task\manager::queue_adhoc_task($asynctask);
     }

@@ -65,16 +65,27 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
     public function execute() {
         global $DB;
 
-        $backupid = $this->get_custom_data()->backupid;
-        $istest = $this->get_custom_data()->istest;
-        $bc = \backup_controller::load_controller($backupid);
         $started = time();
 
         try {
 
             $this->log_start("Course Transfer Backup Starting...");
 
+            $istest = $this->get_custom_data()->istest;
             $backupid = $this->get_custom_data()->backupid;
+            $requestid = $this->get_custom_data()->requestid;
+            $siteid = $this->get_custom_data()->destinysite;
+            $requestoriginid = $this->get_custom_data()->requestoriginid;
+
+            if (!$backupid) {
+                throw new moodle_exception('BACKUP ID NOT FOUND');
+            }
+            if (!$requestoriginid) {
+                throw new moodle_exception('REQUEST ORIGIN ID NOT FOUND');
+            }
+
+            $bc = \backup_controller::load_controller($backupid);
+
             $backuprecord = $DB->get_record('backup_controllers', array('backupid' => $backupid), 'id, controller', MUST_EXIST);
             mtrace('Processing asynchronous backup for backup: ' . $backupid);
 
@@ -111,14 +122,12 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
             }
 
             $result = $bc->get_results();
-            $siteid = $this->get_custom_data()->destinysite;
             $userid = $bc->get_userid();
             $user = \core_user::get_user($userid);
             $site = coursetransfer_sites::get('destiny', $siteid);
-            $requestid = $this->get_custom_data()->requestid;
             $request = new request($site);
 
-            $requestorigin = coursetransfer_request::get($this->get_custom_data()->requestoriginid);
+            $requestorigin = coursetransfer_request::get($requestoriginid);
             if ($bc->get_status() === \backup::STATUS_FINISHED_OK) {
                 mtrace('Course Transfer Backup - Creating File ... ');
                 $resfileurl = coursetransfer::create_backupfile_url(
@@ -159,13 +168,13 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
                 }
             }
             coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+            $bc->destroy();
         } catch (moodle_exception $e) {
             mtrace('Course Transfer Backup ERROR: ' . $e->getMessage());
             $this->log($e->getMessage());
         }
         $this->log_finish("Course Transfer Backup Finishing...");
 
-        $bc->destroy();
         $duration = time() - $started;
         mtrace('Backup completed in: ' . $duration . ' seconds');
     }
