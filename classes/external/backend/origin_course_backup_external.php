@@ -179,7 +179,7 @@ class origin_course_backup_external extends external_api {
                             $cat = core_course_category::get($course->category, MUST_EXIST);
 
                             $data->origin_backup_size_estimated = $requestorigin->origin_backup_size_estimated;
-                            $data->request_origin_id = $requestoriginid;
+                            $data->request_origin_id = $requestorigin->id;
                             $data->course_fullname = $course->fullname;
                             $data->course_shortname = $course->shortname;
                             $data->course_idnumber = $course->idnumber;
@@ -188,7 +188,6 @@ class origin_course_backup_external extends external_api {
                             $data->course_category_idnumber = $cat->idnumber;
                             $success = true;
                         } else {
-                            $requestorigin->id = $requestoriginid;
                             $requestorigin->error_code = '130003';
                             $requestorigin->error_message = 'BACKUP NOT SAVE';
                             $requestorigin->status = coursetransfer_request::STATUS_ERROR;
