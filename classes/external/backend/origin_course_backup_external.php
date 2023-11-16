@@ -167,17 +167,14 @@ class origin_course_backup_external extends external_api {
                                 $config,
                                 $sections);
 
-                        $requestoriginid = coursetransfer_request::insert_or_update($requestorigin);
-
                         $resbackup = coursetransfer_backup::create_task_backup_course(
-                                $course->id, $user->id, $verifydestiny['data'], $requestid, $requestoriginid, $sections,
+                                $course->id, $user->id, $verifydestiny['data'], $requestid, $requestorigin->id, $sections,
                                 $configuration['origin_enrol_users']);
 
                         if ($resbackup) {
-                            $requestorigin->id = $requestoriginid;
                             $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
 
-                            coursetransfer_request::insert_or_update($requestorigin);
+                            coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
 
                             $cat = core_course_category::get($course->category, MUST_EXIST);
 
@@ -191,6 +188,12 @@ class origin_course_backup_external extends external_api {
                             $data->course_category_idnumber = $cat->idnumber;
                             $success = true;
                         } else {
+                            $requestorigin->id = $requestoriginid;
+                            $requestorigin->error_code = '130003';
+                            $requestorigin->error_message = 'BACKUP NOT SAVE';
+                            $requestorigin->status = coursetransfer_request::STATUS_ERROR;
+
+                            coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
                             $success = false;
                             $errors[] =
                                     [
