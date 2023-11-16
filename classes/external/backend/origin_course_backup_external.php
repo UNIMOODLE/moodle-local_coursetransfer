@@ -45,7 +45,6 @@ use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_backup;
 use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\models\configuration_course;
-use local_coursetransfer\output\error_page;
 use moodle_exception;
 use stdClass;
 

@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\output\origin_restore;
 
+use context_system;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -76,8 +77,6 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
         $site = coursetransfer::get_site_by_position($this->site);
 
         $data->host = $site->host;
-        $data->has_origin_user_data = coursetransfer::has_origin_user_data($USER);
-        $data->can_remove_origin_course = coursetransfer::can_remove_origin_course($USER);
 
         $cats = \core_course_category::get_all();
         $destinies = [];
@@ -132,6 +131,18 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
         $data->next_url_disabled = false;
         $data->siteurl = $site->host;
         $data->destinies = $destinies;
+        $data->has_origin_user_data = coursetransfer::has_origin_user_data($USER);
+        $data->can_remove_origin_course = coursetransfer::can_remove_origin_course($USER);
+        $data->can_destiny_restore_merge = coursetransfer::can_destiny_restore_merge($USER, context_system::instance());
+        $data->can_destiny_restore_content_remove =
+                coursetransfer::can_destiny_restore_content_remove($USER, context_system::instance());
+        $data->can_destiny_restore_groups_remove = coursetransfer::can_destiny_restore_groups_remove($USER);
+        $data->can_destiny_restore_enrol_remove = coursetransfer::can_destiny_restore_enrol_remove($USER);
+        $data->restore_this_course =
+                $data->can_destiny_restore_merge || $data->can_destiny_restore_content_remove;
+        $data->remove_in_destination =
+                $data->can_destiny_restore_groups_remove || $data->can_destiny_restore_enrol_remove;
+        $data->origin_course_configuration = $data->has_origin_user_data || $data->has_scheduled_time;
         return $data;
     }
 }
