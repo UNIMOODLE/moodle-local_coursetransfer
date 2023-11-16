@@ -100,6 +100,8 @@ class coursetransfer_backup {
         $bc->get_plan()->get_setting('badges')->set_value($rootusers);
         $bc->get_plan()->get_setting('userscompletion')->set_status(base_setting::NOT_LOCKED);
         $bc->get_plan()->get_setting('userscompletion')->set_value($rootusers);
+        $bc->get_plan()->get_setting('groups')->set_status(base_setting::NOT_LOCKED);
+        $bc->get_plan()->get_setting('groups')->set_value($rootusers);
 
         self::set_value_settings_section_activities($bc, $courseid, $rootusers, $sections);
 

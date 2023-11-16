@@ -46,10 +46,12 @@ use core_user;
 use dml_exception;
 use invalid_parameter_exception;
 use local_coursetransfer\external\frontend\sites_external;
+use local_coursetransfer\factory\tools;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\models\configuration_course;
 use local_coursetransfer\task\create_backup_course_task;
 use mod_label_generator;
+use mod_quiz_generator;
 use mod_resource_generator;
 use moodle_exception;
 use moodle_url;
@@ -66,7 +68,7 @@ require_once($CFG->libdir . '/setuplib.php');
 require_once($CFG->libdir . '/cronlib.php');
 
 /**
- * coursetransfer_test
+ * coursetransfer_restore_course_test
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -75,14 +77,20 @@ require_once($CFG->libdir . '/cronlib.php');
  * @group      local_coursetransfer
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class coursetransfer_test extends advanced_testcase {
+class coursetransfer_restore_course_test extends advanced_testcase {
 
 
     /** @var stdClass Origin Course */
     protected $origincourse;
 
-    /** @var stdClass Destiny New Course */
-    protected $destinynewcourse;
+    /** @var stdClass Destination New Course */
+    protected $destinynewcourse1;
+
+    /** @var stdClass Destination 2 */
+    protected $destinycourse2;
+
+    /** @var stdClass Destination 3 */
+    protected $destinycourse3;
 
     /** @var stdClass User */
     protected $user;
@@ -178,16 +186,16 @@ class coursetransfer_test extends advanced_testcase {
     }
 
     /**
-     * Create New Courses.
+     * Create Courses.
      *
-     * @param string $shortname
+     * @throws coding_exception
      * @throws moodle_exception
      */
-    protected function create_new_courses(string $shortname) {
-        // Create Origin Course.
+    protected function create_courses() {
+        // Create Origin Course with modules and users&groups...
         $oc = [
                 'fullname' => 'Origen Course',
-                'shortname' => $shortname,
+                'shortname' => 'phpunit-origin-course',
                 'summary' => 'This a Summary',
                 'numsections' => 0
         ];
@@ -211,122 +219,104 @@ class coursetransfer_test extends advanced_testcase {
         $this->group2 = $this->getDataGenerator()->create_group(['courseid' => $this->origincourse->id]);
         groups_add_member($this->group2, $this->student3);
 
+        $this->create_sections_origin($this->origincourse);
+
         // Create Destiny New Course.
-        $dnc = [
+        $dnc1 = [
                 'fullname' => 'Remote Restoring in process...',
                 'shortname' => 'IN-PROGRESS-' . time(),
                 'summary' => 'This a other Summary',
                 'numsections' => 0
         ];
-        $this->destinynewcourse = $this->getDataGenerator()->create_course($dnc);
+        $this->destinynewcourse1 = $this->getDataGenerator()->create_course($dnc1);
 
-        $this->create_sections();
+        // Create Destination Course 2 with modules and users&groups..
+        $dnc2 = [
+                'fullname' => 'Destination Course 2',
+                'shortname' => 'phpunit-destination-course-2',
+                'summary' => 'This a Summary of Destination 2',
+                'numsections' => 0
+        ];
+        $this->destinycourse2 = $this->getDataGenerator()->create_course($dnc2);
+
+        // Create Destination Course 2 with modules and users&groups..
+        $dnc3 = [
+                'fullname' => 'Destination Course 3',
+                'shortname' => 'phpunit-destination-course-3',
+                'summary' => 'This a Summary of Destination 3',
+                'numsections' => 0
+        ];
+        $this->destinycourse3 = $this->getDataGenerator()->create_course($dnc3);
+        $this->create_sections_destiny2($this->destinycourse3);
+
+        $student4 = $this->getDataGenerator()->create_user(['email' => 'student4@moodle.com']);
+        $this->getDataGenerator()->enrol_user($student4->id, $this->destinycourse3->id, 'student');
+        $student5 = $this->getDataGenerator()->create_user(['email' => 'student5@moodle.com']);
+        $this->getDataGenerator()->enrol_user($student5->id, $this->destinycourse3->id, 'student');
+        $student6 = $this->getDataGenerator()->create_user(['email' => 'student6@moodle.com']);
+        $this->getDataGenerator()->enrol_user($student6->id, $this->destinycourse3->id, 'student');
+        $tutor3 = $this->getDataGenerator()->create_user(['email' => 'tutor3@moodle.com']);
+        $this->getDataGenerator()->enrol_user($tutor3->id, $this->destinycourse3->id, 'editingteacher');
+        $tutor4 = $this->getDataGenerator()->create_user(['email' => 'tutor4@moodle.com']);
+        $this->getDataGenerator()->enrol_user($tutor4->id, $this->destinycourse3->id, 'editingteacher');
+
+        $group3 = $this->getDataGenerator()->create_group(['courseid' => $this->destinycourse3->id]);
+        groups_add_member($group3, $student4);
+        groups_add_member($group3, $student5);
+
+        $group4 = $this->getDataGenerator()->create_group(['courseid' => $this->destinycourse2->id]);
+        groups_add_member($group4, $student6);
     }
 
     /**
      * Create Sections.
      *
+     * @param stdClass $course
+     * @throws coding_exception
      * @throws moodle_exception
      */
-    protected function create_sections() {
-        $newsection = course_create_section($this->origincourse->id);
+    protected function create_sections_origin(stdClass $course) {
+        $newsection = course_create_section($course->id);
         $new = clone($newsection);
         $new->name = 'SuperHeroes';
         $new->summary = 'SuperHeroes Summary';
-        course_update_section($this->origincourse->id, $newsection, $new);
-        $this->modassign1 = $this->create_mod_assign('Superman', 'Intro Superman', $newsection);
-        $this->modassign2 = $this->create_mod_assign('Spiderman', 'Intro Spiderman', $newsection);
-        $this->modassign3 = $this->create_mod_assign('Batman', 'Intro Batman', $newsection);
-        $this->modresource1 = $this->create_mod_resource('Catwoman', 'Intro Catwoman', $newsection);
-        $newsection2 = course_create_section($this->origincourse->id);
+        course_update_section($course->id, $newsection, $new);
+        $this->modassign1 = tools::create_mod_assign($course, 'Superman', 'Intro Superman', $newsection);
+        $this->modassign2 = tools::create_mod_assign($course, 'Spiderman', 'Intro Spiderman', $newsection);
+        $this->modassign3 = tools::create_mod_assign($course, 'Batman', 'Intro Batman', $newsection);
+        $this->modresource1 = tools::create_mod_resource($course, 'Catwoman', 'Intro Catwoman', $newsection);
+        $newsection2 = course_create_section($course->id);
         $new2 = clone($newsection2);
         $new2->name = 'Cars';
         $new2->summary = 'Cars Summary';
-        course_update_section($this->origincourse->id, $newsection2, $new2);
-        $this->modlabel1 = $this->create_mod_label('Ford', 'Intro Ford', $newsection2);
-        $this->modlabel2 = $this->create_mod_label('Ford', 'Intro Ford', $newsection2);
+        course_update_section($course->id, $newsection2, $new2);
+        $this->modlabel1 = tools::create_mod_label($course, 'Ford', 'Intro Ford', $newsection2);
+        $this->modlabel2 = tools::create_mod_label($course, 'Ford', 'Intro Ford', $newsection2);
     }
 
     /**
-     * Create Mod Assign.
+     * Create Sections.
      *
-     * @param string $name
-     * @param string $intro
-     * @param stdClass $section
-     * @return stdClass
-     * @throws coding_exception
-     */
-    protected function create_mod_assign(string $name, string $intro, stdClass $section): stdClass {
-        $generator = $this->generator->get_plugin_generator('mod_assign');
-
-        $record = [
-                'course' => $this->origincourse,
-                'name' => $name,
-                'intro' => $intro,
-                'introformat' => FORMAT_HTML
-        ];
-        $options = [
-                'section' => $section->section,
-                'visible' => 1,
-                'showdescription' => false
-        ];
-        return $generator->create_instance($record, $options);
-    }
-
-    /**
-     * Create Mod Resource.
-     *
-     * @param string $name
-     * @param string $intro
-     * @param stdClass $section
-     * @return stdClass
+     * @param stdClass $course
      * @throws coding_exception
      * @throws moodle_exception
      */
-    protected function create_mod_resource(string $name, string $intro, stdClass $section): stdClass {
-        /** @var mod_resource_generator $generator */
-        $generator = $this->generator->get_plugin_generator('mod_resource');
-
-        $record = [
-                'course' => $this->origincourse,
-                'name' => $name,
-                'intro' => $intro,
-                'introformat' => FORMAT_HTML,
-                'idnumber' => $name,
-                'display' => 4
-        ];
-        $options = [
-                'section' => $section->section,
-                'visible' => 1,
-                'showdescription' => false
-        ];
-        return $generator->create_instance($record, $options);
-    }
-
-    /**
-     * Create Mod Label.
-     *
-     * @param string $name
-     * @param string $intro
-     * @param stdClass $section
-     * @return stdClass
-     */
-    protected function create_mod_label(string $name, string $intro, stdClass $section): stdClass {
-        /** @var mod_label_generator $generator */
-        $generator = $this->generator->get_plugin_generator('mod_label');
-
-        $record = [
-                'course' => $this->origincourse,
-                'name' => $name,
-                'intro' => $intro,
-                'introformat' => FORMAT_HTML
-        ];
-        $options = [
-                'section' => $section->section,
-                'visible' => 1,
-                'showdescription' => false
-        ];
-        return $generator->create_instance($record, $options);
+    protected function create_sections_destiny2(stdClass $course) {
+        $newsection = course_create_section($course->id);
+        $new = clone($newsection);
+        $new->name = 'Football Players';
+        $new->summary = 'Football Players Summary';
+        course_update_section($course->id, $newsection, $new);
+        $this->modassign1 = tools::create_mod_assign($course, 'Leo Messi', 'Intro Messi', $newsection);
+        $this->modassign2 = tools::create_mod_assign($course, 'Cristiano Ronaldo', 'Intro Ronaldo', $newsection);
+        $this->modresource1 = tools::create_mod_resource($course, 'Erling Haaland', 'Intro Catwoman', $newsection);
+        $newsection2 = course_create_section($course->id);
+        $new2 = clone($newsection2);
+        $new2->name = 'Basketball Players';
+        $new2->summary = 'Basketball Players Summary';
+        course_update_section($course->id, $newsection2, $new2);
+        $this->modlabel1 = tools::create_mod_label($course, 'Lebron James', 'Intro Lebron James', $newsection2);
+        $this->modlabel2 = tools::create_mod_quiz($course, 'James Harden', 'Intro James Harden', $newsection2);
     }
 
     /**
@@ -335,18 +325,54 @@ class coursetransfer_test extends advanced_testcase {
      * @throws moodle_exception
      */
     public function tests_restore_course() {
-        // 1. Test.
-        $this->create_new_courses('phpunit_origincourse-1');
-        $configuration = new configuration_course(
+        // 1. Test New Course. Without Users.
+        $this->create_courses();
+        $configuration1 = new configuration_course(
+                backup::TARGET_NEW_COURSE,
+                false,
+                false,
+                false,
+                false);
+        //$requestorigin1 = $this->test_restore_course($configuration1, $this->destinynewcourse1, $this->origincourse);
+        // 2. Test in Destination Course. With Users and Groups.
+        $configuration2 = new configuration_course(
                 backup::TARGET_NEW_COURSE,
                 false,
                 false,
                 true,
                 false);
-        $requestorigin1 = $this->test_restore_course($configuration);
+        //$requestorigin2 = $this->test_restore_course($configuration2, $this->destinycourse2, $this->origincourse);
+        // 3. Test in Destination Course. Witouth Users. Delete Content and Users and Groups.
+        $configuration3 = new configuration_course(
+                backup::TARGET_EXISTING_DELETING,
+                true,
+                true,
+                true,
+                false);
+        $requestorigin3 = $this->test_restore_course($configuration3, $this->destinycourse3, $this->origincourse);
+        // 4. Test in Destination Course. With Users and Groups. Merge Content and Users and Groups.
+        // 5. Test in Destination Course. Remove Origin Course.
+
+        // EXECUTE TASKS.
         $this->execute_tasks();
-        $this->execute_restore($requestorigin1);
-        $this->validate();
+        // 1. Test New Course. Without Users.
+        //$this->execute_restore($requestorigin1, $this->destinynewcourse1, $this->origincourse);
+        //$this->execute_restore($requestorigin2, $this->destinycourse2, $this->origincourse);
+        $this->execute_restore($requestorigin3, $this->destinycourse3, $this->origincourse);
+
+        // VALIDATE DATA.
+        // 1. Test New Course. Without Users.
+        //$this->validate_course($this->destinynewcourse1, $this->origincourse);
+        //$this->review_modules($this->destinynewcourse1);
+        //$this->review_enrols($this->destinynewcourse1, 0, 0, []);
+        // 2. Test in Destination Course. With Users and Groups.
+        //$this->validate_course($this->destinycourse2, $this->origincourse);
+        //$this->review_modules($this->destinycourse2);
+        //$this->review_enrols($this->destinycourse2, 5, 2, [
+        //        ['group' => $this->group1, 'count' => 2], ['group' => $this->group2, 'count' => 1]]);
+        // 3. Test in Destination Course. Without Users. Delete Content and Users and Groups.
+        $this->validate_course_not_equals($this->destinycourse3, $this->origincourse);
+        $this->validate_request($requestorigin3);
     }
 
     /**
@@ -354,21 +380,23 @@ class coursetransfer_test extends advanced_testcase {
      *
      * @covers coursetransfer::restore_course
      * @param configuration_course $configuration
+     * @param stdClass $coursedestiny
+     * @param stdClass $courseorigin
+     * @param array $sections
      * @return stdClass
      * @throws base_plan_exception
      * @throws base_setting_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    protected function test_restore_course(configuration_course $configuration): stdClass {
-
-        $sections = [];
+    protected function test_restore_course(
+            configuration_course $configuration, stdClass $coursedestiny, stdClass $courseorigin, $sections = []): stdClass {
 
         $requestdestination = coursetransfer_request::set_request_restore_course(
                 $this->user,
                 $this->siteorigin,
-                $this->destinynewcourse->id,
-                $this->origincourse->id,
+                $coursedestiny->id,
+                $courseorigin->id,
                 $configuration,
                 $sections,
                 null);
@@ -377,14 +405,14 @@ class coursetransfer_test extends advanced_testcase {
                 $this->user,
                 $requestdestination->id,
                 $this->sitedestiny,
-                $this->destinynewcourse->id,
-                $this->origincourse,
+                $coursedestiny->id,
+                $courseorigin,
                 $configuration,
                 $sections);
 
         // Create Backup.
         $restask = coursetransfer_backup::create_task_backup_course(
-                $this->origincourse->id,
+                $courseorigin->id,
                 $this->user->id,
                 $this->sitedestiny,
                 $requestdestination->id,
@@ -417,16 +445,17 @@ class coursetransfer_test extends advanced_testcase {
      * Execute Tasks.
      *
      * @param stdClass $requestorigin
+     * @param stdClass $coursedestiny
+     * @param stdClass $courseorigin
      * @throws dml_exception
-     * @throws moodle_exception
      */
-    protected function execute_restore(stdClass $requestorigin) {
+    protected function execute_restore(stdClass $requestorigin, stdClass $coursedestiny, stdClass $courseorigin) {
 
         $requestorigin = coursetransfer_request::get($requestorigin->id);
 
         $this->assertNotEmpty($requestorigin->origin_backup_url);
 
-        $context = context_course::instance($this->origincourse->id);
+        $context = context_course::instance($courseorigin->id);
 
         $fs = get_file_storage();
 
@@ -439,7 +468,7 @@ class coursetransfer_test extends advanced_testcase {
         $resrest = coursetransfer_restore::create_task_restore_course($requestorigin, $file);
 
         $this->assertTrue($resrest);
-        $this->assertNotEquals($this->origincourse->summary, $this->destinynewcourse->summary);
+        $this->assertNotEquals($courseorigin->summary, $coursedestiny->summary);
 
         $rtasks = manager::get_adhoc_tasks('local_coursetransfer\task\restore_course_task');
         foreach ($rtasks as $rtask) {
@@ -452,39 +481,46 @@ class coursetransfer_test extends advanced_testcase {
     /**
      * Validate.
      *
+     * @param stdClass $coursedestiny
+     * @param stdClass $courseorigin
      * @throws dml_exception
      * @throws moodle_exception
      */
-    protected function validate() {
-        $destinycoursemod = get_course($this->destinynewcourse->id);
-        $this->assertEquals($this->origincourse->summary, $destinycoursemod->summary);
-        $this->review_modules();
-        $this->review_enrols();
+    protected function validate_course_equals(stdClass $coursedestiny, stdClass $courseorigin) {
+        $destinycoursemod = get_course($coursedestiny->id);
+        $this->assertEquals($courseorigin->summary, $destinycoursemod->summary);
     }
 
     /**
+     * Validate.
      *
-     * @throws coding_exception
-     */
-    protected function review_enrols() {
-        $users = enrol_get_course_users($this->destinynewcourse->id);
-        $this->assertCount(5, $users);
-        $groups = groups_get_all_groups($this->destinynewcourse->id);
-        $this->assertCount(2, $groups);
-        $members = groups_get_members($this->group1->id);
-        $this->assertCount(2, $members);
-        $members = groups_get_members($this->group2->id);
-        $this->assertCount(1, $members);
-        foreach ($members as $member) {
-            $this->assertEquals('student3@moodle.com', $member->email);
-        }
-    }
-
-    /**
+     * @param stdClass $coursedestiny
+     * @param stdClass $courseorigin
+     * @throws dml_exception
      * @throws moodle_exception
      */
-    protected function review_modules() {
-        $modinfo = get_fast_modinfo($this->destinynewcourse->id);
+    protected function validate_course_not_equals(stdClass $coursedestiny, stdClass $courseorigin) {
+        $destinycoursemod = get_course($coursedestiny->id);
+        $this->assertNotEquals($courseorigin->summary, $destinycoursemod->summary);
+    }
+
+    /**
+     * Validate Request.
+     *
+     * @param stdClass $request
+     * @throws dml_exception
+     */
+    protected function validate_request(stdClass $request) {
+        $request = coursetransfer_request::get($request->id);
+        $this->assertEquals(coursetransfer_request::STATUS_COMPLETED, (int)$request->status);
+    }
+
+    /**
+     * @param stdClass $coursedestiny
+     * @throws moodle_exception
+     */
+    protected function review_modules(stdClass $coursedestiny) {
+        $modinfo = get_fast_modinfo($coursedestiny->id);
         $cms = $modinfo->get_cms();
         $sections = $modinfo->get_section_info_all();
         $this->assertCount(6, $cms);
@@ -516,6 +552,27 @@ class coursetransfer_test extends advanced_testcase {
         }
         $this->assertEquals(2, $sc);
 
+    }
+
+    /**
+     *
+     * @param stdClass $coursedestiny
+     * @param int $userscount
+     * @param int $groupscount
+     * @param array $gs
+     * @throws coding_exception
+     */
+    protected function review_enrols(stdClass $coursedestiny, int $userscount, int $groupscount, array $gs) {
+        $users = enrol_get_course_users($coursedestiny->id);
+        $this->assertCount($userscount, $users);
+        $groups = groups_get_all_groups($coursedestiny->id);
+        $this->assertCount($groupscount, $groups);
+        foreach ($gs as $g) {
+            $members = groups_get_members($g['group']->id);
+            $this->assertCount($g['count'], $members);
+            $members = groups_get_members($g['group']->id);
+            $this->assertCount($g['count'], $members);
+        }
     }
 
 }
