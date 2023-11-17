@@ -77,6 +77,8 @@ class sites_page implements renderable, templatable {
         $data->table = $this->get_table();
         $back = new moodle_url('/admin/settings.php', ['section' => 'local_coursetransfer']);
         $data->back = $back->out(false);
+        $summary = new moodle_url('/local/coursetransfer/index.php');
+        $data->summary = $summary->out(false);
         $data->type = $this->type;
         $data->desc = get_string('setting_' . $this->type . '_sites_desc', 'local_coursetransfer');
         return $data;

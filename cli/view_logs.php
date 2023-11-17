@@ -39,7 +39,7 @@ require(__DIR__.'/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 
-$usage = 'CLI para ver los logs de peticiones y respuestas filtrando por estados y fecha.
+$usage = 'CLI to view the request and response logs filtering by status and date.
 
 Usage:
     # php view_logs.php

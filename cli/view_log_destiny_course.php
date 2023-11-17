@@ -40,13 +40,13 @@ require(__DIR__.'/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 
-$usage = 'CLI para ver los logs de restauraciones en un curso a partir de un curso desde otro Moodle.
+$usage = 'CLI to view the restoration logs in a course from a course from another Moodle.
 
 Usage:
     # php view_log_destiny_course.php
         --courseid=<courseid>
 
-    --courseid=<courseid>  Destiny Course ID (int)
+    --courseid=<courseid>  Destination Course ID (int)
 
 Options:
     -h --help                   Print this help.
@@ -89,7 +89,7 @@ try {
 
     $mask = "| %12.15s |%-35.35s | %-14.14s | %-12.12s  | %-9.9s | %-50.50s  | %-8.8s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
     printf($mask,
-            'Request ID', 'Destiny Site', 'Dest Course', 'Orig Course',
+            'Request ID', 'Dest Site', 'Dest Course', 'Orig Course',
             'Status', 'Error', 'Size', 'UserID', 'TimeModified', 'TimeCreated');
 
     foreach (\local_coursetransfer\coursetransfer_request::get_by_destiny_course_id($courseid) as $item) {

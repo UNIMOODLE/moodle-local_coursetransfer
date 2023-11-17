@@ -43,7 +43,7 @@ global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
-$usage = 'CLI de restauracion de categorias.
+$usage = 'CLI for restore origin category.
 
 Usage:
     # php restore_category.php
@@ -58,10 +58,10 @@ Usage:
 
     --site_url=<site_url> Origin Site URL (string)
     --origin_category_id=<courseid> Origin Course ID (int).
-    --destiny_category_id=<courseid> Destiny Course ID (int). (Optional - New Category)
+    --destiny_category_id=<courseid> Destination Course ID (int). (Optional - New Category)
     --origin_enrolusers=<enrolusers> Origin Enrol users (Boolean).
-    --destiny_remove_enrols=<destiny_remove_enrols> Destiny Remove Enrols (Boolean).
-    --destiny_remove_groups=<destiny_remove_groups> Destiny Remove Groups (Boolean).
+    --destiny_remove_enrols=<destiny_remove_enrols> Destination Remove Enrols (Boolean).
+    --destiny_remove_groups=<destiny_remove_groups> Destination Remove Groups (Boolean).
     --origin_remove_category=<origin_remove_category> Origin Remove Category (Boolean).
     --origin_schedule_datetime=<origin_schedule_datetime>  Date in UNIX timestamp (int).
 

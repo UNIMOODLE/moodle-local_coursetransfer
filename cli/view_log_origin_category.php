@@ -40,13 +40,13 @@ require(__DIR__.'/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 
-$usage = 'CLI para ver los logs de peticiones de restauraciones de una categoría para restaurarla a otro Moodle.
+$usage = 'CLI to view the logs of restoration requests for a category to restore it to another Moodle.
 
 Usage:
     # php view_log_origin_category.php
         --categoryid=<categoryid>
 
-    --categoryid=<categoryid>  Destiny Category ID (int)
+    --categoryid=<categoryid>  Destination Category ID (int)
 
 Options:
     -h --help                   Print this help.
@@ -89,7 +89,7 @@ try {
 
     $mask = "| %10.10s |%-12.12s  |%-35.35s | %-14.14s | %-14.14s  | %-14.14s | %-30.30s  | %-30.30s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
     printf($mask,
-            'Request ID', 'Destiny Req', 'Destiny Site', 'Dest Category', 'Orig Category',
+            'Request ID', 'Dest Req', 'Dest Site', 'Dest Category', 'Orig Category',
             'Status', 'Courses Selected', 'Error', 'UserID', 'TimeModified', 'TimeCreated');
 
     foreach (\local_coursetransfer\coursetransfer_request::get_by_origin_category_id($categoryid) as $item) {

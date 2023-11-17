@@ -34,15 +34,19 @@
 namespace local_coursetransfer\output\logs;
 
 use coding_exception;
-use core\progress\display;
 use dml_exception;
-use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
 use moodle_url;
 use renderable;
 use renderer_base;
 use stdClass;
 use templatable;
+
+defined('MOODLE_INTERNAL') || die;
+
+global $CFG;
+require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 
 /**
  * log_page
@@ -109,12 +113,11 @@ class log_page implements renderable, templatable {
         $data->origin_category_id = $record->origin_category_id;
         $data->origin_category_idnumber = $record->origin_category_idnumber;
         $data->origin_category_name = $record->origin_category_name;
-        is_null($record->origin_enrolusers) ? '' : $data->origin_enrolusers =
-            $this->get_bool($record->origin_enrolusers);
-        is_null($record->origin_remove_course) ? '' : $data->origin_remove_course =
-            $this->get_bool($record->origin_remove_course);
-        is_null($record->origin_remove_category) ? '' : $data->origin_remove_category =
-            $this->get_bool($record->origin_remove_category);
+        $data->origin_enrolusers = is_null($record->origin_enrolusers) ? '-' : $this->get_bool($record->origin_enrolusers);
+        $data->origin_remove_course = is_null($record->origin_remove_course) ? '-' : $this->get_bool($record->origin_remove_course);
+        $data->origin_remove_category =
+                is_null($record->origin_remove_category) ? '-' : $this->get_bool($record->origin_remove_category);
+        $data->origin_enrolusers = is_null($record->origin_enrolusers) ? '-' : $this->get_bool($record->origin_enrolusers);
         if (isset($data->origin_schedule_datetime)) {
             $data->origin_schedule_datetime = date("Y-m-d h:i:s", $record->origin_schedule_datetime);
         }
@@ -134,19 +137,21 @@ class log_page implements renderable, templatable {
         $data->origin_backup_url = $record->origin_backup_url;
         $data->destiny_course_id = $record->destiny_course_id;
         $data->destiny_category_id = $record->destiny_category_id;
-        is_null($record->destiny_remove_enrols) ? '' : $data->destiny_remove_enrols =
-            $this->get_bool($record->destiny_remove_enrols);
-        is_null($record->destiny_remove_groups) ? '' : $data->destiny_remove_groups =
-            $this->get_bool($record->destiny_remove_groups);
-        is_null($record->destiny_target) ? '' : $data->destiny_target =
-            $this->get_bool($record->destiny_target);
+
+        $data->destiny_remove_enrols =
+                is_null($record->destiny_remove_enrols) ? '-' : $this->get_bool($record->destiny_remove_enrols);
+        $data->destiny_remove_groups =
+                is_null($record->destiny_remove_groups) ? '-' : $this->get_bool($record->destiny_remove_groups);
+        $data->origin_enrolusers = is_null($record->origin_enrolusers) ? '-' : $this->get_bool($record->origin_enrolusers);
+
+        $data->destiny_target = $this->get_target($record->destiny_target);
         $data->error_code = $record->error_code;
         $data->error_message = $record->error_message;
         $data->fileurl = $record->fileurl;
         $user = $DB->get_record('user', ['id' => $record->userid]);
         $data->username = $user->username;
 
-        $data->status = self::STATUS[$record->status];
+        $data->status = $this->get_status($record->status);
         $data->timemodified = date("Y-m-d h:i:s", $record->timemodified);
         return $data;
     }
@@ -156,19 +161,20 @@ class log_page implements renderable, templatable {
      *
      * @param int $type
      * @return string
+     * @throws coding_exception
      */
     protected function get_type(int $type): string {
         switch ($type) {
             case coursetransfer_request::TYPE_COURSE:
-                return 'Restauración Curso';
+                return get_string('restore_course', 'local_coursetransfer');
             case coursetransfer_request::TYPE_CATEGORY:
-                return 'Restauración Categoría';
+                return get_string('restore_category', 'local_coursetransfer');
             case coursetransfer_request::TYPE_REMOVE_COURSE:
-                return 'Borrado Curso';
+                return get_string('remove_course', 'local_coursetransfer');
             case coursetransfer_request::TYPE_REMOVE_CATEGORY:
-                return 'Borrado Categoría';
+                return get_string('remove_category', 'local_coursetransfer');
             default:
-                return 'Tipo erroneo';
+                return '-';
         }
     }
 
@@ -177,15 +183,16 @@ class log_page implements renderable, templatable {
      *
      * @param int $direction
      * @return string
+     * @throws coding_exception
      */
     protected function get_direction(int $direction): string {
         switch ($direction) {
             case coursetransfer_request::DIRECTION_REQUEST:
-                return 'Petición';
+                return get_string('request', 'local_coursetransfer');
             case coursetransfer_request::DIRECTION_RESPONSE:
-                return 'Respuesta';
+                return get_string('response', 'local_coursetransfer');
             default:
-                return 'Dirección erronea';
+                return '-';
         }
     }
 
@@ -194,15 +201,18 @@ class log_page implements renderable, templatable {
      *
      * @param int $direction
      * @return string
+     * @throws coding_exception
      */
     protected function get_target(int $direction): string {
         switch ($direction) {
-            case 2:
-                return 'En Nuevo Curso';
-            case 3:
-                return 'Borrar contenido de destino';
+            case \backup::TARGET_NEW_COURSE:
+                return get_string('in_new_course', 'local_coursetransfer');
+            case \backup::TARGET_EXISTING_DELETING:
+                return get_string('remove_content', 'local_coursetransfer');
+            case \backup::TARGET_EXISTING_ADDING:
+                return get_string('merge_content', 'local_coursetransfer');
             default:
-                return 'Fusionar contenido en destino';
+                return '-';
         }
     }
 
@@ -215,5 +225,37 @@ class log_page implements renderable, templatable {
      */
     protected function get_bool(int $data): string {
         return $data === 1 ? get_string('yes') : get_string('no');
+    }
+
+    /**
+     * Get Status.
+     *
+     * @param int $data
+     * @return string
+     * @throws coding_exception
+     */
+    protected function get_status(int $data): string {
+        switch ($data) {
+            case coursetransfer_request::STATUS_ERROR:
+                return get_string('status_error', 'local_coursetransfer');
+            case coursetransfer_request::STATUS_NOT_STARTED:
+                return get_string('status_not_started', 'local_coursetransfer');
+            case coursetransfer_request::STATUS_IN_PROGRESS:
+                return get_string('status_in_progress', 'local_coursetransfer');
+            case coursetransfer_request::STATUS_BACKUP:
+                return get_string('status_in_backup', 'local_coursetransfer');
+            case coursetransfer_request::STATUS_INCOMPLETED:
+                return get_string('status_incompleted', 'local_coursetransfer');
+            case coursetransfer_request::STATUS_DOWNLOAD:
+                return get_string('status_download', 'local_coursetransfer');
+            case coursetransfer_request::STATUS_DOWNLOADED:
+                return get_string('status_downloaded', 'local_coursetransfer');
+            case coursetransfer_request::STATUS_RESTORE:
+                return get_string('status_restore', 'local_coursetransfer');
+            case coursetransfer_request::STATUS_COMPLETED:
+                return get_string('status_completed', 'local_coursetransfer');
+            default:
+                return '-';
+        }
     }
 }

@@ -43,7 +43,7 @@ global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
-$usage = 'CLI de restauracion de cursos.
+$usage = 'CLI for restore origin course.
 
 Usage:
     # php restore_course.php

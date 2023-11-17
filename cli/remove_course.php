@@ -42,7 +42,7 @@ global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
-$usage = 'CLI for delete course.
+$usage = 'CLI for remove origin course.
 
 Usage:
     # php remove_course.php

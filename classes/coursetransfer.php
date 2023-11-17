@@ -563,6 +563,12 @@ class coursetransfer {
             configuration_category $configuration, array $courses = []): array {
 
         try {
+
+            // 2. Category Request DB.
+            $requestobject = coursetransfer_request::set_request_restore_category(
+                    $site, $destinycategoryid, $origincategoryid, '', $configuration, $user
+            );
+
             $request = new request($site);
             $origincategoryname = '';
             if (count($courses) === 0) {
@@ -584,10 +590,8 @@ class coursetransfer {
                 $destinycategoryid = category::create(get_string('newcategory', 'grades'));
             }
 
-            // 2. Category Request DB.
-            $requestobject = coursetransfer_request::set_request_restore_category(
-                    $site, $destinycategoryid, $origincategoryid, $origincategoryname, $configuration, $user
-            );
+            $requestobject->origin_category_name = $origincategoryname;
+            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
 
             $success = true;
             $errors = [];
@@ -811,7 +815,16 @@ class coursetransfer {
         // 3. Create User.
         $userid = user::create_user($roleid);
 
-        // 4. Create Token.
+        // 4. Enable webservices.
+        set_config('enablewebservices', 1);
+
+        // 5. Activate REST protocol.
+        set_config('webserviceprotocols', 'rest');
+
+        // 6. Enable webservices documentation.
+        set_config('enablewsdocumentation', 1);
+
+        // 7. Create Token.
         return user::create_token($userid);
 
     }

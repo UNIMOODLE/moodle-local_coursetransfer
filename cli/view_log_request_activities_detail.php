@@ -38,7 +38,7 @@ require(__DIR__.'/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 
-$usage = 'CLI para ver los logs detallados de una petición con las actividades seleccionadas.
+$usage = 'CLI to view the detailed logs of a request with the selected activities.
 
 Usage:
     # php view_log_request_activities_detail.php

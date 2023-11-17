@@ -299,3 +299,6 @@ $string['createnewcategory'] = "En nueva categoría...";
 $string['origin_schedule'] = "Ejecución en diferido";
 $string['origin_schedule_desc'] = "Si la tarea se ejecuta en diferido, seleccione la fecha de ejecución";
 $string['origin_schedule_datetime'] = "Fecha de ejecución";
+$string['in_new_course'] = "En Nuevo Curso";
+$string['remove_content'] = "Borrar contenido de destino";
+$string['merge_content'] = "Fusionar contenido en destino";

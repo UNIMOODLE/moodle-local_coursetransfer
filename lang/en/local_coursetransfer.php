@@ -297,3 +297,6 @@ $string['createnewcategory'] = "In new category...";
 $string['origin_schedule'] = "Deferred execution";
 $string['origin_schedule_desc'] = "If the task is executed on a delayed basis, select the execution date";
 $string['origin_schedule_datetime'] = "Execution date";
+$string['in_new_course'] = "In new course";
+$string['remove_content'] = "Remove content in destination";
+$string['merge_content'] = "Merge content in destination";
