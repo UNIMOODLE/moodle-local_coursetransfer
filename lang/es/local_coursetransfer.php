@@ -162,6 +162,7 @@ $string['step4_restore_origin_site'] = "Sitio de origen";
 $string['step4_restore_selected_category'] = "Categoría seleccionada";
 $string['step4_courses_title_desc'] = "Cursos seleccionados";
 $string['execute_restore'] = "Ejecutar restauración";
+$string['execute_remove'] = "Ejecutar borrado";
 $string['origin_category_id'] = "ID Categoría Origen";
 $string['origin_category_courses'] = "Cursos a restaurar";
 $string['destiny_course_id_integer'] = "ID Curso de Destino debe ser entero";

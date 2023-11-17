@@ -122,11 +122,14 @@ class log_page implements renderable, templatable {
             $data->origin_schedule_datetime = date("Y-m-d h:i:s", $record->origin_schedule_datetime);
         }
         $data->origin_remove_activities = $record->origin_remove_activities;
-        $data->origin_activities = json_decode($record->origin_activities);
-        $data->has_sections = count($data->origin_activities) > 0;
-        if (isset($data->origin_activities)) {
-            for ($i = 0; $i < count($data->origin_activities); $i++) {
-                $data->origin_activities[$i]->hasactivities = count($data->origin_activities[$i]->activities);
+        $originactivities = json_decode($record->origin_activities);
+        $data->origin_activities = $originactivities;
+        if (is_array($originactivities)) {
+            $data->has_sections = count($data->origin_activities) > 0;
+            if (isset($data->origin_activities)) {
+                for ($i = 0; $i < count($data->origin_activities); $i++) {
+                    $data->origin_activities[$i]->hasactivities = count($data->origin_activities[$i]->activities);
+                }
             }
         }
         $data->origin_category_requests = $record->origin_category_requests;

@@ -160,7 +160,7 @@ class restore_course_task extends \core\task\adhoc_task {
             $request->error_message = $remcouerrormsg;
         }
 
-        $this->log_finish("Restore Backup Cours Remote Finishing...");
+        $this->log_finish("Restore Backup Course Remote Finishing...");
 
     }
 }

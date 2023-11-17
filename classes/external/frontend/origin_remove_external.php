@@ -213,7 +213,7 @@ class origin_remove_external extends external_api {
                             $success = true;
                             $errors = $res['errors'];
                             $request = coursetransfer_request::get($requestid);
-                            $request->status = coursetransfer_request::STATUS_COMPLETED;
+                            $request->status = coursetransfer_request::STATUS_IN_PROGRESS;
                             coursetransfer_request::insert_or_update($request, $requestid);
                         }
                     } else {
@@ -322,7 +322,7 @@ class origin_remove_external extends external_api {
                         $success = true;
                         $errors = $res['errors'];
                         $request = coursetransfer_request::get($requestid);
-                        $request->status = coursetransfer_request::STATUS_COMPLETED;
+                        $request->status = coursetransfer_request::STATUS_IN_PROGRESS;
                         coursetransfer_request::insert_or_update($request, $requestid);
                     }
                 } else {

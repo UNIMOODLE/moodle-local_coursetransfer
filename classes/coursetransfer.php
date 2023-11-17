@@ -471,7 +471,7 @@ class coursetransfer {
         // 3. Success or Errors.
         if ($res->success) {
             // 4a. Update Request DB Completed.
-            $requestobject->status = coursetransfer_request::STATUS_COMPLETED;
+            $requestobject->status = coursetransfer_request::STATUS_IN_PROGRESS;
             $requestobject->origin_course_fullname = $res->data->course_fullname;
             $requestobject->origin_course_shortname = $res->data->course_shortname;
             $requestobject->origin_course_idnumber = $res->data->course_idnumber;
@@ -522,7 +522,7 @@ class coursetransfer {
         // 3. Success or Errors.
         if ($res->success) {
             // 4a. Update Request DB Completed.
-            $requestobject->status = coursetransfer_request::STATUS_COMPLETED;
+            $requestobject->status = coursetransfer_request::STATUS_IN_PROGRESS;
             $requestobject->origin_category_id = $res->data->course_category_id;
             $requestobject->origin_category_name = $res->data->course_category_name;
             $requestobject->origin_category_idnumber = $res->data->course_category_idnumber;

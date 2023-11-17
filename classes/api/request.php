@@ -187,7 +187,6 @@ class request {
     }
 
     /**
-     * Origin back up course remote.
      *
      * @param string $fileurl
      * @param int $requestid
@@ -204,6 +203,20 @@ class request {
         $params['backupsize'] = $filesize;
         $params['fileurl'] = $fileurl;
         return $this->req('local_coursetransfer_destiny_backup_course_completed', $params);
+    }
+
+    /**
+     *
+     * @param int $requestid
+     * @param stdClass|null $user
+     * @return response
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function destiny_remove_course_completed(int $requestid, stdClass $user = null): response {
+        $params = $this->get_request_params($user);
+        $params['requestid'] = $requestid;
+        return $this->req('local_coursetransfer_destiny_remove_course_completed', $params);
     }
 
     /**
@@ -230,6 +243,25 @@ class request {
             $params['errormsg'] = json_encode($result);
         }
         return $this->req('local_coursetransfer_destiny_backup_course_error', $params);
+    }
+
+    /**
+     *
+     * @param stdClass $user
+     * @param int $requestid
+     * @param string $error
+     * @param string $code
+     * @return response
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function destiny_remove_course_error(
+            stdClass $user, int $requestid, string $error, string $code): response {
+        $params = $this->get_request_params($user);
+        $params['requestid'] = $requestid;
+        $params['errorcode'] = $code;
+        $params['errormsg'] = $error;
+        return $this->req('local_coursetransfer_destiny_remove_course_error', $params);
     }
 
     /**

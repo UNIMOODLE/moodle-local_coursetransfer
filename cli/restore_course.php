@@ -57,7 +57,6 @@ Usage:
         --destiny_remove_groups=<destiny_remove_groups>
         --origin_remove_course=<origin_remove_course>
         --origin_schedule_datetime=<origin_schedule_datetime>
-        --destiny_not_remove_activities=<destiny_not_remove_activities>
 
     --site_url=<site_url> Origin Site URL (string)
     --destiny_target=<destiny_target> 2: In New Course,
@@ -72,7 +71,6 @@ Usage:
     --destiny_remove_groups=<destiny_remove_groups> Remove Groups (only in target: 4 - Remove Content) (Boolean).
     --origin_remove_course=<origin_remove_course>   Remove Origin Course (Boolean).
     --origin_schedule_datetime=<origin_schedule_datetime>   Date in UNIX timestamp (int).
-    --destiny_not_remove_activities=<destiny_not_remove_activities> cmids separated by coma (string).
 
 Options:
     -h --help                   Print this help.

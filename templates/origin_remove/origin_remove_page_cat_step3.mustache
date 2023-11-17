@@ -52,6 +52,30 @@
         <h4 class="h4">{{#str}} origin_remove_category_step3, local_coursetransfer {{/str}}</h4>
 
         {{> local_coursetransfer/components/category_details }}
+        <h3 class="h2">{{#str}} step3_category_list, local_coursetransfer {{/str}}</h3>
+
+        <table class="mb-6">
+            <thead>
+            <tr>
+                <th>{{#str}} step2_course_id, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_name, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_shortname, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#courses}}
+                <tr>
+                    <td>{{ id }}</td>
+                    <td>{{ name }}</td>
+                    <td>{{ shortname }}</td>
+                    <td>{{ idnumber }}</td>
+                    <td>{{ categoryname }}</td>
+                </tr>
+            {{/ courses }}
+            </tbody>
+        </table>
 
         <div class="alert alert-danger hidden" role="alert"></div>
     {{/ haserrors }}
@@ -59,11 +83,14 @@
     <div class="button-container">
         <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
         <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
-        <button type="button" class="btn btn-primary" data-action="execute-restore">{{#str}} execute_restore, local_coursetransfer {{/str}}</button>
+        <button type="button" class="btn btn-primary" data-action="execute-restore">{{#str}} execute_remove, local_coursetransfer {{/str}}</button>
     </div>
 
 </div>
 <style>
+    #page-local-coursetransfer-origin_remove div#topofscroll {
+        max-width: 1200px !important;
+    }
     body#page-local-coursetransfer-origin_remove .page-header-headings .h2 {
         display: none;
     }

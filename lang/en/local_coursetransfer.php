@@ -162,6 +162,7 @@ $string['step4_restore_origin_site'] = "Origen site";
 $string['step4_restore_selected_category'] = "Category selected";
 $string['step4_courses_title_desc'] = "Courses selected";
 $string['execute_restore'] = "Execute restore";
+$string['execute_remove'] = "Execute remove";
 $string['origin_category_id'] = "Origin Category ID";
 $string['origin_category_courses'] = "Courses to restore";
 $string['destiny_course_id_integer'] = "Destination Course ID is integer";

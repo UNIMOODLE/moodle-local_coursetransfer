@@ -169,6 +169,101 @@ class destiny_course_callback_external extends external_api {
     /**
      * @return external_function_parameters
      */
+    public static function destiny_remove_course_completed_parameters(): external_function_parameters {
+        return new external_function_parameters(
+            array(
+                'field' => new external_value(PARAM_TEXT, 'Field'),
+                'value' => new external_value(PARAM_TEXT, 'Value'),
+                'requestid' => new external_value(PARAM_INT, 'Request ID')
+            )
+        );
+    }
+
+    /**
+     * Notify that the backup is completed
+     *
+     * @param string $field
+     * @param string $value
+     * @param int $requestid
+     * @return array
+     * @throws invalid_parameter_exception
+     */
+    public static function destiny_remove_course_completed(string $field, string $value, int $requestid): array {
+
+        self::validate_parameters(
+            self::destiny_remove_course_completed_parameters(), [
+                'field' => $field,
+                'value' => $value,
+                'requestid' => $requestid
+            ]
+        );
+
+        $errors = [];
+        $data = new stdClass();
+        $data->id = 0;
+
+        try {
+            $authres = coursetransfer::auth_user($field, $value);
+            if ($authres['success']) {
+                $request = coursetransfer_request::get($requestid);
+                if ($request) {
+                    $request->status = coursetransfer_request::STATUS_COMPLETED;
+                    coursetransfer_request::insert_or_update($request, $requestid);
+                    $data->id = $request->id;
+                    $success = true;
+                } else {
+                    $success = false;
+                    $errors[] =
+                        [
+                            'code' => '152002',
+                            'msg' => 'Request id not found: ' . $requestid
+                        ];
+                }
+            } else {
+                $success = false;
+                $errors[] = $authres['error'];
+            }
+        } catch (moodle_exception $e) {
+            $success = false;
+            $errors[] =
+                [
+                    'code' => '152001',
+                    'msg' => $e->getMessage()
+                ];
+        }
+
+        return [
+            'success' => $success,
+            'data' => $data,
+            'errors' => $errors,
+        ];
+    }
+
+    /**
+     * @return external_single_structure
+     */
+    public static function destiny_remove_course_completed_returns(): external_single_structure {
+        return new external_single_structure(
+            array(
+                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'data' => new external_single_structure(
+                        array(
+                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL)
+                        )
+                ),
+                'errors' => new external_multiple_structure(new external_single_structure(
+                    array(
+                        'code' => new external_value(PARAM_TEXT, 'Code'),
+                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                    ), PARAM_TEXT, 'Errors'
+                )),
+            )
+        );
+    }
+
+    /**
+     * @return external_function_parameters
+     */
     public static function destiny_backup_course_error_parameters(): external_function_parameters {
         return new external_function_parameters(
             array(
@@ -256,6 +351,110 @@ class destiny_course_callback_external extends external_api {
      * @return external_single_structure
      */
     public static function destiny_backup_course_error_returns(): external_single_structure {
+        return new external_single_structure(
+            array(
+                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'data' => new external_single_structure(
+                        array(
+                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL)
+                        )
+                ),
+                'errors' => new external_multiple_structure(new external_single_structure(
+                    array(
+                        'code' => new external_value(PARAM_INT, 'Code'),
+                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                    ), PARAM_TEXT, 'Errors'
+                )),
+            )
+        );
+    }
+
+    /**
+     * @return external_function_parameters
+     */
+    public static function destiny_remove_course_error_parameters(): external_function_parameters {
+        return new external_function_parameters(
+            array(
+                'field' => new external_value(PARAM_TEXT, 'Field'),
+                'value' => new external_value(PARAM_TEXT, 'Value'),
+                'requestid' => new external_value(PARAM_INT, 'Request ID'),
+                'errorcode' => new external_value(PARAM_INT, 'Error Code'),
+                'errormsg' => new external_value(PARAM_TEXT, 'Error Message'),
+            )
+        );
+    }
+
+    /**
+     * Notify that the backup is completed
+     *
+     * @param string $field
+     * @param string $value
+     * @param int $requestid
+     * @param int $errorcode
+     * @param string $errormsg
+     *
+     * @return array
+     * @throws invalid_parameter_exception
+     */
+    public static function destiny_remove_course_error(string $field, string $value, int $requestid,
+                                                       int $errorcode, string $errormsg): array {
+        self::validate_parameters(
+            self::destiny_remove_course_error_parameters(), [
+                'field' => $field,
+                'value' => $value,
+                'requestid' => $requestid,
+                'errorcode' => $errorcode,
+                'errormsg' => $errormsg
+            ]
+        );
+
+        $data = new stdClass();
+        $data->id = 0;
+        $errors = [];
+
+        try {
+            $authres = coursetransfer::auth_user($field, $value);
+            if ($authres['success']) {
+                $request = coursetransfer_request::get($requestid);
+                if ($request) {
+                    $request->error_code = $errorcode;
+                    $request->error_message = $errormsg;
+                    $request->status = coursetransfer_request::STATUS_ERROR;
+                    coursetransfer_request::insert_or_update($request, $requestid);
+                    $data->id = $requestid;
+                    $success = true;
+                } else {
+                    $success = false;
+                    $errors[] =
+                        [
+                            'code' => '156002',
+                            'msg' => 'Request id not found: ' . $requestid
+                        ];
+                }
+            } else {
+                $success = false;
+                $errors[] = $authres['error'];
+            }
+        } catch (moodle_exception $e) {
+            $success = false;
+            $errors[] =
+                [
+                    'code' => '156001',
+                    'msg' => $e->getMessage()
+                ];
+        }
+
+        return [
+                'success' => $success,
+                'data' => $data,
+                'errors' => $errors,
+        ];
+    }
+
+    /**
+     * @return external_single_structure
+     */
+    public static function destiny_remove_course_error_returns(): external_single_structure {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),

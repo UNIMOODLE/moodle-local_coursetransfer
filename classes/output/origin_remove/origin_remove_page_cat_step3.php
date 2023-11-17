@@ -95,7 +95,9 @@ class origin_remove_page_cat_step3 implements renderable, templatable {
                 $request = new request($site);
                 $res = $request->origin_get_category_detail($removeid, $USER);
                 if ($res->success) {
+                    $courses = $res->data->courses;
                     $data->category = $res->data;
+                    $data->courses = $courses;
                 } else {
                     $data->errors = $res->errors;
                     $data->haserrors = true;

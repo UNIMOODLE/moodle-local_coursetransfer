@@ -204,7 +204,7 @@
             </div>
         </div>
         <div class="form-row">
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-3">
                 <label for="origin_backup_size">{{# str }} log_page_origin_backup_size, local_coursetransfer {{/ str }}</label>
                 <input type="text" class="form-control" id="origin_backup_size" value="{{ origin_backup_size }}" disabled>
             </div>
@@ -212,18 +212,18 @@
                 <label for="origin_backup_url">{{# str }} log_page_origin_backup_url, local_coursetransfer {{/ str }}</label>
                 <input type="text" class="form-control" id="origin_backup_url" value="{{ origin_backup_url }}" disabled>
             </div>
-            <div class="form-group col-md-5">
+            <div class="form-group col-md-4">
                 <label for="fileurl">{{# str }} log_page_fileurl, local_coursetransfer {{/ str }}</label>
                 <input type="text" class="form-control" id="fileurl" value="{{ fileurl }}" disabled>
             </div>
         </div>
         <h4 class="mt-4">{{# str }} log_page_error, local_coursetransfer {{/ str }}</h4>
         <div class="form-row">
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-2">
                 <label for="error_code">{{# str }} log_page_error_code, local_coursetransfer {{/ str }}</label>
                 <input type="text" class="form-control" id="error_code" value="{{ error_code }}" disabled>
             </div>
-            <div class="form-group col-md-8">
+            <div class="form-group col-md-10">
                 <label for="error_message">{{# str }} log_page_error_msg, local_coursetransfer {{/ str }}</label>
                 <input type="text" class="form-control" id="error_message" value="{{ error_message }}" disabled>
             </div>
@@ -308,6 +308,10 @@
     }
     div[data-region='log_page'] .checkbox i.fa.text-success {
         color: #21c235 !important;
+    }
+
+    #page-local-coursetransfer-logs div#topofscroll {
+        max-width: 1200px !important;
     }
 
 </style>
