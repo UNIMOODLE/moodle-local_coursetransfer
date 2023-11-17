@@ -169,7 +169,7 @@ class coursetransfer {
                 'data' => new stdClass(),
                 'error' =>
                         [
-                                'code' => '110007',
+                                'code' => '11007',
                                 'msg' => 'Destination site not founded'
                         ]
             ];
@@ -490,7 +490,7 @@ class coursetransfer {
             return self::restore_course_unity($user, $site, $destinycourseid, $origincourseid, $configuration, $sections);
         } catch (moodle_exception $e) {
             $error = [
-                    'code' => '110002',
+                    'code' => '10010',
                     'msg' => $e->getMessage()
             ];
             $errors[] = $error;
@@ -690,7 +690,7 @@ class coursetransfer {
             ];
         } catch (moodle_exception $e) {
             $error = [
-                    'code' => '110001',
+                    'code' => '11001',
                     'msg' => $e->getMessage()
             ];
             $errors[] = $error;

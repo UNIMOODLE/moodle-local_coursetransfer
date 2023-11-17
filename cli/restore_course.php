@@ -229,6 +229,6 @@ try {
 } catch (moodle_exception $e) {
     // 5b. Remove new course.
     delete_course($destinycourseid, false);
-    cli_writeln('30002: ' . $e->getMessage());
+    cli_writeln('30000: ' . $e->getMessage());
     exit(1);
 }

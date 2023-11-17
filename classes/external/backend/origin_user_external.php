@@ -104,7 +104,7 @@ class origin_user_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '200071',
+                    'code' => '20071',
                     'msg' => $e->getMessage()
                 ];
         }

@@ -499,7 +499,7 @@ class sites_external extends external_api {
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] = [
-                       'code' => '200081',
+                       'code' => '20081',
                        'msg' => $e->getMessage()
                     ];
         }
@@ -573,7 +573,7 @@ class sites_external extends external_api {
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] = [
-                    'code' => '200061',
+                    'code' => '20061',
                     'msg' => $e->getMessage()
             ];
         }

@@ -94,7 +94,5 @@ if (has_capability('local/coursetransfer:origin_restore_course', $context)) {
     );
 }
 
-\local_coursetransfer\coursetransfer::get_backup_size_estimated(457);
-
 echo $output->render($page);
 echo $OUTPUT->footer();

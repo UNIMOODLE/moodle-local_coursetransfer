@@ -65,10 +65,10 @@ class download_file_course_task extends \core\task\adhoc_task {
         $this->log_start("Download File Backup Course Remote and Restore Starting...");
         $fileurle = $this->get_custom_data()->fileurl;
         $requestid = $this->get_custom_data()->requestid;
+        $request = coursetransfer_request::get($requestid);
 
         try {
 
-            $request = coursetransfer_request::get($requestid);
             $fs = get_file_storage();
             $filecontent = file_get_contents($fileurle);
 
@@ -97,7 +97,7 @@ class download_file_course_task extends \core\task\adhoc_task {
         } catch (\Exception $e) {
             $this->log($e->getMessage());
             $request->status = coursetransfer_request::STATUS_ERROR;
-            $request->error_code = '140000';
+            $request->error_code = '14000';
             $request->error_message = $e->getMessage();
             coursetransfer_request::insert_or_update($request, $request->id);
         }

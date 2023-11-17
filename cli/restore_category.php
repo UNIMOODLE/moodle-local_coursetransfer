@@ -176,7 +176,7 @@ try {
     }
 
 } catch (moodle_exception $e) {
-    cli_writeln('30013: ' . $e->getMessage());
+    cli_writeln('30001: ' . $e->getMessage());
     exit(1);
 }
 

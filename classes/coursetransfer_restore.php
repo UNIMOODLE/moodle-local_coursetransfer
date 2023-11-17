@@ -156,7 +156,7 @@ class coursetransfer_restore {
 
         } catch (\Exception $e) {
             $request->status = coursetransfer_request::STATUS_ERROR;
-            $request->error_code = '110003';
+            $request->error_code = '11003';
             $request->error_message = $e->getMessage();
             coursetransfer_request::insert_or_update($request, $request->id);
         }

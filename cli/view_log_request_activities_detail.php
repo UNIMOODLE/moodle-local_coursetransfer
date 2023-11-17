@@ -99,7 +99,7 @@ try {
     exit(0);
 
 } catch (moodle_exception $e) {
-    cli_writeln('300600: ' . $e->getMessage());
+    cli_writeln('30010: ' . $e->getMessage());
     exit(1);
 }
 
