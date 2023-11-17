@@ -133,10 +133,9 @@ class log_page implements renderable, templatable {
             }
         }
         $data->origin_category_requests = $record->origin_category_requests;
-        $data->origin_backup_size = display_size($record->origin_backup_size, 3, 'MB');
-        if (isset($data->origin_backup_size_estimated)) {
-            $data->origin_backup_size_estimated = display_size($data->origin_backup_size_estimated, 3, 'MB');
-        }
+        $data->origin_backup_size = number_format($record->origin_backup_size / 1000000, 3, ',', ' ');
+        $data->origin_backup_size_estimated = number_format($record->origin_backup_size_estimated / 1000000, 3, ',', ' ');
+
         $data->origin_backup_url = $record->origin_backup_url;
         $data->destiny_course_id = $record->destiny_course_id;
         $data->destiny_category_id = $record->destiny_category_id;

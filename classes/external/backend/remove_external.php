@@ -34,6 +34,8 @@
 namespace local_coursetransfer\external\backend;
 
 use coding_exception;
+use context_course;
+use context_system;
 use core_course_category;
 use dml_exception;
 use external_api;
@@ -105,58 +107,69 @@ class remove_external extends external_api {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
+                $user = $authres['data'];
                 if ($verifydestiny['success']) {
                     $res = $authres['data'];
-                    $requestorigin = new stdClass();
-                    $requestorigin->type = coursetransfer_request::TYPE_REMOVE_COURSE;
-                    $requestorigin->siteurl = $destinysite;
-                    $requestorigin->direction = coursetransfer_request::DIRECTION_RESPONSE;
-                    $requestorigin->destiny_request_id = $requestid;
-                    $requestorigin->request_category_id = null;
-                    $requestorigin->origin_course_id = $course->id;
-                    $requestorigin->origin_course_fullname = $course->fullname;
-                    $requestorigin->origin_course_shortname = $course->shortname;
-                    $requestorigin->origin_course_idnumber = $course->idnumber;
-                    $requestorigin->origin_category_id = $course->category;
-                    $cat = core_course_category::get($course->category);
-                    $requestorigin->origin_category_idnumber = $cat->idnumber;
-                    $requestorigin->origin_category_name = $cat->name;
+                    if (has_capability('moodle/course:delete', context_course::instance($course->id), $user) &&
+                        has_capability('local/coursetransfer:origin_remove_course', context_system::instance(), $user)) {
+                        $requestorigin = new stdClass();
+                        $requestorigin->type = coursetransfer_request::TYPE_REMOVE_COURSE;
+                        $requestorigin->siteurl = $destinysite;
+                        $requestorigin->direction = coursetransfer_request::DIRECTION_RESPONSE;
+                        $requestorigin->destiny_request_id = $requestid;
+                        $requestorigin->request_category_id = null;
+                        $requestorigin->origin_course_id = $course->id;
+                        $requestorigin->origin_course_fullname = $course->fullname;
+                        $requestorigin->origin_course_shortname = $course->shortname;
+                        $requestorigin->origin_course_idnumber = $course->idnumber;
+                        $requestorigin->origin_category_id = $course->category;
+                        $cat = core_course_category::get($course->category);
+                        $requestorigin->origin_category_idnumber = $cat->idnumber;
+                        $requestorigin->origin_category_name = $cat->name;
 
-                    $requestorigin->origin_schedule_datetime = null;
+                        $requestorigin->origin_schedule_datetime = null;
 
-                    $requestorigin->error_code = null;
-                    $requestorigin->error_message = null;
+                        $requestorigin->error_code = null;
+                        $requestorigin->error_message = null;
 
-                    $requestorigin->userid = $res->id;
-                    $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
-
-                    $requestoriginid = coursetransfer_request::insert_or_update($requestorigin);
-                    $requestorigin->id = $requestoriginid;
-                    $data->request_origin_id = $requestoriginid;
-                    $data->course_fullname = $course->fullname;
-                    $data->course_shortname = $course->shortname;
-                    $data->course_idnumber = $course->idnumber;
-                    $data->course_category_id = $requestorigin->origin_category_id;
-                    $data->course_category_name = $requestorigin->origin_category_name;
-                    $data->course_category_idnumber = $requestorigin->origin_category_idnumber;
-
-                    $resremove = coursetransfer_remove::create_task_remove_course(
-                            $requestoriginid, $requestid, $course->id, $verifydestiny['data'], $res->id);
-
-                    if ($resremove) {
+                        $requestorigin->userid = $res->id;
                         $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
-                        coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
-                        $success = true;
+
+                        $requestoriginid = coursetransfer_request::insert_or_update($requestorigin);
+                        $requestorigin->id = $requestoriginid;
+                        $data->request_origin_id = $requestoriginid;
+                        $data->course_fullname = $course->fullname;
+                        $data->course_shortname = $course->shortname;
+                        $data->course_idnumber = $course->idnumber;
+                        $data->course_category_id = $requestorigin->origin_category_id;
+                        $data->course_category_name = $requestorigin->origin_category_name;
+                        $data->course_category_idnumber = $requestorigin->origin_category_idnumber;
+
+                        $resremove = coursetransfer_remove::create_task_remove_course(
+                                $requestoriginid, $requestid, $course->id, $verifydestiny['data'], $res->id);
+
+                        if ($resremove) {
+                            $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
+                            coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                            $success = true;
+                        } else {
+                            $requestorigin->error_code = '156006';
+                            $requestorigin->error_message = 'REMOVE NOT SAVE';
+                            $requestorigin->status = coursetransfer_request::STATUS_ERROR;
+                            coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                            $success = false;
+                            $errors[] =
+                                    [
+                                            'code' => '156005',
+                                            'msg' => 'REMOVE NOT SAVE'
+                                    ];
+                        }
                     } else {
-                        $requestorigin->error_code = '156145';
-                        $requestorigin->error_message = 'REMOVE NOT SAVE';
-                        $requestorigin->status = coursetransfer_request::STATUS_ERROR;
-                        coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
                         $success = false;
                         $errors[] =
                                 [
-                                        'code' => '130003',
-                                        'msg' => 'REMOVE NOT SAVE'
+                                        'code' => '156004',
+                                        'msg' => 'USER HAS NOT CAPABILITY'
                                 ];
                     }
                 } else {
@@ -262,45 +275,62 @@ class remove_external extends external_api {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
+                $user = $authres['data'];
+
                 if ($verifydestiny['success']) {
                     $res = $authres['data'];
-                    $requestorigin = new stdClass();
-                    $requestorigin->type = coursetransfer_request::TYPE_REMOVE_CATEGORY;
-                    $requestorigin->siteurl = $destinysite;
-                    $requestorigin->direction = coursetransfer_request::DIRECTION_RESPONSE;
-                    $requestorigin->destiny_request_id = $requestid;
-                    $requestorigin->request_category_id = null;
-                    $requestorigin->origin_category_id = $category->id;
-                    $requestorigin->origin_category_idnumber = $category->idnumber;
-                    $requestorigin->origin_category_name = $category->name;
+                    if (has_capability('moodle/category:manage', \context_system::instance(), $user) &&
+                        has_capability('local/coursetransfer:origin_remove_category', \context_system::instance(), $user)) {
+                        $requestorigin = new stdClass();
+                        $requestorigin->type = coursetransfer_request::TYPE_REMOVE_CATEGORY;
+                        $requestorigin->siteurl = $destinysite;
+                        $requestorigin->direction = coursetransfer_request::DIRECTION_RESPONSE;
+                        $requestorigin->destiny_request_id = $requestid;
+                        $requestorigin->request_category_id = null;
+                        $requestorigin->origin_category_id = $category->id;
+                        $requestorigin->origin_category_idnumber = $category->idnumber;
+                        $requestorigin->origin_category_name = $category->name;
 
-                    $requestorigin->origin_schedule_datetime = null;
+                        $requestorigin->origin_schedule_datetime = null;
 
-                    $requestorigin->error_code = null;
-                    $requestorigin->error_message = null;
+                        $requestorigin->error_code = null;
+                        $requestorigin->error_message = null;
 
-                    $requestorigin->userid = $res->id;
-                    $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
-
-                    $requestoriginid = coursetransfer_request::insert_or_update($requestorigin);
-
-                    $resremove = coursetransfer_remove::create_task_remove_category(
-                            $requestoriginid, $requestid, $category->id, $verifydestiny['data'], $res->id);
-
-                    if ($resremove) {
+                        $requestorigin->userid = $res->id;
                         $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
-                        coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
-                        $success = true;
+
+                        $requestoriginid = coursetransfer_request::insert_or_update($requestorigin);
+
+                        $data->request_origin_id = $requestoriginid;
+                        $data->course_category_id = $category->id;
+                        $data->course_category_name = $category->name;
+                        $data->course_category_idnumber = $category->idnumber;
+
+                        $resremove = coursetransfer_remove::create_task_remove_category(
+                                $requestoriginid, $requestid, $category->id, $verifydestiny['data'], $res->id);
+
+                        if ($resremove) {
+                            $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
+                            coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                            $success = true;
+                        } else {
+                            $requestorigin->error_code = '156003';
+                            $requestorigin->error_message = 'REMOVE NOT SAVE';
+                            $requestorigin->status = coursetransfer_request::STATUS_ERROR;
+                            coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                            $success = false;
+                            $errors[] =
+                                    [
+                                            'code' => '156002',
+                                            'msg' => 'REMOVE NOT SAVE'
+                                    ];
+                        }
                     } else {
-                        $requestorigin->error_code = '156147';
-                        $requestorigin->error_message = 'REMOVE NOT SAVE';
-                        $requestorigin->status = coursetransfer_request::STATUS_ERROR;
-                        coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
                         $success = false;
                         $errors[] =
                                 [
-                                        'code' => '130003',
-                                        'msg' => 'REMOVE NOT SAVE'
+                                        'code' => '156001',
+                                        'msg' => 'USER HAS NOT CAPABILITY'
                                 ];
                     }
                 } else {

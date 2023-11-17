@@ -101,6 +101,7 @@ class origin_course_external extends external_api {
                     $item->shortname = $course->shortname;
                     $item->idnumber = $course->idnumber;
                     $item->categoryid = $course->category;
+                    $item->backupsizeestimated = coursetransfer::get_backup_size_estimated($course->id);
                     $category = core_course_category::get($item->categoryid);
                     $item->categoryname = $category->name;
                     $data[] = $item;
@@ -146,6 +147,7 @@ class origin_course_external extends external_api {
                         'shortname' => new external_value(PARAM_TEXT, 'Shortname', VALUE_OPTIONAL),
                         'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
                         'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                        'backupsizeestimated' => new external_value(PARAM_TEXT, 'Backup Size Estimated', VALUE_OPTIONAL),
                         'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL)
                     ), PARAM_TEXT, 'Data'
                 ))
@@ -255,7 +257,7 @@ class origin_course_external extends external_api {
                         'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
                         'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                         'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
-                        'backupsizeestimated' => new external_value(PARAM_INT, 'Backup Size Estimated', VALUE_OPTIONAL),
+                        'backupsizeestimated' => new external_value(PARAM_TEXT, 'Backup Size Estimated', VALUE_OPTIONAL),
                         'sections' => new external_multiple_structure(new external_single_structure(
                             array(
                                 'sectionnum' => new external_value(PARAM_INT, 'Section Number', VALUE_OPTIONAL),

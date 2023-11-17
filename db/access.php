@@ -83,6 +83,18 @@ $capabilities = array(
             )
     ),
 
+    'local/coursetransfer:origin_remove_category' => array(
+            'captype' => 'write',
+            'contextlevel' => CONTEXT_SYSTEM,
+            'archetypes' => array(
+                    'guest' => CAP_PROHIBIT,
+                    'manager' => CAP_ALLOW,
+                    'editingteacher' => CAP_PROHIBIT,
+                    'teacher' => CAP_PROHIBIT,
+                    'student' => CAP_PROHIBIT
+            )
+    ),
+
     'local/coursetransfer:origin_restore_course_users' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,

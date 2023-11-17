@@ -173,6 +173,8 @@ class origin_course_backup_external extends external_api {
                         if ($resbackup) {
                             $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
 
+                            $requestorigin->origin_backup_size_estimated =
+                                    coursetransfer::get_backup_size_estimated_int($course->id);
                             coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
 
                             $cat = core_course_category::get($course->category, MUST_EXIST);

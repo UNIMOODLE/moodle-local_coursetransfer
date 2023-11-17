@@ -258,11 +258,65 @@ class coursetransfer {
      * Get Backup Size Estimated
      *
      * @param int $courseid
-     * @return int
+     * @return string
+     * @throws dml_exception
+     * @throws moodle_exception
      */
-    public static function get_backup_size_estimated(int $courseid): int {
-        // TODO: calcular tamaño estimado del backup.
-        return 0;
+    public static function get_backup_size_estimated_int(int $courseid): int {
+        global $DB;
+        $context = context_course::instance($courseid);
+        $results = $DB->get_records('files', ['contextid' => $context->id]);
+        $filesize = 0;
+        foreach ($results as $result) {
+            if ($result->filearea !== 'backup') {
+                $filesize += $result->filesize;
+            }
+        }
+        $modinfo = get_fast_modinfo($courseid);
+        foreach ($modinfo->get_cms() as $cm) {
+            $context = \context_module::instance($cm->id);
+            $results = $DB->get_records('files', ['contextid' => $context->id]);
+            foreach ($results as $result) {
+                if ($result->filearea !== 'backup') {
+                    $filesize += $result->filesize;
+                }
+            }
+        }
+        return $filesize;
+    }
+
+    /**
+     * Get Backup Size Estimated
+     *
+     * @param int $courseid
+     * @return string
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_backup_size_estimated(int $courseid): string {
+        global $DB;
+        $context = context_course::instance($courseid);
+        $results = $DB->get_records('files', ['contextid' => $context->id]);
+        $filesize = 0;
+        foreach ($results as $result) {
+            if ($result->filearea !== 'backup') {
+                $filesize += $result->filesize;
+            }
+        }
+        $modinfo = get_fast_modinfo($courseid);
+        foreach ($modinfo->get_cms() as $cm) {
+            $context = \context_module::instance($cm->id);
+            $results = $DB->get_records('files', ['contextid' => $context->id]);
+            foreach ($results as $result) {
+                if ($result->filearea !== 'backup') {
+                    $filesize += $result->filesize;
+                }
+            }
+        }
+        if ($filesize === 0) {
+            return 0;
+        }
+        return number_format($filesize / 1000000, 3, ',', ' ');
     }
 
     /**
@@ -683,6 +737,7 @@ class coursetransfer {
             $requestobject->origin_category_id = $res->data->course_category_id;
             $requestobject->origin_category_name = $res->data->course_category_name;
             $requestobject->origin_category_idnumber = $res->data->course_category_idnumber;
+            $requestobject->origin_backup_size_estimated = $res->data->origin_backup_size_estimated;
             coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
             $success = true;
         } else {
@@ -811,6 +866,8 @@ class coursetransfer {
         role::add_capability($roleid, 'moodle/site:maintenanceaccess');
         role::add_capability($roleid, 'moodle/course:delete');
         role::add_capability($roleid, 'moodle/category:manage');
+        role::add_capability($roleid, 'local/coursetransfer:origin_remove_course');
+        role::add_capability($roleid, 'local/coursetransfer:origin_remove_category');
 
         // 3. Create User.
         $userid = user::create_user($roleid);

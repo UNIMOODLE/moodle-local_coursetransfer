@@ -72,7 +72,7 @@ class logs_category_remove_request_table extends table_sql {
         $this->define_columns([
                 'id',
                 'siteurl',
-                'origin_course_id',
+                'origin_category_id',
                 'status',
                 'userid',
                 'timemodified',
@@ -83,7 +83,7 @@ class logs_category_remove_request_table extends table_sql {
         $this->define_headers([
                 get_string('request_id', 'local_coursetransfer'),
                 get_string('siteurl', 'local_coursetransfer'),
-                get_string('origin_course_id', 'local_coursetransfer'),
+                get_string('origin_category_id', 'local_coursetransfer'),
                 get_string('status', 'local_coursetransfer'),
                 get_string('userid', 'local_coursetransfer'),
                 get_string('timemodified', 'local_coursetransfer'),
@@ -124,9 +124,9 @@ class logs_category_remove_request_table extends table_sql {
      * @return string
      * @throws moodle_exception
      */
-    public function col_origin_course_id(stdClass $row): string {
-        $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->origin_course_id]);
-        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_course_id . '</a>';
+    public function col_origin_category_id(stdClass $row): string {
+        $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->origin_category_id]);
+        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_category_id . '</a>';
     }
 
     /**

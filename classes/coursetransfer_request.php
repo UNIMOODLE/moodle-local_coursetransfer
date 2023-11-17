@@ -285,7 +285,7 @@ class coursetransfer_request {
         $object->destiny_remove_groups = $configuration->destinyremovegroups;
         $object->origin_remove_course = $configuration->originremovecourse;
         $object->destiny_notremove_activities = $configuration->destinynotremoveactivities;
-        $object->origin_backup_size_estimated = coursetransfer::get_backup_size_estimated($origincourseid);
+        $object->origin_backup_size_estimated = 0;
         $object->destiny_target = $configuration->destinytarget;
         $object->status = self::STATUS_NOT_STARTED;
         $object->userid = $userid;

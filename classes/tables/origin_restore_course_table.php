@@ -210,7 +210,7 @@ class origin_restore_course_table extends table_sql {
     public function col_backupsize(stdClass $row): string {
         $bytes = !is_null($row->origin_backup_size) ? (int)$row->origin_backup_size : null;
         if (!is_null($bytes)) {
-            $mb = display_size($bytes, 3, 'MB');
+            $mb = number_format($bytes / 1000000, 3, ',', ' ');
         } else {
             $mb = '-';
         }
