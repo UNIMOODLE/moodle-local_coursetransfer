@@ -146,24 +146,6 @@ $functions = [
         'loginrequired' => true
     ],
 
-    'local_coursetransfer_destiny_remove_category_completed' => [
-        'classname' => destiny_course_callback_external::class,
-        'methodname' => 'destiny_remove_category_completed',
-        'description' => 'Notify origin that the category remove is completed',
-        'type' => 'write',
-        'ajax' => true,
-        'loginrequired' => true
-    ],
-
-    'local_coursetransfer_destiny_remove_category_error' => [
-        'classname' => destiny_course_callback_external::class,
-        'methodname' => 'destiny_remove_category_error',
-        'description' => 'Notify origin that an error ocurred',
-        'type' => 'write',
-        'ajax' => true,
-        'loginrequired' => true
-    ],
-
     'local_coursetransfer_new_origin_restore_course_step1' => [
         'classname' => restore_course_external::class,
         'methodname' => 'new_origin_restore_course_step1',
@@ -341,8 +323,6 @@ $services = [
             'local_coursetransfer_destiny_backup_course_error',
             'local_coursetransfer_destiny_remove_course_completed',
             'local_coursetransfer_destiny_remove_course_error',
-            'local_coursetransfer_destiny_remove_category_completed',
-            'local_coursetransfer_destiny_remove_category_error',
             'local_coursetransfer_new_origin_restore_course_step1',
             'local_coursetransfer_new_origin_restore_course_step5',
             'local_coursetransfer_new_origin_restore_category_step1',

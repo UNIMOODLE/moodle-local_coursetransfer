@@ -86,6 +86,7 @@ class origin_restore_step3_page extends origin_restore_step_page {
                 $data->can_destiny_restore_merge || $data->can_destiny_restore_content_remove;
         $data->remove_in_destination =
                 $data->can_destiny_restore_groups_remove || $data->can_destiny_restore_enrol_remove;
+        $data->has_scheduled_time = true;
         $data->origin_course_configuration = $data->has_origin_user_data || $data->has_scheduled_time;
         return $data;
     }
