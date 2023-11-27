@@ -71,7 +71,7 @@ list($options, $unrecognised) = cli_get_params([
     'help' => false,
     'site_url' => null,
     'origin_category_id' => null,
-    'origin_schedule_datetime' => 0
+    'origin_schedule_datetime' => null
 ], [
     'h' => 'help'
 ]);
@@ -103,6 +103,15 @@ if ( $origincategoryid === null ) {
     exit(128);
 }
 
+if ($originscheduledatetime < time() && $originscheduledatetime <= 7286691556) {
+    cli_writeln( 'origin_schedule_datetime is not valid format');
+    exit(128);
+} else {
+    $date = new DateTime();
+    $date->setTimestamp(intval($originscheduledatetime));
+    cli_writeln( 'Scheduler Time: ' . userdate($date->getTimestamp()));
+}
+
 $errors = [];
 
 try {
@@ -111,7 +120,7 @@ try {
     $user = core_user::get_user_by_username(user::USERNAME_WS);
 
     $site = coursetransfer::get_site_by_url($siteurl);
-    $res = coursetransfer::remove_category($site, $origincategoryid, $user);
+    $res = coursetransfer::remove_category($site, $origincategoryid, $user, $originscheduledatetime);
 
     // 4. Success or Errors.
     $errors = array_merge($errors, $res['errors']);

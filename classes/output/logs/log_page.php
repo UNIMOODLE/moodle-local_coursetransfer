@@ -118,8 +118,8 @@ class log_page implements renderable, templatable {
         $data->origin_remove_category =
                 is_null($record->origin_remove_category) ? '-' : $this->get_bool($record->origin_remove_category);
         $data->origin_enrolusers = is_null($record->origin_enrolusers) ? '-' : $this->get_bool($record->origin_enrolusers);
-        if (isset($data->origin_schedule_datetime)) {
-            $data->origin_schedule_datetime = date("Y-m-d h:i:s", $record->origin_schedule_datetime);
+        if (!empty($record->origin_schedule_datetime)) {
+            $data->origin_schedule_datetime = userdate($record->origin_schedule_datetime);
         }
         $data->origin_remove_activities = $record->origin_remove_activities;
         $originactivities = json_decode($record->origin_activities);
@@ -154,7 +154,7 @@ class log_page implements renderable, templatable {
         $data->username = $user->username;
 
         $data->status = $this->get_status($record->status);
-        $data->timemodified = date("Y-m-d h:i:s", $record->timemodified);
+        $data->timemodified = userdate($record->timemodified);
         return $data;
     }
 

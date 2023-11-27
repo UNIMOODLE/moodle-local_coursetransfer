@@ -314,4 +314,5 @@ $string['notification_restore_category_completed'] = 'Ha finalizado con éxito l
 $string['notification_remove_course_completed'] = 'Ha finalizado con éxito el borrado del curso remoto: {$a}';
 $string['notification_remove_category_completed'] = 'Ha finalizado con éxito el borrado de la categoría remota: {$a}';
 $string['view_detail'] = 'Ver detalle:';
+$string['remove_config'] = 'Configuración de Borrado';
 

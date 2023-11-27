@@ -69,7 +69,8 @@ class remove_external extends external_api {
                         'value' => new external_value(PARAM_TEXT, 'Value'),
                         'courseid' => new external_value(PARAM_INT, 'Course ID'),
                         'requestid' => new external_value(PARAM_INT, 'Request ID'),
-                        'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site')
+                        'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site'),
+                        'nextruntime' => new external_value(PARAM_INT, 'Next Run Time Timestamp - 0 Not scheduler')
                 )
         );
     }
@@ -81,11 +82,12 @@ class remove_external extends external_api {
      * @param int $courseid
      * @param int $requestid
      * @param string $destinysite
+     * @param int $nextruntime
      * @return array
      * @throws invalid_parameter_exception
      */
     public static function origin_remove_course(string $field, string $value, int $courseid,
-            int $requestid, string $destinysite): array {
+            int $requestid, string $destinysite, int $nextruntime): array {
 
         self::validate_parameters(
                 self::origin_remove_course_parameters(), [
@@ -93,7 +95,8 @@ class remove_external extends external_api {
                         'value' => $value,
                         'courseid' => $courseid,
                         'requestid' => $requestid,
-                        'destinysite' => $destinysite
+                        'destinysite' => $destinysite,
+                        'nextruntime' => $nextruntime
                 ]
         );
 
@@ -127,7 +130,7 @@ class remove_external extends external_api {
                         $requestorigin->origin_category_idnumber = $cat->idnumber;
                         $requestorigin->origin_category_name = $cat->name;
 
-                        $requestorigin->origin_schedule_datetime = null;
+                        $requestorigin->origin_schedule_datetime = $nextruntime === 0 ? null : $nextruntime;
 
                         $requestorigin->error_code = null;
                         $requestorigin->error_message = null;
@@ -146,7 +149,8 @@ class remove_external extends external_api {
                         $data->course_category_idnumber = $requestorigin->origin_category_idnumber;
 
                         $resremove = coursetransfer_remove::create_task_remove_course(
-                                $requestoriginid, $requestid, $course->id, $verifydestiny['data'], $res->id);
+                                $requestoriginid, $requestid, $course->id, $verifydestiny['data'], $res->id,
+                                $requestorigin->origin_schedule_datetime);
 
                         if ($resremove) {
                             $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
@@ -235,7 +239,8 @@ class remove_external extends external_api {
                         'value' => new external_value(PARAM_TEXT, 'Value'),
                         'catid' => new external_value(PARAM_INT, 'Course Category ID'),
                         'requestid' => new external_value(PARAM_INT, 'Request ID'),
-                        'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site')
+                        'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site'),
+                        'nextruntime' => new external_value(PARAM_INT, 'Next Run Time Timestamp - 0 Not scheduler')
                 )
         );
     }
@@ -246,12 +251,12 @@ class remove_external extends external_api {
      * @param int $catid
      * @param int $requestid
      * @param string $destinysite
+     * @param int $nextruntime
      * @return array
      * @throws invalid_parameter_exception
-     * @throws moodle_exception
      */
     public static function origin_remove_category(string $field, string $value, int $catid,
-            int $requestid, string $destinysite): array {
+            int $requestid, string $destinysite, int $nextruntime): array {
 
         self::validate_parameters(
                 self::origin_remove_category_parameters(), [
@@ -259,7 +264,8 @@ class remove_external extends external_api {
                         'value' => $value,
                         'catid' => $catid,
                         'requestid' => $requestid,
-                        'destinysite' => $destinysite
+                        'destinysite' => $destinysite,
+                        'nextruntime' => $nextruntime
                 ]
         );
 
@@ -289,7 +295,7 @@ class remove_external extends external_api {
                         $requestorigin->origin_category_idnumber = $category->idnumber;
                         $requestorigin->origin_category_name = $category->name;
 
-                        $requestorigin->origin_schedule_datetime = null;
+                        $requestorigin->origin_schedule_datetime = $nextruntime === 0 ? null : $nextruntime;
 
                         $requestorigin->error_code = null;
                         $requestorigin->error_message = null;
@@ -305,7 +311,8 @@ class remove_external extends external_api {
                         $data->course_category_idnumber = $category->idnumber;
 
                         $resremove = coursetransfer_remove::create_task_remove_category(
-                                $requestoriginid, $requestid, $category->id, $verifydestiny['data'], $res->id);
+                                $requestoriginid, $requestid, $category->id, $verifydestiny['data'], $res->id,
+                                $requestorigin->origin_schedule_datetime);
 
                         if ($resremove) {
                             $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;

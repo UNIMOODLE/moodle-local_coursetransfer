@@ -71,13 +71,19 @@ define([
                 });
             }
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
+            this.node.find('#origin_schedule').on('click', this.clickSchedule.bind(this));
         }
 
         originRestoreStep3.prototype.clickNext = function(e) {
             let checkboxes = $('.configuration-checkbox');
             let configuration = [];
             checkboxes.each(function() {
-                configuration.push({"name": $(this).attr("id"), "selected": $(this).prop('checked')});
+                if ($(this).attr("id") === 'origin_schedule_datetime') {
+                    let datetime = $(this).val();
+                    configuration.push({"name": $(this).attr("id"), "value": datetime});
+                } else {
+                    configuration.push({"name": $(this).attr("id"), "selected": $(this).prop('checked')});
+                }
             });
             this.data.configuration = configuration;
             sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data));
@@ -85,6 +91,14 @@ define([
             let url = new URL(currentUrl);
             url.searchParams.set('step', '4');
             window.location.href = url.href;
+        };
+
+        originRestoreStep3.prototype.clickSchedule = function(e) {
+            if (this.node.find('#origin_schedule').is(':checked')) {
+                this.node.find('#origin_schedule_datetime').attr('disabled', false);
+            } else {
+                this.node.find('#origin_schedule_datetime').attr('disabled', true);
+            }
         };
 
         originRestoreStep3.prototype.node = null;

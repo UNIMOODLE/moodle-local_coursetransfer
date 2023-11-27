@@ -78,16 +78,24 @@ define([
             this.renderErrors(errors, alertbox);
             this.node.find(ACTIONS.RESTORE).prop('disabled', true);
         }
+        this.node.find('#origin_schedule').on('click', this.clickSchedule.bind(this));
     }
 
     originRemoveStep3.prototype.clickNext = function(e) {
         this.node.find(ACTIONS.RESTORE).prop('disabled', true);
         let alertbox = this.node.find(".alert");
+        let nextruntime = $('#origin_schedule_datetime').val();
+        if ($('#origin_schedule').prop('checked')) {
+            nextruntime  = new Date(nextruntime).getTime();
+        } else {
+            nextruntime  = 0;
+        }
         const request = {
             methodname: SERVICES.ORIGIN_REMOVE_STEP3,
             args: {
                 siteurl: parseInt(this.site),
                 courses: this.data.courses,
+                nextruntime: nextruntime
             }
         };
         let that = this;
@@ -120,6 +128,14 @@ define([
             errorString += 'Error (' + error.code + '): ' + error.msg + '<br>';
         });
         alertbox.append(errorString);
+    };
+
+    originRemoveStep3.prototype.clickSchedule = function(e) {
+        if (this.node.find('#origin_schedule').is(':checked')) {
+            this.node.find('#origin_schedule_datetime').attr('disabled', false);
+        } else {
+            this.node.find('#origin_schedule_datetime').attr('disabled', true);
+        }
     };
 
     originRemoveStep3.prototype.node = null;

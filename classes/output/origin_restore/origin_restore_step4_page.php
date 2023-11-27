@@ -124,7 +124,7 @@ class origin_restore_step4_page extends origin_restore_step_page {
                     'msg' => get_string('you_have_not_permission', 'local_coursetransfer')];
             $data->haserrors = true;
         }
-
+        $data->has_scheduled_time = true;
         $data->has_origin_user_data = coursetransfer::has_origin_user_data($USER);
         $data->can_remove_origin_course = coursetransfer::can_remove_origin_course($USER);
         $data->can_destiny_restore_merge = coursetransfer::can_destiny_restore_merge($USER, context_system::instance());

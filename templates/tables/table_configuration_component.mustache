@@ -140,6 +140,7 @@
                                     <div class="config-desc">{{#str}} restore_origin_remove_desc, local_coursetransfer {{/str}}</div>
                                 </div>
                             </li>
+                        {{#has_scheduled_time }}
                         <li class="configuration-group">
                             <div class="checkbox">
                                 {{#origin_schedule}}
@@ -162,6 +163,7 @@
                                 <input class="configuration-checkbox" id="origin_schedule" type="datetime-local" value="{{origin_schedule_datetime}}" disabled>
                             </div>
                         </li>
+                        {{/has_scheduled_time }}
                     </ul>
                 </div>
                 <div class="modal-footer">

@@ -297,17 +297,20 @@ class request {
      *
      * @param int $requestid
      * @param int $origincourseid
+     * @param int|null $nextruntime
      * @param stdClass|null $user
      * @return response
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function origin_remove_course(int $requestid, int $origincourseid, stdClass $user = null): response {
+    public function origin_remove_course(
+            int $requestid, int $origincourseid, int $nextruntime = null, stdClass $user = null): response {
         global $CFG;
         $params = $this->get_request_params($user);
         $params['courseid'] = $origincourseid;
         $params['requestid'] = $requestid;
         $params['destinysite'] = $CFG->wwwroot;
+        $params['nextruntime'] = is_null($nextruntime) ? 0 : $nextruntime;
         return $this->req('local_coursetransfer_origin_remove_course', $params);
     }
 
@@ -316,17 +319,20 @@ class request {
      *
      * @param int $requestid
      * @param int $origincatid
+     * @param int|null $nextruntime
      * @param stdClass|null $user
      * @return response
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function origin_remove_category(int $requestid, int $origincatid, stdClass $user = null): response {
+    public function origin_remove_category(
+            int $requestid, int $origincatid, int $nextruntime = null, stdClass $user = null): response {
         global $CFG;
         $params = $this->get_request_params($user);
         $params['catid'] = $origincatid;
         $params['requestid'] = $requestid;
         $params['destinysite'] = $CFG->wwwroot;
+        $params['nextruntime'] = is_null($nextruntime) ? 0 : $nextruntime;
         return $this->req('local_coursetransfer_origin_remove_category', $params);
     }
 
@@ -402,6 +408,7 @@ class request {
         $res['configuration[origin_remove_course]'] = (int)$configuration->originremovecourse;
         $res['configuration[origin_enrol_users]'] = (int)$configuration->originenrolusers;
         $res['configuration[destiny_notremove_activities]'] = $configuration->destinynotremoveactivities;
+        $res['configuration[nextruntime]'] = (int)$configuration->nextruntime;
         return $res;
     }
 

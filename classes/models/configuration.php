@@ -56,6 +56,9 @@ abstract class configuration {
     /** @var bool Origin Enrol Users */
     public $originenrolusers;
 
+    /** @var int Next Run Time TimeStamp */
+    public $nextruntime;
+
     /**
      * constructor.
      *
@@ -63,13 +66,15 @@ abstract class configuration {
      * @param bool $destinyremoveenrols
      * @param bool $destinyremovegroups
      * @param bool $originenrolusers
+     * @param int|null $nextruntime
      */
-    public function __construct(
-            int $destinytarget, bool $destinyremoveenrols, bool $destinyremovegroups, bool $originenrolusers) {
+    public function __construct(int $destinytarget, bool $destinyremoveenrols,
+            bool $destinyremovegroups, bool $originenrolusers, int $nextruntime = null) {
         $this->set_destiny_target($destinytarget);
         $this->set_destiny_remove_enrols($destinyremoveenrols);
         $this->set_destiny_remove_groups($destinyremovegroups);
         $this->set_origin_enrol_users($originenrolusers);
+        $this->set_nextruntime($nextruntime);
     }
 
     /**
@@ -106,6 +111,17 @@ abstract class configuration {
      */
     protected function set_origin_enrol_users(bool $config) {
         $this->originenrolusers = $config;
+    }
+
+    /**
+     * Set Next Run Time.
+     *
+     * @param int|null $config
+     */
+    protected function set_nextruntime(int $config = null) {
+        if (!is_null($config)) {
+            $this->nextruntime = $config;
+        }
     }
 
 }

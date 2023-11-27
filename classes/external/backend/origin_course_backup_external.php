@@ -79,7 +79,9 @@ class origin_course_backup_external extends external_api {
                                'origin_enrol_users' => new external_value(PARAM_BOOL,
                                                'Origin Enrol Users', VALUE_DEFAULT, false),
                                'destiny_notremove_activities' => new external_value(PARAM_TEXT,
-                                               'Destiny Not Remove Activities by commas', VALUE_DEFAULT, '')
+                                               'Destiny Not Remove Activities by commas', VALUE_DEFAULT, ''),
+                               'nextruntime' => new external_value(PARAM_INT,
+                                               'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0)
                         )
                 ),
                 'sections' => new external_multiple_structure(new external_single_structure(
@@ -150,12 +152,14 @@ class origin_course_backup_external extends external_api {
                 if ($verifydestiny['success']) {
                     if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id), $user)) {
 
+                        $nextruntime = empty($configuration['nextruntime']) ? null : $configuration['nextruntime'];
                         $config = new configuration_course(
                                 $configuration['destiny_target'],
                                 $configuration['destiny_remove_enrols'],
                                 $configuration['destiny_remove_groups'],
                                 $configuration['origin_enrol_users'],
-                                $configuration['origin_remove_course']
+                                $configuration['origin_remove_course'],
+                                $nextruntime
                         );
                         $requestorigin = coursetransfer_request::set_request_restore_course_response(
                                 $user,
@@ -168,7 +172,7 @@ class origin_course_backup_external extends external_api {
 
                         $resbackup = coursetransfer_backup::create_task_backup_course(
                                 $course->id, $user->id, $verifydestiny['data'], $requestid, $requestorigin->id, $sections,
-                                $configuration['origin_enrol_users']);
+                                $configuration['origin_enrol_users'], $nextruntime);
 
                         if ($resbackup) {
                             $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;

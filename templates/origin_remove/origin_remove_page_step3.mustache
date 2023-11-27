@@ -81,6 +81,30 @@
             </div>
         {{/ courses }}
 
+
+        <h5 class="mt-5">{{#str}} remove_config, local_coursetransfer {{/str}}</h5>
+
+        <ul class="configuration-list">
+
+            <li class="configuration-group">
+                <div class="checkbox">
+                    <input class="configuration-checkbox" id="origin_schedule" type="checkbox">
+                </div>
+                <div class="config-info">
+                    <div class="config-title">{{#str}} origin_schedule, local_coursetransfer {{/str}}</div>
+                    <div class="config-desc">{{#str}} origin_schedule_desc, local_coursetransfer {{/str}}</div>
+                </div>
+            </li>
+            <li class="configuration-group ml-6">
+                <div class="config-info">
+                    <div class="config-title">{{#str}} origin_schedule_datetime, local_coursetransfer {{/str}}</div>
+                </div>
+                <div class="checkbox">
+                    <input class="configuration-checkbox" id="origin_schedule_datetime" type="datetime-local" disabled>
+                </div>
+            </li>
+        </ul>
+
         <div class="alert alert-danger hidden" role="alert"></div>
     {{/ haserrors }}
 
@@ -177,6 +201,29 @@
         padding: 20px 0;
         text-align: center;
         font-size: 16px;
+        font-weight: 400;
+    }
+    div[data-region='origin_remove_step3_page'] ul.configuration-list {
+        list-style-type: none;
+        padding: 0;
+        width: 50%;
+    }
+    div[data-region='origin_remove_step3_page'] li.configuration-group {
+        display: flex;
+        margin: 20px 0;
+    }
+    div[data-region='origin_remove_step3_page'] div.checkbox {
+        padding: 0 5%;
+    }
+    div[data-region='origin_remove_step3_page'] div.config-title {
+        padding-bottom: 5px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+    div[data-region='origin_remove_step3_page'] div.config-desc {
+        padding-bottom: 5px;
+        padding-right: 10px;
+        font-size: 12px;
         font-weight: 400;
     }
 </style>

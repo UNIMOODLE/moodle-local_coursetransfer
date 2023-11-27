@@ -88,7 +88,7 @@ list($options, $unrecognised) = cli_get_params([
         'destiny_category_id' => null,
         'origin_enrolusers' => false,
         'origin_remove_category' => false,
-        'origin_schedule_datetime' => 0
+        'origin_schedule_datetime' => null
 ], [
         'h' => 'help'
 ]);
@@ -145,6 +145,15 @@ if ( !in_array((int)$originenrolusers, [0, 1])) {
     exit(128);
 }
 
+if ($originscheduledatetime < time() && $originscheduledatetime <= 7286691556) {
+    cli_writeln( 'origin_schedule_datetime is not valid format');
+    exit(128);
+} else {
+    $date = new DateTime();
+    $date->setTimestamp(intval($originscheduledatetime));
+    cli_writeln( 'Scheduler Time: ' . userdate($date->getTimestamp()));
+}
+
 $errors = [];
 
 try {
@@ -152,7 +161,7 @@ try {
     // 1. Setup Configuration.
     $configuration = new configuration_category(
             backup::TARGET_NEW_COURSE, false, false, $originenrolusers,
-            $originremovecategory);
+            $originremovecategory, $originscheduledatetime);
 
     // 2. User Login.
     $user = core_user::get_user_by_username(user::USERNAME_WS);

@@ -286,6 +286,7 @@ class coursetransfer_request {
         $object->origin_remove_course = $configuration->originremovecourse;
         $object->destiny_notremove_activities = $configuration->destinynotremoveactivities;
         $object->origin_backup_size_estimated = 0;
+        $object->origin_schedule_datetime = $configuration->nextruntime;
         $object->destiny_target = $configuration->destinytarget;
         $object->status = self::STATUS_NOT_STARTED;
         $object->userid = $userid;
@@ -330,7 +331,7 @@ class coursetransfer_request {
         $object->origin_enrolusers = $configuration->originenrolusers;
         $object->origin_remove_course = $configuration->originremovecourse;
         $object->origin_remove_category = null;
-        $object->origin_schedule_datetime = null;
+        $object->origin_schedule_datetime = $configuration->nextruntime;
         $object->origin_remove_activities = 0;
         $object->origin_activities = json_encode($sections);
         $object->origin_category_requests = null;
@@ -381,6 +382,7 @@ class coursetransfer_request {
         $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
         $object->destiny_remove_groups = $configuration->destinyremovegroups;
         $object->origin_remove_category = $configuration->originremovecategory;
+        $object->origin_schedule_datetime = $configuration->nextruntime;
         $object->destiny_target = $configuration->destinytarget;
         $object->status = self::STATUS_NOT_STARTED;
         $object->userid = $userid;
@@ -421,11 +423,13 @@ class coursetransfer_request {
      * @param stdClass $site
      * @param int $origincourseid
      * @param stdClass|null $user
+     * @param null $nextruntime
      * @return stdClass
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function set_request_remove_course(stdClass $site, int $origincourseid, stdClass $user = null): stdClass {
+    public static function set_request_remove_course(
+            stdClass $site, int $origincourseid, stdClass $user = null, $nextruntime = null): stdClass {
         global $USER;
         $userid = is_null($user) ? $USER->id : $user->id;
         $object = new stdClass();
@@ -433,6 +437,7 @@ class coursetransfer_request {
         $object->siteurl = $site->host;
         $object->direction = self::DIRECTION_REQUEST;
         $object->origin_course_id = $origincourseid;
+        $object->origin_schedule_datetime = $nextruntime;
         $object->status = self::STATUS_NOT_STARTED;
         $object->userid = $userid;
         $object->id = self::insert_or_update($object);
@@ -445,11 +450,13 @@ class coursetransfer_request {
      * @param stdClass $site
      * @param int $origincatid
      * @param stdClass|null $user
+     * @param int $nextruntime
      * @return stdClass
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function set_request_remove_category(stdClass $site, int $origincatid, stdClass $user = null): stdClass {
+    public static function set_request_remove_category(
+            stdClass $site, int $origincatid, stdClass $user = null, $nextruntime = null): stdClass {
         global $USER;
         $userid = is_null($user) ? $USER->id : $user->id;
         $object = new stdClass();
@@ -457,6 +464,7 @@ class coursetransfer_request {
         $object->siteurl = $site->host;
         $object->direction = self::DIRECTION_REQUEST;
         $object->origin_category_id = $origincatid;
+        $object->origin_schedule_datetime = $nextruntime;
         $object->status = self::STATUS_NOT_STARTED;
         $object->userid = $userid;
         $object->id = self::insert_or_update($object);

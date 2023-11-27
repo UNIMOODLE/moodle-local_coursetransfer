@@ -47,11 +47,12 @@
                 <input class="configuration-checkbox" id="origin_remove_category" type="checkbox">
             </div>
             <div class="config-info">
-                <div class="config-title">{{#str}} restore_origin_cat_remove, local_coursetransfer {{/str}}</div>
+                <div class="config-title"><i class="fa fa-exclamation-triangle mr-2" aria-hidden="true" style="color: orange"></i>{{#str}} restore_origin_cat_remove, local_coursetransfer {{/str}}</div>
                 <div class="config-desc">{{#str}} restore_origin_cat_remove_desc, local_coursetransfer {{/str}}</div>
             </div>
         </li>
         {{/can_remove_origin_course }}
+        {{#has_scheduled_time }}
         <li class="configuration-group">
             <div class="checkbox">
                 <input class="configuration-checkbox" id="origin_schedule" type="checkbox">
@@ -66,9 +67,10 @@
                 <div class="config-title">{{#str}} origin_schedule_datetime, local_coursetransfer {{/str}}</div>
             </div>
             <div class="checkbox">
-                <input class="configuration-checkbox" id="origin_schedule" type="datetime-local" disabled>
+                <input class="configuration-checkbox" id="origin_schedule_datetime" type="datetime-local" disabled>
             </div>
         </li>
+         {{/has_scheduled_time }}
     </ul>
 </div>
 <style>

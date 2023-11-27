@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\output\origin_restore_category;
 
+use context_system;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -100,6 +101,18 @@ class new_origin_restore_category_step4_page extends new_origin_restore_category
                     'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
+        $data->has_origin_user_data = coursetransfer::has_origin_user_data($USER);
+        $data->has_scheduled_time = true;
+        $data->can_remove_origin_course = false;
+        $data->can_destiny_restore_merge = false;
+        $data->can_destiny_restore_content_remove = false;
+        $data->can_destiny_restore_groups_remove = false;
+        $data->can_destiny_restore_enrol_remove = false;
+        $data->restore_this_course =
+                $data->can_destiny_restore_merge || $data->can_destiny_restore_content_remove;
+        $data->remove_in_destination =
+                $data->can_destiny_restore_groups_remove || $data->can_destiny_restore_enrol_remove;
+        $data->origin_course_configuration = $data->has_origin_user_data || $data->has_scheduled_time;
         return $data;
     }
 

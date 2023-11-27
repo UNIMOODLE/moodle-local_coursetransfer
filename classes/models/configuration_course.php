@@ -49,6 +49,7 @@ class configuration_course extends configuration {
 
     /** @var string Destinity Not Remove Activities */
     public $destinynotremoveactivities;
+
     /**
      * constructor.
      *
@@ -57,12 +58,13 @@ class configuration_course extends configuration {
      * @param bool $destinyremovegroups
      * @param bool $originenrolusers
      * @param bool $originremovecourse
+     * @param int|null $nextruntime
      * @param string $destinynotremoveactivities
      */
     public function __construct(
-            int $destinytarget, bool $destinyremoveenrols, bool $destinyremovegroups,
-            bool $originenrolusers = false, bool $originremovecourse = false, string $destinynotremoveactivities = '') {
-        parent::__construct($destinytarget, $destinyremoveenrols, $destinyremovegroups, $originenrolusers);
+            int $destinytarget, bool $destinyremoveenrols, bool $destinyremovegroups, bool $originenrolusers = false,
+            bool $originremovecourse = false, int $nextruntime = null, string $destinynotremoveactivities = '') {
+        parent::__construct($destinytarget, $destinyremoveenrols, $destinyremovegroups, $originenrolusers, $nextruntime);
         $this->set_origin_remove_course($originremovecourse);
         $this->set_destiny_notremove_activities($destinynotremoveactivities);
     }

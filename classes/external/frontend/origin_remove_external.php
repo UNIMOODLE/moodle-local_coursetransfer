@@ -34,6 +34,8 @@
 namespace local_coursetransfer\external\frontend;
 
 use context_system;
+use DateTime;
+use dml_exception;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -165,6 +167,8 @@ class origin_remove_external extends external_api {
                                         'id' => new external_value(PARAM_INT, 'Origin Course ID')
                                 )
                         )),
+                        'nextruntime' => new external_value(PARAM_INT,
+                                'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0)
                 )
         );
     }
@@ -174,16 +178,21 @@ class origin_remove_external extends external_api {
      *
      * @param int $siteurl
      * @param array $courses
+     * @param int $nextruntime
      * @return array
-     * @throws invalid_parameter_exception|moodle_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
      */
-    public static function origin_remove_step3(int $siteurl, array $courses): array {
+    public static function origin_remove_step3(int $siteurl, array $courses, int $nextruntime): array {
         global $USER;
         self::validate_parameters(
                 self::origin_remove_step3_parameters(),
                 [
                         'siteurl' => $siteurl,
-                        'courses' => $courses
+                        'courses' => $courses,
+                        'nextruntime' => $nextruntime
                 ]
         );
 
@@ -199,7 +208,10 @@ class origin_remove_external extends external_api {
             try {
                 $site = coursetransfer::get_site_by_position($siteurl);
                 foreach ($courses as $course) {
-                    $res = coursetransfer::remove_course($site, $course['id'], $USER);
+                    $nextruntime = $nextruntime / 1000;
+                    $date = new DateTime();
+                    $date->setTimestamp(intval($nextruntime));
+                    $res = coursetransfer::remove_course($site, $course['id'], $USER, $date->getTimestamp());
                     if (isset($res['data']['requestid'])) {
                         $requestid = $res['data']['requestid'];
                         if (!$res['success']) {
@@ -275,7 +287,9 @@ class origin_remove_external extends external_api {
         return new external_function_parameters(
                 array(
                         'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                        'catid' => new external_value(PARAM_INT, 'Origin Course Category ID')
+                        'catid' => new external_value(PARAM_INT, 'Origin Course Category ID'),
+                        'nextruntime' => new external_value(PARAM_INT,
+                                'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0)
                 )
         );
     }
@@ -285,16 +299,21 @@ class origin_remove_external extends external_api {
      *
      * @param int $siteurl
      * @param int $catid
+     * @param int $nextruntime
      * @return array
-     * @throws invalid_parameter_exception|moodle_exception
+     * @throws \coding_exception
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
      */
-    public static function origin_remove_cat_step3(int $siteurl, int $catid): array {
+    public static function origin_remove_cat_step3(int $siteurl, int $catid, int $nextruntime): array {
         global $USER;
         self::validate_parameters(
                 self::origin_remove_cat_step3_parameters(),
                 [
                         'siteurl' => $siteurl,
-                        'catid' => $catid
+                        'catid' => $catid,
+                        'nextruntime' => $nextruntime
                 ]
         );
 
@@ -308,7 +327,10 @@ class origin_remove_external extends external_api {
         if (has_capability('local/coursetransfer:origin_remove_course', context_system::instance())) {
             try {
                 $site = coursetransfer::get_site_by_position($siteurl);
-                $res = coursetransfer::remove_category($site, $catid, $USER);
+                $nextruntime = $nextruntime / 1000;
+                $date = new DateTime();
+                $date->setTimestamp(intval($nextruntime));
+                $res = coursetransfer::remove_category($site, $catid, $USER, $date->getTimestamp());
                 if (isset($res['data']['requestid'])) {
                     $requestid = $res['data']['requestid'];
                     if (!$res['success']) {

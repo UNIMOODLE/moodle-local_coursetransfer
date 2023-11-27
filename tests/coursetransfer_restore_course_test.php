@@ -368,7 +368,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 false,
                 false,
                 false,
-                false);
+                false, 0);
         list($requestdestination1, $requestorigin1) = $this->test_restore_course(
                 $configuration1, $this->destinynewcourse1, $this->origincourse);
         // 2. Test in Destination Course. With Users and Groups.
@@ -377,7 +377,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 false,
                 false,
                 true,
-                false);
+                false, 0);
         list($requestdestination2, $requestorigin2) = $this->test_restore_course(
                 $configuration2, $this->destinycourse2, $this->origincourse);
         // 3. Test in Destination Course. Witouth Users. Delete Content and Users and Groups.
@@ -386,7 +386,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 true,
                 true,
                 false,
-                false);
+                false, 0);
         list($requestdestination3, $requestorigin3) = $this->test_restore_course(
                 $configuration3, $this->destinycourse3, $this->origincourse);
         $this->validate_request_not_started($requestdestination3);
@@ -396,7 +396,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 false,
                 false,
                 true,
-                true);
+                true, 0);
         list($requestdestination5, $requestorigin5) = $this->test_restore_course(
                 $configuration5, $this->destinycourse5, $this->origincourse2);
 
@@ -502,6 +502,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 $requestorigin->id,
                 $sections,
                 $configuration->originenrolusers,
+                null,
                 true
         );
 

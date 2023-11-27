@@ -85,8 +85,9 @@ class configuration_component implements renderable, templatable {
         $data->destiny_remove_groups = $this->configuration->destinyremovegroups;
         $data->origin_remove_course = $this->configuration->originremovecourse;
         $data->course_new = $this->configuration->destinytarget === backup::TARGET_NEW_COURSE;
-        $data->origin_schedule = false;
-        $unixtime = 1699961983;
+        $data->has_scheduled_time = empty($this->configuration->nextruntime) ? false : true;
+        $data->origin_schedule = empty($this->configuration->nextruntime) ? false : true;
+        $unixtime = $this->configuration->nextruntime;
         $data->origin_schedule_datetime = date("Y-m-d H:i:s", $unixtime);
         return $data;
     }

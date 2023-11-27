@@ -62,10 +62,13 @@ class coursetransfer_remove {
      * @param int $requestdestid
      * @param int $courseid
      * @param stdClass $destsite
+     * @param int $userid
+     * @param int|null $nextruntime
      * @return bool
      */
     public static function create_task_remove_course(
-            int $requestoriginid, int $requestdestid, int $courseid, stdClass $destsite, int $userid): bool {
+            int $requestoriginid, int $requestdestid, int $courseid,
+            stdClass $destsite, int $userid, int $nextruntime = null): bool {
         $resasynctask = new remove_course_task();
         $resasynctask->set_blocking(false);
         $payload = [
@@ -76,6 +79,9 @@ class coursetransfer_remove {
                 'userid' => $userid
         ];
         $resasynctask->set_custom_data($payload);
+        if (!is_null($nextruntime)) {
+            $resasynctask->set_next_run_time($nextruntime);
+        }
         return \core\task\manager::queue_adhoc_task($resasynctask);
     }
 
@@ -87,10 +93,11 @@ class coursetransfer_remove {
      * @param int $catid
      * @param stdClass $destsite
      * @param int $userid
+     * @param int|null $nextruntime
      * @return bool
      */
     public static function create_task_remove_category(
-            int $requestoriginid, int $requestdestid, int $catid, stdClass $destsite, int $userid): bool {
+            int $requestoriginid, int $requestdestid, int $catid, stdClass $destsite, int $userid, int $nextruntime = null): bool {
         $resasynctask = new remove_category_task();
         $resasynctask->set_blocking(false);
         $payload = [
@@ -101,6 +108,9 @@ class coursetransfer_remove {
                 'userid' => $userid
         ];
         $resasynctask->set_custom_data($payload);
+        if (!is_null($nextruntime)) {
+            $resasynctask->set_next_run_time($nextruntime);
+        }
         return \core\task\manager::queue_adhoc_task($resasynctask);
     }
 

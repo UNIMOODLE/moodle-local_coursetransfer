@@ -507,21 +507,23 @@ class coursetransfer {
      * @param stdClass $site
      * @param int $origincourseid
      * @param stdClass|null $user
+     * @param int|null $nextruntime
      * @return array
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function remove_course(stdClass $site, int $origincourseid, stdClass $user = null): array {
+    public static function remove_course(
+            stdClass $site, int $origincourseid, stdClass $user = null, int $nextruntime = null): array {
 
         $errors = [];
 
         // 1. Request DB.
-        $requestobject = coursetransfer_request::set_request_remove_course($site, $origincourseid, $user);
+        $requestobject = coursetransfer_request::set_request_remove_course($site, $origincourseid, $user, $nextruntime);
 
         // 2. Call CURL Origin Backup Course.
         $request = new request($site);
-        $res = $request->origin_remove_course($requestobject->id, $origincourseid, $user);
+        $res = $request->origin_remove_course($requestobject->id, $origincourseid, $nextruntime, $user);
         // 3. Success or Errors.
         if ($res->success) {
             // 4a. Update Request DB Completed.
@@ -559,20 +561,23 @@ class coursetransfer {
      * @param stdClass $site
      * @param int $origincatid
      * @param stdClass|null $user
+     * @param int|null $nextruntime
      * @return array
+     * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function remove_category(stdClass $site, int $origincatid, stdClass $user = null): array {
+    public static function remove_category(stdClass $site, int $origincatid,
+            stdClass $user = null, int $nextruntime = null): array {
 
         $errors = [];
 
         // 1. Request DB.
-        $requestobject = coursetransfer_request::set_request_remove_category($site, $origincatid, $user);
+        $requestobject = coursetransfer_request::set_request_remove_category($site, $origincatid, $user, $nextruntime);
 
         // 2. Call CURL Origin Backup Course.
         $request = new request($site);
-        $res = $request->origin_remove_category($requestobject->id, $origincatid, $user);
+        $res = $request->origin_remove_category($requestobject->id, $origincatid, $nextruntime, $user);
         // 3. Success or Errors.
         if ($res->success) {
             // 4a. Update Request DB Completed.
@@ -656,7 +661,7 @@ class coursetransfer {
                 // 1. Configuration Course.
                 $configurationcourse = new configuration_course(
                         $configuration->destinytarget, $configuration->destinyremovegroups,
-                $configuration->destinyremoveenrols, $configuration->originenrolusers);
+                $configuration->destinyremoveenrols, $configuration->originenrolusers, $configuration->nextruntime);
 
                 // 2. Create new course in this category.
                 $destinycourseid = course::create(

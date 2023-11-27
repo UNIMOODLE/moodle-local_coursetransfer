@@ -74,9 +74,22 @@ define([
                 });
                 this.data.configuration.forEach(function(config) {
                     let item = $('#' + config.name);
-                    item.prop('disabled', true);
-                    item.prop('checked', config.selected);
+                    if (config.name === 'origin_schedule_datetime') {
+                        item.val(config.value);
+                    } else {
+                        item.prop('disabled', true);
+                        item.prop('checked', config.selected);
+                    }
                 });
+                if (this.data.configuration) {
+                    this.data.configuration.forEach(function(config) {
+                        if (config.name === 'origin_schedule') {
+                            if (!config.selected) {
+                                $('#origin_schedule_datetime').val(null);
+                            }
+                        }
+                    });
+                }
                 this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
             } else {
                 let alertbox = this.node.find(".alert");
@@ -107,7 +120,11 @@ define([
 
             let configuration = [];
             this.data.configuration.forEach(function(config) {
-                configuration[config.name] = config.selected;
+                if (config.name === 'origin_schedule_datetime') {
+                    configuration[config.name] = config.value;
+                } else {
+                    configuration[config.name] = config.selected;
+                }
             });
 
             let alertbox = this.node.find(".alert");
@@ -117,7 +134,8 @@ define([
                 destiny_remove_groups: false,
                 destiny_remove_enrols: false,
                 origin_enrol_users: false,
-                origin_remove_course: false
+                origin_remove_course: false,
+                origin_schedule_datetime: 0
             };
             if (configuration['destiny_merge_activities']) {
                 config.destiny_merge_activities = configuration['destiny_merge_activities'];
@@ -136,6 +154,9 @@ define([
             }
             if (configuration['origin_remove_course']) {
                 config.origin_remove_course = configuration['origin_remove_course'];
+            }
+            if (configuration['origin_schedule']) {
+                config.origin_schedule_datetime = new Date(configuration['origin_schedule_datetime']).getTime();
             }
             const request = {
                 methodname: SERVICES.ORIGIN_RESTORE_STEP4,

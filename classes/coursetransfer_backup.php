@@ -73,6 +73,7 @@ class coursetransfer_backup {
      * @param int $requestoriginid
      * @param array $sections
      * @param int $rootusers
+     * @param int|null $nextruntime
      * @param bool $istest
      * @return bool
      * @throws base_plan_exception
@@ -81,7 +82,7 @@ class coursetransfer_backup {
      */
     public static function create_task_backup_course(
             int $courseid, int $userid, stdClass $destinysite, int $requestid, int $requestoriginid,
-            array $sections, int $rootusers = 0, bool $istest = false): bool {
+            array $sections, int $rootusers = 0, int $nextruntime = null, bool $istest = false): bool {
         $bc = new backup_controller(
                 backup::TYPE_1COURSE, $courseid,
                 backup::FORMAT_MOODLE,
@@ -109,6 +110,9 @@ class coursetransfer_backup {
         $bc->save_controller();
         $asynctask = new create_backup_course_task();
         $asynctask->set_blocking(false);
+        if (!is_null($nextruntime)) {
+            $asynctask->set_next_run_time($nextruntime);
+        }
         $backupid = $bc->get_backupid();
 
         $payload = [

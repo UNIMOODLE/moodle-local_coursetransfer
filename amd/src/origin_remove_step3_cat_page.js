@@ -67,16 +67,24 @@ define([
         this.site = site;
         this.removeid = removeid;
         this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
+        this.node.find('#origin_schedule').on('click', this.clickSchedule.bind(this));
     }
 
     originRemoveCatStep3.prototype.clickNext = function(e) {
         this.node.find(ACTIONS.RESTORE).prop('disabled', true);
         let alertbox = this.node.find(".alert");
+        let nextruntime = $('#origin_schedule_datetime').val();
+        if ($('#origin_schedule').prop('checked')) {
+            nextruntime  = new Date(nextruntime).getTime();
+        } else {
+            nextruntime  = 0;
+        }
         const request = {
             methodname: SERVICES.ORIGIN_REMOVE_CAT_STEP3,
             args: {
                 siteurl: this.site,
                 catid: this.removeid,
+                nextruntime: nextruntime
             }
         };
         let that = this;
@@ -109,6 +117,14 @@ define([
             errorString += 'Error (' + error.code + '): ' + error.msg + '<br>';
         });
         alertbox.append(errorString);
+    };
+
+    originRemoveCatStep3.prototype.clickSchedule = function(e) {
+        if (this.node.find('#origin_schedule').is(':checked')) {
+            this.node.find('#origin_schedule_datetime').attr('disabled', false);
+        } else {
+            this.node.find('#origin_schedule_datetime').attr('disabled', true);
+        }
     };
 
     originRemoveCatStep3.prototype.node = null;
