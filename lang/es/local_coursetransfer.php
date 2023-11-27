@@ -305,3 +305,13 @@ $string['origin_schedule_datetime'] = "Fecha de ejecución";
 $string['in_new_course'] = "En Nuevo Curso";
 $string['remove_content'] = "Borrar contenido de destino";
 $string['merge_content'] = "Fusionar contenido en destino";
+$string['messageprovider:restore_course_completed'] = "Restauración Curso Remoto Completada";
+$string['messageprovider:restore_category_completed'] = "Restauración Categoría Remota Completada";
+$string['messageprovider:remove_course_completed'] = "Borrado Curso Remoto Completada";
+$string['messageprovider:remove_category_completed'] = "Borrado Categoría Remota Completada";
+$string['notification_restore_course_completed'] = 'Ha finalizado con éxito la restauración del curso remoto en su destino: {$a}';
+$string['notification_restore_category_completed'] = 'Ha finalizado con éxito la restauración de la categoría remota en su destino: {$a}';
+$string['notification_remove_course_completed'] = 'Ha finalizado con éxito el borrado del curso remoto: {$a}';
+$string['notification_remove_category_completed'] = 'Ha finalizado con éxito el borrado de la categoría remota: {$a}';
+$string['view_detail'] = 'Ver detalle:';
+

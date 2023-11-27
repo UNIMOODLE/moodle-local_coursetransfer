@@ -62,37 +62,46 @@ $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
 
-switch ($type) {
-    case coursetransfer_request::TYPE_COURSE:
-        if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
-            $page = new logs_course_request_page();
-        } else {
-            $page = new logs_course_response_page();
-        }
-        break;
-    case coursetransfer_request::TYPE_CATEGORY:
-        if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
-            $page = new logs_category_request_page();
-        } else {
-            $page = new logs_category_response_page();
-        }
-        break;
-    case coursetransfer_request::TYPE_REMOVE_COURSE:
-        if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
-            $page = new logs_course_remove_request_page();
-        } else {
-            $page = new logs_course_remove_response_page();
-        }
-        break;
-    case coursetransfer_request::TYPE_REMOVE_CATEGORY:
-        if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
-            $page = new logs_category_remove_request_page();
-        } else {
-            $page = new logs_category_remove_response_page();
-        }
-        break;
-    default:
-        throw new moodle_exception('TYPE NOT VALID');
+if (has_capability('local/coursetransfer:view_logs', context_system::instance())) {
+    switch ($type) {
+        case coursetransfer_request::TYPE_COURSE:
+            if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
+                $page = new logs_course_request_page();
+            } else {
+                $page = new logs_course_response_page();
+            }
+            break;
+        case coursetransfer_request::TYPE_CATEGORY:
+            if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
+                $page = new logs_category_request_page();
+            } else {
+                $page = new logs_category_response_page();
+            }
+            break;
+        case coursetransfer_request::TYPE_REMOVE_COURSE:
+            if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
+                $page = new logs_course_remove_request_page();
+            } else {
+                $page = new logs_course_remove_response_page();
+            }
+            break;
+        case coursetransfer_request::TYPE_REMOVE_CATEGORY:
+            if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
+                $page = new logs_category_remove_request_page();
+            } else {
+                $page = new logs_category_remove_response_page();
+            }
+            break;
+        default:
+            throw new moodle_exception('TYPE NOT VALID');
+    }
+} else {
+    $page = new \local_coursetransfer\output\error_page(
+            get_string('forbidden', 'local_coursetransfer'),
+            get_string('you_have_not_permission', 'local_coursetransfer'),
+            'danger',
+            get_string('error')
+    );
 }
 
 echo $output->render($page);

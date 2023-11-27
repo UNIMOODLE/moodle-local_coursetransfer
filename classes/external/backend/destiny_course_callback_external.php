@@ -41,6 +41,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_download;
+use local_coursetransfer\coursetransfer_notification;
 use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\coursetransfer_sites;
 use moodle_exception;
@@ -209,6 +210,11 @@ class destiny_course_callback_external extends external_api {
                 if ($request) {
                     $request->status = coursetransfer_request::STATUS_COMPLETED;
                     coursetransfer_request::insert_or_update($request, $requestid);
+                    if ((int)$request->type === coursetransfer_request::TYPE_REMOVE_COURSE) {
+                        coursetransfer_notification::send_remove_course_completed($request->userid, $request->origin_course_id);
+                    } else if ((int)$request->type === coursetransfer_request::TYPE_REMOVE_CATEGORY) {
+                        coursetransfer_notification::send_remove_category_completed($request->userid, $request->origin_category_id);
+                    }
                     $data->id = $request->id;
                     $success = true;
                 } else {

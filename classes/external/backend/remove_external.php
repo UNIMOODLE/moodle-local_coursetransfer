@@ -309,13 +309,13 @@ class remove_external extends external_api {
 
                         if ($resremove) {
                             $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
-                            coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                            coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
                             $success = true;
                         } else {
                             $requestorigin->error_code = '15603';
                             $requestorigin->error_message = 'REMOVE NOT SAVE';
                             $requestorigin->status = coursetransfer_request::STATUS_ERROR;
-                            coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                            coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
                             $success = false;
                             $errors[] =
                                     [

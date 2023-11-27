@@ -23,7 +23,6 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Version details.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -31,10 +30,25 @@
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2023112703;
-$plugin->requires  = 2021051703;
-$plugin->component = 'local_coursetransfer';
-$plugin->release   = '0.1.0';
-$plugin->maturity  = MATURITY_ALPHA;
+$messageproviders = array (
+
+    'restore_course_completed' => [
+            'defaults' => [
+                    'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED
+            ]
+    ],
+    'restore_category_completed' => [
+            'defaults' => [
+                    'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED
+            ]],
+    'remove_course_completed' => [
+            'defaults' => [
+                    'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED
+            ]],
+    'remove_category_completed' => [
+            'defaults' => [
+                    'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED
+            ]]
+
+);

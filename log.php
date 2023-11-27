@@ -54,7 +54,18 @@ $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
 
-$page = new log_page($id);
+if (has_capability('local/coursetransfer:view_logs', context_system::instance())) {
+    $page = new log_page($id);
+} else {
+    $page = new \local_coursetransfer\output\error_page(
+            get_string('forbidden', 'local_coursetransfer'),
+            get_string('you_have_not_permission', 'local_coursetransfer'),
+            'danger',
+            get_string('error')
+    );
+}
+
+
 
 echo $output->render($page);
 echo $OUTPUT->footer();

@@ -155,4 +155,16 @@ $capabilities = array(
         )
     ),
 
+    'local/coursetransfer:view_logs' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'guest' => CAP_PROHIBIT,
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_PROHIBIT,
+            'teacher' => CAP_PROHIBIT,
+            'student' => CAP_PROHIBIT
+        )
+    ),
+
 );
