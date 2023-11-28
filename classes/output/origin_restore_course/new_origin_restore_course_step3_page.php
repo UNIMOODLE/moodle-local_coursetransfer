@@ -107,12 +107,12 @@ class new_origin_restore_course_step3_page extends new_origin_restore_course_ste
                     $data->haserrors = true;
                 }
             } catch (moodle_exception $e) {
-                $data->errors = ['code' => '500012', 'msg' => $e->getMessage()];
+                $data->errors = ['code' => '20032', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {
             $data->haserrors = true;
-            $errors[] = ['code' => '500011', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $errors[] = ['code' => '20031', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
         return $data;

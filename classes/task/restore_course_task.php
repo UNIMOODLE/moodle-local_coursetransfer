@@ -77,7 +77,7 @@ class restore_course_task extends \core\task\adhoc_task {
         if (!$file) {
             $this->log('Restore in Moodle not working beacuse File not found! :' . $fileid);
             $request->status = coursetransfer_request::STATUS_ERROR;
-            $request->error_code = '19000';
+            $request->error_code = '11100';
             $request->error_message = 'Restore in Moodle not working beacuse File not found! :' . $fileid;
             coursetransfer_request::insert_or_update($request, $requestid);
         } else {

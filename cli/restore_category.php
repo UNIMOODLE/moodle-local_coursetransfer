@@ -127,14 +127,14 @@ if ($destinycategoryid !== null) {
     try {
         $category = core_course_category::get($destinycategoryid);
     } catch (moodle_exception $e) {
-        cli_writeln('30011: ' . $e->getMessage());
+        cli_writeln('40011: ' . $e->getMessage());
         exit(1);
     }
 } else {
     try {
         $category = core_course_category::create(['name' => get_string('defaultcategoryname')]);
     } catch (moodle_exception $e) {
-        cli_writeln('30012: ' . $e->getMessage());
+        cli_writeln('40012: ' . $e->getMessage());
         exit(1);
     }
 }
@@ -185,7 +185,7 @@ try {
     }
 
 } catch (moodle_exception $e) {
-    cli_writeln('30001: ' . $e->getMessage());
+    cli_writeln('40001: ' . $e->getMessage());
     exit(1);
 }
 

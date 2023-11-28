@@ -103,12 +103,12 @@ class origin_remove_page_cat_step3 implements renderable, templatable {
                     $data->haserrors = true;
                 }
             } catch (moodle_exception $e) {
-                $data->errors = ['code' => '61003', 'msg' => $e->getMessage()];
+                $data->errors = ['code' => '31003', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {
             $data->haserrors = true;
-            $errors[] = ['code' => '61002', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
+            $errors[] = ['code' => '31002', 'msg' => get_string('error_validate_site', 'local_coursetransfer')];
             $data->errors = $errors;
         }
         $data->next_url_disabled = true;

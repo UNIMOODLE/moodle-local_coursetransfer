@@ -85,12 +85,12 @@ class origin_restore_cat_step2_page extends origin_restore_step_page {
                     $data->haserrors = true;
                 }
             } catch (moodle_exception $e) {
-                $data->errors = ['code' => '41002', 'msg' => $e->getMessage()];
+                $data->errors = ['code' => '21002', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {
             $data->errors = [
-                    'code' => '41001',
+                    'code' => '21001',
                     'msg' => get_string('you_have_not_permission', 'local_coursetransfer')];
             $data->haserrors = true;
         }

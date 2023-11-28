@@ -115,12 +115,12 @@ class origin_restore_step4_page extends origin_restore_step_page {
                     $data->haserrors = true;
                 }
             } catch (moodle_exception $e) {
-                $data->errors = ['code' => '40002', 'msg' => $e->getMessage()];
+                $data->errors = ['code' => '20004', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {
             $data->errors = [
-                    'code' => '40001',
+                    'code' => '20003',
                     'msg' => get_string('you_have_not_permission', 'local_coursetransfer')];
             $data->haserrors = true;
         }

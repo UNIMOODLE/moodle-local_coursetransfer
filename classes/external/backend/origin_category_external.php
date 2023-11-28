@@ -116,7 +116,7 @@ class origin_category_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '440028',
+                    'code' => '23011',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -241,7 +241,7 @@ class origin_category_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '44001',
+                    'code' => '23001',
                     'msg' => $e->getMessage()
                 ];
         }

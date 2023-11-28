@@ -115,7 +115,7 @@ class restore_category_external extends external_api {
         } catch (moodle_exception $e) {
             $errors[] =
                 [
-                    'code' => '45012',
+                    'code' => '21111',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -217,7 +217,7 @@ class restore_category_external extends external_api {
         } catch (moodle_exception $e) {
             $errors[] =
                     [
-                            'code' => '45011',
+                            'code' => '21101',
                             'msg' => $e->getMessage()
                     ];
         }

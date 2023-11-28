@@ -116,13 +116,13 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
                     $data->haserrors = true;
                 }
             } catch (moodle_exception $e) {
-                $data->errors = ['code' => '41012', 'msg' => $e->getMessage()];
+                $data->errors = ['code' => '21012', 'msg' => $e->getMessage()];
                 $data->haserrors = true;
             }
         } else {
             $data->haserrors = true;
             $errors[] = [
-                    'code' => '41011',
+                    'code' => '21011',
                     'msg' => get_string('error_validate_site', 'local_coursetransfer')
             ];
             $data->errors = $errors;

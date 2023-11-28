@@ -193,7 +193,7 @@ class origin_course_backup_external extends external_api {
                             $data->course_category_idnumber = $cat->idnumber;
                             $success = true;
                         } else {
-                            $requestorigin->error_code = '10101';
+                            $requestorigin->error_code = '10103';
                             $requestorigin->error_message = 'BACKUP NOT SAVE';
                             $requestorigin->status = coursetransfer_request::STATUS_ERROR;
 
@@ -201,15 +201,15 @@ class origin_course_backup_external extends external_api {
                             $success = false;
                             $errors[] =
                                     [
-                                            'code' => '10101',
-                                            'msg' => 'BACKUP NOT SAVE'
+                                            'code' => $requestorigin->error_code,
+                                            'msg' => $requestorigin->error_message
                                     ];
                         }
                     } else {
                         $success = false;
                         $errors[] =
                                 [
-                                        'code' => '10100',
+                                        'code' => '10102',
                                         'msg' => 'USER HAS NOT CAPABILITY'
                                 ];
                     }
@@ -225,7 +225,7 @@ class origin_course_backup_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '13001',
+                    'code' => '10010',
                     'msg' => $e->getMessage()
                 ];
         }

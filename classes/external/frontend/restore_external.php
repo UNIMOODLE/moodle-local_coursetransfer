@@ -117,7 +117,7 @@ class restore_external extends external_api {
         } catch (moodle_exception $e) {
             $errors[] =
                 [
-                    'code' => '20101',
+                    'code' => '10510',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -244,7 +244,7 @@ class restore_external extends external_api {
         } catch (moodle_exception $e) {
             $errors[] =
                 [
-                    'code' => '20101',
+                    'code' => '10500',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -348,7 +348,7 @@ class restore_external extends external_api {
         } catch (moodle_exception $e) {
             $errors[] =
                 [
-                    'code' => '20101',
+                    'code' => '11011',
                     'msg' => $e->getMessage()
                 ];
         }

@@ -169,7 +169,7 @@ class coursetransfer {
                 'data' => new stdClass(),
                 'error' =>
                         [
-                                'code' => '11007',
+                                'code' => '18001',
                                 'msg' => 'Destination site not founded'
                         ]
             ];
@@ -210,7 +210,7 @@ class coursetransfer {
                             'data' => new stdClass(),
                             'error' =>
                                 [
-                                    'code' => '11006',
+                                    'code' => '17001',
                                     'msg' => get_string('user_does_not_have_courses', 'local_coursetransfer')
                                 ]
                         ];
@@ -223,7 +223,7 @@ class coursetransfer {
                         'data' => new stdClass(),
                         'error' =>
                             [
-                                'code' => '11005',
+                                'code' => '17002',
                                 'msg' => get_string('user_not_found', 'local_coursetransfer')
                             ]
                     ];
@@ -236,7 +236,7 @@ class coursetransfer {
                     'data' => new stdClass(),
                     'error' =>
                         [
-                            'code' => '11004',
+                            'code' => '17001',
                             'msg' => get_string('field_not_valid', 'local_coursetransfer')
                         ]
                 ];
