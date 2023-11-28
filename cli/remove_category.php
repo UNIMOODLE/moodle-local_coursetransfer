@@ -136,6 +136,6 @@ try {
     }
 
 } catch (moodle_exception $e) {
-    cli_writeln('30003: ' . $e->getMessage());
+    cli_writeln('40003: ' . $e->getMessage());
     exit(1);
 }

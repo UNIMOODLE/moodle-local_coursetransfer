@@ -155,7 +155,7 @@ if ( empty($destinycourseid) && ($destinytarget === backup::TARGET_NEW_COURSE)) 
         try {
             $category = core_course_category::get($destinycategoryid);
         } catch (moodle_exception $e) {
-            cli_writeln('30001: ' . $e->getMessage());
+            cli_writeln('40001: ' . $e->getMessage());
             exit(1);
         }
     } else {
@@ -238,6 +238,6 @@ try {
 } catch (moodle_exception $e) {
     // 5b. Remove new course.
     delete_course($destinycourseid, false);
-    cli_writeln('30000: ' . $e->getMessage());
+    cli_writeln('40000: ' . $e->getMessage());
     exit(1);
 }

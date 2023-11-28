@@ -94,7 +94,7 @@ class sites_external extends external_api {
         if ($type !== 'destiny' && $type !== 'origin') {
             $errors[] =
                     [
-                            'code' => '800002',
+                            'code' => '18042',
                             'msg' => 'TYPE INVALID'
                     ];
         } else {
@@ -111,7 +111,7 @@ class sites_external extends external_api {
             } catch (moodle_exception $e) {
                 $errors[] =
                         [
-                                'code' => '800001',
+                                'code' => '18041',
                                 'msg' => $e->getMessage()
                         ];
             }
@@ -190,7 +190,7 @@ class sites_external extends external_api {
         if ($type !== 'destiny' && $type !== 'origin') {
             $errors[] =
                     [
-                            'code' => '800002',
+                            'code' => '18032',
                             'msg' => 'TYPE INVALID'
                     ];
         } else {
@@ -206,7 +206,7 @@ class sites_external extends external_api {
             } catch (moodle_exception $e) {
                 $errors[] =
                         [
-                                'code' => '800001',
+                                'code' => '18031',
                                 'msg' => $e->getMessage()
                         ];
             }
@@ -279,7 +279,7 @@ class sites_external extends external_api {
         if ($type !== 'destiny' && $type !== 'origin') {
             $errors[] =
                     [
-                            'code' => '800002',
+                            'code' => '18022',
                             'msg' => 'TYPE INVALID'
                     ];
         } else {
@@ -289,7 +289,7 @@ class sites_external extends external_api {
             } catch (moodle_exception $e) {
                 $errors[] =
                         [
-                                'code' => '800001',
+                                'code' => '18021',
                                 'msg' => $e->getMessage()
                         ];
             }
@@ -366,7 +366,7 @@ class sites_external extends external_api {
 
         if ($type !== 'destiny' && $type !== 'origin') {
             $error = [
-                            'code' => '800002',
+                            'code' => '18011',
                             'msg' => 'TYPE INVALID'
                     ];
         } else {
@@ -402,7 +402,7 @@ class sites_external extends external_api {
                 }
             } catch (moodle_exception $e) {
                 $error = [
-                        'code' => '800001',
+                        'code' => '18010',
                         'msg' => $e->getMessage()
                 ];
             }
@@ -499,7 +499,7 @@ class sites_external extends external_api {
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] = [
-                       'code' => '20081',
+                       'code' => '20021',
                        'msg' => $e->getMessage()
                     ];
         }
@@ -573,7 +573,7 @@ class sites_external extends external_api {
         } catch (moodle_exception $e) {
             $success = false;
             $errors[] = [
-                    'code' => '20061',
+                    'code' => '18051',
                     'msg' => $e->getMessage()
             ];
         }

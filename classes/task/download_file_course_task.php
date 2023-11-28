@@ -97,7 +97,7 @@ class download_file_course_task extends \core\task\adhoc_task {
         } catch (\Exception $e) {
             $this->log($e->getMessage());
             $request->status = coursetransfer_request::STATUS_ERROR;
-            $request->error_code = '14000';
+            $request->error_code = '13000';
             $request->error_message = $e->getMessage();
             coursetransfer_request::insert_or_update($request, $request->id);
         }

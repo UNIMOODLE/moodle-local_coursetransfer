@@ -85,7 +85,7 @@ class remove_course_task extends \core\task\adhoc_task {
             if (count($res['warnings']) > 0) {
                 $errors[] = json_encode($res['warnings']);
                 $requestorigin->status = coursetransfer_request::STATUS_ERROR;
-                $requestorigin->error_code = '15045';
+                $requestorigin->error_code = '15001';
                 $requestorigin->error_message = json_encode($res['warnings']);
                 coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
                 $res = $request->destiny_remove_course_error(

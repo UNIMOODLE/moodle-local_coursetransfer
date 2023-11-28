@@ -74,8 +74,6 @@ class origin_user_external extends external_api {
      * @throws moodle_exception
      */
     public static function origin_has_user(string $field, string $value): array {
-        global $DB;
-
         self::validate_parameters(
             self::origin_has_user_parameters(),
             [
@@ -104,7 +102,7 @@ class origin_user_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '20071',
+                    'code' => '17100',
                     'msg' => $e->getMessage()
                 ];
         }

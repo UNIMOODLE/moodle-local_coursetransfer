@@ -140,7 +140,7 @@ try {
     exit(0);
 
 } catch (moodle_exception $e) {
-    cli_writeln('30004: ' . $e->getMessage());
+    cli_writeln('40004: ' . $e->getMessage());
     exit(1);
 }
 

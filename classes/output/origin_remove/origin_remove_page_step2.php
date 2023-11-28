@@ -112,7 +112,7 @@ class origin_remove_page_step2 implements renderable, templatable {
                 $data->haserrors = true;
             }
         } catch (moodle_exception $e) {
-            $data->errors = ['code' => '60001', 'msg' => $e->getMessage()];
+            $data->errors = ['code' => '30001', 'msg' => $e->getMessage()];
             $data->haserrors = true;
         }
         $data->next_url_disabled = true;

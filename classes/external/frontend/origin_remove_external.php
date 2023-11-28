@@ -116,7 +116,7 @@ class origin_remove_external extends external_api {
         } catch (moodle_exception $e) {
             $errors[] =
                     [
-                            'code' => '60105',
+                            'code' => '30106',
                             'msg' => $e->getMessage()
                     ];
         }
@@ -231,7 +231,7 @@ class origin_remove_external extends external_api {
                     } else {
                         $errors[] =
                                 [
-                                        'code' => '60105',
+                                        'code' => '30105',
                                         'msg' => 'NOT CONTROLLED'
                                 ];
                     }
@@ -239,14 +239,14 @@ class origin_remove_external extends external_api {
             } catch (moodle_exception $e) {
                 $errors[] =
                         [
-                                'code' => '60104',
+                                'code' => '30104',
                                 'msg' => $e->getMessage()
                         ];
             }
         } else {
             $errors[] =
                     [
-                            'code' => '60103',
+                            'code' => '30103',
                             'msg' => get_string('you_have_not_permission', 'local_coursetransfer')
                     ];
         }
@@ -350,21 +350,21 @@ class origin_remove_external extends external_api {
                 } else {
                     $errors[] =
                             [
-                                    'code' => '60102',
+                                    'code' => '30102',
                                     'msg' => 'NOT CONTROLLED'
                             ];
                 }
             } catch (moodle_exception $e) {
                 $errors[] =
                         [
-                                'code' => '60101',
+                                'code' => '30101',
                                 'msg' => $e->getMessage()
                         ];
             }
         } else {
             $errors[] =
                     [
-                            'code' => '60100',
+                            'code' => '30100',
                             'msg' => get_string('you_have_not_permission', 'local_coursetransfer')
                     ];
         }

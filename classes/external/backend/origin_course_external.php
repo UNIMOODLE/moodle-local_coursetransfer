@@ -114,7 +114,7 @@ class origin_course_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '43002',
+                    'code' => '22011',
                     'msg' => $e->getMessage()
                 ];
         }
@@ -224,7 +224,7 @@ class origin_course_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '43001',
+                    'code' => '22001',
                     'msg' => $e->getMessage()
                 ];
         }

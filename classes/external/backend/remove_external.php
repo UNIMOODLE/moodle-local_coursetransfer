@@ -157,22 +157,22 @@ class remove_external extends external_api {
                             coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
                             $success = true;
                         } else {
-                            $requestorigin->error_code = '15606';
+                            $requestorigin->error_code = '16012';
                             $requestorigin->error_message = 'REMOVE NOT SAVE';
                             $requestorigin->status = coursetransfer_request::STATUS_ERROR;
                             coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
                             $success = false;
                             $errors[] =
                                     [
-                                            'code' => '15605',
-                                            'msg' => 'REMOVE NOT SAVE'
+                                            'code' => $requestorigin->error_code,
+                                            'msg' => $requestorigin->error_message
                                     ];
                         }
                     } else {
                         $success = false;
                         $errors[] =
                                 [
-                                        'code' => '15604',
+                                        'code' => '16011',
                                         'msg' => 'USER HAS NOT CAPABILITY'
                                 ];
                     }
@@ -188,7 +188,7 @@ class remove_external extends external_api {
             $success = false;
             $errors[] =
                     [
-                            'code' => '20151',
+                            'code' => '16010',
                             'msg' => $e->getMessage()
                     ];
         }
@@ -319,22 +319,22 @@ class remove_external extends external_api {
                             coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
                             $success = true;
                         } else {
-                            $requestorigin->error_code = '15603';
+                            $requestorigin->error_code = '16002';
                             $requestorigin->error_message = 'REMOVE NOT SAVE';
                             $requestorigin->status = coursetransfer_request::STATUS_ERROR;
                             coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
                             $success = false;
                             $errors[] =
                                     [
-                                            'code' => '15602',
-                                            'msg' => 'REMOVE NOT SAVE'
+                                            'code' => $requestorigin->error_code,
+                                            'msg' => $requestorigin->error_message
                                     ];
                         }
                     } else {
                         $success = false;
                         $errors[] =
                                 [
-                                        'code' => '15601',
+                                        'code' => '16001',
                                         'msg' => 'USER HAS NOT CAPABILITY'
                                 ];
                     }
@@ -350,7 +350,7 @@ class remove_external extends external_api {
             $success = false;
             $errors[] =
                     [
-                            'code' => '20251',
+                            'code' => '16000',
                             'msg' => $e->getMessage()
                     ];
         }

@@ -84,7 +84,7 @@ class new_origin_restore_course_step2_page  extends new_origin_restore_course_st
                 $data->haserrors = true;
             }
         } catch (moodle_exception $e) {
-            $data->errors = ['code' => '500001', 'msg' => $e->getMessage()];
+            $data->errors = ['code' => '20021', 'msg' => $e->getMessage()];
             $data->haserrors = true;
         }
         return $data;
