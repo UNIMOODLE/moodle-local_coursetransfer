@@ -86,7 +86,11 @@ define([
         let alertbox = this.node.find(".alert");
         let nextruntime = $('#origin_schedule_datetime').val();
         if ($('#origin_schedule').prop('checked')) {
-            nextruntime  = new Date(nextruntime).getTime();
+            if (nextruntime === '') {
+                nextruntime  = 0;
+            } else {
+                nextruntime  = new Date(nextruntime).getTime();
+            }
         } else {
             nextruntime  = 0;
         }

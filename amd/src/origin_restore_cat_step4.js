@@ -81,12 +81,17 @@ define([
                             item.prop('checked', config.selected);
                         }
                     });
-                }
-                if (this.data.configuration) {
                     this.data.configuration.forEach(function(config) {
                         if (config.name === 'origin_schedule') {
                             if (!config.selected) {
                                 $('#origin_schedule_datetime').val(null);
+                            }
+                        }
+                    });
+                    this.data.configuration.forEach(function(config) {
+                        if (config.name === 'origin_schedule_datetime') {
+                            if (!config.value) {
+                                $('#origin_schedule').prop('checked', false);
                             }
                         }
                     });
