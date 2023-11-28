@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Strings for component 'assign', language 'es'
+ * Strings for component 'course transfer', language 'es'
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -315,4 +315,3 @@ $string['notification_remove_course_completed'] = 'Ha finalizado con éxito el b
 $string['notification_remove_category_completed'] = 'Ha finalizado con éxito el borrado de la categoría remota: {$a}';
 $string['view_detail'] = 'Ver detalle:';
 $string['remove_config'] = 'Configuración de Borrado';
-
