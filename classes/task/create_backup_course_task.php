@@ -14,27 +14,41 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * This file defines an adhoc task to create a backup of the curse.
  *
- * @package    mod_forum
- * @copyright  2023 3iPunt <https://www.tresipunt.com/>
+ * @package    local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 
 namespace local_coursetransfer\task;
 
 use async_helper;
-use dml_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\coursetransfer_sites;
 use moodle_exception;
 use stdClass;
 
 /**
- * Create Backup Course Task
+ * create_backup_course_task
+ *
+ * @package    local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class create_backup_course_task extends \core\task\asynchronous_backup_task {
 
@@ -51,15 +65,27 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
     public function execute() {
         global $DB;
 
-        $backupid = $this->get_custom_data()->backupid;
-        $bc = \backup_controller::load_controller($backupid);
+        $started = time();
 
         try {
-            $started = time();
 
             $this->log_start("Course Transfer Backup Starting...");
 
+            $istest = $this->get_custom_data()->istest;
             $backupid = $this->get_custom_data()->backupid;
+            $requestid = $this->get_custom_data()->requestid;
+            $siteid = $this->get_custom_data()->destinysite;
+            $requestoriginid = $this->get_custom_data()->requestoriginid;
+
+            if (!$backupid) {
+                throw new moodle_exception('BACKUP ID NOT FOUND');
+            }
+            if (!$requestoriginid) {
+                throw new moodle_exception('REQUEST ORIGIN ID NOT FOUND');
+            }
+
+            $bc = \backup_controller::load_controller($backupid);
+
             $backuprecord = $DB->get_record('backup_controllers', array('backupid' => $backupid), 'id, controller', MUST_EXIST);
             mtrace('Processing asynchronous backup for backup: ' . $backupid);
 
@@ -93,42 +119,62 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
                 // Retrying isn't going to fix it, so marked operation as failed.
                 $bc->set_status(\backup::STATUS_FINISHED_ERR);
                 mtrace('Bad backup controller status, is: ' . $status . ' should be 700, marking job as failed.');
-
             }
 
             $result = $bc->get_results();
-            $site = $this->get_custom_data()->destinysite;
-            $requestid = $this->get_custom_data()->requestid;
+            $userid = $bc->get_userid();
+            $user = \core_user::get_user($userid);
+            $site = coursetransfer_sites::get('destiny', $siteid);
             $request = new request($site);
 
-            $requestorigin = coursetransfer_request::get($this->get_custom_data()->requestoriginid);
+            $requestorigin = coursetransfer_request::get($requestoriginid);
             if ($bc->get_status() === \backup::STATUS_FINISHED_OK) {
-                $fileurl = coursetransfer::create_backupfile_url($bc->get_courseid(), $result['backup_destination']);
-                if ($requestorigin) {
-                    $requestorigin->fileurl = $fileurl;
-                    coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                mtrace('Course Transfer Backup - Creating File ... ');
+                $resfileurl = coursetransfer::create_backupfile_url(
+                        $bc->get_courseid(), $result['backup_destination'], $requestorigin->id);
+                if ($resfileurl->success) {
+                    mtrace('Course Transfer Backup - Creating File OK');
+                    if ($requestorigin) {
+                        $requestorigin->fileurl = $resfileurl->fileurl;
+                        $requestorigin->origin_backup_url = $resfileurl->fileurl;
+                        $requestorigin->origin_backup_size = $resfileurl->filesize;
+                        coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                    }
+                    if (!$istest) {
+                        $res = $request->destiny_backup_course_completed(
+                                $resfileurl->fileurl, $requestid, $resfileurl->filesize, $user);
+                    }
+                    $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
+                } else {
+                    mtrace('Course Transfer Backup - Creating File ERROR');
+                    if (!$istest) {
+                        $res = $request->destiny_backup_course_error(
+                                $user, $requestid, $resfileurl->error, [], $resfileurl->filesize);
+                    }
                 }
-                $res = $request->destiny_backup_course_completed($fileurl, $requestid);
-                $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
             } else {
-                $res = $request->destiny_backup_course_error($requestid, $result);
+                if (!$istest) {
+                    $res = $request->destiny_backup_course_error($user, $requestid, '', $result);
+                }
             }
-            if (!$res->success) {
-                $requestorigin->status = coursetransfer_request::STATUS_ERROR;
-                $requestorigin->error_code = $res->errors[0]->code;
-                $requestorigin->error_message = $res->errors[0]->msg;
-                coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+            if (!$istest) {
+                if (!$res->success) {
+                    $requestorigin->status = coursetransfer_request::STATUS_ERROR;
+                    $requestorigin->error_code = $res->errors[0]->code;
+                    $requestorigin->error_message = $res->errors[0]->msg;
+                    coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                    mtrace('Course Transfer Backup ERROR: ' . $res->errors[0]->msg);
+                    $this->log(json_encode($res));
+                }
             }
             coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
-            $this->log(json_encode($res));
+            $bc->destroy();
         } catch (moodle_exception $e) {
             mtrace('Course Transfer Backup ERROR: ' . $e->getMessage());
             $this->log($e->getMessage());
         }
-
         $this->log_finish("Course Transfer Backup Finishing...");
 
-        $bc->destroy();
         $duration = time() - $started;
         mtrace('Backup completed in: ' . $duration . ' seconds');
     }

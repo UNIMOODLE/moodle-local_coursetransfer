@@ -13,10 +13,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * @package
- * @author  2022 3iPunt <https://www.tresipunt.com/>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @module     local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /* eslint-disable no-unused-vars */
@@ -85,20 +96,40 @@ define([
             let destinyid = this.destinyid;
             let sessiondata = JSON.parse(sessionStorage.getItem($("[data-course-sessionStorageId]")
                 .attr("data-course-sessionStorageId")));
-            let configuration = [];
+            let configuration = {};
             sessiondata.course.configuration.forEach(function(config) {
                 configuration[config.name] = config.selected;
             });
+
+            let config = {
+                destiny_merge_activities: false,
+                destiny_remove_activities: false,
+                destiny_remove_groups: false,
+                destiny_remove_enrols: false
+            };
+            if (configuration['destiny_merge_activities']) {
+                config.destiny_merge_activities = configuration['destiny_merge_activities'];
+            }
+            if (configuration['destiny_remove_activities']) {
+                config.destiny_remove_activities = configuration['destiny_remove_activities'];
+            }
+            if (configuration['destiny_remove_groups']) {
+                config.destiny_remove_groups = configuration['destiny_remove_groups'];
+            }
+            if (configuration['destiny_remove_enrols']) {
+                config.destiny_remove_enrols = configuration['destiny_remove_enrols'];
+            }
             const request = {
                 methodname: SERVICES.RESTORE_COURSE_STEP5,
                 args: {
                     siteurl: siteurl,
                     courseid: courseid,
                     destinyid: destinyid,
-                    configuration: configuration,
+                    configuration: config,
                     sections: sessiondata.course.sections,
                 }
             };
+            console.log(request);
             Ajax.call([request])[0].done(function(response) {
                 if (response.success) {
                     window.location.href = response.data.nexturl;

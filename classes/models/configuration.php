@@ -1,5 +1,5 @@
 <?php
-// This file is part of the local_amnh plugin for Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,16 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * configuration
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace local_coursetransfer\models;
 
+/**
+ * configuration
+ *
+ * @package    local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 abstract class configuration {
 
     /** @var int Destinity Target: 2: New Course, 3: Remove Content , 4: Merge the backup course into this course */
@@ -38,6 +56,9 @@ abstract class configuration {
     /** @var bool Origin Enrol Users */
     public $originenrolusers;
 
+    /** @var int Next Run Time TimeStamp */
+    public $nextruntime;
+
     /**
      * constructor.
      *
@@ -45,13 +66,15 @@ abstract class configuration {
      * @param bool $destinyremoveenrols
      * @param bool $destinyremovegroups
      * @param bool $originenrolusers
+     * @param int|null $nextruntime
      */
-    public function __construct(
-            int $destinytarget, bool $destinyremoveenrols, bool $destinyremovegroups, bool $originenrolusers) {
+    public function __construct(int $destinytarget, bool $destinyremoveenrols,
+            bool $destinyremovegroups, bool $originenrolusers, int $nextruntime = null) {
         $this->set_destiny_target($destinytarget);
         $this->set_destiny_remove_enrols($destinyremoveenrols);
         $this->set_destiny_remove_groups($destinyremovegroups);
         $this->set_origin_enrol_users($originenrolusers);
+        $this->set_nextruntime($nextruntime);
     }
 
     /**
@@ -88,6 +111,17 @@ abstract class configuration {
      */
     protected function set_origin_enrol_users(bool $config) {
         $this->originenrolusers = $config;
+    }
+
+    /**
+     * Set Next Run Time.
+     *
+     * @param int|null $config
+     */
+    protected function set_nextruntime(int $config = null) {
+        if (!is_null($config)) {
+            $this->nextruntime = $config;
+        }
     }
 
 }

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,11 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * Course Transfer plugin admin settings and defaults
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -66,15 +74,15 @@ if ($hassiteconfig) {
         get_string('setting_destiny_restore_course_max_size_desc', 'local_coursetransfer'),
             500, PARAM_INT));
 
-    $settings->add(new admin_setting_configtextarea('local_coursetransfer/destiny_sites',
-            get_string('setting_destiny_sites', 'local_coursetransfer'),
-            get_string('setting_destiny_sites_desc', 'local_coursetransfer'),
-            '', PARAM_RAW));
+    $settings->add(new admin_setting_configempty('local_coursetransfer/destiny_sites',
+            new lang_string('setting_destiny_sites', 'local_coursetransfer'),
+            html_writer::link(new moodle_url('/local/coursetransfer/destinysites.php'),
+                    new lang_string('setting_destiny_sites_link', 'local_coursetransfer'))));
 
-    $settings->add(new admin_setting_configtextarea('local_coursetransfer/origin_sites',
-        get_string('setting_origin_sites', 'local_coursetransfer'),
-        get_string('setting_origin_sites_desc', 'local_coursetransfer'),
-            '', PARAM_RAW));
+    $settings->add(new admin_setting_configempty('local_coursetransfer/origin_sites',
+            new lang_string('setting_origin_sites', 'local_coursetransfer'),
+            html_writer::link(new moodle_url('/local/coursetransfer/originsites.php'),
+                    new lang_string('setting_origin_sites_link', 'local_coursetransfer'))));
 
     $choices = coursetransfer::FIELDS_USER;
     $options = [];

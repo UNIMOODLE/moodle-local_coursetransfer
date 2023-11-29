@@ -14,22 +14,44 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * This file defines an adhoc task to create a backup of the curse.
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt <https://www.tresipunt.com/>
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 
 namespace local_coursetransfer\task;
 
 use backup;
+use context_system;
+use dml_exception;
+use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_notification;
 use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\coursetransfer_restore;
 use moodle_exception;
 use restore_controller;
 
+/**
+ * restore_course_task
+ *
+ * @package    local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class restore_course_task extends \core\task\adhoc_task {
 
     // Use the logging trait to get some nice, juicy, logging.
@@ -38,42 +60,78 @@ class restore_course_task extends \core\task\adhoc_task {
     /**
      * Execute.
      *
+     * @throws dml_exception
      * @throws moodle_exception
      */
     public function execute() {
 
         $this->log_start("Restore Backup Course Remote Starting...");
 
-        /** @var restore_controller $rc */
-        $rc = $this->get_custom_data()->controller;
-        $request = $this->get_custom_data()->request;
-        $restoreoptions = $this->get_custom_data()->restoreoptions;
-        try {
+        $fileid = $this->get_custom_data()->fileid;
+        $requestid = $this->get_custom_data()->requestid;
+        $fs = get_file_storage();
 
-            foreach ($restoreoptions as $option => $value) {
-                $rc->get_plan()->get_setting($option)->set_value($value);
-            }
+        $request = coursetransfer_request::get($requestid);
+        $file = $fs->get_file_by_id($fileid);
 
-            if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
-                $rc->convert();
-            }
-
-            // Execute restore.
-            $rc->execute_precheck();
-            $rc->execute_plan();
-            $rc->destroy();
-
-            $this->log('Restore Backup Cours Remote Success!');
-
-        } catch (\Exception $e) {
-            $this->log($e->getMessage());
+        if (!$file) {
+            $this->log('Restore in Moodle not working beacuse File not found! :' . $fileid);
             $request->status = coursetransfer_request::STATUS_ERROR;
-            $request->error_code = '200210';
-            $request->error_message = $e->getMessage();
+            $request->error_code = '11100';
+            $request->error_message = 'Restore in Moodle not working beacuse File not found! :' . $fileid;
+            coursetransfer_request::insert_or_update($request, $requestid);
+        } else {
+            coursetransfer_restore::restore_course($request, $file);
+
+            $this->log('Restore in Moodle Success!');
+            $request->status = coursetransfer_request::STATUS_COMPLETED;
             coursetransfer_request::insert_or_update($request, $request->id);
+
+            $site = coursetransfer::get_site_by_url($request->siteurl);
+
+            // Category Request logical.
+            if (!is_null($request->request_category_id)) {
+                $reqcat = coursetransfer_request::update_status_request_cat($request->request_category_id);
+                $this->log('Update Status Category Request');
+                $remcaterrormsg = null;
+                if ($reqcat->status === coursetransfer_request::STATUS_COMPLETED) {
+                    coursetransfer_notification::send_restore_category_completed($request->userid, $request->origin_category_id);
+                    if ($reqcat->origin_remove_category) {
+                        $this->log('Origin Category Removing...');
+                        if (has_capability('local/coursetransfer:origin_remove_category', context_system::instance())) {
+                            try {
+                                coursetransfer::remove_category($site, $request->origin_category_id);
+                            } catch (moodle_exception $e) {
+                                $remcaterrormsg = 'Origin Category Removed not working. Error: ' . $e->getMessage();
+                                $this->log($remcaterrormsg);
+                            }
+                        } else {
+                            $remcaterrormsg = 'You dont have permission for remove category';
+                            $this->log($remcaterrormsg);
+                        }
+                    }
+                }
+            } else {
+                coursetransfer_notification::send_restore_course_completed($request->userid, $request->destiny_course_id);
+            }
+
+            // Remove origen course logical.
+            if ($request->origin_remove_course && !$request->origin_remove_category) {
+                $this->log('Origin Course Removing...');
+                $remcouerrormsg = null;
+                if (has_capability('local/coursetransfer:origin_remove_course', context_system::instance())) {
+                    try {
+                        coursetransfer::remove_course($site, $request->origin_course_id);
+                    } catch (moodle_exception $e) {
+                        $remcouerrormsg = 'Origin Course Removed not working. Error: ' . $e->getMessage();
+                        $this->log($remcouerrormsg);
+                    }
+                } else {
+                    $remcaterrormsg = 'You dont have permission for remove course';
+                    $this->log($remcaterrormsg);
+                }
+            }
+            $this->log_finish("Restore Backup Course Remote Finishing...");
         }
-
-        $this->log_finish("Restore Backup Cours Remote Finishing...");
-
     }
 }

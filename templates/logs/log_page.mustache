@@ -1,0 +1,325 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/logs/log_page
+
+  Example context (json):
+
+}}
+<div class="local_coursetransfer" data-region="log_page">
+
+    <a href="{{ back }}" class="btn btn-outline-primary mb-5">Volver a logs</a>
+
+    <form>
+        <h4>{{# str }} log_page_general_data, local_coursetransfer {{/ str }}</h4>
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <label for="siteurl">{{# str }} log_page_url, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="siteurl" value="{{ siteurl }}" disabled>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="userid">{{# str }} log_page_user, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="userid" value="{{ username }}" disabled>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="status">{{# str }} log_page_status, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="status" value="{{ status }}" disabled>
+            </div>
+            <div class="form-group col-md-4">
+                <label for="timemodified">{{# str }} log_page_exec_date, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="timemodified" value="{{ timemodified }}" disabled>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="destiny_target">{{# str }} log_page_destiny_target, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="destiny_target" value="{{ destiny_target }}" disabled>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="type">{{# str }} log_page_petition_type, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="type" value="{{ type }}" disabled>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="direction">{{# str }} log_page_direction, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="direction" value="{{ direction }}" disabled>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="destiny_request_id">{{# str }} log_page_destiny_request, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="destiny_request_id" value="{{ destiny_request_id }}" disabled>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="request_category_id">{{# str }} log_page_request_category, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="request_category_id" value="{{ request_category_id }}" disabled>
+            </div>
+        </div>
+        <h4 class="mt-4">{{# str }} log_page_destiny_data, local_coursetransfer {{/ str }}</h4>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="destiny_course_id">{{# str }} log_page_course_id, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="destiny_course_id" value="{{ destiny_course_id }}" disabled>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="destiny_category_id">{{# str }} log_page_category_id, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="destiny_category_id" value="{{ destiny_category_id }}" disabled>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="destiny_remove_enrols">{{# str }} log_page_remove_enrols, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="destiny_remove_enrols" value="{{ destiny_remove_enrols }}" disabled>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="destiny_remove_groups">{{# str }} log_page_remove_groups, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="destiny_remove_groups" value="{{ destiny_remove_groups }}" disabled>
+            </div>
+        </div>
+        <h4 class="mt-4">{{# str }} log_page_origin_course_data, local_coursetransfer {{/ str }}</h4>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="origin_course_id">{{# str }} log_page_course_id, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_course_id" value="{{ origin_course_id }}" disabled>
+            </div>
+            <div class="form-group col-md-8">
+                <label for="origin_course_fullname">{{# str }} log_page_course_fullname, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_course_fullname" value="{{ origin_course_fullname }}" disabled>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="origin_course_shortname">{{# str }} log_page_course_shortname, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_course_shortname" value="{{ origin_course_shortname }}" disabled>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="origin_course_idnumber">{{# str }} log_page_course_idnumber, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_course_idnumber" value="{{ origin_course_idnumber }}" disabled>
+            </div>
+        </div>
+        <h4 class="mt-4">{{# str }} log_page_origin_category_data, local_coursetransfer {{/ str }}</h4>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="origin_category_id">{{# str }} log_page_category_id, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_category_id" value="{{ origin_category_id }}" disabled>
+            </div>
+            <div class="form-group col-md-9">
+                <label for="origin_category_name">{{# str }} log_page_category_name, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_category_name" value="{{ origin_category_name }}" disabled>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="origin_category_idnumber">{{# str }} log_page_category_idnumber, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_category_idnumber" value="{{ origin_category_idnumber }}" disabled>
+            </div>
+            <div class="form-group col-md-9">
+                <label for="origin_category_requests">{{# str }} log_page_category_requests, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_category_requests" value="{{ origin_category_requests }}" disabled>
+            </div>
+        </div>
+        <h4 class="mt-4">{{# str }} log_page_config, local_coursetransfer {{/ str }}</h4>
+        <div class="form-row">
+            <div class="form-group col-md-2">
+                <label for="origin_enrolusers">{{# str }} log_page_user_data, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_enrolusers" value="{{ origin_enrolusers }}" disabled>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="origin_remove_course">{{# str }} log_page_remove_course, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_remove_course" value="{{ origin_remove_course }}" disabled>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="origin_remove_category">{{# str }} log_page_remove_category, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_remove_category" value="{{ origin_remove_category }}" disabled>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="origin_schedule_datetime">{{# str }} log_page_remove_exec_time, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_schedule_datetime" value="{{ origin_schedule_datetime }}" disabled>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <label for="origin_activities">{{# str }} log_page_origin_activities, local_coursetransfer {{/ str }}</label>
+                    <div class="activities" disabled>
+                        {{#origin_activities}}
+                            <div id="section-{{sectionid}}" class="section-row" data-section-sectionname="{{sectionname}}"
+                             data-section-sectionid="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
+                            <div class="section-info">
+                                <div class="checkbox">
+                            {{# selected }}
+                                <i class="fa fa-check-circle-o text-success" aria-hidden="true"></i>
+                            {{/ selected }}
+                            {{^ selected }}
+                                <i class="fa fa-circle-o text-muted" aria-hidden="true"></i>
+                            {{/ selected }}
+                            </div>
+                                <div class="section-data {{^ selected }}unselected{{/ selected }}">{{sectionname}}</div>
+                                <div class="section-data {{^ selected }}unselected{{/ selected }}">{{sectionid}}</div>
+                                <div class="section-data {{^ selected }}unselected{{/ selected }}">{{sectionnum}}</div>
+                            </div>
+                            {{#hasactivities}}
+                                <div class="center-div">
+                                    <div class="activities-table">
+                                        <div class="activities-table-header">
+                                            <div class="checkbox"></div>
+                                            <div class="activities-data">{{#str}} activities_table_name, local_coursetransfer {{/str}}</div>
+                                            <div class="activities-data">{{#str}} activities_table_type, local_coursetransfer {{/str}}</div>
+                                        </div>
+                                {{#activities}}
+                                    <div id="activity-{{cmid}}" class="activities-row" data-activity-cmid="{{cmid}}" data-activity-name="{{name}}" data-activity-modname="{{modname}}" data-activity-instance="{{instance}}">
+                                                <div class="checkbox" >
+                                    {{# selected }}
+                                        <i class="fa fa-check-circle-o text-success" aria-hidden="true"></i>
+                                    {{/ selected }}
+                                    {{^ selected }}
+                                        <i class="fa fa-circle-o text-muted" aria-hidden="true"></i>
+                                    {{/ selected }}
+                                    </div>
+                                                <div class="activities-data {{^ selected }}unselected{{/ selected }}">{{name}}</div>
+                                                <div class="activities-data {{^ selected }}unselected{{/ selected }}">{{modname}}</div>
+                                            </div>
+                                {{/activities}}
+                                </div>
+                                </div>
+                            {{/hasactivities}}
+                            </div>
+                        {{/origin_activities}}
+                    </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="origin_backup_size">{{# str }} log_page_origin_backup_size, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_backup_size" value="{{ origin_backup_size }}" disabled>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="origin_backup_size">{{# str }} log_page_origin_backup_size_estimated, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_backup_size" value="{{ origin_backup_size_estimated }}" disabled>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="origin_backup_url">{{# str }} log_page_origin_backup_url, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="origin_backup_url" value="{{ origin_backup_url }}" disabled>
+            </div>
+            <div class="form-group col-md-12">
+                <label for="fileurl">{{# str }} log_page_fileurl, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="fileurl" value="{{ fileurl }}" disabled>
+            </div>
+        </div>
+        <h4 class="mt-4">{{# str }} log_page_error, local_coursetransfer {{/ str }}</h4>
+        <div class="form-row">
+            <div class="form-group col-md-2">
+                <label for="error_code">{{# str }} log_page_error_code, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="error_code" value="{{ error_code }}" disabled>
+            </div>
+            <div class="form-group col-md-10">
+                <label for="error_message">{{# str }} log_page_error_msg, local_coursetransfer {{/ str }}</label>
+                <input type="text" class="form-control" id="error_message" value="{{ error_message }}" disabled>
+            </div>
+        </div>
+    </form>
+
+</div>
+<style>
+    [data-region="log_page"] input, [data-region="log_page"] textarea {
+        background-color: white;
+        border: 1px solid #e7e7e7;
+    }
+    [data-region="log_page"] .form-control:disabled, .form-control[readonly] {
+        background-color: #f7f7f7;
+        opacity: 1;
+    }
+    div[data-region='log_page'] div.activities {
+        background-color: #F7F7F7;
+        border-radius: 0.5rem;
+        border: 1px solid #e7e7e7;
+        padding: 0.375rem 0.75rem;
+        padding-bottom: 1.5rem;
+    }
+    div[data-region='log_page'] div.section-info {
+        display: flex;
+        border-bottom: 1px solid #D7D8E2;
+        padding: 10px;
+        font-size: 14px;
+        font-weight: 400;
+    }
+    div[data-region='log_page'] div.section-row {
+        display: flex;
+        flex-direction: column;
+    }
+    div[data-region='log_page'] div.activities-table {
+        width: 90%;
+    }
+    div[data-region='log_page'] div.center-div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+    div[data-region='log_page'] div.activities-table-header {
+        display: flex;
+        border-bottom: 2px solid #9396AA;
+        padding: 5px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    div[data-region='log_page'] div.activities-data {
+        width: 45%;
+    }
+    div[data-region='log_page'] div.activities-data.unselected {
+        opacity: 0.4;
+    }
+    div[data-region='log_page'] div.checkbox {
+        width: 10%;
+    }
+    div[data-region='log_page'] div.activities-row {
+        display: flex;
+        border-bottom: 1px solid #D7D8E2;
+        padding: 5px;
+        font-size: 13px;
+        font-weight: 400;
+    }
+    div[data-region='log_page'] .selected {
+        background-color: #F7F9FC;
+    }
+    div[data-region='log_page'] div.checkbox {
+        width: 10%;
+    }
+    div[data-region='log_page'] div.section-data {
+        width: 30%;
+    }
+    div[data-region='log_page'] div.section-data.unselected {
+        opacity: 0.4;
+    }
+    div[data-region='log_page'] .checkbox i.fa {
+        font-size: 20px;
+        padding-top: 3px;
+    }
+    div[data-region='log_page'] .checkbox i.fa.text-success {
+        color: #21c235 !important;
+    }
+
+    #page-local-coursetransfer-logs div#topofscroll {
+        max-width: 1200px !important;
+    }
+
+</style>
+
+
+
+
