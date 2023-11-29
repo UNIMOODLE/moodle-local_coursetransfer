@@ -1,0 +1,57 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/index_page
+
+  Example context (json):
+
+}}
+<div class="local_coursetransfer" data-region="index">
+    <div class="card text-center">
+        <div class="card-header">
+            <img src="https://tresipunt.com/wp-content/uploads/2020/04/logo3ipunt.png" alt="3iPunt" height="200">
+        </div>
+        <div class="card-body text-left">
+            {{# error }}
+            <div class="alert alert-danger" role="alert">
+                {{ message }} . {{# str }} click_refresh, local_coursetransfer {{/ str }}
+            </div>
+            {{/ error }}
+            <h4 class="card-title font-weight-bold">{{# str }} index_title, local_coursetransfer {{/ str }}</h4>
+            <hr>
+            <h6 class="section-title">{{# str }} user_ws, local_coursetransfer {{/ str }}</h6>
+            <p><span class="label">{{# str }} token_user_ws, local_coursetransfer {{/ str }}:</span> <span class="value"> {{# token }}<code>{{ token }}</code>{{/ token }}</span></p>
+            <hr>
+            <a href="{{ url_config }}" class="btn btn-primary" target="_blank">{{# str }} config, local_coursetransfer {{/ str }}</a>
+            <a href="{{ url_postinstall }}" class="btn btn-outline-primary ml-2">{{# str }} refresh, local_coursetransfer {{/ str }}</a>
+        </div>
+        <div class="card-footer text-muted">
+            © {{ year }} • <strong>3iPUNT</strong> SOLUCIONS INFORMÀTIQUES, S.L. • <a href="mailto:moodle@tresipunt.com">moodle@tresipunt.com</a> • <a target="_blank" href="https://www.tresipunt.com">tresipunt.com</a>
+        </div>
+    </div>
+</div>
+
+
+
+

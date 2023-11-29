@@ -1,0 +1,52 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/components/section
+
+  Example context (json):
+
+}}
+    <div id="section-{{sectionid}}" class="section-row" data-section-sectionname="{{sectionname}}"
+         data-section-sectionid="{{sectionid}}" data-section-sectionnum="{{sectionnum}}">
+        <div class="section-info">
+            <div class="ckeckbox"><input type="checkbox" data-action="check"></div>
+            <div class="section-data">{{sectionname}}</div>
+            <div class="section-data">{{sectionid}}</div>
+            <div class="section-data">{{sectionnum}}</div>
+        </div>
+        {{#hasactivities}}
+            <div class="center-div">
+                <div class="activities-table">
+                    <div class="activities-table-header">
+                        <div class="ckeckbox"></div>
+                        <div class="activities-data">{{#str}} activities_table_name, local_coursetransfer {{/str}}</div>
+                        <div class="activities-data">{{#str}} activities_table_type, local_coursetransfer {{/str}}</div>
+                    </div>
+                    {{#activities}}
+                        {{> local_coursetransfer/components/activity }}
+                    {{/activities}}
+                </div>
+            </div>
+        {{/hasactivities}}
+    </div>
