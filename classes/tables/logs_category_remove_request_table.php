@@ -14,11 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * Class logs_course_request_table
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -39,10 +48,12 @@ defined('MOODLE_INTERNAL') || die;
 require_once('../../lib/tablelib.php');
 
 /**
- * Class logs_category_remove_request_table
+ * logs_category_remove_request_table
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class logs_category_remove_request_table extends table_sql {
@@ -61,7 +72,7 @@ class logs_category_remove_request_table extends table_sql {
         $this->define_columns([
                 'id',
                 'siteurl',
-                'origin_course_id',
+                'origin_category_id',
                 'status',
                 'userid',
                 'timemodified',
@@ -72,7 +83,7 @@ class logs_category_remove_request_table extends table_sql {
         $this->define_headers([
                 get_string('request_id', 'local_coursetransfer'),
                 get_string('siteurl', 'local_coursetransfer'),
-                get_string('origin_course_id', 'local_coursetransfer'),
+                get_string('origin_category_id', 'local_coursetransfer'),
                 get_string('status', 'local_coursetransfer'),
                 get_string('userid', 'local_coursetransfer'),
                 get_string('timemodified', 'local_coursetransfer'),
@@ -113,9 +124,9 @@ class logs_category_remove_request_table extends table_sql {
      * @return string
      * @throws moodle_exception
      */
-    public function col_origin_course_id(stdClass $row): string {
-        $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->origin_course_id]);
-        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_course_id . '</a>';
+    public function col_origin_category_id(stdClass $row): string {
+        $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->origin_category_id]);
+        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->origin_category_id . '</a>';
     }
 
     /**

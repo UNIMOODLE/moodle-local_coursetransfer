@@ -14,14 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * This file defines an adhoc task to create a backup of the curse.
  *
- * @package    mod_forum
- * @copyright  2023 3iPunt <https://www.tresipunt.com/>
+ * @package    local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 
 namespace local_coursetransfer\task;
 
@@ -29,10 +37,17 @@ use context_course;
 use dml_exception;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\coursetransfer_restore;
 use moodle_exception;
 
 /**
- * Create Backup Course Task
+ * download_file_course_task
+ *
+ * @package    local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class download_file_course_task extends \core\task\adhoc_task {
 
@@ -49,15 +64,15 @@ class download_file_course_task extends \core\task\adhoc_task {
 
         $this->log_start("Download File Backup Course Remote and Restore Starting...");
         $fileurle = $this->get_custom_data()->fileurl;
-        $request = $this->get_custom_data()->request;
+        $requestid = $this->get_custom_data()->requestid;
+        $request = coursetransfer_request::get($requestid);
 
         try {
 
+            $fs = get_file_storage();
             $filecontent = file_get_contents($fileurle);
 
             $this->log('Backup File Dowload Success!');
-
-            $fs = get_file_storage();
 
             $context = context_course::instance($request->destiny_course_id);
             $filename = 'local_coursetransfer_' . $request->origin_course_id . '_' . time() . '.mbz';
@@ -77,21 +92,12 @@ class download_file_course_task extends \core\task\adhoc_task {
             $request->status = coursetransfer_request::STATUS_DOWNLOADED;
             coursetransfer_request::insert_or_update($request, $request->id);
 
-            coursetransfer::create_task_restore_course($request, $file);
-
-            $this->log('Restore in Moodle Success!');
-            $request->status = coursetransfer_request::STATUS_COMPLETED;
-            coursetransfer_request::insert_or_update($request, $request->id);
-
-            if (!is_null($request->request_category_id)) {
-                $this->log('** Course of Category Request **');
-                coursetransfer_request::update_status_request_cat($request->request_category_id);
-            }
+            coursetransfer_restore::create_task_restore_course($request, $file);
 
         } catch (\Exception $e) {
             $this->log($e->getMessage());
             $request->status = coursetransfer_request::STATUS_ERROR;
-            $request->error_code = '200200';
+            $request->error_code = '13000';
             $request->error_message = $e->getMessage();
             coursetransfer_request::insert_or_update($request, $request->id);
         }

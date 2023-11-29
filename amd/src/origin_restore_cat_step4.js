@@ -13,10 +13,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * @package
- * @author  2022 3iPunt <https://www.tresipunt.com/>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @module     local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /* eslint-disable no-unused-vars */
@@ -63,8 +74,26 @@ define([
                 if (this.data.configuration) {
                     this.data.configuration.forEach(function(config) {
                         let item = $('#' + config.name);
-                        item.prop('checked', config.selected);
-                        item.prop('disabled', true);
+                        if (config.name === 'origin_schedule_datetime') {
+                            item.val(config.value);
+                        } else {
+                            item.prop('disabled', true);
+                            item.prop('checked', config.selected);
+                        }
+                    });
+                    this.data.configuration.forEach(function(config) {
+                        if (config.name === 'origin_schedule') {
+                            if (!config.selected) {
+                                $('#origin_schedule_datetime').val(null);
+                            }
+                        }
+                    });
+                    this.data.configuration.forEach(function(config) {
+                        if (config.name === 'origin_schedule_datetime') {
+                            if (!config.value) {
+                                $('#origin_schedule').prop('checked', false);
+                            }
+                        }
                     });
                 }
                 this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
@@ -76,20 +105,37 @@ define([
 
             let configuration = [];
             this.data.configuration.forEach(function(config) {
-                configuration[config.name] = config.selected;
+                if (config.name === 'origin_schedule_datetime') {
+                    configuration[config.name] = config.value;
+                } else {
+                    configuration[config.name] = config.selected;
+                }
             });
             let alertbox = this.node.find(".alert");
+            let config = {
+                origin_enrol_users: false,
+                origin_remove_category: false,
+                origin_schedule_datetime: 0
+            };
+            if (configuration['origin_enrol_users']) {
+                config.origin_enrol_users = configuration['origin_enrol_users'];
+            }
+            if (configuration['origin_remove_category']) {
+                config.origin_remove_category = configuration['origin_remove_category'];
+            }
+            if (configuration['origin_schedule']) {
+                config.origin_schedule_datetime = new Date(configuration['origin_schedule_datetime']).getTime();
+            }
             const request = {
                 methodname: SERVICES.ORIGIN_RESTORE_STEP4,
                 args: {
                     siteurl: this.site,
                     catid: this.data.catid,
                     destinyid: this.data.destinyid,
-                    configuration: {
-                        origin_enrolusers: configuration['origin_enrolusers']
-                    },
+                    configuration: config,
                 }
             };
+
             let that = this;
             Ajax.call([request])[0].done(function(response) {
                 if (response.success) {

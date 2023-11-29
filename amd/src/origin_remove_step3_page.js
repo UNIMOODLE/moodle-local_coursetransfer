@@ -13,10 +13,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * @package
- * @author  2022 3iPunt <https://www.tresipunt.com/>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @module     local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /* eslint-disable no-unused-vars */
@@ -67,16 +78,28 @@ define([
             this.renderErrors(errors, alertbox);
             this.node.find(ACTIONS.RESTORE).prop('disabled', true);
         }
+        this.node.find('#origin_schedule').on('click', this.clickSchedule.bind(this));
     }
 
     originRemoveStep3.prototype.clickNext = function(e) {
         this.node.find(ACTIONS.RESTORE).prop('disabled', true);
         let alertbox = this.node.find(".alert");
+        let nextruntime = $('#origin_schedule_datetime').val();
+        if ($('#origin_schedule').prop('checked')) {
+            if (nextruntime === '') {
+                nextruntime  = 0;
+            } else {
+                nextruntime  = new Date(nextruntime).getTime();
+            }
+        } else {
+            nextruntime  = 0;
+        }
         const request = {
             methodname: SERVICES.ORIGIN_REMOVE_STEP3,
             args: {
                 siteurl: parseInt(this.site),
                 courses: this.data.courses,
+                nextruntime: nextruntime
             }
         };
         let that = this;
@@ -109,6 +132,14 @@ define([
             errorString += 'Error (' + error.code + '): ' + error.msg + '<br>';
         });
         alertbox.append(errorString);
+    };
+
+    originRemoveStep3.prototype.clickSchedule = function(e) {
+        if (this.node.find('#origin_schedule').is(':checked')) {
+            this.node.find('#origin_schedule_datetime').attr('disabled', false);
+        } else {
+            this.node.find('#origin_schedule_datetime').attr('disabled', true);
+        }
     };
 
     originRemoveStep3.prototype.node = null;

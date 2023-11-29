@@ -14,13 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * CLI script
+ * Cli Script
  *
- *
- * @package     local_coursetransfer
- * @copyright   2023 Tresipunt
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use local_coursetransfer\coursetransfer;
@@ -32,7 +41,7 @@ require(__DIR__.'/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 
-$usage = 'CLI para ver los logs de una petición.
+$usage = 'CLI to view the logs of a request.
 
 Usage:
     # php view_log_request.php
@@ -138,7 +147,7 @@ try {
     exit(0);
 
 } catch (moodle_exception $e) {
-    cli_writeln('300600: ' . $e->getMessage());
+    cli_writeln('40009: ' . $e->getMessage());
     exit(1);
 }
 

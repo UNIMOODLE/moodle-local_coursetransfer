@@ -6,7 +6,8 @@ Plugin local para la transferencia de cursos entre plataformas
 
 This plugin version is tested for:
 
-* Moodle 4.1.1 (Build: 20230116)) - 2022112801.00
+* Moodle 4.1.1 (Build: 20230116) - 2022112801.00
+* Moodle 3.11.17+ (Build: 20231124) - 2021051717.06
 
 ## Requeriments
 
@@ -48,33 +49,23 @@ Go to the URL:
 
 *   Tamaño máximo del curso a restaurar
     * local_coursetransfer | destiny_restore_course_max_size
-    * Límite en el tamaño de la copia de seguridad (archivo MBZ) del curso origen a restaurar en MB.
+    * Límite en el tamaño de la copia de seguridad (archivo MBZ) del curso origen a restaurar en MB. Si el archivo a restaurar es más grande, habrá un error al realizar el paso de la descarga, reflejando el error en la tabla de restauración correspondiente.
 
 *  Sitios destino
    * local_coursetransfer | destiny_sites
-   * Listado de sitios destino, a los que se les podrá responder para copias de seguridad o borrado de los cursos. En la misma línea, host y token separados por punto y coma. Sitios separados por salto de línea.
+   * Listado de sitios destino, a los que se les podrá responder para copias de seguridad o borrado de los cursos. Hay que hacer clic para ir a la gestión de sitios de destino:
 
-   * Ejemplo:
-    
-    
-    http://dominio.test;5e1bc573434396d2c3267eab3a5fe942
-    http://dominio2.test;5e1bc523412sdfasf3243eab3a5fe942
-    http://dominio3.test;5e1bc523412sdfasf3243eab3a5fe942
 
 *  Sitios origen
     * local_coursetransfer | origin_sites
-    * Listado de sitios origen, a los que se les podrá pedir copias de seguridad o borrado de los cursos. En la misma línea, host y token separados por punto y coma. Sitios separados por salto de línea.
-    * Ejemplo:
-
-
-    http://dominio.test;5e1bc573434396d2c3267eab3a5fe942
-    http://dominio2.test;5e1bc523412sdfasf3243eab3a5fe942
-    http://dominio3.test;5e1bc523412sdfasf3243eab3a5fe942
+    * Listado de sitios origen, a los que se les podrá pedir copias de seguridad o borrado de los cursos. . Hay que hacer clic para ir a la gestión de sitios de destino.
 
 
 * Campo usuario origen
     * local_coursetransfer | origin_field_search_user
-    * Campo a utilizar para la búsqueda de un usuario en el sitio de origen respecto al sitio de destino: username, email, userid
+    * Campo a utilizar para la búsqueda de un usuario en el sitio de origen respecto al sitio de destino: username, email, userid, idnumber.
+    
+     *Será la forma de autenticar un usuario en las plataformas de origen y destino. Ejemplo: Si seleccionamos username, un usuario podrá visualizar, restaurar y borrar, según sus permisos, los cursos asociados en la otra plataforma al usuarios con el mismo username.*
 
 ## Configurar servicio automático
 Después de la instalación, se ejecutará el archivo:
@@ -85,7 +76,8 @@ En ese archivo estarán automatizados los siguientes procesos:
 1. Creación del rol local_coursetransfer_ws desde el arquetipo coursecreator
 2. Asignación de capabilities para el funcionamiento del plugin
 3. Creación de un usuario con el rol anterior y username: local_coursetransfer_ws
-4. Creación del token para el servicio web del componente local_coursetransfer y con el usuario anterior.
+4. Activación de los servicios webs en la plataforma, el protocolo REST y la documentación de servicios webs.
+5. Creación del token para el servicio web del componente local_coursetransfer y con el usuario anterior.
 
 Además, si en cualquier momento se desconfigura algo o se borra algún rol o usuario, se podrá ejecutar el botón de ‘Refrescar’ (ejecuta el archivo postinstall.php y redirige al mismo sitio) para revisar y arreglar cualquier cambio en la configuración de la plataforma: 
 
@@ -122,6 +114,15 @@ También podemos realizar la configuración manual de la siguiente forma:
    
 9. Creamos un token asignando el servicio de local_coursetransfer al usuario que hemos creado anteriormente.
 10. Este token es el que tenemos que utilizar en los otros Moodle para conectarse.
+
+## Resumen
+
+En esta misma página podremos ver el token del servicio y un enlace a la configuración del plugin.
+
+    /local/coursetransfer/index.php 
+
+Además, si en cualquier momento se desconfigura algo o se borra algún rol o usuario, se podrá ejecutar el botón de ‘Refrescar’ (ejecuta el archivo postinstall.php y redirige al mismo sitio) para revisar y arreglar cualquier cambio en la configuración de la plataforma.
+
 
 ## Accesos directos desde el panel de administración
 
@@ -170,3 +171,63 @@ Todos los scripts disponen de ayuda utilizando el argumento help:
 * RCEP6 - Plugin Moodle para el administrador que permita el borrado de cursos optimizando el rendimiento. La eliminación de cursos en entornos
 * RCEP7 - LOG del estado de restauración y eliminado
 * RCEP8 - Tarea scheduled o ad-hoc
+
+## Tareas en diferido
+El administrador puede seleccionar, tanto por consola, como por interfaz gráfica, si la tarea se ejecutará lo antes posible, o en una fecha determinada.
+Para ello, en siguientes funcionalidades:
+
+* Restauración de curso
+* Restauración de categoría
+* Borrado de curso remoto
+* Borrado de categoría remota
+
+Aparecerá una configuración para poder seleccionar, si la tarea se ejecutará de forma diferida.
+
+En el momento de hacer clic en esa configuración, el usuario podrá seleccionar la fecha en la que comenzará la ejecución en la plataforma de origen.
+
+De esta forma, el cron solo ejecutará esa tarea cuando la fecha de ejecución se haya sobrepasado.
+
+## Notificaciones
+Cuando se ejecuta una funcionalidad, se utilizan tareas adhoc asíncronas que se ejecutan mediante el cron de Moodle.
+Por este motivo, se ha añadido la funcionalidad de aviso por notificación en las siguientes ejecuciones:
+* Restauración de curso
+* Restauración de categoría
+* Borrado de curso remoto
+* Borrado de categoría remota
+El plugin trae una configuración por defecto, pero esta configuración, se puede modificar por el administrador o por el usuario:
+
+   ``/message/notificationpreferences.php``
+
+Si se selecciona web, la notificación será mediante la aplicación web.
+
+Y si selecciona Email, el usuario recibirá un email cuando la funcionalidad se complete.
+
+El administrador podrá desactivar, en cualquier caso, estas notificaciones para todos los usuarios: ```/admin/message.php```
+
+## Tablas de Base de datos
+
+* local_coursetransfer_request
+  
+  Contiene la información de las peticiones entre plataformas.
+
+* local_coursetransfer_origin
+  
+  Contiene la información de los sitios de origen configurados.
+
+* local_coursetransfer_destiny 
+  
+    Contiene la información de los sitios de destino configurados.
+
+## Tests Unitarios
+Para ejecutar los test unitarios en Moodle hay que realizar los siguientes pasos utilizando la documentación oficial https://moodledev.io/general/development/tools/phpunit:
+
+1. Instalar PHP Unit con Composer
+2. Configurar el archivo config.php según documentación
+3. Inicializar el entorno de pruebas con:
+
+   ``php admin\tool\phpunit\cli\init.php``
+
+
+4. Ejecutar el grupo de test de Course Transfer:
+
+    ``vendor\bin\phpunit --filter local_coursetransfer``

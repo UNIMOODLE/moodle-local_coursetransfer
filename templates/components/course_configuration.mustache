@@ -13,7 +13,14 @@
 
     You should have received a copy of the GNU General Public License
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-  }}
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
 {{!
   @template local_coursetransfer/components/stepbystep
 
@@ -21,8 +28,10 @@
 
 }}
 <div data-region="restore_course_config">
+    {{#restore_this_course }}
     <h5>{{#str}} restoretocurrentcourse, backup {{/str}}</h5>
     <ul class="configuration-list">
+        {{#can_destiny_restore_merge }}
         <li class="configuration-group">
             <div class="checkbox">
                 <input class="configuration-checkbox" id="destiny_merge_activities" name="restore_into" type="radio" checked>
@@ -32,6 +41,8 @@
                 <div class="config-desc">{{#str}} config_destiny_merge_activities_desc, local_coursetransfer {{/str}}</div>
             </div>
         </li>
+        {{/can_destiny_restore_merge }}
+        {{#can_destiny_restore_content_remove }}
         <li class="configuration-group">
             <div class="checkbox">
                 <input class="configuration-checkbox" id="destiny_remove_activities" name="restore_into" type="radio">
@@ -41,9 +52,13 @@
                 <div class="config-desc">{{#str}} config_destiny_remove_activities_desc, local_coursetransfer {{/str}}</div>
             </div>
         </li>
+        {{/can_destiny_restore_content_remove }}
     </ul>
+    {{/restore_this_course }}
+    {{#remove_in_destination }}
     <h5>{{#str}} deleteindestiny, local_coursetransfer {{/str}}</h5>
     <ul class="configuration-list">
+        {{#can_destiny_restore_groups_remove }}
         <li class="configuration-group">
             <div class="checkbox">
                 <input class="configuration-checkbox" id="destiny_remove_groups" type="checkbox">
@@ -53,7 +68,8 @@
                 <div class="config-desc">{{#str}} config_destiny_remove_groups_desc, local_coursetransfer {{/str}}</div>
             </div>
         </li>
-
+        {{/can_destiny_restore_groups_remove }}
+        {{#can_destiny_restore_enrol_remove }}
         <li class="configuration-group">
             <div class="checkbox">
                 <input class="configuration-checkbox" id="destiny_remove_enrols" type="checkbox">
@@ -63,10 +79,13 @@
                 <div class="config-desc">{{#str}} config_destiny_remove_enrols_desc, local_coursetransfer {{/str}}</div>
             </div>
         </li>
+        {{/can_destiny_restore_enrol_remove }}
     </ul>
-    {{#has_origin_user_data }}
+    {{/remove_in_destination }}
+    {{#origin_course_configuration }}
     <h5>{{#str}} restore_origin_data, local_coursetransfer {{/str}}</h5>
     <ul class="configuration-list">
+        {{#has_origin_user_data }}
         <li class="configuration-group">
             <div class="checkbox">
                 <input class="configuration-checkbox" id="origin_enrol_users" type="checkbox">
@@ -76,8 +95,39 @@
                 <div class="config-desc">{{#str}} restore_origin_user_data_desc, local_coursetransfer {{/str}}</div>
             </div>
         </li>
+        {{/has_origin_user_data }}
+        {{#can_remove_origin_course }}
+        <li class="configuration-group">
+            <div class="checkbox">
+                <input class="configuration-checkbox" id="origin_remove_course" type="checkbox">
+            </div>
+            <div class="config-info">
+                <div class="config-title"><i class="fa fa-exclamation-triangle mr-2" aria-hidden="true" style="color: orange"></i>{{#str}} restore_origin_remove, local_coursetransfer {{/str}}</div>
+                <div class="config-desc">{{#str}} restore_origin_remove_desc, local_coursetransfer {{/str}}</div>
+            </div>
+        </li>
+        {{/can_remove_origin_course }}
+        {{#has_scheduled_time }}
+        <li class="configuration-group">
+            <div class="checkbox">
+                <input class="configuration-checkbox" id="origin_schedule" type="checkbox">
+            </div>
+            <div class="config-info">
+                <div class="config-title">{{#str}} origin_schedule, local_coursetransfer {{/str}}</div>
+                <div class="config-desc">{{#str}} origin_schedule_desc, local_coursetransfer {{/str}}</div>
+            </div>
+        </li>
+        <li class="configuration-group ml-6">
+            <div class="config-info">
+                <div class="config-title">{{#str}} origin_schedule_datetime, local_coursetransfer {{/str}}</div>
+            </div>
+            <div class="checkbox">
+                <input class="configuration-checkbox" id="origin_schedule_datetime" type="datetime-local" disabled>
+            </div>
+        </li>
+        {{/has_scheduled_time }}
     </ul>
-    {{/has_origin_user_data }}
+     {{/origin_course_configuration }}
 </div>
 <style>
     div[data-region='restore_course_config']{

@@ -14,11 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
- * Local Course Transfer
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -37,7 +46,9 @@ use templatable;
  * sites_page
  *
  * @package    local_coursetransfer
- * @copyright  2023 3iPunt {@link https://tresipunt.com/}
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sites_page implements renderable, templatable {
@@ -66,6 +77,8 @@ class sites_page implements renderable, templatable {
         $data->table = $this->get_table();
         $back = new moodle_url('/admin/settings.php', ['section' => 'local_coursetransfer']);
         $data->back = $back->out(false);
+        $summary = new moodle_url('/local/coursetransfer/index.php');
+        $data->summary = $summary->out(false);
         $data->type = $this->type;
         $data->desc = get_string('setting_' . $this->type . '_sites_desc', 'local_coursetransfer');
         return $data;
