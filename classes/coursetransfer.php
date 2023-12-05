@@ -414,6 +414,7 @@ class coursetransfer {
      *
      * @param int $courseid
      * @param stored_file $file
+     * @param int $requestoriginid
      * @return stdClass
      */
     public static function create_backupfile_url(int $courseid, stored_file $file, int $requestoriginid): stdClass {
