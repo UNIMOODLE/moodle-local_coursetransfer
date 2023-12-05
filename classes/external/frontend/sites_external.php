@@ -479,7 +479,7 @@ class sites_external extends external_api {
             if ($authres['success']) {
                 $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
                 if ($verifydestiny['success']) {
-                    $sitedestiny = coursetransfer::get_site_by_url($destinysite);
+                    $sitedestiny = coursetransfer::get_site_by_url($destinysite, 'destiny');
                     $request = new request($sitedestiny);
                     $res = $request->site_destiny_test($USER);
                     if ($res->success) {
