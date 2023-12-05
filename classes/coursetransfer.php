@@ -392,13 +392,14 @@ class coursetransfer {
      * Get site by URL
      *
      * @param string $url
+     * @param string $type
      * @return stdClass
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_site_by_url(string $url): stdClass {
+    public static function get_site_by_url(string $url, string $type = 'origin'): stdClass {
         $res = new stdClass();
-        $record = coursetransfer_sites::get_by_host('origin', $url);
+        $record = coursetransfer_sites::get_by_host($type, $url);
         if (isset($record->host) && isset($record->token)) {
             $res->host = $record->host;
             $res->token = $record->token;
