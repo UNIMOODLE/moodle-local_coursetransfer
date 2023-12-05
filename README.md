@@ -4,12 +4,12 @@ Plugin local para la transferencia de cursos entre plataformas
 
 ## Compatibilidad
 
-This plugin version is tested for:
+El plugin ha sido probado en las siguientes versiones:
 
 * Moodle 4.1.1 (Build: 20230116) - 2022112801.00
 * Moodle 3.11.17+ (Build: 20231124) - 2021051717.06
 
-## Requeriments
+## Requisitos
 
 * Configuración de usuario y Servicios Web REST
 
@@ -43,7 +43,7 @@ para completar la instalación desde la línea de comandos.
 
 ## Global Configuration
 
-Go to the URL:
+Ir a la URL:
 
     {your/moodle/dirroot}/admin/settings.php?section=local_coursetransfer
 
