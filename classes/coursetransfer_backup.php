@@ -88,7 +88,7 @@ class coursetransfer_backup {
                 backup::FORMAT_MOODLE,
                 backup::INTERACTIVE_NO,
                 backup::MODE_GENERAL, $userid,
-                backup::RELEASESESSION_NO);
+                backup::RELEASESESSION_YES);
         $bc->set_status(backup::STATUS_AWAITING);
         $bc->set_status(backup::STATUS_AWAITING);
         $bc->get_plan()->get_setting('users')->set_status(base_setting::NOT_LOCKED);
