@@ -31,6 +31,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die;
+
+// MESSAGE_DEFAULT_ENABLED is defined in Moodle 4.0. Avoid warning on 3.11.
+if (!defined('MESSAGE_DEFAULT_ENABLED')) {
+    define('MESSAGE_DEFAULT_ENABLED', 0x01); // 0001.
+}
+
 $messageproviders = array (
 
     'restore_course_completed' => [
