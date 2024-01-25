@@ -213,35 +213,47 @@ class restore_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
+            $num = 1;
             foreach ($courses as $course) {
-                if ((int)$course['destinyid'] === 0) {
-                    $target = \backup::TARGET_NEW_COURSE;
-                    if ((int)$course['categorydestiny'] === 0) {
-                        $category = core_course_category::get_default();
+                try {
+                    if ((int)$course['destinyid'] === 0) {
+                        $target = \backup::TARGET_NEW_COURSE;
+                        if ((int)$course['categorydestiny'] === 0) {
+                            $category = core_course_category::get_default();
+                        } else {
+                            $category = core_course_category::get((int)$course['categorydestiny']);
+                        }
+                        $destinycourseid = \local_coursetransfer\factory\course::create(
+                                $category, 'Remote Restoring in process...', 'IN-PROGRESS-' . time() . '-' . $num);
                     } else {
-                        $category = core_course_category::get((int)$course['categorydestiny']);
+                        $target = $configuration['destiny_merge_activities'] ?
+                                \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
+                        $destinycourseid = $course['destinyid'];
                     }
-                    $destinycourseid = \local_coursetransfer\factory\course::create(
-                        $category, 'Remote Restoring in process...', 'IN-PROGRESS-' . time());
-                } else {
-                    $target = $configuration['destiny_merge_activities'] ?
-                        \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
-                    $destinycourseid = $course['destinyid'];
-                }
-                $nextruntime = $configuration['origin_schedule_datetime'] / 1000;
-                $date = new DateTime();
-                $date->setTimestamp(intval($nextruntime));
-                $config = new configuration_course(
-                    $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups'],
-                    $configuration['origin_enrol_users'], $configuration['origin_remove_course'], $date->getTimestamp());
-                $res = coursetransfer::restore_course($USER, $site, $destinycourseid, $course['courseid'], $config, []);
-                if (!$res['success']) {
-                    $errors = $res['errors'];
-                } else {
-                    $success = true;
+                    $nextruntime = $configuration['origin_schedule_datetime'] / 1000;
+                    $date = new DateTime();
+                    $date->setTimestamp(intval($nextruntime));
+                    $config = new configuration_course(
+                            $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups'],
+                            $configuration['origin_enrol_users'], $configuration['origin_remove_course'], $date->getTimestamp());
+                    $res = coursetransfer::restore_course($USER, $site, $destinycourseid, $course['courseid'], $config, []);
+                    if (!$res['success']) {
+                        $errors = $res['errors'];
+                    } else {
+                        $success = true;
+                    }
+                    $num ++;
+                } catch (moodle_exception $e) {
+                    $success = false;
+                    $errors[] =
+                            [
+                                    'code' => '10501',
+                                    'msg' => 'Course ID: ' . $course['courseid'] . ' - ' . $e->getMessage()
+                            ];
                 }
             }
         } catch (moodle_exception $e) {
+            $success = false;
             $errors[] =
                 [
                     'code' => '10500',
