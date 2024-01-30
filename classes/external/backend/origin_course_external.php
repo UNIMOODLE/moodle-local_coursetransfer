@@ -72,6 +72,8 @@ class origin_course_external extends external_api {
      *
      * @param string $field
      * @param string $value
+     * @param int $page
+     * @param int $perpage
      *
      * @return array
      * @throws invalid_parameter_exception

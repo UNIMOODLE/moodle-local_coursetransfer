@@ -51,6 +51,9 @@ use stdClass;
  */
 class origin_restore_step2_page extends origin_restore_step_page {
 
+    // Base url used to build html paging bar links.
+    public $pagingurl = parent::URL . '?step=2&site=1&type=courses';
+
     /**
      * Export for Template.
      *
@@ -77,7 +80,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
         if (has_capability('local/coursetransfer:origin_view_courses', $context)) {
             try {
                 $request = new request($site);
-                $res = $request->origin_get_courses($USER);
+                $res = $request->origin_get_courses($USER, $this->page, $this->perpage);
                 if ($res->success) {
                     $courses = $res->data;
                     $datacourses = [];
@@ -98,6 +101,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
                     }
                     $data->courses = $datacourses;
                     $data->haserrors = false;
+                    $data->paging = $res->paging;
                 } else {
                     $data->errors = $res->errors;
                     $data->haserrors = true;

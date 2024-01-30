@@ -79,15 +79,22 @@ class request {
      * Get Request Params.
      *
      * @param stdClass|null $user
+     * @param int $page
+     * @param int $perpage
      * @return array
      * @throws dml_exception
      */
-    protected function get_request_params(stdClass $user = null): array {
+    protected function get_request_params(stdClass $user = null, $page = null, $perpage = null): array {
         global $USER;
         $user = is_null($user) ? $USER : $user;
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
         $params['value'] = $user->{$params['field']};
+        if (! empty($perpage)) {
+            $params['page'] = $page ?? 0;
+            $params['perpage'] = $perpage;
+        }
+
         return $params;
     }
 
@@ -121,12 +128,15 @@ class request {
      * Origen Get courses.
      *
      * @param stdClass|null $user
+     * @param int $page
+     * @param int $perpage
      * @return response
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function origin_get_courses(stdClass $user = null): response {
-        $params = $this->get_request_params($user);
+    public function origin_get_courses(stdClass $user = null, int $page = null, int $perpage = null): response {
+        $params = $this->get_request_params($user, $page, $perpage);
+
         return $this->req('local_coursetransfer_origin_get_courses', $params);
     }
 
@@ -367,7 +377,7 @@ class request {
             curl_close($curl);
             if (isset($response->success) && isset($response->errors)) {
                 $data = isset($response->data) ? $response->data : null;
-                return new response($response->success, $data, $response->errors);
+                return new response($response->success, $data, $response->errors, $response->paging);
             } else {
                 if (!empty($response->message)) {
                     $message = $response->message;

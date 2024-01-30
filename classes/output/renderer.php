@@ -70,6 +70,7 @@ use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_
 use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step5_page;
 use local_coursetransfer\output\origin_restore_course\origin_restore_course_page;
 use moodle_exception;
+use paging_bar;
 use plugin_renderer_base;
 
 /**
@@ -113,6 +114,9 @@ class renderer extends plugin_renderer_base {
      */
     public function render_origin_restore_step2_page(origin_restore_step2_page $page) {
         $data = $page->export_for_template($this);
+        $paging = $data->paging;
+        $pagingbar = new paging_bar($paging->totalcount, $paging->page, $paging->perpage, $page->pagingurl, 'page');
+        $data->htmlpagingbar = $this->render($pagingbar);
         return parent::render_from_template('local_coursetransfer/origin_restore/origin_restore_step2_page', $data);
     }
 

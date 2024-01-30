@@ -56,15 +56,24 @@ class response {
     public $data;
 
     /**
+     * Info about response paging.
+     *
+     * @var array
+     */
+    public $paging;
+
+    /**
      * response constructor.
      *
      * @param bool $success
      * @param stdClass|null|array $data
      * @param array|null $errors
+     * @param stdClass|null|array paging
      */
-    public function __construct(bool $success,  $data = null, array $errors = null) {
+    public function __construct(bool $success,  $data = null, array $errors = null, $paging =  null) {
         $this->success = $success;
         $this->data = $data;
         $this->errors = $errors;
+        $this->paging = $paging;
     }
 }
