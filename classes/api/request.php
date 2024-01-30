@@ -119,8 +119,8 @@ class request {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function origin_get_categories(stdClass $user = null): response {
-        $params = $this->get_request_params($user);
+    public function origin_get_categories(stdClass $user = null, int $page = null, int $perpage = null): response {
+        $params = $this->get_request_params($user, $page, $perpage);
         return $this->req('local_coursetransfer_origin_get_categories', $params);
     }
 

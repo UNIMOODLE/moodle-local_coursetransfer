@@ -138,7 +138,7 @@ class origin_course_external extends external_api {
             'success' => $success,
             'errors' => $errors,
             'paging' => $paging,
-            'data' => $data
+            'data' => $data,
         ];
     }
 

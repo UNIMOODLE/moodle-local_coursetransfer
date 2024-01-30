@@ -966,19 +966,31 @@ class coursetransfer {
     }
 
     /**
+     * Count categories User.
+     *
+     * @return int
+     */
+    public static function count_categories_user(): int {
+        $categories = \core_course_category::get_all();
+
+        return count($categories);
+    }
+
+    /**
      * Get Categories User.
      *
      * @param stdClass $user
+     * @param int $page
+     * @param int $perpage
      * @return array
      */
-    public static function get_categories_user(stdClass $user): array {
-        $categories = [];
-        $cs = \core_course_category::get_all();
-        foreach ($cs as $cat) {
-            if (self::filter_category($cat, $user)) {
-                $categories[] = $cat;
-            }
+    public static function get_categories_user(stdClass $user, int $page = 0, int $perpage = 0): array {
+        $categories = \core_course_category::get_all();
+        if ($perpage != 0) {
+            $offset = $page * $perpage;
+            $categories = array_slice($categories, $offset, $perpage, true);
         }
+
         return $categories;
     }
 
