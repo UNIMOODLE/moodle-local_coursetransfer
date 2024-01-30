@@ -58,10 +58,12 @@ class origin_course_external extends external_api {
      */
     public static function origin_get_courses_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
-                'value' => new external_value(PARAM_TEXT, 'Value')
-            )
+                'value' => new external_value(PARAM_TEXT, 'Value'),
+                'page' => new external_value(PARAM_INT, 'Page number been requested (starts with page 0)', VALUE_DEFAULT, 0),
+                'perpage' => new external_value(PARAM_INT, 'Items per page to  (starts with page 0)', VALUE_DEFAULT, 0),
+            ]
         );
     }
 
@@ -75,23 +77,31 @@ class origin_course_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_get_courses(string $field, string $value): array {
-        self::validate_parameters(
+    public static function origin_get_courses(string $field, string $value, int $page = 0, int $perpage = 0): array {
+        $params = self::validate_parameters(
             self::origin_get_courses_parameters(), [
                 'field' => $field,
-                'value' => $value
+                'value' => $value,
+                'page' => $page,
+                'perpage' => $perpage,
             ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
+        $perpage = $params['perpage'] ?? 0;
+        $page = $perpage == 0 ? 0 : $params['page'] ?? 0;
 
         $success = true;
         $errors = [];
         $data = [];
+        $paging = [];
 
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $user = $authres['data'];
-                $courses = coursetransfer::get_courses_user($user);
+                $courses = coursetransfer::get_courses_user($user, $page, $perpage);
+                $totalcourses = coursetransfer::count_courses_user($user);
                 foreach ($courses as $course) {
                     $url = new moodle_url('/course/view.php', ['id' => $course->id]);
                     $item = new stdClass();
@@ -106,6 +116,9 @@ class origin_course_external extends external_api {
                     $item->categoryname = $category->name;
                     $data[] = $item;
                 }
+                $paging['totalcount'] = $totalcourses;
+                $paging['page'] = $page;
+                $paging['perpage'] = ($perpage !== 0 && $perpage < $totalcourses) ? $perpage : $totalcourses;
             } else {
                 $success = false;
                 $errors[] = $authres['error'];
@@ -122,6 +135,7 @@ class origin_course_external extends external_api {
         return [
             'success' => $success,
             'errors' => $errors,
+            'paging' => $paging,
             'data' => $data
         ];
     }
@@ -131,16 +145,21 @@ class origin_course_external extends external_api {
      */
     public static function origin_get_courses_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ), PARAM_TEXT, 'Errors'
+                    ], 'Errors'
                 )),
+                'paging' => new external_single_structure([
+                    'totalcount' => new external_value(PARAM_INT, 'Total number of courses', VALUE_OPTIONAL),
+                    'page' => new external_value(PARAM_INT, 'Current page', VALUE_OPTIONAL),
+                    'perpage' => new external_value(PARAM_INT, 'Items per page', VALUE_OPTIONAL),
+                ], 'Paging data'),
                 'data' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'id' => new external_value(PARAM_INT, 'Course ID'),
                         'url' => new external_value(PARAM_RAW, 'URL', VALUE_OPTIONAL),
                         'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
@@ -149,9 +168,9 @@ class origin_course_external extends external_api {
                         'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                         'backupsizeestimated' => new external_value(PARAM_TEXT, 'Backup Size Estimated', VALUE_OPTIONAL),
                         'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL)
-                    ), PARAM_TEXT, 'Data'
-                ))
-            )
+                    ], 'Course info'
+                ), 'Courses info')
+            ]
         );
     }
 

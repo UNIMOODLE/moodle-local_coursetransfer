@@ -914,20 +914,54 @@ class coursetransfer {
     }
 
     /**
+     * Count the courses a user can backup.
+     *
+     * @param stdClass $user
+     * @param int $page
+     * @param int $perpage
+     * @return int
+     * @throws coding_exception
+     */
+    public static function count_courses_user(stdClass $user, int $page = 0, int $perpage = 0): int {
+        // Prepare the search API options.
+        // Empty search criteria returns all.
+        $searchcriteria = ['search' => ''];
+
+        $options = [];
+        if ($perpage != 0) {
+            $offset = $page * $perpage;
+            $options = ['offset' => $offset, 'limit' => $perpage];
+        }
+        $requiredcapabilities = ['moodle/backup:backupcourse'];
+
+        // Search the courses.
+        $count = core_course_category::search_courses_count($searchcriteria, $options, $requiredcapabilities);
+        return $count;
+    }
+
+    /**
      * Get Courses User.
      *
      * @param stdClass $user
+     * @param int $page
+     * @param int $perpage
      * @return array
      * @throws coding_exception
      */
-    public static function get_courses_user(stdClass $user): array {
-        $courses = [];
-        $cs = get_courses();
-        foreach ($cs as $course) {
-            if (self::filter_course($course, $user)) {
-                $courses[] = $course;
-            }
+    public static function get_courses_user(stdClass $user, int $page = 0, int $perpage = 0): array {
+        // Prepare the search API options.
+        // Empty search criteria returns all.
+        $searchcriteria = ['search' => ''];
+
+        $options = [];
+        if ($perpage != 0) {
+            $offset = $page * $perpage;
+            $options = ['offset' => $offset, 'limit' => $perpage];
         }
+        $requiredcapabilities = ['moodle/backup:backupcourse'];
+
+        // Search the courses.
+        $courses = core_course_category::search_courses($searchcriteria, $options, $requiredcapabilities);
         return $courses;
     }
 
