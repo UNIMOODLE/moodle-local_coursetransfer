@@ -377,7 +377,8 @@ class request {
             curl_close($curl);
             if (isset($response->success) && isset($response->errors)) {
                 $data = isset($response->data) ? $response->data : null;
-                return new response($response->success, $data, $response->errors, $response->paging);
+                $paging = $response->paging ?? null;
+                return new response($response->success, $data, $response->errors, $paging);
             } else {
                 if (!empty($response->message)) {
                     $message = $response->message;

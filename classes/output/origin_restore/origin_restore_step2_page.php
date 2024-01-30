@@ -51,8 +51,14 @@ use stdClass;
  */
 class origin_restore_step2_page extends origin_restore_step_page {
 
-    // Base url used to build html paging bar links.
-    public $pagingurl = parent::URL . '?step=2&site=1&type=courses';
+    /**
+     * Base url used to build html paging bar links.
+     *
+     * @return string
+     */
+    public function get_paging_url() : string {
+        return parent::URL . '?step=2&type=courses&site=' . $this->site;
+    }
 
     /**
      * Export for Template.
