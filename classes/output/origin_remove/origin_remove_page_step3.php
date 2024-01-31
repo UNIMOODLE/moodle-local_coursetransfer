@@ -38,10 +38,8 @@ use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use moodle_url;
-use renderable;
 use renderer_base;
 use stdClass;
-use templatable;
 
 /**
  * origin_remove_page_step3
@@ -52,19 +50,7 @@ use templatable;
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_remove_page_step3 implements renderable, templatable {
-
-    /** @var int Site */
-    protected $site;
-
-    /**
-     *  constructor.
-     *
-     * @throws coding_exception
-     */
-    public function __construct() {
-        $this->site = required_param('site', PARAM_INT);
-    }
+class origin_remove_page_step3 extends origin_remove_page_base {
 
     /**
      * Export for Template.
@@ -76,14 +62,9 @@ class origin_remove_page_step3 implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
         $data = new stdClass();
-        $data->steps = origin_remove_page::get_steps(3);
-        $backurl = new moodle_url(
-                '/local/coursetransfer/origin_remove.php',
-                ['step' => 2, 'site' => $this->site, 'type' => 'courses']
-        );
-        $tableurl = new moodle_url(
-                '/local/coursetransfer/origin_remove.php'
-        );
+        $data->steps = self::get_steps(3);
+        $backurl = new moodle_url(self::URL, ['step' => 2, 'site' => $this->site, 'type' => 'courses']);
+        $tableurl = new moodle_url(self::URL);
         $data->table_url = $tableurl->out(false);
         $data->back_url = $backurl->out(false);
         $site = coursetransfer::get_site_by_position($this->site);

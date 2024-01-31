@@ -372,6 +372,9 @@ class renderer extends plugin_renderer_base {
      */
     public function render_origin_remove_page_step2(origin_remove_page_step2 $page) {
         $data = $page->export_for_template($this);
+        $paging = $data->paging;
+        $pagingbar = new paging_bar($paging->totalcount, $paging->page, $paging->perpage, $page->get_paging_url(), 'page');
+        $data->htmlpagingbar = $this->render($pagingbar);
         return parent::render_from_template('local_coursetransfer/origin_remove/origin_remove_page_step2', $data);
     }
 
@@ -394,6 +397,9 @@ class renderer extends plugin_renderer_base {
      */
     public function render_origin_remove_page_cat_step2(origin_remove_page_cat_step2 $page) {
         $data = $page->export_for_template($this);
+        $paging = $data->paging;
+        $pagingbar = new paging_bar($paging->totalcount, $paging->page, $paging->perpage, $page->get_paging_url(), 'page');
+        $data->htmlpagingbar = $this->render($pagingbar);
         return parent::render_from_template('local_coursetransfer/origin_remove/origin_remove_page_cat_step2', $data);
     }
 

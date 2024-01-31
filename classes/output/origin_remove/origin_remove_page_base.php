@@ -33,14 +33,18 @@
 
 namespace local_coursetransfer\output\origin_remove;
 
-use local_coursetransfer\forms\origin_remove_form;
+use coding_exception;
+use local_coursetransfer\api\request;
+use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use moodle_url;
+use renderable;
 use renderer_base;
 use stdClass;
+use templatable;
 
 /**
- * origin_remove_page
+ * origin_remove_page_base
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -48,15 +52,39 @@ use stdClass;
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_remove_page extends origin_remove_page_base {
+class origin_remove_page_base implements renderable, templatable {
+
+    const URL = '/local/coursetransfer/origin_remove.php';
+
+    /** @var int Site */
+    protected $site;
 
     /**
-     *  Constructor.
+     * Page of data requested.
      *
+     * @var int
+     */
+    protected $page;
+
+    /**
+     * Number of items to show on each page.
+     *
+     * @var int
+     */
+    protected $perpage;
+
+    /**
+     *  constructor.
+     *
+     * @throws coding_exception
      */
     public function __construct() {
-        // Overwrites parent's as in this stage we don't have the site param.
+        global $CFG;
+        $this->site = required_param('site', PARAM_INT);
+        $this->page = optional_param('page', 0, PARAM_INT);
+        $this->perpage = optional_param('perpage', $CFG->coursesperpage, PARAM_INT);
     }
+
 
     /**
      * Export for Template.
@@ -66,14 +94,21 @@ class origin_remove_page extends origin_remove_page_base {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $url = new moodle_url(self::URL, ['step' => 1]);
-        $form = new origin_remove_form($url->out(false));
-        $data = new stdClass();
-        $data->steps = self::get_steps(1);
-        $data->button = true;
-        $data->next_url = $url->out(false);
-        $data->next_url_disabled = false;
-        $data->form = $form->render();
-        return $data;
+        return new stdClass();
+    }
+
+    /**
+     * Get Steps.
+     *
+     * @param int $current
+     * @return array|array[]
+     */
+    public static function get_steps(int $current): array {
+        $steps = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $step = ['current' => $current === $i, 'num' => $i];
+            $steps[] = $step;
+        }
+        return $steps;
     }
 }

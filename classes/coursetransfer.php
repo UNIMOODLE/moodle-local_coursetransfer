@@ -995,39 +995,6 @@ class coursetransfer {
     }
 
     /**
-     * Filter Course.
-     *
-     * @param stdClass $course
-     * @param stdClass $user
-     * @return bool
-     * @throws coding_exception
-     */
-    protected static function filter_course(stdClass $course, stdClass $user): bool {
-        $context = \context_course::instance($course->id);
-        if (!has_capability('moodle/backup:backupcourse', $context, $user->id)) {
-            return false;
-        }
-        if ((int)$course->id === 1) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Filter Category.
-     *
-     * @param core_course_category $cat
-     * @param stdClass $user
-     * @return bool
-     */
-    protected static function filter_category(core_course_category $cat, stdClass $user): bool {
-        if ($cat->is_uservisible($user)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Can remove origin course?
      *
      * @param stdClass $user
