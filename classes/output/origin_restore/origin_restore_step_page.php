@@ -77,7 +77,7 @@ class origin_restore_step_page implements renderable, templatable {
     public function __construct() {
         $this->site = required_param('site', PARAM_INT);
         $this->page = optional_param('page', 0, PARAM_INT);
-        $this->perpage = optional_param('perpage', 10, PARAM_INT);
+        $this->perpage = optional_param('perpage', 4, PARAM_INT);
     }
 
     /**

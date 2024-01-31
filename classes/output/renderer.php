@@ -150,6 +150,9 @@ class renderer extends plugin_renderer_base {
      */
     public function render_origin_restore_cat_step2_page(origin_restore_cat_step2_page $page) {
         $data = $page->export_for_template($this);
+        $paging = $data->paging;
+        $pagingbar = new paging_bar($paging->totalcount, $paging->page, $paging->perpage, $page->get_paging_url(), 'page');
+        $data->htmlpagingbar = $this->render($pagingbar);
         return parent::render_from_template('local_coursetransfer/origin_restore/origin_restore_cat_step2_page', $data);
     }
 
