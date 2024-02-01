@@ -63,12 +63,12 @@ class new_origin_restore_course_step4_page extends new_origin_restore_course_ste
         global $USER;
         $siteposition = required_param('site', PARAM_INT);
         $restoreid = required_param('restoreid', PARAM_INT);
-        $backurl = new moodle_url(self::PAGE,
+        $backurl = new moodle_url(self::URL,
             ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $siteposition, 'restoreid' => $restoreid]);
-        $nexturl = new moodle_url(self::PAGE,
+        $nexturl = new moodle_url(self::URL,
             ['id' => $this->course->id, 'new' => 1, 'step' => 5, 'site' => $siteposition, 'restoreid' => $restoreid]
         );
-        $url = new moodle_url(self::PAGE, ['id' => $this->course->id]);
+        $url = new moodle_url(self::URL, ['id' => $this->course->id]);
         $data = new stdClass();
         $data->restoreid = $restoreid;
         $data->button = false;

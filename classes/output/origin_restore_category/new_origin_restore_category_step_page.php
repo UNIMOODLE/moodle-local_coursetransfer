@@ -50,10 +50,27 @@ use templatable;
  */
 class new_origin_restore_category_step_page implements renderable, templatable {
 
-    const PAGE = '/local/coursetransfer/origin_restore_category.php';
+    const URL = '/local/coursetransfer/origin_restore_category.php';
 
     /** @var core_course_category Category */
     protected $category;
+
+    /** @var int Site */
+    protected $site;
+
+    /**
+     * Page of data requested.
+     *
+     * @var int
+     */
+    protected $page;
+
+    /**
+     * Number of items to show on each page.
+     *
+     * @var int
+     */
+    protected $perpage;
 
     /**
      *  constructor.
@@ -61,7 +78,11 @@ class new_origin_restore_category_step_page implements renderable, templatable {
      * @param core_course_category $category
      */
     public function __construct(core_course_category $category) {
+        global $CFG;
         $this->category = $category;
+        $this->site = required_param('site', PARAM_INT);
+        $this->page = optional_param('page', 0, PARAM_INT);
+        $this->perpage = optional_param('perpage', $CFG->coursesperpage, PARAM_INT);
     }
 
     /**

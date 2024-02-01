@@ -61,23 +61,22 @@ class new_origin_restore_category_step4_page extends new_origin_restore_category
      */
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
-        $siteposition = required_param('site', PARAM_RAW);
         $restoreid = required_param('restoreid', PARAM_INT);
         $destinyid = required_param('id', PARAM_INT);
-        $backurl = new moodle_url(self::PAGE, [
+        $backurl = new moodle_url(self::URL, [
                     'id' => $this->category->id,
-                    'new' => 1, 'step' => 3, 'site' => $siteposition, 'restoreid' => $restoreid]
+                    'new' => 1, 'step' => 3, 'site' => $this->site, 'restoreid' => $restoreid]
         );
-        $tableurl = new moodle_url(self::PAGE, ['id' => $this->category->id]);
+        $tableurl = new moodle_url(self::URL, ['id' => $this->category->id]);
         $data = new stdClass();
         $data->button = false;
         $data->restoreid = $restoreid;
         $data->destinyid = $destinyid;
-        $data->siteposition = $siteposition;
+        $data->siteposition = $this->site;
         $data->steps = self::get_steps(4);
         $data->back_url = $backurl->out(false);
         $data->table_url = $tableurl->out(false);
-        $site = coursetransfer::get_site_by_position($siteposition);
+        $site = coursetransfer::get_site_by_position($this->site);
         $data->host = $site->host;
         if (coursetransfer::validate_origin_site($site->host)) {
             $data->haserrors = false;
