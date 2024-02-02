@@ -979,7 +979,7 @@ class coursetransfer {
     public static function get_categories_user(stdClass $user, int $page = 0, int $perpage = 0): array {
         $categories = \core_course_category::get_all();
         // Sort by fullname alphabetically.
-        $property = 'fullname';
+        $property = 'name';
         $sortflag = core_collator::SORT_STRING;
         core_collator::asort_objects_by_property($categories, $property, $sortflag);
         if ($perpage != 0) {
