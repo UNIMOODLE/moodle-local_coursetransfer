@@ -981,7 +981,7 @@ class coursetransfer {
         // Sort by fullname alphabetically.
         $property = 'fullname';
         $sortflag = core_collator::SORT_STRING;
-        core_collator::asort_objects_by_property($records, $property, $sortflag);
+        core_collator::asort_objects_by_property($categories, $property, $sortflag);
         if ($perpage != 0) {
             $offset = $page * $perpage;
             $categories = array_slice($categories, $offset, $perpage, true);
