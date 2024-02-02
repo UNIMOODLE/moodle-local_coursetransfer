@@ -33,15 +33,10 @@
 
 namespace local_coursetransfer;
 
-use backup;
-use backup_controller;
-use base_plan_exception;
-use base_setting;
-use base_setting_exception;
-use cm_info;
 use coding_exception;
 use context;
 use context_course;
+use core_collator;
 use core_course_category;
 use core_user;
 use course_modinfo;
@@ -54,12 +49,8 @@ use local_coursetransfer\factory\role;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\models\configuration_category;
 use local_coursetransfer\models\configuration_course;
-use local_coursetransfer\task\create_backup_course_task;
-use local_coursetransfer\task\download_file_course_task;
 use moodle_exception;
 use moodle_url;
-use restore_controller;
-use section_info;
 use stdClass;
 use stored_file;
 
@@ -958,6 +949,7 @@ class coursetransfer {
             $offset = $page * $perpage;
             $options = ['offset' => $offset, 'limit' => $perpage];
         }
+        $options['sort'] = ['fullname' => 1];
         $requiredcapabilities = ['moodle/backup:backupcourse'];
 
         // Search the courses.
@@ -986,6 +978,10 @@ class coursetransfer {
      */
     public static function get_categories_user(stdClass $user, int $page = 0, int $perpage = 0): array {
         $categories = \core_course_category::get_all();
+        // Sort by fullname alphabetically.
+        $property = 'fullname';
+        $sortflag = core_collator::SORT_STRING;
+        core_collator::asort_objects_by_property($records, $property, $sortflag);
         if ($perpage != 0) {
             $offset = $page * $perpage;
             $categories = array_slice($categories, $offset, $perpage, true);
