@@ -76,7 +76,9 @@ class new_origin_restore_course_step2_page  extends new_origin_restore_course_st
         $backurl = new moodle_url(self::URL, ['id' => $this->course->id, 'new' => 1, 'step' => 1]);
         $url = new moodle_url(self::URL, ['id' => $this->course->id]);
         $data->courseid = $this->course->id;
-        $nexturl = new moodle_url(self::URL, ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $this->site]);
+        $nexturl = new moodle_url(self::URL,
+            ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $this->site, 'page' => $this->page, ]
+        );
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $data->table_url = $url->out(false);

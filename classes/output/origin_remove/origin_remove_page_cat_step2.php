@@ -73,7 +73,9 @@ class origin_remove_page_cat_step2  extends origin_remove_page_base {
         $data = new stdClass();
         $data->steps = self::get_steps(2);
         $backurl = new moodle_url(self::URL);
-        $nexturl = new moodle_url(self::URL, ['step' => 3, 'site' => $this->site, 'type' => 'categories']);
+        $nexturl = new moodle_url(self::URL,
+            ['step' => 3, 'site' => $this->site, 'type' => 'categories', 'page' => $this->page, ]
+        );
         $tableurl = new moodle_url(self::URL);
         $data->table_url = $tableurl->out(false);
         $data->back_url = $backurl->out(false);

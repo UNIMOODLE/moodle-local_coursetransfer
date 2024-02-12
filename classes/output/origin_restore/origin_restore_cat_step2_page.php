@@ -74,7 +74,7 @@ class origin_restore_cat_step2_page extends origin_restore_step_page {
         $data->steps = self::get_steps(2);
         $backurl = new moodle_url(self::URL);
         $nexturl = new moodle_url(self::URL,
-            ['step' => 3, 'site' => $this->site, 'type' => 'categories']
+            ['step' => 3, 'site' => $this->site, 'type' => 'categories', 'page' => $this->page, ]
         );
         $data->table_url = $backurl->out(false);
         $data->back_url = $backurl->out(false);
