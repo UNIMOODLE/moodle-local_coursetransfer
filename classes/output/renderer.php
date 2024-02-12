@@ -510,12 +510,15 @@ class renderer extends plugin_renderer_base {
     /**
      * Returns the html for a paging bar or empty string if no need for paging.
      *
-     * @param \stdClass $pager
+     * @param \stdClass|null $pager
      * @param string $url
      * @param string $pageparam
      * @return string|null
      */
-    public function get_html_paging_bar(\stdClass $paging, string $url, string $pageparam) {
+    public function get_html_paging_bar($paging, string $url, string $pageparam) {
+        if (! $paging) {
+            return null;
+        }
         $pagingbar = new paging_bar($paging->totalcount, $paging->page, $paging->perpage, $url, $pageparam);
         $html = $this->render($pagingbar);
         return $html;
