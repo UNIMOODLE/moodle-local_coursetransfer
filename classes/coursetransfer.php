@@ -978,10 +978,7 @@ class coursetransfer {
      */
     public static function get_categories_user(stdClass $user, int $page = 0, int $perpage = 0): array {
         $categories = \core_course_category::get_all();
-        // Sort by fullname alphabetically.
-        $property = 'name';
-        $sortflag = core_collator::SORT_STRING;
-        core_collator::asort_objects_by_property($categories, $property, $sortflag);
+        // Categories are not sorted as are listed to user using nested name.
         if ($perpage != 0) {
             $offset = $page * $perpage;
             $categories = array_slice($categories, $offset, $perpage, true);
