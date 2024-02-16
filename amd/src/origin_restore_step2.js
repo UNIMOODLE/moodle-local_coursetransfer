@@ -23,7 +23,7 @@
 
 /**
  *
- * @module     local_coursetransfer
+ * @module     local_coursetransfer/origin_restore_step2
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -37,8 +37,9 @@ define([
         'jquery',
         'core/str',
         'core/ajax',
-        'core/templates'
-    ], function($, Str, Ajax, Templates) {
+        'core/templates',
+        'local_coursetransfer/JSONutil'
+    ], function($, Str, Ajax, Templates, JSONutil) {
         "use strict";
 
         let ACTIONS = {
@@ -57,54 +58,68 @@ define([
          */
         function originRestoreStep2(region) {
             this.node = $(region);
-            let data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'));
-            if (data) {
-                data.courses.forEach(function(course) {
+            this.DOMregion = this.node[0];
+            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'), JSONutil.reviver);
+            console.log('Initial data: ', this.data);
+            if (this.data !== null) {
+                this.data.courses.forEach(function(course) {
                     let courseid = parseInt(course.courseid);
                     let destinyid = parseInt(course.destinyid);
-                    $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop( "checked", true );
+                    $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop("checked", true);
                     let seldestiny = '[data-action="destiny"][data-courseid="' + courseid + '"] option[value="' + destinyid + '"]';
                     $(seldestiny).prop('selected', true);
                 });
+            } else {
+                this.data = {
+                    courses: new Map(), configuration: []
+                };
+                sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
             }
-            this.selectCourse();
+            if (this.data.courses.size > 0) {
+                this.node.find(ACTIONS.NEXT).removeAttr('disabled');
+            } else {
+                this.node.find(ACTIONS.NEXT).prop("disabled", true);
+            }
             this.node.find(ACTIONS.COURSE_SELECT).on('click', this.selectCourse.bind(this));
+            this.node.find(ACTIONS.DESTINY).on('change', this.selectDestiny.bind(this));
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         }
 
         originRestoreStep2.prototype.selectCourse = function(e) {
-            let selected = false;
-            let items = this.node.find(ACTIONS.COURSE_SELECT);
-            items.each(function(i, item) {
-                if($(item).prop('checked')) {
-                    selected = true;
-                }
-            });
-            if (selected) {
+            let item = e.target;
+            let courseid = item.dataset.courseid;
+            if (item.checked) {
+                let destiny = this.DOMregion.querySelector('[data-action="destiny"][data-courseid="' + courseid + '"]').value;
+                let course = {
+                    courseid: courseid, destinyid: destiny, categorydestiny: 0
+                };
+                this.data.courses.set(courseid.toString(), course);
                 this.node.find(ACTIONS.NEXT).removeAttr('disabled');
             } else {
-                this.node.find(ACTIONS.NEXT).prop( "disabled", true );
+                this.data.courses.delete(courseid.toString());
+                if (this.data.courses.size < 1) {
+                    this.node.find(ACTIONS.NEXT).prop("disabled", true);
+                }
+            }
+            sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
+        };
+
+        originRestoreStep2.prototype.selectDestiny = function(e) {
+            let item = e.target;
+            let courseid = item.dataset.courseid;
+            let origin = this.DOMregion.querySelector('[data-action="select"][data-courseid="' + courseid + '"]');
+
+            if (origin.checked) {
+                let destiny = item.value;
+                let course = {
+                    courseid: courseid, destinyid: destiny, categorydestiny: 0
+                };
+                this.data.courses.set(courseid, course);
+                sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
             }
         };
 
         originRestoreStep2.prototype.clickNext = function(e) {
-            let courses = [];
-            let items = this.node.find(ACTIONS.COURSE_SELECT);
-            items.each(function(i, item) {
-                let courseid = $(item).data('courseid');
-                if ($(item).prop('checked')) {
-                    let destiny = $('[data-action="destiny"][data-courseid="' + courseid + '"]').val();
-                    let course = {
-                        courseid: courseid, destinyid: destiny, categorydestiny: 0
-                    };
-                    courses.push(course);
-                }
-            });
-            let data = {
-                courses: courses, configuration: []
-            };
-            sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(data));
-
             let currentUrl = $(location).attr('href');
             let url = new URL(currentUrl);
             url.searchParams.set('step', '3');
@@ -113,6 +128,8 @@ define([
 
 
         originRestoreStep2.prototype.node = null;
+        originRestoreStep2.prototype.DOMregion = null;
+
 
         return {
             /**

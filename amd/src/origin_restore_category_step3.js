@@ -113,7 +113,7 @@ define([
             /**
              * @param {String} region
              * @param {String} nexturl
-             * @return {restoreCategoryStep2}
+             * @return {restoreCategoryStep3}
              */
             initRestoreCategoryStep3: function(region, nexturl) {
                 return new restoreCategoryStep3(region, nexturl);
