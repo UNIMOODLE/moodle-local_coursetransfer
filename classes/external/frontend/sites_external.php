@@ -41,6 +41,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_sites;
 use moodle_exception;
 use stdClass;
 
@@ -77,7 +78,7 @@ class sites_external extends external_api {
      */
     public static function site_add(string $type, string $host, string $token): array {
         global $DB, $USER;
-        self::validate_parameters(
+        $params = self::validate_parameters(
             self::site_add_parameters(),
             [
                 'type' => $type,
@@ -85,6 +86,10 @@ class sites_external extends external_api {
                 'token' => $token
             ]
         );
+
+        $type = $params['type'];
+        $host = $params['host'];
+        $token = $params['token'];
 
         $success = false;
         $errors = [];
@@ -100,14 +105,23 @@ class sites_external extends external_api {
         } else {
             try {
                 $object = new stdClass();
-                $object->host = trim($host);
+                $object->host = coursetransfer_sites::clean_host($host);
                 $object->token = trim($token);
                 $object->userid = $USER->id;
                 $object->timemodified = time();
                 $object->timecreated = time();
-                $res = $DB->insert_record('local_coursetransfer_' . $type, $object);
-                $data->id = $res;
-                $success = true;
+                if ($DB->get_record('local_coursetransfer_' . $type, ['host' => $object->host])) {
+                    $success = false;
+                    $errors[] =
+                            [
+                                    'code' => '18042',
+                                    'msg' => 'THE SITE ALREADY EXISTS'
+                            ];
+                } else {
+                    $res = $DB->insert_record('local_coursetransfer_' . $type, $object);
+                    $data->id = $res;
+                    $success = true;
+                }
             } catch (moodle_exception $e) {
                 $errors[] =
                         [
@@ -172,7 +186,7 @@ class sites_external extends external_api {
      */
     public static function site_edit(string $type, int $id, string $host, string $token): array {
         global $DB, $USER;
-        self::validate_parameters(
+        $params = self::validate_parameters(
                 self::site_edit_parameters(),
                 [
                         'type' => $type,
@@ -181,6 +195,11 @@ class sites_external extends external_api {
                         'token' => $token
                 ]
         );
+
+        $type = $params['type'];
+        $id = $params['id'];
+        $host = $params['host'];
+        $token = $params['token'];
 
         $success = false;
         $errors = [];
@@ -197,12 +216,22 @@ class sites_external extends external_api {
             try {
                 $object = new stdClass();
                 $object->id = $id;
-                $object->host = trim($host);
+                $object->host = coursetransfer_sites::clean_host($host);
                 $object->token = trim($token);
                 $object->userid = $USER->id;
                 $object->timemodified = time();
-                $DB->update_record('local_coursetransfer_' . $type, $object);
-                $success = true;
+                $host = $DB->get_record('local_coursetransfer_' . $type, ['host' => $object->host]);
+                if ($host && $host->id !== $object->id) {
+                    $success = false;
+                    $errors[] =
+                            [
+                                    'code' => '18032',
+                                    'msg' => 'THE SITE ALREADY EXISTS'
+                            ];
+                } else {
+                    $DB->update_record('local_coursetransfer_' . $type, $object);
+                    $success = true;
+                }
             } catch (moodle_exception $e) {
                 $errors[] =
                         [
@@ -263,13 +292,16 @@ class sites_external extends external_api {
      */
     public static function site_remove(string $type, int $id): array {
         global $DB;
-        self::validate_parameters(
+        $params = self::validate_parameters(
                 self::site_remove_parameters(),
                 [
                         'type' => $type,
                         'id' => $id
                 ]
         );
+
+        $type = $params['type'];
+        $id = $params['id'];
 
         $success = false;
         $errors = [];
@@ -348,13 +380,16 @@ class sites_external extends external_api {
      */
     public static function site_test(string $type, int $id): array {
         global $USER;
-        self::validate_parameters(
+        $params = self::validate_parameters(
                 self::site_test_parameters(),
                 [
                         'type' => $type,
                         'id' => $id
                 ]
         );
+
+        $type = $params['type'];
+        $id = $params['id'];
 
         $success = false;
         $error = [
@@ -463,13 +498,17 @@ class sites_external extends external_api {
      */
     public static function origin_test(string $field, string $value, string $destinysite): array {
         global $USER;
-        self::validate_parameters(
+        $params = self::validate_parameters(
                 self::origin_test_parameters(), [
                         'field' => $field,
                         'value' => $value,
                         'destinysite' => $destinysite
                 ]
         );
+
+        $field = $params['field'];
+        $value = $params['value'];
+        $destinysite = $params['destinysite'];
 
         $errors = [];
         $data = new stdClass();
@@ -552,12 +591,15 @@ class sites_external extends external_api {
      */
     public static function destiny_test(string $field, string $value): array {
 
-        self::validate_parameters(
+        $params = self::validate_parameters(
                 self::destiny_test_parameters(), [
                         'field' => $field,
                         'value' => $value
                 ]
         );
+
+        $field = $params['field'];
+        $value = $params['value'];
 
         $errors = [];
         $data = new stdClass();

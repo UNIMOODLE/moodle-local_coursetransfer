@@ -109,4 +109,15 @@ class coursetransfer_sites {
             throw new moodle_exception($type . ' site not valid: ' . $host);
         }
     }
+
+    /**
+     * Clean host.
+     *
+     * @param string $host
+     * @return string
+     */
+    public static function clean_host(string $host): string {
+        error_log(rtrim($host, '/'));
+        return rtrim($host, '/');
+    }
 }
