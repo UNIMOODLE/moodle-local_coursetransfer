@@ -408,6 +408,7 @@ class request {
                 $error = new stdClass();
                 $error->code = '12002';
                 $error->msg = $wsname . ' - ' . $message;
+                error_log('API Request: ' . json_encode($error) . ' - ' . json_encode($response));
                 return new response(false, null, [$error]);
             }
         } catch (\Exception $e) {
@@ -417,6 +418,7 @@ class request {
             $error = new stdClass();
             $error->code = '12001';
             $error->msg = $wsname . ': ' . $message;
+            error_log('API Request: ' . $e->getMessage() . ' - ' . json_encode($error));
             return new response(false, null, [$error]);
         }
     }
