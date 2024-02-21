@@ -314,3 +314,4 @@ $string['notification_remove_category_completed'] = "L'esborrament de la categor
 $string['view_detail'] = "Veure detall:";
 $string['remove_config'] = "Configuració d'Esborrat";
 $string['site_exist'] = 'El lloc ja existeix';
+$string['host_token_empty'] = 'El host o el token estan buits';

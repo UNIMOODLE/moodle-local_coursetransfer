@@ -314,3 +314,4 @@ $string['notification_remove_category_completed'] = "Ondo amaitu duzu urruneko k
 $string['view_detail'] = "Ikusi xehetasuna:";
 $string['remove_config'] = "Ezabatu ezarpenak";
 $string['site_exist'] = 'Gunea dagoeneko existitzen da';
+$string['host_token_empty'] = 'Ostalaria edo tokena hutsik dago';

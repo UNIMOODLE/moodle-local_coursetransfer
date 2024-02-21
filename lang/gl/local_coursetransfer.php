@@ -314,3 +314,4 @@ $string['notification_remove_category_completed'] = "Completaches correctamente 
 $string['view_detail'] = "Ver detalle:";
 $string['remove_config'] = "Borrar configuración";
 $string['site_exist'] = 'O sitio xa existe';
+$string['host_token_empty'] = 'O host ou o token está baleiro';

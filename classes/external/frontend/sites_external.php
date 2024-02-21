@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\external\frontend;
 
+use coding_exception;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -75,6 +76,7 @@ class sites_external extends external_api {
      * @param string $token
      * @return array
      * @throws invalid_parameter_exception
+     * @throws coding_exception
      */
     public static function site_add(string $type, string $host, string $token): array {
         global $DB, $USER;
@@ -99,8 +101,14 @@ class sites_external extends external_api {
         if ($type !== 'destiny' && $type !== 'origin') {
             $errors[] =
                     [
-                            'code' => '18043',
+                            'code' => '18044',
                             'msg' => 'TYPE INVALID'
+                    ];
+        } else if ($host === '' || $token === '') {
+            $errors[] =
+                    [
+                            'code' => '18043',
+                            'msg' => get_string('host_token_empty', 'local_coursetransfer')
                     ];
         } else {
             try {
@@ -226,7 +234,7 @@ class sites_external extends external_api {
                 $params = ['host' => $object->host];
                 $recordselect = $DB->get_record_select('local_coursetransfer_' . $type,
                         "host = :host", $params);
-                if ($recordselect && $recordselect->id !== $object->id) {
+                if ($recordselect && (int)$recordselect->id !== $object->id) {
                     $success = false;
                     $errors[] =
                             [
