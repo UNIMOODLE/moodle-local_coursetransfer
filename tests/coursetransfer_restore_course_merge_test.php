@@ -199,7 +199,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
                 'fullname' => 'Origen Course',
                 'shortname' => 'phpunit-origin-course',
                 'summary' => 'This a Summary',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->origincourse = $this->getDataGenerator()->create_course($oc);
 
@@ -228,7 +228,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
                 'fullname' => 'Destination Course 4',
                 'shortname' => 'phpunit-destination-course-4',
                 'summary' => 'This a Summary of Destination 4',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->destinycourse4 = $this->getDataGenerator()->create_course($dnc4);
         $this->create_sections_destiny4($this->destinycourse4);

@@ -214,7 +214,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 'fullname' => 'Origen Course',
                 'shortname' => 'phpunit-origin-course',
                 'summary' => 'This a Summary',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->origincourse = $this->getDataGenerator()->create_course($oc);
 
@@ -243,7 +243,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 'fullname' => 'Origen Course 2',
                 'shortname' => 'phpunit-origin-course-2',
                 'summary' => 'This a Summary 2',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->origincourse2 = $this->getDataGenerator()->create_course($oc2);
 
@@ -252,7 +252,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 'fullname' => 'Remote Restoring in process...',
                 'shortname' => 'IN-PROGRESS-' . time(),
                 'summary' => 'This a other Summary',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->destinynewcourse1 = $this->getDataGenerator()->create_course($dnc1);
 
@@ -261,7 +261,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 'fullname' => 'Destination Course 2',
                 'shortname' => 'phpunit-destination-course-2',
                 'summary' => 'This a Summary of Destination 2',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->destinycourse2 = $this->getDataGenerator()->create_course($dnc2);
 
@@ -270,7 +270,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 'fullname' => 'Destination Course 3',
                 'shortname' => 'phpunit-destination-course-3',
                 'summary' => 'This a Summary of Destination 3',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->destinycourse3 = $this->getDataGenerator()->create_course($dnc3);
         $this->create_sections_destiny3($this->destinycourse3);
@@ -296,7 +296,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 'fullname' => 'Destination Course 5',
                 'shortname' => 'phpunit-destination-course-5',
                 'summary' => 'This a Summary of Destination 5',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->destinycourse5 = $this->getDataGenerator()->create_course($dnc5);
     }

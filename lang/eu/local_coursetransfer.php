@@ -316,3 +316,5 @@ $string['remove_config'] = "Ezabatu ezarpenak";
 $string['site_exist'] = 'Gunea dagoeneko existitzen da';
 $string['host_token_empty'] = 'Ostalaria edo tokena hutsik dago';
 $string['courses_not_selected'] = 'Ez dago ikastarorik hautatu';
+$string['request_timeout'] = 'Timeout';
+$string['request_timeout_desc'] = 'CURL eskaeraren itxaron-denbora segundotan iturburuaren eta helmugaren artean';

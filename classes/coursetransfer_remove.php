@@ -76,7 +76,7 @@ class coursetransfer_remove {
                 'courseid' => $courseid,
                 'requestoriginid' => $requestoriginid,
                 'requestdestid' => $requestdestid,
-                'userid' => $userid
+                'userid' => $userid,
         ];
         $resasynctask->set_custom_data($payload);
         if (!is_null($nextruntime)) {
@@ -105,7 +105,7 @@ class coursetransfer_remove {
                 'catid' => $catid,
                 'requestoriginid' => $requestoriginid,
                 'requestdestid' => $requestdestid,
-                'userid' => $userid
+                'userid' => $userid,
         ];
         $resasynctask->set_custom_data($payload);
         if (!is_null($nextruntime)) {

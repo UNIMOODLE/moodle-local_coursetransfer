@@ -65,7 +65,6 @@ class index_page implements renderable, templatable {
      *
      * @param renderer_base $output
      * @return stdClass
-     * @throws dml_exception
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {

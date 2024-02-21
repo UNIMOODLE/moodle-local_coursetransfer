@@ -316,3 +316,5 @@ $string['remove_config'] = 'Configuration Remove';
 $string['site_exist'] = 'The site already exists';
 $string['host_token_empty'] = 'Host or token is empty';
 $string['courses_not_selected'] = 'There are no courses selected';
+$string['request_timeout'] = 'Timeout';
+$string['request_timeout_desc'] = 'CURL request waiting time in seconds between source and destination';

@@ -77,7 +77,7 @@ class new_origin_restore_category_step2_page  extends new_origin_restore_categor
         $tableurl = new moodle_url(self::URL, ['id' => $this->category->id]);
         $data->categoryid = $this->category->id;
         $nexturl = new moodle_url(self::URL,
-            ['id' => $this->category->id, 'new' => 1, 'step' => 3, 'site' => $this->site,  'page' => $this->page, ]
+            ['id' => $this->category->id, 'new' => 1, 'step' => 3, 'site' => $this->site,  'page' => $this->page]
         );
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);

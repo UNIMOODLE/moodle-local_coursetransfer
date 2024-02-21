@@ -84,7 +84,7 @@ class logs_course_response_table extends table_sql {
                 'userid',
                 'timemodified',
                 'timecreated',
-                'detail'
+                'detail',
         ]);
 
         $this->define_headers([

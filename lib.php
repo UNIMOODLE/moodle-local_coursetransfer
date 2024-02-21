@@ -43,7 +43,7 @@ function local_coursetransfer_extend_navigation_course(navigation_node $navigati
     if (has_capability('local/coursetransfer:origin_restore_course', $context)) {
 
         $label = get_string('origin_restore_course', 'local_coursetransfer');
-        $url = new moodle_url('/local/coursetransfer/origin_restore_course.php', array('id' => $course->id));
+        $url = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $course->id]);
         $icon = new pix_icon('t/restore', $label);
         $navigation->add($label, $url, navigation_node::TYPE_COURSE, null, null, $icon);
 
@@ -67,7 +67,7 @@ function local_coursetransfer_extend_navigation_category_settings(navigation_nod
 
     $category = core_course_category::get($categoryid, MUST_EXIST);
 
-    $url = new moodle_url('/local/coursetransfer/origin_restore_category.php', array('id' => $category->id));
+    $url = new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $category->id]);
     $pluginname = 'local_coursetransfer';
     $label = get_string('origin_restore_category', 'local_coursetransfer');
 
@@ -100,7 +100,7 @@ function local_coursetransfer_extend_navigation_category_settings(navigation_nod
  * @return bool false if the file not found, just send the file otherwise and do not return anything
  * @throws coding_exception
  */
-function local_coursetransfer_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()): bool {
+function local_coursetransfer_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=[]): bool {
     // Check that the filearea is sane.
     if ($filearea !== 'backup') {
         return false;

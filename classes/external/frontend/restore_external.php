@@ -65,10 +65,10 @@ class restore_external extends external_api {
      */
     public static function origin_restore_step1_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                'type' => new external_value(PARAM_TEXT, 'Type restore')
-            )
+                'type' => new external_value(PARAM_TEXT, 'Type restore'),
+            ]
         );
     }
 
@@ -82,13 +82,16 @@ class restore_external extends external_api {
      */
     public static function origin_restore_step1(int $siteurl, string $type): array {
         global $USER;
-        self::validate_parameters(
+        $params = self::validate_parameters(
             self::origin_restore_step1_parameters(),
             [
                 'siteurl' => $siteurl,
-                'type' => $type
+                'type' => $type,
             ]
         );
+
+        $siteurl = $params['siteurl'];
+        $type = $params['type'];
 
         $success = false;
         $errors = [];
@@ -119,14 +122,14 @@ class restore_external extends external_api {
             $errors[] =
                 [
                     'code' => '10510',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
@@ -135,25 +138,25 @@ class restore_external extends external_api {
      */
     public static function origin_restore_step1_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_RAW, 'Message')
-                    )
+                        'msg' => new external_value(PARAM_RAW, 'Message'),
+                    ]
                 )),
                 'data' => new external_single_structure(
-                    array(
+                    [
                         'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
                         'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
                         'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
                         'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
                         'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
-                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
-                    )
-                )
-            )
+                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL),
+                    ]
+                ),
+            ]
         );
     }
 
@@ -162,27 +165,27 @@ class restore_external extends external_api {
      */
     public static function origin_restore_step4_parameters(): external_function_parameters {
         return new external_function_parameters(
-                array(
-                        'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                        'courses' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'courseid' => new external_value(PARAM_INT, 'Origin Course ID'),
-                                        'destinyid' => new external_value(PARAM_INT, 'Destiny Course ID'),
-                                        'categorydestiny' => new external_value(PARAM_INT, 'Destiny Category ID')
-                                )
-                        )),
-                        'configuration' => new external_single_structure(
-                                array(
-                                        'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
-                                        'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
-                                        'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
-                                        'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
-                                        'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Restore User Data'),
-                                        'origin_remove_course' => new external_value(PARAM_BOOL, 'Origin Remove Course'),
-                                        'origin_schedule_datetime' => new external_value(PARAM_INT, 'Origin Schedule Datetime'),
-                                )
-                        ),
-                )
+            [
+                'siteurl' => new external_value(PARAM_INT, 'Site Url'),
+                'courses' => new external_multiple_structure(new external_single_structure(
+                    [
+                        'courseid' => new external_value(PARAM_INT, 'Origin Course ID'),
+                        'destinyid' => new external_value(PARAM_INT, 'Destiny Course ID'),
+                        'categorydestiny' => new external_value(PARAM_INT, 'Destiny Category ID'),
+                    ]
+                )),
+                'configuration' => new external_single_structure(
+                    [
+                        'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
+                        'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
+                        'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
+                        'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
+                        'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Restore User Data'),
+                        'origin_remove_course' => new external_value(PARAM_BOOL, 'Origin Remove Course'),
+                        'origin_schedule_datetime' => new external_value(PARAM_INT, 'Origin Schedule Datetime'),
+                    ]
+                ),
+            ]
         );
     }
 
@@ -198,14 +201,18 @@ class restore_external extends external_api {
      */
     public static function origin_restore_step4(int $siteurl, array $courses, array $configuration): array {
         global $USER;
-        self::validate_parameters(
+        $params = self::validate_parameters(
             self::origin_restore_step4_parameters(),
                 [
                         'siteurl' => $siteurl,
                         'courses' => $courses,
-                        'configuration' => $configuration
+                        'configuration' => $configuration,
                 ]
         );
+
+        $siteurl = $params['siteurl'];
+        $courses = $params['courses'];
+        $configuration = $params['configuration'];
 
         $success = false;
         $errors = [];
@@ -217,8 +224,8 @@ class restore_external extends external_api {
             $success = false;
             $errors[] =
                     [
-                            'code' => '10502',
-                            'msg' => get_string('courses_not_selected', 'local_coursetransfer')
+                        'code' => '10502',
+                        'msg' => get_string('courses_not_selected', 'local_coursetransfer'),
                     ];
         } else {
             try {
@@ -258,8 +265,8 @@ class restore_external extends external_api {
                         $success = false;
                         $errors[] =
                                 [
-                                        'code' => '10501',
-                                        'msg' => 'Course ID: ' . $course['courseid'] . ' - ' . $e->getMessage()
+                                    'code' => '10501',
+                                    'msg' => 'Course ID: ' . $course['courseid'] . ' - ' . $e->getMessage(),
                                 ];
                     }
                 }
@@ -267,8 +274,8 @@ class restore_external extends external_api {
                 $success = false;
                 $errors[] =
                         [
-                                'code' => '10500',
-                                'msg' => $e->getMessage()
+                            'code' => '10500',
+                            'msg' => $e->getMessage(),
                         ];
             }
         }
@@ -276,7 +283,7 @@ class restore_external extends external_api {
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
@@ -285,20 +292,20 @@ class restore_external extends external_api {
      */
     public static function origin_restore_step4_returns(): external_single_structure {
         return new external_single_structure(
-                array(
-                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'data' => new external_single_structure(
-                                array(
-                                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#')
-                                )
-                        ),
-                        'errors' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_RAW, 'Message')
-                                )
-                        ))
-                )
+            [
+                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'data' => new external_single_structure(
+                    [
+                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#'),
+                    ]
+                ),
+                'errors' => new external_multiple_structure(new external_single_structure(
+                    [
+                        'code' => new external_value(PARAM_TEXT, 'Code'),
+                        'msg' => new external_value(PARAM_RAW, 'Message'),
+                    ]
+                )),
+            ]
         );
     }
 
@@ -307,18 +314,18 @@ class restore_external extends external_api {
      */
     public static function origin_restore_cat_step4_parameters(): external_function_parameters {
         return new external_function_parameters(
-                array(
-                        'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                        'catid' => new external_value(PARAM_INT, 'Origin Category Id'),
-                        'destinyid' => new external_value(PARAM_INT, 'Destiny Category Id'),
-                        'configuration' => new external_single_structure(
-                                array(
-                                        'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Enrol Users'),
-                                        'origin_remove_category' => new external_value(PARAM_BOOL, 'Origin Remove Category'),
-                                        'origin_schedule_datetime' => new external_value(PARAM_INT, 'Origin Schedule Datetime'),
-                                )
-                        ),
-                )
+            [
+                'siteurl' => new external_value(PARAM_INT, 'Site Url'),
+                'catid' => new external_value(PARAM_INT, 'Origin Category Id'),
+                'destinyid' => new external_value(PARAM_INT, 'Destiny Category Id'),
+                'configuration' => new external_single_structure(
+                    [
+                        'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Enrol Users'),
+                        'origin_remove_category' => new external_value(PARAM_BOOL, 'Origin Remove Category'),
+                        'origin_schedule_datetime' => new external_value(PARAM_INT, 'Origin Schedule Datetime'),
+                    ]
+                ),
+            ]
         );
     }
 
@@ -336,15 +343,20 @@ class restore_external extends external_api {
     public static function origin_restore_cat_step4(
             int $siteurl, int $catid, int $destinyid, array $configuration): array {
         global $USER;
-        self::validate_parameters(
+        $params = self::validate_parameters(
             self::origin_restore_cat_step4_parameters(),
                 [
-                        'siteurl' => $siteurl,
-                        'catid' => $catid,
-                        'destinyid' => $destinyid,
-                        'configuration' => $configuration
+                    'siteurl' => $siteurl,
+                    'catid' => $catid,
+                    'destinyid' => $destinyid,
+                    'configuration' => $configuration,
                 ]
         );
+
+        $siteurl = $params['siteurl'];
+        $catid = $params['catid'];
+        $destinyid = $params['destinyid'];
+        $configuration = $params['configuration'];
 
         $success = false;
         $errors = [];
@@ -373,14 +385,14 @@ class restore_external extends external_api {
             $errors[] =
                 [
                     'code' => '11011',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
@@ -389,20 +401,20 @@ class restore_external extends external_api {
      */
     public static function origin_restore_cat_step4_returns(): external_single_structure {
         return new external_single_structure(
-                array(
-                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'data' => new external_single_structure(
-                                array(
-                                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#')
-                                )
-                        ),
-                        'errors' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_RAW, 'Message')
-                                )
-                        ))
-                )
+            [
+                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'data' => new external_single_structure(
+                    [
+                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#'),
+                    ]
+                ),
+                'errors' => new external_multiple_structure(new external_single_structure(
+                    [
+                        'code' => new external_value(PARAM_TEXT, 'Code'),
+                        'msg' => new external_value(PARAM_RAW, 'Message'),
+                    ]
+                )),
+            ]
         );
     }
 

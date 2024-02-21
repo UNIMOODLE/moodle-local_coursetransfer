@@ -105,9 +105,9 @@ list($options, $unrecognised) = cli_get_params([
     'destiny_remove_groups' => false,
     'origin_remove_course' => false,
     'origin_schedule_datetime' => 0,
-    'destiny_not_remove_activities' => ""
+    'destiny_not_remove_activities' => "",
 ], [
-    'h' => 'help'
+    'h' => 'help',
 ]);
 
 if ($unrecognised) {

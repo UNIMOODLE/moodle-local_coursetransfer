@@ -81,7 +81,7 @@ class remove_category_task extends \core\task\adhoc_task {
             $requestorigin = coursetransfer_request::get($requestoriginid);
 
             $categories = [
-                    ['id' => $catid, 'recursive' => 1]
+                    ['id' => $catid, 'recursive' => 1],
             ];
             \core_course_external::delete_categories($categories);
 

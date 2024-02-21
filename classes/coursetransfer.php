@@ -150,8 +150,8 @@ class coursetransfer {
                 'error' =>
                     [
                     'code' => '',
-                    'msg' => ''
-                    ]
+                    'msg' => '',
+                    ],
             ];
         } else {
             return
@@ -161,8 +161,8 @@ class coursetransfer {
                 'error' =>
                         [
                                 'code' => '18001',
-                                'msg' => 'Destination site not founded'
-                        ]
+                                'msg' => 'Destination site not founded',
+                        ],
             ];
         }
     }
@@ -191,8 +191,8 @@ class coursetransfer {
                             'error' =>
                                 [
                                     'code' => '',
-                                    'msg' => ''
-                                ]
+                                    'msg' => '',
+                                ],
                         ];
                 } else {
                     return
@@ -202,8 +202,8 @@ class coursetransfer {
                             'error' =>
                                 [
                                     'code' => '17001',
-                                    'msg' => get_string('user_does_not_have_courses', 'local_coursetransfer')
-                                ]
+                                    'msg' => get_string('user_does_not_have_courses', 'local_coursetransfer'),
+                                ],
                         ];
                 }
 
@@ -215,8 +215,8 @@ class coursetransfer {
                         'error' =>
                             [
                                 'code' => '17002',
-                                'msg' => get_string('user_not_found', 'local_coursetransfer')
-                            ]
+                                'msg' => get_string('user_not_found', 'local_coursetransfer'),
+                            ],
                     ];
             }
 
@@ -228,8 +228,8 @@ class coursetransfer {
                     'error' =>
                         [
                             'code' => '17001',
-                            'msg' => get_string('field_not_valid', 'local_coursetransfer')
-                        ]
+                            'msg' => get_string('field_not_valid', 'local_coursetransfer'),
+                        ],
                 ];
         }
     }
@@ -241,7 +241,6 @@ class coursetransfer {
      * @return bool
      */
     public static function validate_origin_site(string $siteurl): bool {
-        // TODO: comprobar que en el setting la url existe (comparacion de url).
         return true;
     }
 
@@ -329,7 +328,7 @@ class coursetransfer {
                 'sectionid' => $section->id,
                 'sectionname' => is_null($section->name) ?
                     get_string('sectionname', 'format_'. $course->format) . ' ' . $section->section : $section->name,
-                'activities' => self::get_activities_by_section($modinfo, $section->id)
+                'activities' => self::get_activities_by_section($modinfo, $section->id),
             ];
             $finalsections[] = $finalsection;
         }
@@ -352,7 +351,7 @@ class coursetransfer {
                     'cmid' => $module->id,
                     'name' => $module->name,
                     'instance' => $module->instance,
-                    'modname' => $module->modname
+                    'modname' => $module->modname,
                 ];
                 $activities[] = $activity;
             }
@@ -419,7 +418,7 @@ class coursetransfer {
             $fs = get_file_storage();
             $timestamp = time();
 
-            $filerecord = array(
+            $filerecord = [
                     'contextid' => $context->id,
                     'component' => 'local_coursetransfer',
                     'filearea' => 'backup',
@@ -427,8 +426,8 @@ class coursetransfer {
                     'filepath' => '/',
                     'filename' => 'backup.mbz',
                     'timecreated' => $timestamp,
-                    'timemodified' => $timestamp
-            );
+                    'timemodified' => $timestamp,
+            ];
             $storedfile = $fs->create_file_from_storedfile($filerecord, $file);
 
             $filesize = $storedfile->get_filesize();
@@ -484,12 +483,12 @@ class coursetransfer {
         } catch (moodle_exception $e) {
             $error = [
                     'code' => '10010',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
             ];
             $errors[] = $error;
             return [
                     'success' => false,
-                    'errors' => $errors
+                    'errors' => $errors,
             ];
         }
     }
@@ -543,8 +542,8 @@ class coursetransfer {
                 'success' => $success,
                 'errors' => $errors,
                 'data' => [
-                        'requestid' => $requestobject->id
-                ]
+                        'requestid' => $requestobject->id,
+                ],
         ];
     }
 
@@ -594,8 +593,8 @@ class coursetransfer {
                 'success' => $success,
                 'errors' => $errors,
                 'data' => [
-                        'requestid' => $requestobject->id
-                ]
+                        'requestid' => $requestobject->id,
+                ],
         ];
     }
 
@@ -683,18 +682,18 @@ class coursetransfer {
                     'success' => $success,
                     'errors' => $errors,
                     'data' => [
-                        'requestid' => $requestobject->id
-                    ]
+                        'requestid' => $requestobject->id,
+                    ],
             ];
         } catch (moodle_exception $e) {
             $error = [
                     'code' => '11001',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
             ];
             $errors[] = $error;
             return [
                     'success' => false,
-                    'errors' => $errors
+                    'errors' => $errors,
             ];
         }
     }
@@ -752,8 +751,8 @@ class coursetransfer {
                 'success' => $success,
                 'errors' => $errors,
                 'data' => [
-                        'requestid' => $requestobject->id
-                ]
+                        'requestid' => $requestobject->id,
+                ],
         ];
     }
 

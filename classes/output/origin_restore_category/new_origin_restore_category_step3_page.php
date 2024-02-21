@@ -65,7 +65,7 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
         $restoreid = required_param('restoreid', PARAM_INT);
         $data->steps = self::get_steps(3);
         $backurl = new moodle_url(self::URL,
-            ['id' => $this->category->id, 'new' => 1, 'step' => 2, 'site' => $this->site,  'page' => $this->page, ]
+            ['id' => $this->category->id, 'new' => 1, 'step' => 2, 'site' => $this->site,  'page' => $this->page]
         );
         $tableurl = new moodle_url(self::URL, ['id' => $this->category->id]);
         $data->categoryid = $this->category->id;
@@ -74,7 +74,7 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
                     'id' => $this->category->id,
                     'new' => 1, 'step' => 4,
                     'site' => $this->site,
-                    'restoreid' => $restoreid
+                    'restoreid' => $restoreid,
             ]
         );
         $data->back_url = $backurl->out(false);

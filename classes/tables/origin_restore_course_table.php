@@ -82,7 +82,7 @@ class origin_restore_course_table extends table_sql {
 
         $this->define_columns([
             'id', 'siteurl', 'origin_course_id', 'status', 'origin_activities',
-                    'configuration', 'backupsize', 'userid', 'timemodified', 'timecreated'
+                    'configuration', 'backupsize', 'userid', 'timemodified', 'timecreated',
         ]);
 
         $this->define_headers([

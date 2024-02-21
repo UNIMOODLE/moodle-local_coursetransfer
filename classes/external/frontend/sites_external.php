@@ -60,11 +60,11 @@ class sites_external extends external_api {
      */
     public static function site_add_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'type' => new external_value(PARAM_TEXT, 'Type: destiny or origin'),
                 'host' => new external_value(PARAM_RAW, 'Host Url'),
-                'token' => new external_value(PARAM_RAW, 'Host Token')
-            )
+                'token' => new external_value(PARAM_RAW, 'Host Token'),
+            ]
         );
     }
 
@@ -85,7 +85,7 @@ class sites_external extends external_api {
             [
                 'type' => $type,
                 'host' => $host,
-                'token' => $token
+                'token' => $token,
             ]
         );
 
@@ -101,14 +101,14 @@ class sites_external extends external_api {
         if ($type !== 'destiny' && $type !== 'origin') {
             $errors[] =
                     [
-                            'code' => '18044',
-                            'msg' => 'TYPE INVALID'
+                        'code' => '18044',
+                        'msg' => 'TYPE INVALID',
                     ];
         } else if ($host === '' || $token === '') {
             $errors[] =
                     [
-                            'code' => '18043',
-                            'msg' => get_string('host_token_empty', 'local_coursetransfer')
+                        'code' => '18043',
+                        'msg' => get_string('host_token_empty', 'local_coursetransfer'),
                     ];
         } else {
             try {
@@ -126,7 +126,7 @@ class sites_external extends external_api {
                     $errors[] =
                             [
                                     'code' => '18042',
-                                    'msg' => get_string('site_exist', 'local_coursetransfer')
+                                    'msg' => get_string('site_exist', 'local_coursetransfer'),
                             ];
                 } else {
                     $res = $DB->insert_record('local_coursetransfer_' . $type, $object);
@@ -136,8 +136,8 @@ class sites_external extends external_api {
             } catch (moodle_exception $e) {
                 $errors[] =
                         [
-                                'code' => '18041',
-                                'msg' => $e->getMessage()
+                            'code' => '18041',
+                            'msg' => $e->getMessage(),
                         ];
             }
         }
@@ -145,7 +145,7 @@ class sites_external extends external_api {
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
@@ -154,20 +154,20 @@ class sites_external extends external_api {
      */
     public static function site_add_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_RAW, 'Message')
-                    )
+                        'msg' => new external_value(PARAM_RAW, 'Message'),
+                    ]
                 )),
                 'data' => new external_single_structure(
-                    array(
-                        'id' => new external_value(PARAM_INT, 'Site ID', VALUE_OPTIONAL)
-                    )
-                )
-            )
+                    [
+                        'id' => new external_value(PARAM_INT, 'Site ID', VALUE_OPTIONAL),
+                    ]
+                ),
+            ]
         );
     }
 
@@ -176,12 +176,12 @@ class sites_external extends external_api {
      */
     public static function site_edit_parameters(): external_function_parameters {
         return new external_function_parameters(
-                array(
-                        'type' => new external_value(PARAM_TEXT, 'Type: destiny or origin'),
-                        'id' => new external_value(PARAM_INT, 'Host ID'),
-                        'host' => new external_value(PARAM_RAW, 'Host Url'),
-                        'token' => new external_value(PARAM_RAW, 'Host Token')
-                )
+                [
+                    'type' => new external_value(PARAM_TEXT, 'Type: destiny or origin'),
+                    'id' => new external_value(PARAM_INT, 'Host ID'),
+                    'host' => new external_value(PARAM_RAW, 'Host Url'),
+                    'token' => new external_value(PARAM_RAW, 'Host Token'),
+                ]
         );
     }
 
@@ -194,6 +194,7 @@ class sites_external extends external_api {
      * @param string $token
      * @return array
      * @throws invalid_parameter_exception
+     * @throws coding_exception
      */
     public static function site_edit(string $type, int $id, string $host, string $token): array {
         global $DB, $USER;
@@ -203,7 +204,7 @@ class sites_external extends external_api {
                         'type' => $type,
                         'id' => $id,
                         'host' => $host,
-                        'token' => $token
+                        'token' => $token,
                 ]
         );
 
@@ -220,8 +221,14 @@ class sites_external extends external_api {
         if ($type !== 'destiny' && $type !== 'origin') {
             $errors[] =
                     [
-                            'code' => '18032',
-                            'msg' => 'TYPE INVALID'
+                        'code' => '18032',
+                        'msg' => 'TYPE INVALID',
+                    ];
+        } else if ($host === '' || $token === '') {
+            $errors[] =
+                    [
+                        'code' => '18043',
+                        'msg' => get_string('host_token_empty', 'local_coursetransfer'),
                     ];
         } else {
             try {
@@ -238,8 +245,8 @@ class sites_external extends external_api {
                     $success = false;
                     $errors[] =
                             [
-                                    'code' => '18032',
-                                    'msg' => get_string('site_exist', 'local_coursetransfer')
+                                'code' => '18032',
+                                'msg' => get_string('site_exist', 'local_coursetransfer'),
                             ];
                 } else {
                     $DB->update_record('local_coursetransfer_' . $type, $object);
@@ -248,8 +255,8 @@ class sites_external extends external_api {
             } catch (moodle_exception $e) {
                 $errors[] =
                         [
-                                'code' => '18031',
-                                'msg' => $e->getMessage()
+                            'code' => '18031',
+                            'msg' => $e->getMessage(),
                         ];
             }
         }
@@ -257,7 +264,7 @@ class sites_external extends external_api {
         return [
                 'success' => $success,
                 'errors' => $errors,
-                'data' => $data
+                'data' => $data,
         ];
     }
 
@@ -266,20 +273,20 @@ class sites_external extends external_api {
      */
     public static function site_edit_returns(): external_single_structure {
         return new external_single_structure(
-                array(
-                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'errors' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_RAW, 'Message')
-                                )
-                        )),
-                        'data' => new external_single_structure(
-                                array(
-                                        'id' => new external_value(PARAM_INT, 'Site ID', VALUE_OPTIONAL)
-                                )
-                        )
-                )
+                [
+                    'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                    'errors' => new external_multiple_structure(new external_single_structure(
+                        [
+                            'code' => new external_value(PARAM_TEXT, 'Code'),
+                            'msg' => new external_value(PARAM_RAW, 'Message'),
+                        ]
+                    )),
+                    'data' => new external_single_structure(
+                        [
+                            'id' => new external_value(PARAM_INT, 'Site ID', VALUE_OPTIONAL),
+                        ]
+                    ),
+                ]
         );
     }
 
@@ -288,10 +295,10 @@ class sites_external extends external_api {
      */
     public static function site_remove_parameters(): external_function_parameters {
         return new external_function_parameters(
-                array(
-                        'type' => new external_value(PARAM_TEXT, 'Type: destiny or origin'),
-                        'id' => new external_value(PARAM_INT, 'Host ID')
-                )
+                [
+                    'type' => new external_value(PARAM_TEXT, 'Type: destiny or origin'),
+                    'id' => new external_value(PARAM_INT, 'Host ID'),
+                ]
         );
     }
 
@@ -309,7 +316,7 @@ class sites_external extends external_api {
                 self::site_remove_parameters(),
                 [
                         'type' => $type,
-                        'id' => $id
+                        'id' => $id,
                 ]
         );
 
@@ -324,8 +331,8 @@ class sites_external extends external_api {
         if ($type !== 'destiny' && $type !== 'origin') {
             $errors[] =
                     [
-                            'code' => '18022',
-                            'msg' => 'TYPE INVALID'
+                        'code' => '18022',
+                        'msg' => 'TYPE INVALID',
                     ];
         } else {
             try {
@@ -334,8 +341,8 @@ class sites_external extends external_api {
             } catch (moodle_exception $e) {
                 $errors[] =
                         [
-                                'code' => '18021',
-                                'msg' => $e->getMessage()
+                            'code' => '18021',
+                            'msg' => $e->getMessage(),
                         ];
             }
         }
@@ -343,7 +350,7 @@ class sites_external extends external_api {
         return [
                 'success' => $success,
                 'errors' => $errors,
-                'data' => $data
+                'data' => $data,
         ];
     }
 
@@ -352,20 +359,20 @@ class sites_external extends external_api {
      */
     public static function site_remove_returns(): external_single_structure {
         return new external_single_structure(
-                array(
-                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'errors' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_RAW, 'Message')
-                                )
-                        )),
-                        'data' => new external_single_structure(
-                                array(
-                                        'id' => new external_value(PARAM_INT, 'Site ID', VALUE_OPTIONAL)
-                                )
-                        )
-                )
+            [
+                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'errors' => new external_multiple_structure(new external_single_structure(
+                        [
+                            'code' => new external_value(PARAM_TEXT, 'Code'),
+                            'msg' => new external_value(PARAM_RAW, 'Message'),
+                        ]
+                )),
+                'data' => new external_single_structure(
+                        [
+                            'id' => new external_value(PARAM_INT, 'Site ID', VALUE_OPTIONAL),
+                        ]
+                ),
+            ]
         );
     }
 
@@ -376,10 +383,10 @@ class sites_external extends external_api {
      */
     public static function site_test_parameters(): external_function_parameters {
         return new external_function_parameters(
-                array(
-                        'type' => new external_value(PARAM_TEXT, 'Type: destiny or origin'),
-                        'id' => new external_value(PARAM_INT, 'Host ID')
-                )
+                [
+                    'type' => new external_value(PARAM_TEXT, 'Type: destiny or origin'),
+                    'id' => new external_value(PARAM_INT, 'Host ID'),
+                ]
         );
     }
 
@@ -397,7 +404,7 @@ class sites_external extends external_api {
                 self::site_test_parameters(),
                 [
                         'type' => $type,
-                        'id' => $id
+                        'id' => $id,
                 ]
         );
 
@@ -407,15 +414,15 @@ class sites_external extends external_api {
         $success = false;
         $error = [
                 'code' => '',
-                'msg' => ''
+                'msg' => '',
         ];
         $data = new stdClass();
         $data->id = $id;
 
         if ($type !== 'destiny' && $type !== 'origin') {
             $error = [
-                            'code' => '18011',
-                            'msg' => 'TYPE INVALID'
+                        'code' => '18011',
+                        'msg' => 'TYPE INVALID',
                     ];
         } else {
             try {
@@ -451,7 +458,7 @@ class sites_external extends external_api {
             } catch (moodle_exception $e) {
                 $error = [
                         'code' => '18010',
-                        'msg' => $e->getMessage()
+                        'msg' => $e->getMessage(),
                 ];
             }
         }
@@ -459,7 +466,7 @@ class sites_external extends external_api {
         return [
                 'success' => $success,
                 'error' => $error,
-                'data' => $data
+                'data' => $data,
         ];
     }
 
@@ -468,20 +475,20 @@ class sites_external extends external_api {
      */
     public static function site_test_returns(): external_single_structure {
         return new external_single_structure(
-                array(
-                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'error' => new external_single_structure(
-                                array(
-                                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_RAW, 'Message')
-                                )
-                        ),
-                        'data' => new external_single_structure(
-                                array(
-                                        'id' => new external_value(PARAM_INT, 'Site ID', VALUE_OPTIONAL)
-                                )
-                        )
-                )
+                [
+                    'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                    'error' => new external_single_structure(
+                        [
+                            'code' => new external_value(PARAM_TEXT, 'Code'),
+                            'msg' => new external_value(PARAM_RAW, 'Message'),
+                        ]
+                    ),
+                    'data' => new external_single_structure(
+                        [
+                            'id' => new external_value(PARAM_INT, 'Site ID', VALUE_OPTIONAL),
+                        ]
+                    ),
+                ]
         );
     }
 
@@ -490,11 +497,11 @@ class sites_external extends external_api {
      */
     public static function origin_test_parameters(): external_function_parameters {
         return new external_function_parameters(
-                array(
-                        'field' => new external_value(PARAM_TEXT, 'Field'),
-                        'value' => new external_value(PARAM_TEXT, 'Value'),
-                        'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site URL')
-                )
+                [
+                    'field' => new external_value(PARAM_TEXT, 'Field'),
+                    'value' => new external_value(PARAM_TEXT, 'Value'),
+                    'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site URL'),
+                ]
         );
     }
 
@@ -515,7 +522,7 @@ class sites_external extends external_api {
                 self::origin_test_parameters(), [
                         'field' => $field,
                         'value' => $value,
-                        'destinysite' => $destinysite
+                        'destinysite' => $destinysite,
                 ]
         );
 
@@ -552,14 +559,14 @@ class sites_external extends external_api {
             $success = false;
             $errors[] = [
                        'code' => '20021',
-                       'msg' => $e->getMessage()
+                       'msg' => $e->getMessage(),
                     ];
         }
 
         return [
                 'success' => $success,
                 'errors' => $errors,
-                'data' => $data
+                'data' => $data,
         ];
     }
 
@@ -568,15 +575,15 @@ class sites_external extends external_api {
      */
     public static function origin_test_returns(): external_single_structure {
         return new external_single_structure(
-                array(
-                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'errors' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                                ), PARAM_TEXT, 'Errors'
-                        )),
-                )
+            [
+                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'errors' => new external_multiple_structure(new external_single_structure(
+                        [
+                            'code' => new external_value(PARAM_TEXT, 'Code'),
+                            'msg' => new external_value(PARAM_TEXT, 'Message'),
+                        ], PARAM_TEXT, 'Errors'
+                )),
+            ]
         );
     }
 
@@ -585,10 +592,10 @@ class sites_external extends external_api {
      */
     public static function destiny_test_parameters(): external_function_parameters {
         return new external_function_parameters(
-                array(
-                        'field' => new external_value(PARAM_TEXT, 'Field'),
-                        'value' => new external_value(PARAM_TEXT, 'Value')
-                )
+                [
+                    'field' => new external_value(PARAM_TEXT, 'Field'),
+                    'value' => new external_value(PARAM_TEXT, 'Value'),
+                ]
         );
     }
 
@@ -607,7 +614,7 @@ class sites_external extends external_api {
         $params = self::validate_parameters(
                 self::destiny_test_parameters(), [
                         'field' => $field,
-                        'value' => $value
+                        'value' => $value,
                 ]
         );
 
@@ -629,14 +636,14 @@ class sites_external extends external_api {
             $success = false;
             $errors[] = [
                     'code' => '18051',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
             ];
         }
 
         return [
                 'success' => $success,
                 'errors' => $errors,
-                'data' => $data
+                'data' => $data,
         ];
     }
 
@@ -645,15 +652,15 @@ class sites_external extends external_api {
      */
     public static function destiny_test_returns(): external_single_structure {
         return new external_single_structure(
-                array(
-                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'errors' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                                ), PARAM_TEXT, 'Errors'
-                        )),
-                )
+            [
+                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'errors' => new external_multiple_structure(new external_single_structure(
+                    [
+                        'code' => new external_value(PARAM_TEXT, 'Code'),
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ], PARAM_TEXT, 'Errors'
+                )),
+            ]
         );
     }
 

@@ -94,7 +94,7 @@ class user {
         $token = null;
         $user = \core_user::get_user($userid);
         $externalserviceid = $DB->get_field('external_services',
-                'id', array('component' => 'local_coursetransfer'));
+                'id', ['component' => 'local_coursetransfer']);
 
         if ($externalserviceid) {
             $userauthorized = new stdClass();
@@ -105,11 +105,11 @@ class user {
             $userauthorized->timecreated = time();
             $DB->insert_record('external_services_users', $userauthorized);
 
-            $usertokens = $DB->get_records('external_tokens', array(
+            $usertokens = $DB->get_records('external_tokens', [
                     'userid' => $user->id,
                     'tokentype' => EXTERNAL_TOKEN_PERMANENT,
-                    'externalserviceid' => $externalserviceid
-            ));
+                    'externalserviceid' => $externalserviceid,
+            ]);
 
             if ($usertokens) {
                 foreach ($usertokens as $usertoken) {

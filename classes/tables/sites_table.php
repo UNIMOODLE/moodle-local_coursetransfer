@@ -81,7 +81,7 @@ class sites_table extends table_sql {
         $this->define_baseurl($moodleurl);
 
         $this->define_columns([
-            'id', 'url', 'token', 'actions'
+            'id', 'url', 'token', 'actions',
         ]);
 
         $this->define_headers([

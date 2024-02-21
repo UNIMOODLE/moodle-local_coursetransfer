@@ -104,7 +104,7 @@ class origin_restore_category_page implements renderable, templatable {
         $params = [
                 'categoryid' => $this->category->id,
                 'direction' => coursetransfer_request::DIRECTION_REQUEST,
-                'type' => coursetransfer_request::TYPE_CATEGORY
+                'type' => coursetransfer_request::TYPE_CATEGORY,
         ];
         $table->set_sql($select, $from, $where, $params);
         $table->sortable(true, 'timemodified', SORT_DESC);

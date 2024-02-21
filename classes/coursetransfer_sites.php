@@ -117,7 +117,6 @@ class coursetransfer_sites {
      * @return string
      */
     public static function clean_host(string $host): string {
-        error_log(rtrim($host, '/'));
         return rtrim($host, '/');
     }
 }

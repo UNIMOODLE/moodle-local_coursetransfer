@@ -82,7 +82,7 @@ class origin_remove_page_step3 extends origin_remove_page_base {
                     $destinies[] = [
                             'id' => $cd->id,
                             'name' => $cd->fullname,
-                            'shortname' => $cd->shortname
+                            'shortname' => $cd->shortname,
                     ];
                 }
                 foreach ($courses as $c) {

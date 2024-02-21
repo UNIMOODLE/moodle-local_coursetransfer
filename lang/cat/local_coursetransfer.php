@@ -316,3 +316,5 @@ $string['remove_config'] = "Configuració d'Esborrat";
 $string['site_exist'] = 'El lloc ja existeix';
 $string['host_token_empty'] = 'El host o el token estan buits';
 $string['courses_not_selected'] = 'No hi ha cursos seleccionats';
+$string['request_timeout'] = 'Timeout';
+$string['request_timeout_desc'] = "Temps en segons d'espera petició CURL entre origen i destinació";
