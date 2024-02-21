@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\external\frontend;
 
+use coding_exception;
 use core_course_category;
 use DateTime;
 use external_api;
@@ -193,6 +194,7 @@ class restore_external extends external_api {
      * @param array $configuration
      * @return array
      * @throws invalid_parameter_exception
+     * @throws coding_exception
      */
     public static function origin_restore_step4(int $siteurl, array $courses, array $configuration): array {
         global $USER;
@@ -211,54 +213,64 @@ class restore_external extends external_api {
         $nexturl = new moodle_url('/local/coursetransfer/logs.php');
         $data->nexturl = $nexturl->out(false);
 
-        try {
-            $site = coursetransfer::get_site_by_position($siteurl);
-            $num = 1;
-            foreach ($courses as $course) {
-                try {
-                    if ((int)$course['destinyid'] === 0) {
-                        $target = \backup::TARGET_NEW_COURSE;
-                        if ((int)$course['categorydestiny'] === 0) {
-                            $category = core_course_category::get_default();
-                        } else {
-                            $category = core_course_category::get((int)$course['categorydestiny']);
-                        }
-                        $destinycourseid = \local_coursetransfer\factory\course::create(
-                                $category, 'Remote Restoring in process...', 'IN-PROGRESS-' . time() . '-' . $num);
-                    } else {
-                        $target = $configuration['destiny_merge_activities'] ?
-                                \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
-                        $destinycourseid = $course['destinyid'];
-                    }
-                    $nextruntime = $configuration['origin_schedule_datetime'] / 1000;
-                    $date = new DateTime();
-                    $date->setTimestamp(intval($nextruntime));
-                    $config = new configuration_course(
-                            $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups'],
-                            $configuration['origin_enrol_users'], $configuration['origin_remove_course'], $date->getTimestamp());
-                    $res = coursetransfer::restore_course($USER, $site, $destinycourseid, $course['courseid'], $config, []);
-                    if (!$res['success']) {
-                        $errors = $res['errors'];
-                    } else {
-                        $success = true;
-                    }
-                    $num ++;
-                } catch (moodle_exception $e) {
-                    $success = false;
-                    $errors[] =
-                            [
-                                    'code' => '10501',
-                                    'msg' => 'Course ID: ' . $course['courseid'] . ' - ' . $e->getMessage()
-                            ];
-                }
-            }
-        } catch (moodle_exception $e) {
+        if (count($courses) === 0) {
             $success = false;
             $errors[] =
-                [
-                    'code' => '10500',
-                    'msg' => $e->getMessage()
-                ];
+                    [
+                            'code' => '10502',
+                            'msg' => get_string('courses_not_selected', 'local_coursetransfer')
+                    ];
+        } else {
+            try {
+                $site = coursetransfer::get_site_by_position($siteurl);
+                $num = 1;
+                foreach ($courses as $course) {
+                    try {
+                        if ((int)$course['destinyid'] === 0) {
+                            $target = \backup::TARGET_NEW_COURSE;
+                            if ((int)$course['categorydestiny'] === 0) {
+                                $category = core_course_category::get_default();
+                            } else {
+                                $category = core_course_category::get((int)$course['categorydestiny']);
+                            }
+                            $destinycourseid = \local_coursetransfer\factory\course::create(
+                                    $category, 'Remote Restoring in process...', 'IN-PROGRESS-' . time() . '-' . $num);
+                        } else {
+                            $target = $configuration['destiny_merge_activities'] ?
+                                    \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
+                            $destinycourseid = $course['destinyid'];
+                        }
+                        $nextruntime = $configuration['origin_schedule_datetime'] / 1000;
+                        $date = new DateTime();
+                        $date->setTimestamp(intval($nextruntime));
+                        $config = new configuration_course(
+                                $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups'],
+                                $configuration['origin_enrol_users'],
+                                $configuration['origin_remove_course'], $date->getTimestamp());
+                        $res = coursetransfer::restore_course($USER, $site, $destinycourseid, $course['courseid'], $config, []);
+                        if (!$res['success']) {
+                            $errors = $res['errors'];
+                        } else {
+                            $success = true;
+                        }
+                        $num ++;
+                    } catch (moodle_exception $e) {
+                        $success = false;
+                        $errors[] =
+                                [
+                                        'code' => '10501',
+                                        'msg' => 'Course ID: ' . $course['courseid'] . ' - ' . $e->getMessage()
+                                ];
+                    }
+                }
+            } catch (moodle_exception $e) {
+                $success = false;
+                $errors[] =
+                        [
+                                'code' => '10500',
+                                'msg' => $e->getMessage()
+                        ];
+            }
         }
 
         return [

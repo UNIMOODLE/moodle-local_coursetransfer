@@ -317,3 +317,4 @@ $string['view_detail'] = 'Ver detalle:';
 $string['remove_config'] = 'Configuración de Borrado';
 $string['site_exist'] = 'El sitio ya existe';
 $string['host_token_empty'] = 'El host o el token están vacíos';
+$string['courses_not_selected'] = 'No hay cursos seleccionados';

@@ -315,3 +315,4 @@ $string['view_detail'] = 'View detail:';
 $string['remove_config'] = 'Configuration Remove';
 $string['site_exist'] = 'The site already exists';
 $string['host_token_empty'] = 'Host or token is empty';
+$string['courses_not_selected'] = 'There are no courses selected';
