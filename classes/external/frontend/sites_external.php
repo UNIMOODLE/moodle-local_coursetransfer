@@ -99,7 +99,7 @@ class sites_external extends external_api {
         if ($type !== 'destiny' && $type !== 'origin') {
             $errors[] =
                     [
-                            'code' => '18042',
+                            'code' => '18043',
                             'msg' => 'TYPE INVALID'
                     ];
         } else {
@@ -110,12 +110,15 @@ class sites_external extends external_api {
                 $object->userid = $USER->id;
                 $object->timemodified = time();
                 $object->timecreated = time();
-                if ($DB->get_record('local_coursetransfer_' . $type, ['host' => $object->host])) {
+                $params = ['host' => $object->host];
+                $recordselect = $DB->get_record_select('local_coursetransfer_' . $type,
+                "host = :host", $params);
+                if ($recordselect) {
                     $success = false;
                     $errors[] =
                             [
                                     'code' => '18042',
-                                    'msg' => 'THE SITE ALREADY EXISTS'
+                                    'msg' => get_string('site_exist', 'local_coursetransfer')
                             ];
                 } else {
                     $res = $DB->insert_record('local_coursetransfer_' . $type, $object);
@@ -220,13 +223,15 @@ class sites_external extends external_api {
                 $object->token = trim($token);
                 $object->userid = $USER->id;
                 $object->timemodified = time();
-                $host = $DB->get_record('local_coursetransfer_' . $type, ['host' => $object->host]);
-                if ($host && $host->id !== $object->id) {
+                $params = ['host' => $object->host];
+                $recordselect = $DB->get_record_select('local_coursetransfer_' . $type,
+                        "host = :host", $params);
+                if ($recordselect && $recordselect->id !== $object->id) {
                     $success = false;
                     $errors[] =
                             [
                                     'code' => '18032',
-                                    'msg' => 'THE SITE ALREADY EXISTS'
+                                    'msg' => get_string('site_exist', 'local_coursetransfer')
                             ];
                 } else {
                     $DB->update_record('local_coursetransfer_' . $type, $object);

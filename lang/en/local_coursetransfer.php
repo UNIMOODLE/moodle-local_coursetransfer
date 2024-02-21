@@ -313,3 +313,4 @@ $string['notification_remove_course_completed'] = 'Remote course deletion has be
 $string['notification_remove_category_completed'] = 'Remote category deletion has been successfully completed: {$a}';
 $string['view_detail'] = 'View detail:';
 $string['remove_config'] = 'Configuration Remove';
+$string['site_exist'] = 'El sitio ya existe';

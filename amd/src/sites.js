@@ -60,7 +60,8 @@ define([
         CREATE : '#createSite',
         EDIT : '#editSite-',
         TEST_OK : '[data-region="test-ok"]',
-        TEST_KO : '[data-region="test-ko"]'
+        TEST_KO : '[data-region="test-ko"]',
+        ERROR_MSG : '[data-region="error-msg"]'
     };
 
     /**
