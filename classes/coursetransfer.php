@@ -574,7 +574,7 @@ class coursetransfer {
         if ($res->success) {
             // 4a. Update Request DB Completed.
             $requestobject->status = coursetransfer_request::STATUS_IN_PROGRESS;
-            $requestobject->origin_category_id = $res->data->course_category_id;
+            $requestobject->origin_category_id = $origincatid;
             $requestobject->origin_category_name = $res->data->course_category_name;
             $requestobject->origin_category_idnumber = $res->data->course_category_idnumber;
             coursetransfer_request::insert_or_update($requestobject, $requestobject->id);

@@ -80,26 +80,39 @@ class remove_category_task extends \core\task\adhoc_task {
 
             $requestorigin = coursetransfer_request::get($requestoriginid);
 
-            $categories = [
-                    ['id' => $catid, 'recursive' => 1],
-            ];
-            \core_course_external::delete_categories($categories);
+            try {
+                $categories = [
+                        ['id' => $catid, 'recursive' => 1],
+                ];
+                \core_course_external::delete_categories($categories);
 
-            $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
-            coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
-
-            $res = $request->destiny_remove_course_completed($requestdestid, $user);
-
-            if (!$res->success) {
-                $requestorigin->status = coursetransfer_request::STATUS_ERROR;
-                $requestorigin->error_code = $res->errors[0]->code;
-                $requestorigin->error_message = $res->errors[0]->msg;
-                coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
-                mtrace('Remove Course Remote in Completed Callback ERROR: ' . $res->errors[0]->msg);
-                $this->log(json_encode($res));
+                $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
                 coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
-            }
 
+                $res = $request->destiny_remove_course_completed($requestdestid, $user);
+
+                if (!$res->success) {
+                    $requestorigin->status = coursetransfer_request::STATUS_ERROR;
+                    $requestorigin->error_code = $res->errors[0]->code;
+                    $requestorigin->error_message = $res->errors[0]->msg;
+                    coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
+                    mtrace('Remove Course Remote in Completed Callback ERROR: ' . $res->errors[0]->msg);
+                    $this->log(json_encode($res));
+                    coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
+                }
+            } catch (moodle_exception $e) {
+                mtrace('Remove Category Remote ERROR: ' . $e->getMessage());
+                $requestorigin->status = coursetransfer_request::STATUS_ERROR;
+                $requestorigin->error_code = '19001';
+                $requestorigin->error_message = $e->getMessage();
+                coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
+                $res = $request->destiny_remove_course_error(
+                        $user, $requestdestid, $requestorigin->error_message, $requestorigin->error_code);
+                if (!$res->success) {
+                    mtrace('Remove Course Remote in Error Callback ERROR: ' . $res->errors[0]->msg);
+                    $this->log(json_encode($res));
+                }
+            }
         } catch (moodle_exception $e) {
             mtrace('Remove Category Remote ERROR: ' . $e->getMessage());
             $this->log($e->getMessage());

@@ -278,7 +278,7 @@ class remove_external extends external_api {
 
         $field = $params['field'];
         $value = $params['value'];
-        $catid = $params['$catid'];
+        $catid = $params['catid'];
         $requestid = $params['requestid'];
         $destinysite = $params['destinysite'];
         $nextruntime = $params['nextruntime'];
