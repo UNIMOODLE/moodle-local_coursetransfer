@@ -240,7 +240,10 @@ class restore_course_external extends external_api {
             $target = $configuration['destiny_merge_activities'] ?
                     \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
             $configuration = new configuration_course(
-                    $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups']);
+                    $target,
+                    $configuration['destiny_remove_enrols'],
+                    $configuration['destiny_remove_groups']
+            );
             $res = coursetransfer::restore_course($USER, $site, $destinyid, $courseid, $configuration, $sections);
             $success = $res['success'];
             if (!$success) {

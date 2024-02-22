@@ -251,9 +251,13 @@ class restore_external extends external_api {
                         $date = new DateTime();
                         $date->setTimestamp(intval($nextruntime));
                         $config = new configuration_course(
-                                $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups'],
+                                $target,
+                                $configuration['destiny_remove_enrols'],
+                                $configuration['destiny_remove_groups'],
                                 $configuration['origin_enrol_users'],
-                                $configuration['origin_remove_course'], $date->getTimestamp());
+                                $configuration['origin_remove_course'],
+                                $date->getTimestamp()
+                        );
                         $res = coursetransfer::restore_course($USER, $site, $destinycourseid, $course['courseid'], $config, []);
                         if (!$res['success']) {
                             $errors = $res['errors'];

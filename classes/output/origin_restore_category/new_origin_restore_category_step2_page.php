@@ -33,6 +33,8 @@
 
 namespace local_coursetransfer\output\origin_restore_category;
 
+use coding_exception;
+use core_course_category;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -50,6 +52,17 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class new_origin_restore_category_step2_page  extends new_origin_restore_category_step_page {
+
+    /**
+     *  constructor.
+     *
+     * @param core_course_category $category
+     * @throws coding_exception
+     */
+    public function __construct(core_course_category $category) {
+        parent::__construct($category);
+        $this->site = required_param('site', PARAM_INT);
+    }
 
     /**
      * Base url used to build html paging bar links.

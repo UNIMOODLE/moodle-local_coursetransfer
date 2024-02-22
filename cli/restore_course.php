@@ -207,8 +207,14 @@ try {
 
     // 1. Setup Configuration.
     $configuration = new configuration_course(
-            $destinytarget, $destinyremoveenrols, $destinyremovegroups, $originenrolusers,
-            $originremovecourse, $originscheduledatetime, $destinynotremoveactivities);
+            $destinytarget,
+            $destinyremoveenrols,
+            $destinyremovegroups,
+            $originenrolusers,
+            $originremovecourse,
+            $originscheduledatetime,
+            $destinynotremoveactivities
+    );
 
     // 2. User Login.
     $user = core_user::get_user_by_username(user::USERNAME_WS);

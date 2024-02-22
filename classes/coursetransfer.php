@@ -652,8 +652,12 @@ class coursetransfer {
 
                 // 1. Configuration Course.
                 $configurationcourse = new configuration_course(
-                        $configuration->destinytarget, $configuration->destinyremovegroups,
-                $configuration->destinyremoveenrols, $configuration->originenrolusers, $configuration->nextruntime);
+                        $configuration->destinytarget,
+                        $configuration->destinyremoveenrols,
+                        $configuration->destinyremovegroups,
+                        $configuration->originenrolusers,
+                        false,
+                        $configuration->nextruntime);
 
                 // 2. Create new course in this category.
                 $destinycourseid = course::create(

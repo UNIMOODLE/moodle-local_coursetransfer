@@ -302,7 +302,9 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
                 false,
                 false,
                 true,
-                false, 0);
+                false,
+                0
+        );
         list($requestdestination4, $requestorigin4) = $this->test_restore_course(
                 $configuration4, $this->destinycourse4, $this->origincourse);
 

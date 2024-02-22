@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\output\origin_restore_course;
 
+use coding_exception;
 use renderable;
 use renderer_base;
 use stdClass;
@@ -57,29 +58,27 @@ class new_origin_restore_course_step_page implements renderable, templatable {
     /** @var int Site */
     protected $site;
 
-    /**
-     * Page of data requested.
-     *
-     * @var int
-     */
+    /** @var int Restore ID */
+    protected $restoreid;
+
+    /** @var int Destination ID */
+    protected $destinyid;
+
+    /** @var int Page of data requested */
     protected $page;
 
-    /**
-     * Number of items to show on each page.
-     *
-     * @var int
-     */
+    /** @var int Number of items to show on each page. */
     protected $perpage;
 
     /**
      *  constructor.
      *
+     * @param stdClass $course
      * @throws coding_exception
      */
     public function __construct(stdClass $course) {
         global $CFG;
         $this->course = $course;
-        $this->site = required_param('site', PARAM_INT);
         $this->page = optional_param('page', 0, PARAM_INT);
         $this->perpage = optional_param('perpage', $CFG->coursesperpage, PARAM_INT);
     }

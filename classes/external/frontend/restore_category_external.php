@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\external\frontend;
 
+use DateTime;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -217,6 +218,9 @@ class restore_category_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
+            $nextruntime = $nextruntime / 1000;
+            $date = new DateTime();
+            $date->setTimestamp(intval($nextruntime));
             $configuration = new configuration_category(
                     \backup::TARGET_NEW_COURSE,
                     false, false, 0, 0, $nextruntime);
