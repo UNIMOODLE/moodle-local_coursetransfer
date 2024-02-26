@@ -91,7 +91,7 @@ class origin_restore_step4_page extends origin_restore_step_page {
                             $destinies[] = [
                                     'id' => $cd->id,
                                     'name' => $cd->fullname,
-                                    'shortname' => $cd->shortname
+                                    'shortname' => $cd->shortname,
                             ];
                         }
                     }

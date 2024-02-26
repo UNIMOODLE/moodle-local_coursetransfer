@@ -78,7 +78,7 @@ class coursetransfer_download {
         $asynctask = new download_file_course_task();
         $asynctask->set_blocking(false);
         $asynctask->set_custom_data(
-                array('requestid' => $request->id, 'fileurl' => $fileurl)
+                ['requestid' => $request->id, 'fileurl' => $fileurl]
         );
         return \core\task\manager::queue_adhoc_task($asynctask);
     }

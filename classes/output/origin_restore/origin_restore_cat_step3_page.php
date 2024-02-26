@@ -66,7 +66,7 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
         $data->steps = self::get_steps(3);
         $tableurl = new moodle_url(self::URL);
         $backurl = new moodle_url(self::URL,
-                ['step' => 2, 'site' => $this->site, 'type' => 'categories', 'page' => $this->page, ]
+                ['step' => 2, 'site' => $this->site, 'type' => 'categories', 'page' => $this->page]
         );
         $nexturl = new moodle_url(self::URL,
             ['step' => 4, 'site' => $this->site, 'type' => 'categories']
@@ -123,7 +123,7 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
             $data->haserrors = true;
             $errors[] = [
                     'code' => '21011',
-                    'msg' => get_string('error_validate_site', 'local_coursetransfer')
+                    'msg' => get_string('error_validate_site', 'local_coursetransfer'),
             ];
             $data->errors = $errors;
         }

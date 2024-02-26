@@ -88,9 +88,9 @@ list($options, $unrecognised) = cli_get_params([
         'destiny_category_id' => null,
         'origin_enrolusers' => false,
         'origin_remove_category' => false,
-        'origin_schedule_datetime' => null
+        'origin_schedule_datetime' => null,
 ], [
-        'h' => 'help'
+        'h' => 'help',
 ]);
 
 if ($unrecognised) {

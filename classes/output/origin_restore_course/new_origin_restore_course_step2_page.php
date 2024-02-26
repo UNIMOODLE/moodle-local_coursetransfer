@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\output\origin_restore_course;
 
+use coding_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -50,6 +51,17 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class new_origin_restore_course_step2_page  extends new_origin_restore_course_step_page {
+
+    /**
+     *  constructor.
+     *
+     * @param stdClass $course
+     * @throws coding_exception
+     */
+    public function __construct(stdClass $course) {
+        parent::__construct($course);
+        $this->site = required_param('site', PARAM_INT);
+    }
 
     /**
      * Base url used to build html paging bar links.
@@ -77,7 +89,7 @@ class new_origin_restore_course_step2_page  extends new_origin_restore_course_st
         $url = new moodle_url(self::URL, ['id' => $this->course->id]);
         $data->courseid = $this->course->id;
         $nexturl = new moodle_url(self::URL,
-            ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $this->site, 'page' => $this->page, ]
+            ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $this->site, 'page' => $this->page]
         );
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);

@@ -60,7 +60,8 @@ define([
         CREATE : '#createSite',
         EDIT : '#editSite-',
         TEST_OK : '[data-region="test-ok"]',
-        TEST_KO : '[data-region="test-ko"]'
+        TEST_KO : '[data-region="test-ko"]',
+        ERROR_MSG : '[data-region="error-msg"]'
     };
 
     /**
@@ -85,6 +86,7 @@ define([
         let createregion = this.node.find(REGIONS.CREATE);
         let host = createregion.find('#host').val();
         let token = createregion.find('#token').val();
+        let errormsg = this.node.find(REGIONS.ERROR_MSG);
 
         const request = {
             methodname: SERVICES.SITE_ADD,
@@ -99,6 +101,8 @@ define([
                 location.reload();
             } else {
                 console.log(response);
+                errormsg.text(response.errors[0].msg);
+                errormsg.show();
             }
         }).fail(function(fail) {
             console.log(fail);
@@ -111,6 +115,8 @@ define([
         let editregion = this.node.find(REGIONS.EDIT + siteid);
         let host = editregion.find('#host').val();
         let token = editregion.find('#token').val();
+        let errormsg = this.node.find(REGIONS.ERROR_MSG);
+
         button.attr('disabled', true);
         const request = {
             methodname: SERVICES.SITE_EDIT,
@@ -126,6 +132,8 @@ define([
                 location.reload();
             } else {
                 console.log(response);
+                errormsg.text(response.errors[0].msg);
+                errormsg.show();
             }
         }).fail(function(fail) {
             console.log(fail);

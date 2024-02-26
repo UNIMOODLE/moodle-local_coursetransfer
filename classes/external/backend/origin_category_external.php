@@ -105,7 +105,6 @@ class origin_category_external extends external_api {
                 $categories = coursetransfer::get_categories_user($user, $page, $perpage);
                 $totalcategories = coursetransfer::count_categories_user();
                 foreach ($categories as $category) {
-                    // TODO. review total count courses and child for user.
                     $item = new stdClass();
                     $item->id = $category->id;
                     $item->name = $category->name;
@@ -132,7 +131,7 @@ class origin_category_external extends external_api {
             $errors[] =
                 [
                     'code' => '23011',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
@@ -154,7 +153,7 @@ class origin_category_external extends external_api {
                 'errors' => new external_multiple_structure(new external_single_structure(
                     [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
                     ], PARAM_TEXT, 'Errors'
                 )),
                 'paging' => new external_single_structure([
@@ -171,9 +170,9 @@ class origin_category_external extends external_api {
                         'parentname' => new external_value(PARAM_TEXT, 'Category parent Name', VALUE_OPTIONAL),
                         'totalcourses' => new external_value(PARAM_INT, 'Total courses', VALUE_OPTIONAL),
                         'totalsubcategories' => new external_value(PARAM_INT, 'Total subcategories', VALUE_OPTIONAL),
-                        'totalcourseschild' => new external_value(PARAM_INT, 'Total courses all subcategory', VALUE_OPTIONAL)
+                        'totalcourseschild' => new external_value(PARAM_INT, 'Total courses all subcategory', VALUE_OPTIONAL),
                     ], PARAM_TEXT, 'Data'
-                ))
+                )),
             ]
         );
     }
@@ -186,7 +185,7 @@ class origin_category_external extends external_api {
             [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
                 'value' => new external_value(PARAM_TEXT, 'Value'),
-                'categoryid' => new external_value(PARAM_INT, 'Category ID')
+                'categoryid' => new external_value(PARAM_INT, 'Category ID'),
             ]
         );
     }
@@ -205,7 +204,7 @@ class origin_category_external extends external_api {
             self::origin_get_category_detail_parameters(), [
                 'field' => $field,
                 'value' => $value,
-                'categoryid' => $categoryid
+                'categoryid' => $categoryid,
             ]
         );
         $field = $params['field'];
@@ -219,13 +218,12 @@ class origin_category_external extends external_api {
             'idnumber' => 0,
             'parentid' => 0,
             'parentname' => '',
-            'courses' => []
+            'courses' => [],
             ];
 
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
-                // TODO. review total count courses and child for user.
                 $category = core_course_category::get($categoryid);
                 $categoryparent = core_course_category::get($category->parent);
                 $courses = [];
@@ -254,7 +252,7 @@ class origin_category_external extends external_api {
                         'idnumber' => $category->idnumber,
                         'parentid' => $category->parent,
                         'parentname' => $parentname,
-                        'courses' => $courses
+                        'courses' => $courses,
                 ];
                 $success = true;
             } else {
@@ -266,14 +264,14 @@ class origin_category_external extends external_api {
             $errors[] =
                 [
                     'code' => '23001',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
@@ -287,7 +285,7 @@ class origin_category_external extends external_api {
                 'errors' => new external_multiple_structure(new external_single_structure(
                     [
                         'code' => new external_value(PARAM_INT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
                     ], PARAM_TEXT, 'Errors'
                 )),
                 'data' => new external_single_structure(
@@ -310,9 +308,9 @@ class origin_category_external extends external_api {
                                     'categoryidnumber' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
                                 ]
                             )
-                        )
+                        ),
                     ]
-                )
+                ),
             ]
         );
     }

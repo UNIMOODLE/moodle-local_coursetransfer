@@ -52,16 +52,6 @@ use stdClass;
 class new_origin_restore_category_step1_page  extends new_origin_restore_category_step_page {
 
     /**
-     *  constructor.
-     *
-     * @param core_course_category $category
-     */
-    public function __construct(core_course_category $category) {
-        global $CFG;
-        $this->category = $category;
-    }
-
-    /**
      * Export for Template.
      *
      * @param renderer_base $output

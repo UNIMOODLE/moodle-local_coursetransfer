@@ -33,7 +33,9 @@
 
 namespace local_coursetransfer\output\origin_restore_category;
 
+use coding_exception;
 use context_system;
+use core_course_category;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -53,6 +55,18 @@ use stdClass;
 class new_origin_restore_category_step3_page  extends new_origin_restore_category_step_page {
 
     /**
+     *  constructor.
+     *
+     * @param core_course_category $category
+     * @throws coding_exception
+     */
+    public function __construct(core_course_category $category) {
+        parent::__construct($category);
+        $this->site = required_param('site', PARAM_INT);
+        $this->restoreid = required_param('restoreid', PARAM_INT);
+    }
+
+    /**
      * Export for Template.
      *
      * @param renderer_base $output
@@ -62,10 +76,9 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
         $data = new stdClass();
-        $restoreid = required_param('restoreid', PARAM_INT);
         $data->steps = self::get_steps(3);
         $backurl = new moodle_url(self::URL,
-            ['id' => $this->category->id, 'new' => 1, 'step' => 2, 'site' => $this->site,  'page' => $this->page, ]
+            ['id' => $this->category->id, 'new' => 1, 'step' => 2, 'site' => $this->site,  'page' => $this->page]
         );
         $tableurl = new moodle_url(self::URL, ['id' => $this->category->id]);
         $data->categoryid = $this->category->id;
@@ -74,7 +87,7 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
                     'id' => $this->category->id,
                     'new' => 1, 'step' => 4,
                     'site' => $this->site,
-                    'restoreid' => $restoreid
+                    'restoreid' => $this->restoreid,
             ]
         );
         $data->back_url = $backurl->out(false);
@@ -85,10 +98,10 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
             $data->haserrors = false;
             try {
                 $request = new request($site);
-                $res = $request->origin_get_category_detail($restoreid, $USER);
+                $res = $request->origin_get_category_detail($this->restoreid, $USER);
                 if ($res->success) {
                     $data->category = $res->data;
-                    $data->category->sessionStorage_id = "local_coursetransfer_".$this->category->id."_".$restoreid;
+                    $data->category->sessionStorage_id = "local_coursetransfer_".$this->category->id."_".$this->restoreid;
                 } else {
                     $data->errors = $res->errors;
                     $data->haserrors = true;

@@ -83,7 +83,7 @@ list($options, $unrecognised) = cli_get_params([
         'to' => null,
         'userid' => null,
 ], [
-        'h' => 'help'
+        'h' => 'help',
 ]);
 
 if ($unrecognised) {
@@ -106,7 +106,8 @@ $userid = isset($options['userid']) ? (int) $options['userid'] : null;
 
 try {
 
-    $mask = "| %8.8s | %-5.5s | %-5.5s | %-30.30s | %-10.10s | %-10.10s | %-10.10s | %-10.10s | %-14.14s | %-7.7s | %-13.13s  | %-13.13s | %-40.40s \n";
+    $mask = "| %8.8s | %-5.5s | %-5.5s | %-30.30s | %-10.10s ".
+            "| %-10.10s | %-10.10s | %-10.10s | %-14.14s | %-7.7s | %-13.13s  | %-13.13s | %-40.40s \n";
     printf($mask,
             'Req ID', 'Type', 'Dir', 'Site URL', 'Dest Course', 'Orig Course', 'Dest Cat', 'Orig Cat',
             'Status', 'UserID', 'TimeModified', 'TimeCreated', 'Error');

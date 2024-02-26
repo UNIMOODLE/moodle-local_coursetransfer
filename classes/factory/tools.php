@@ -76,12 +76,12 @@ class tools {
                 'course' => $course,
                 'name' => $name,
                 'intro' => $intro,
-                'introformat' => FORMAT_HTML
+                'introformat' => FORMAT_HTML,
         ];
         $options = [
                 'section' => $section->section,
                 'visible' => 1,
-                'showdescription' => false
+                'showdescription' => false,
         ];
         return $generator->create_instance($record, $options);
     }
@@ -107,12 +107,12 @@ class tools {
                 'intro' => $intro,
                 'introformat' => FORMAT_HTML,
                 'idnumber' => $name,
-                'display' => 4
+                'display' => 4,
         ];
         $options = [
                 'section' => $section->section,
                 'visible' => 1,
-                'showdescription' => false
+                'showdescription' => false,
         ];
         return $generator->create_instance($record, $options);
     }
@@ -135,12 +135,12 @@ class tools {
                 'course' => $course,
                 'name' => $name,
                 'intro' => $intro,
-                'introformat' => FORMAT_HTML
+                'introformat' => FORMAT_HTML,
         ];
         $options = [
                 'section' => $section->section,
                 'visible' => 1,
-                'showdescription' => false
+                'showdescription' => false,
         ];
         return $generator->create_instance($record, $options);
     }
@@ -223,7 +223,7 @@ class tools {
         $options = [
                 'section' => $section->section,
                 'visible' => 1,
-                'showdescription' => false
+                'showdescription' => false,
         ];
         return $generator->create_instance($record, $options);
     }

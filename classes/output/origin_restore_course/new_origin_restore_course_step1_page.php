@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\output\origin_restore_course;
 
+use coding_exception;
 use local_coursetransfer\forms\new_origin_restore_course_step1_form;
 use moodle_exception;
 use moodle_url;

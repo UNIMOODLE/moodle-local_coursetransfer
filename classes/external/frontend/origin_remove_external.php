@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\external\frontend;
 
+use coding_exception;
 use context_system;
 use DateTime;
 use dml_exception;
@@ -63,10 +64,10 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_step1_parameters(): external_function_parameters {
         return new external_function_parameters(
-                array(
+                [
                         'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                        'type' => new external_value(PARAM_TEXT, 'Type restore')
-                )
+                        'type' => new external_value(PARAM_TEXT, 'Type restore'),
+                ]
         );
     }
 
@@ -80,13 +81,16 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_step1(int $siteurl, string $type): array {
         global $USER;
-        self::validate_parameters(
+        $params = self::validate_parameters(
                 self::origin_remove_step1_parameters(),
                 [
                         'siteurl' => $siteurl,
-                        'type' => $type
+                        'type' => $type,
                 ]
         );
+
+        $siteurl = $params['siteurl'];
+        $type = $params['type'];
 
         $success = false;
         $errors = [];
@@ -117,14 +121,14 @@ class origin_remove_external extends external_api {
             $errors[] =
                     [
                             'code' => '30106',
-                            'msg' => $e->getMessage()
+                            'msg' => $e->getMessage(),
                     ];
         }
 
         return [
                 'success' => $success,
                 'errors' => $errors,
-                'data' => $data
+                'data' => $data,
         ];
     }
 
@@ -133,25 +137,25 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_step1_returns(): external_single_structure {
         return new external_single_structure(
-                array(
-                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'errors' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_RAW, 'Message')
-                                )
-                        )),
-                        'data' => new external_single_structure(
-                                array(
-                                        'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
-                                        'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
-                                        'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
-                                        'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
-                                        'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
-                                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
-                                )
-                        )
-                )
+                [
+                    'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                    'errors' => new external_multiple_structure(new external_single_structure(
+                        [
+                            'code' => new external_value(PARAM_TEXT, 'Code'),
+                            'msg' => new external_value(PARAM_RAW, 'Message'),
+                        ]
+                    )),
+                    'data' => new external_single_structure(
+                        [
+                            'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
+                            'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
+                            'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
+                            'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
+                            'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
+                            'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL),
+                        ]
+                    ),
+                ]
         );
     }
 
@@ -160,16 +164,16 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_step3_parameters(): external_function_parameters {
         return new external_function_parameters(
-                array(
+                [
                         'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                         'courses' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'id' => new external_value(PARAM_INT, 'Origin Course ID')
-                                )
+                                [
+                                        'id' => new external_value(PARAM_INT, 'Origin Course ID'),
+                                ]
                         )),
                         'nextruntime' => new external_value(PARAM_INT,
-                                'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0)
-                )
+                                'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0),
+                ]
         );
     }
 
@@ -187,20 +191,24 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_step3(int $siteurl, array $courses, int $nextruntime): array {
         global $USER;
-        self::validate_parameters(
+        $params = self::validate_parameters(
                 self::origin_remove_step3_parameters(),
                 [
                         'siteurl' => $siteurl,
                         'courses' => $courses,
-                        'nextruntime' => $nextruntime
+                        'nextruntime' => $nextruntime,
                 ]
         );
+
+        $siteurl = $params['siteurl'];
+        $courses = $params['courses'];
+        $nextruntime = $params['nextruntime'];
 
         $success = false;
         $errors = [];
         $data = new stdClass();
         $nexturl = new moodle_url('/local/coursetransfer/logs.php', [
-                'type' => coursetransfer_request::TYPE_REMOVE_COURSE
+                'type' => coursetransfer_request::TYPE_REMOVE_COURSE,
         ]);
         $data->nexturl = $nexturl->out(false);
 
@@ -231,30 +239,30 @@ class origin_remove_external extends external_api {
                     } else {
                         $errors[] =
                                 [
-                                        'code' => '30105',
-                                        'msg' => 'NOT CONTROLLED'
+                                    'code' => '30105',
+                                    'msg' => 'NOT CONTROLLED',
                                 ];
                     }
                 }
             } catch (moodle_exception $e) {
                 $errors[] =
                         [
-                                'code' => '30104',
-                                'msg' => $e->getMessage()
+                            'code' => '30104',
+                            'msg' => $e->getMessage(),
                         ];
             }
         } else {
             $errors[] =
                     [
-                            'code' => '30103',
-                            'msg' => get_string('you_have_not_permission', 'local_coursetransfer')
+                        'code' => '30103',
+                        'msg' => get_string('you_have_not_permission', 'local_coursetransfer'),
                     ];
         }
 
         return [
                 'success' => $success,
                 'errors' => $errors,
-                'data' => $data
+                'data' => $data,
         ];
     }
 
@@ -263,20 +271,20 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_step3_returns(): external_single_structure {
         return new external_single_structure(
-                array(
-                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'data' => new external_single_structure(
-                                array(
-                                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#')
-                                )
-                        ),
-                        'errors' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_RAW, 'Message')
-                                )
-                        ))
-                )
+                [
+                    'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                    'data' => new external_single_structure(
+                            [
+                                'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#'),
+                            ]
+                    ),
+                    'errors' => new external_multiple_structure(new external_single_structure(
+                            [
+                                'code' => new external_value(PARAM_TEXT, 'Code'),
+                                'msg' => new external_value(PARAM_RAW, 'Message'),
+                            ]
+                    )),
+                ]
         );
     }
 
@@ -285,12 +293,12 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_cat_step3_parameters(): external_function_parameters {
         return new external_function_parameters(
-                array(
-                        'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                        'catid' => new external_value(PARAM_INT, 'Origin Course Category ID'),
-                        'nextruntime' => new external_value(PARAM_INT,
-                                'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0)
-                )
+                [
+                    'siteurl' => new external_value(PARAM_INT, 'Site Url'),
+                    'catid' => new external_value(PARAM_INT, 'Origin Course Category ID'),
+                    'nextruntime' => new external_value(PARAM_INT,
+                            'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0),
+                ]
         );
     }
 
@@ -301,27 +309,31 @@ class origin_remove_external extends external_api {
      * @param int $catid
      * @param int $nextruntime
      * @return array
-     * @throws \coding_exception
+     * @throws coding_exception
      * @throws dml_exception
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
     public static function origin_remove_cat_step3(int $siteurl, int $catid, int $nextruntime): array {
         global $USER;
-        self::validate_parameters(
+        $params = self::validate_parameters(
                 self::origin_remove_cat_step3_parameters(),
                 [
                         'siteurl' => $siteurl,
                         'catid' => $catid,
-                        'nextruntime' => $nextruntime
+                        'nextruntime' => $nextruntime,
                 ]
         );
+
+        $siteurl = $params['siteurl'];
+        $catid = $params['catid'];
+        $nextruntime = $params['nextruntime'];
 
         $success = false;
         $errors = [];
         $data = new stdClass();
         $nexturl = new moodle_url('/local/coursetransfer/logs.php', [
-                'type' => coursetransfer_request::TYPE_REMOVE_CATEGORY
+                'type' => coursetransfer_request::TYPE_REMOVE_CATEGORY,
         ]);
         $data->nexturl = $nexturl->out(false);
         if (has_capability('local/coursetransfer:origin_remove_course', context_system::instance())) {
@@ -350,29 +362,29 @@ class origin_remove_external extends external_api {
                 } else {
                     $errors[] =
                             [
-                                    'code' => '30102',
-                                    'msg' => 'NOT CONTROLLED'
+                                'code' => '30102',
+                                'msg' => 'NOT CONTROLLED',
                             ];
                 }
             } catch (moodle_exception $e) {
                 $errors[] =
                         [
-                                'code' => '30101',
-                                'msg' => $e->getMessage()
+                            'code' => '30101',
+                            'msg' => $e->getMessage(),
                         ];
             }
         } else {
             $errors[] =
                     [
-                            'code' => '30100',
-                            'msg' => get_string('you_have_not_permission', 'local_coursetransfer')
+                        'code' => '30100',
+                        'msg' => get_string('you_have_not_permission', 'local_coursetransfer'),
                     ];
         }
 
         return [
                 'success' => $success,
                 'errors' => $errors,
-                'data' => $data
+                'data' => $data,
         ];
     }
 
@@ -381,20 +393,20 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_cat_step3_returns(): external_single_structure {
         return new external_single_structure(
-                array(
-                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'data' => new external_single_structure(
-                                array(
-                                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#')
-                                )
-                        ),
-                        'errors' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_RAW, 'Message')
-                                )
-                        ))
-                )
+                [
+                    'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                    'data' => new external_single_structure(
+                            [
+                                'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#'),
+                            ]
+                    ),
+                    'errors' => new external_multiple_structure(new external_single_structure(
+                            [
+                                'code' => new external_value(PARAM_TEXT, 'Code'),
+                                'msg' => new external_value(PARAM_RAW, 'Message'),
+                            ]
+                    )),
+                ]
         );
     }
 };

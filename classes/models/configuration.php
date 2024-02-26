@@ -68,8 +68,13 @@ abstract class configuration {
      * @param bool $originenrolusers
      * @param int|null $nextruntime
      */
-    public function __construct(int $destinytarget, bool $destinyremoveenrols,
-            bool $destinyremovegroups, bool $originenrolusers, int $nextruntime = null) {
+    public function __construct(
+            int $destinytarget,
+            bool $destinyremoveenrols,
+            bool $destinyremovegroups,
+            bool $originenrolusers,
+            int $nextruntime = null
+    ) {
         $this->set_destiny_target($destinytarget);
         $this->set_destiny_remove_enrols($destinyremoveenrols);
         $this->set_destiny_remove_groups($destinyremovegroups);

@@ -78,7 +78,7 @@ class coursetransfer_restore {
         $resasynctask = new restore_course_task();
         $resasynctask->set_blocking(false);
         $resasynctask->set_custom_data(
-                array('requestid' => $request->id, 'fileid' => $file->get_id())
+                ['requestid' => $request->id, 'fileid' => $file->get_id()]
         );
         return \core\task\manager::queue_adhoc_task($resasynctask);
     }
@@ -124,7 +124,7 @@ class coursetransfer_restore {
             $restoreoptions = [
                     'overwrite_conf' => 0,
                     'keep_roles_and_enrolments' => $keeprolesenrolments,
-                    'keep_groups_and_groupings' => $keepgroupsgroupings
+                    'keep_groups_and_groupings' => $keepgroupsgroupings,
             ];
 
             if ($target === backup::TARGET_NEW_COURSE) {

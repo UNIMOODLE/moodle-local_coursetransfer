@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\external\frontend;
 
+use DateTime;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -60,10 +61,10 @@ class restore_category_external extends external_api {
      */
     public static function new_origin_restore_category_step1_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                'categoryid' => new external_value(PARAM_INT, 'Category ID')
-            )
+                'categoryid' => new external_value(PARAM_INT, 'Category ID'),
+            ]
         );
     }
 
@@ -79,13 +80,16 @@ class restore_category_external extends external_api {
      */
     public static function new_origin_restore_category_step1(int $siteurl, int $categoryid): array {
         global $USER;
-        self::validate_parameters(
+        $params = self::validate_parameters(
             self::new_origin_restore_category_step1_parameters(),
             [
                 'siteurl' => $siteurl,
-                'categoryid' => $categoryid
+                'categoryid' => $categoryid,
             ]
         );
+
+        $siteurl = $params['siteurl'];
+        $categoryid = $params['categoryid'];
 
         $success = false;
         $errors = [];
@@ -116,14 +120,14 @@ class restore_category_external extends external_api {
             $errors[] =
                 [
                     'code' => '21111',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
@@ -132,25 +136,25 @@ class restore_category_external extends external_api {
      */
     public static function new_origin_restore_category_step1_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                    )
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ]
                 )),
                 'data' => new external_single_structure(
-                    array(
+                    [
                         'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
                         'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
                         'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
                         'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
                         'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
-                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
-                    )
-                )
-            )
+                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL),
+                    ]
+                ),
+            ]
         );
     }
 
@@ -159,17 +163,17 @@ class restore_category_external extends external_api {
      */
     public static function new_origin_restore_category_step4_parameters(): external_function_parameters {
         return new external_function_parameters(
-                array(
-                        'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                        'categoryid' => new external_value(PARAM_INT, 'Category ID'),
-                        'destinyid' => new external_value(PARAM_INT, 'Category Destiny ID'),
-                        'courses' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'id' => new external_value(PARAM_INT, 'Course ID'),
-                                )
-                        )),
-                        'nextruntime' => new external_value(PARAM_INT, 'Next Time Run Timestamp'),
-                )
+                [
+                    'siteurl' => new external_value(PARAM_INT, 'Site Url'),
+                    'categoryid' => new external_value(PARAM_INT, 'Category ID'),
+                    'destinyid' => new external_value(PARAM_INT, 'Category Destiny ID'),
+                    'courses' => new external_multiple_structure(new external_single_structure(
+                            [
+                                'id' => new external_value(PARAM_INT, 'Course ID'),
+                            ]
+                    )),
+                    'nextruntime' => new external_value(PARAM_INT, 'Next Time Run Timestamp'),
+                ]
         );
     }
 
@@ -189,16 +193,22 @@ class restore_category_external extends external_api {
 
         global $USER;
 
-        self::validate_parameters(
+        $params = self::validate_parameters(
                 self::new_origin_restore_category_step4_parameters(),
                 [
                         'siteurl' => $siteurl,
                         'categoryid' => $categoryid,
                         'destinyid' => $destinyid,
                         'courses' => $courses,
-                        'nextruntime' => $nextruntime
+                        'nextruntime' => $nextruntime,
                 ]
         );
+
+        $siteurl = $params['siteurl'];
+        $categoryid = $params['categoryid'];
+        $destinyid = $params['destinyid'];
+        $courses = $params['courses'];
+        $nextruntime = $params['nextruntime'];
 
         $success = false;
         $errors = [];
@@ -208,6 +218,9 @@ class restore_category_external extends external_api {
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
+            $nextruntime = $nextruntime / 1000;
+            $date = new DateTime();
+            $date->setTimestamp(intval($nextruntime));
             $configuration = new configuration_category(
                     \backup::TARGET_NEW_COURSE,
                     false, false, 0, 0, $nextruntime);
@@ -217,15 +230,15 @@ class restore_category_external extends external_api {
         } catch (moodle_exception $e) {
             $errors[] =
                     [
-                            'code' => '21101',
-                            'msg' => $e->getMessage()
+                        'code' => '21101',
+                        'msg' => $e->getMessage(),
                     ];
         }
 
         return [
                 'success' => $success,
                 'errors' => $errors,
-                'data' => $data
+                'data' => $data,
         ];
     }
 
@@ -234,20 +247,20 @@ class restore_category_external extends external_api {
      */
     public static function new_origin_restore_category_step4_returns(): external_single_structure {
         return new external_single_structure(
-                array(
-                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'data' => new external_single_structure(
-                                array(
-                                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
-                                )
-                        ),
-                        'errors' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                                )
-                        ))
-                )
+                [
+                    'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                    'data' => new external_single_structure(
+                        [
+                            'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL),
+                        ]
+                    ),
+                    'errors' => new external_multiple_structure(new external_single_structure(
+                        [
+                            'code' => new external_value(PARAM_TEXT, 'Code'),
+                            'msg' => new external_value(PARAM_TEXT, 'Message'),
+                        ]
+                    )),
+                ]
         );
     }
 

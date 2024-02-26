@@ -77,13 +77,14 @@ class download_file_course_task extends \core\task\adhoc_task {
             $context = context_course::instance($request->destiny_course_id);
             $filename = 'local_coursetransfer_' . $request->origin_course_id . '_' . time() . '.mbz';
 
-            $fileinfo = array(
+            $fileinfo = [
                     'contextid' => $context->id,
                     'component' => 'backup',
                     'filearea' => 'course',
                     'itemid' => 0,
                     'filepath' => '/',
-                    'filename' => $filename);
+                    'filename' => $filename,
+            ];
 
             $file = $fs->create_file_from_string($fileinfo, $filecontent);
 

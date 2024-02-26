@@ -33,7 +33,6 @@
 
 namespace local_coursetransfer\api;
 
-use coding_exception;
 use dml_exception;
 use local_coursetransfer\models\configuration_course;
 use stdClass;
@@ -65,14 +64,20 @@ class request {
     /** @var array Origin Sites */
     public $originsites;
 
+    /** @var int Timeout */
+    public $timeout;
+
     /**
      * request constructor.
      *
      * @param stdClass $site
+     * @throws dml_exception
      */
     public function __construct(stdClass $site) {
         $this->host = $site->host;
         $this->token = $site->token;
+        $this->timeout = empty(get_config('local_coursetransfer', 'request_timeout')) ? self::TIMEOUT :
+                (int)get_config('local_coursetransfer', 'request_timeout');
     }
 
     /**
@@ -103,7 +108,6 @@ class request {
      *
      * @param stdClass|null $user
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function origin_has_user(stdClass $user = null): response {
@@ -115,8 +119,9 @@ class request {
      * Origen Get courses.
      *
      * @param stdClass|null $user
+     * @param int|null $page
+     * @param int|null $perpage
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function origin_get_categories(stdClass $user = null, int $page = null, int $perpage = null): response {
@@ -128,10 +133,9 @@ class request {
      * Origen Get courses.
      *
      * @param stdClass|null $user
-     * @param int $page
-     * @param int $perpage
+     * @param int|null $page
+     * @param int|null $perpage
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function origin_get_courses(stdClass $user = null, int $page = null, int $perpage = null): response {
@@ -146,7 +150,6 @@ class request {
      * @param int $courseid
      * @param stdClass|null $user
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function origin_get_course_detail(int $courseid, stdClass $user = null): response {
@@ -155,14 +158,12 @@ class request {
         return $this->req('local_coursetransfer_origin_get_course_detail', $params);
     }
 
-
     /**
      * Origen Get course detail.
      *
-     * @param int $courseid
+     * @param array $courseid
      * @param stdClass|null $user
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function origin_get_courses_detail(array $courseid, stdClass $user = null): response {
@@ -177,7 +178,6 @@ class request {
      * @param int $categoryid
      * @param stdClass|null $user
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function origin_get_category_detail(int $categoryid, stdClass $user = null): response {
@@ -196,7 +196,6 @@ class request {
      * @param configuration_course $configuration
      * @param array $sections If array empty [], all sections and all activities will be backup.
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function origin_backup_course(stdClass $user, int $requestid, int $origincourseid, int $destinycourseid,
@@ -219,7 +218,6 @@ class request {
      * @param int $filesize
      * @param stdClass|null $user
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function destiny_backup_course_completed(
@@ -236,7 +234,6 @@ class request {
      * @param int $requestid
      * @param stdClass|null $user
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function destiny_remove_course_completed(int $requestid, stdClass $user = null): response {
@@ -254,7 +251,6 @@ class request {
      * @param array $result
      * @param int $filesize
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function destiny_backup_course_error(
@@ -278,7 +274,6 @@ class request {
      * @param string $error
      * @param string $code
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function destiny_remove_course_error(
@@ -295,7 +290,6 @@ class request {
      *
      * @param stdClass|null $user
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function site_origin_test(stdClass $user = null): response {
@@ -310,7 +304,6 @@ class request {
      *
      * @param stdClass|null $user
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function site_destiny_test(stdClass $user = null): response {
@@ -326,7 +319,6 @@ class request {
      * @param int|null $nextruntime
      * @param stdClass|null $user
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function origin_remove_course(
@@ -348,7 +340,6 @@ class request {
      * @param int|null $nextruntime
      * @param stdClass|null $user
      * @return response
-     * @throws coding_exception
      * @throws dml_exception
      */
     public function origin_remove_category(
@@ -368,7 +359,6 @@ class request {
      * @param string $wsname
      * @param array $params
      * @return response
-     * @throws coding_exception
      */
     protected function req(string $wsname, array $params): response {
         $curl = curl_init();
@@ -376,47 +366,63 @@ class request {
         $params['wsfunction'] = $wsname;
         $params['moodlewsrestformat'] = 'json';
 
-        curl_setopt_array($curl, array(
+        curl_setopt_array($curl, [
             CURLOPT_URL => $this->host . '/webservice/rest/server.php',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => self::TIMEOUT,
+            CURLOPT_TIMEOUT => $this->timeout,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => $params,
-        ));
-        $response = curl_exec($curl);
+        ]);
         try {
-            $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
-            curl_close($curl);
-            if (isset($response->success) && isset($response->errors)) {
-                $data = isset($response->data) ? $response->data : null;
-                $paging = $response->paging ?? null;
-                return new response($response->success, $data, $response->errors, $paging);
-            } else {
-                if (!empty($response->message)) {
-                    $message = $response->message;
-                } else if (!empty($response->exception)) {
-                    $message = $response->exception;
-                } else if (!empty($response->msg)) {
-                    $message = $response->msg;
+            $response = curl_exec($curl);
+            $info  = curl_getinfo($curl);
+            $cerror = curl_error($curl);
+            $cerrno = curl_errno($curl);
+
+            try {
+                $response = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+                curl_close($curl);
+                if (isset($response->success) && isset($response->errors)) {
+                    $data = isset($response->data) ? $response->data : null;
+                    $paging = $response->paging ?? null;
+                    return new response($response->success, $data, $response->errors, $paging);
                 } else {
-                    $message = get_string('error_not_controlled', 'local_coursetransfer');
+                    if (!empty($response->message)) {
+                        $message = $response->message;
+                    } else if (!empty($response->exception)) {
+                        $message = $response->exception;
+                    } else if (!empty($response->msg)) {
+                        $message = $response->msg;
+                    } else {
+                        $message = get_string('error_not_controlled', 'local_coursetransfer');
+                    }
+                    $error = new stdClass();
+                    $error->code = '12002';
+                    $error->msg = $wsname . ' - ' . $message;
+                    debugging('API Request: ' . json_encode($error) . ' - ' . json_encode($response));
+                    debugging('API Request Info: ' . json_encode($info));
+                    debugging('API Request Error: ' . json_encode($cerror) . ' - ' . json_encode($cerrno));
+                    return new response(false, null, [$error]);
                 }
+            } catch (\Exception $e) {
+                $message = $e->getMessage() . ': ' . $cerror . ' ('. $cerrno . ')';
                 $error = new stdClass();
-                $error->code = '12002';
-                $error->msg = $wsname . ' - ' . $message;
+                $error->code = '12003';
+                $error->msg = $wsname . ': ' . $message;
+                debugging('API Request: ' . json_encode($error) . ' - ' . json_encode($response));
+                debugging('API Request Info: ' . json_encode($info));
+                debugging('API Request Error: ' . json_encode($cerror) . ' - ' . json_encode($cerrno));
                 return new response(false, null, [$error]);
             }
         } catch (\Exception $e) {
-            $message = $e->getMessage() === 'Syntax error' ?
-                    get_string('site_url_invalid', 'local_coursetransfer') :
-                    $e->getMessage();
             $error = new stdClass();
             $error->code = '12001';
-            $error->msg = $wsname . ': ' . $message;
+            $error->msg = $wsname . ': ' . $e->getMessage();
+            debugging('API Request: ' . $e->getMessage() . ' - ' . json_encode($error));
             return new response(false, null, [$error]);
         }
     }
@@ -476,4 +482,3 @@ class request {
         return $res;
     }
 }
-

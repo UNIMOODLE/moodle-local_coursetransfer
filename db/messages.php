@@ -38,24 +38,24 @@ if (!defined('MESSAGE_DEFAULT_ENABLED')) {
     define('MESSAGE_DEFAULT_ENABLED', 0x01); // 0001.
 }
 
-$messageproviders = array (
+$messageproviders = [
 
     'restore_course_completed' => [
             'defaults' => [
-                    'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED
-            ]
+                    'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            ],
     ],
     'restore_category_completed' => [
             'defaults' => [
-                    'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED
+                    'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
             ]],
     'remove_course_completed' => [
             'defaults' => [
-                    'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED
+                    'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
             ]],
     'remove_category_completed' => [
             'defaults' => [
-                    'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED
-            ]]
+                    'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            ]],
 
-);
+];

@@ -115,7 +115,7 @@ class logs_page implements renderable, templatable {
         $where = 'direction = :direction AND type = :type';
         $params = [
                 'direction' => $this->direction,
-                'type' => $this->type
+                'type' => $this->type,
         ];
         $table->set_sql($select, $from, $where, $params);
         $table->sortable(false, 'id', SORT_DESC);

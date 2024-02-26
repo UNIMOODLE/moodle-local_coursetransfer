@@ -74,7 +74,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
         $data->steps = self::get_steps(2);
         $backurl = new moodle_url(self::URL);
         $nexturl = new moodle_url(self::URL,
-            ['step' => 3, 'site' => $this->site, 'type' => 'courses', 'page' => $this->page, ]
+            ['step' => 3, 'site' => $this->site, 'type' => 'courses', 'page' => $this->page]
         );
         $tableurl = new moodle_url(self::URL);
         $data->table_url = $tableurl->out(false);
@@ -97,7 +97,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
                             $destinies[] = [
                                     'id' => $cd->id,
                                     'name' => $cd->fullname,
-                                    'shortname' => $cd->shortname
+                                    'shortname' => $cd->shortname,
                             ];
                         }
                     }

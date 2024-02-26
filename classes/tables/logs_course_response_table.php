@@ -84,7 +84,7 @@ class logs_course_response_table extends table_sql {
                 'userid',
                 'timemodified',
                 'timecreated',
-                'detail'
+                'detail',
         ]);
 
         $this->define_headers([
@@ -197,8 +197,13 @@ class logs_course_response_table extends table_sql {
     public function col_configuration(stdClass $row): string {
         global $PAGE;
         $configuration = new configuration_course(
-                (int)$row->destiny_target, $row->destiny_remove_enrols, $row->destiny_remove_groups,
-        $row->origin_enrolusers, $row->origin_remove_course, $row->origin_schedule_datetime);
+                (int)$row->destiny_target,
+                $row->destiny_remove_enrols,
+                $row->destiny_remove_groups,
+                $row->origin_enrolusers,
+                $row->origin_remove_course,
+                $row->origin_schedule_datetime
+        );
         $output = $PAGE->get_renderer('local_coursetransfer');
         $component = new configuration_component($configuration, $row->id);
         return $output->render($component);

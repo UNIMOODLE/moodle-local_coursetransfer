@@ -71,9 +71,9 @@ list($options, $unrecognised) = cli_get_params([
     'help' => false,
     'site_url' => null,
     'origin_category_id' => null,
-    'origin_schedule_datetime' => null
+    'origin_schedule_datetime' => null,
 ], [
-    'h' => 'help'
+    'h' => 'help',
 ]);
 
 if ($unrecognised) {

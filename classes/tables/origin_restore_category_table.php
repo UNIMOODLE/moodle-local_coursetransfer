@@ -87,7 +87,7 @@ class origin_restore_category_table extends table_sql {
                 'origin_category_courses',
                 'userid',
                 'timemodified',
-                'timecreated'
+                'timecreated',
         ]);
 
         $this->define_headers([

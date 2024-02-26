@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\output\origin_restore_category;
 
+use coding_exception;
 use core_course_category;
 use renderable;
 use renderer_base;
@@ -58,29 +59,27 @@ class new_origin_restore_category_step_page implements renderable, templatable {
     /** @var int Site */
     protected $site;
 
-    /**
-     * Page of data requested.
-     *
-     * @var int
-     */
+    /** @var int Restore ID */
+    protected $restoreid;
+
+    /** @var int Destination ID */
+    protected $destinyid;
+
+    /** @var int Page of data requested */
     protected $page;
 
-    /**
-     * Number of items to show on each page.
-     *
-     * @var int
-     */
+    /** @var int Number of items to show on each page. */
     protected $perpage;
 
     /**
      *  constructor.
      *
      * @param core_course_category $category
+     * @throws coding_exception
      */
     public function __construct(core_course_category $category) {
         global $CFG;
         $this->category = $category;
-        $this->site = required_param('site', PARAM_INT);
         $this->page = optional_param('page', 0, PARAM_INT);
         $this->perpage = optional_param('perpage', $CFG->coursesperpage, PARAM_INT);
     }

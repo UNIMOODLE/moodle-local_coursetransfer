@@ -77,7 +77,7 @@ class logs_category_remove_response_table extends table_sql {
                 'userid',
                 'timemodified',
                 'timecreated',
-                'detail'
+                'detail',
         ]);
 
         $this->define_headers([

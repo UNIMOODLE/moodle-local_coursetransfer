@@ -89,7 +89,7 @@ class origin_courses_table extends table_sql {
         $this->define_baseurl($moodleurl);
 
         $this->define_columns([
-            'courseid', 'fullname', 'shortname'
+            'courseid', 'fullname', 'shortname',
         ]);
         $this->define_headers([
                 get_string('courseid', 'local_coursetransfer'),
