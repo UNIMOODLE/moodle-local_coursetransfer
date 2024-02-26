@@ -163,7 +163,7 @@ define([
                 methodname: SERVICES.ORIGIN_RESTORE_STEP4,
                 args: {
                     siteurl: this.site,
-                    courses: this.data.courses,
+                    courses: Array.from(this.data.courses.values()),
                     configuration: config,
                 }
             };
