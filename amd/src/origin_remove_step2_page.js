@@ -23,7 +23,7 @@
 
 /**
  *
- * @module     local_coursetransfer
+ * @module     local_coursetransfer/origin_remove_step2_page
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -35,17 +35,14 @@
 
 define([
     'jquery',
-    'core/str',
-    'core/ajax',
-    'core/templates'
-], function($, Str, Ajax, Templates) {
+    'local_coursetransfer/JSONutil'
+], function($, JSONutil) {
     "use strict";
 
     let ACTIONS = {
         COURSE_SELECT: '[data-action="select"]',
         COURSE: '[data-action="course"]',
         NEXT: '[data-action="next"]',
-        DESTINY: '[data-action="destiny"]',
         CHECK: '[data-action="check"]',
         CHECK_ACT: '[data-action="act-check"]'
     };
@@ -57,51 +54,71 @@ define([
      */
     function originRemoveStep2(region) {
         this.node = $(region);
-        let data = JSON.parse(sessionStorage.getItem('local_coursetransfer_remove_page'));
-        if (data) {
-            $(ACTIONS.CAT_SELECT + '[data-id="' + data.categoryid + '"]').prop( "checked", true );
+        this.DOMregion = this.node[0];
+
+        this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_remove_page'), JSONutil.reviver);
+        if (this.data !== null) {
+            this.data.courses.forEach(function(course) {
+                let courseid = parseInt(course.id);
+                $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop("checked", true);
+            });
+        } else {
+            this.data = {
+                courses: new Map()
+            };
+            sessionStorage.setItem('local_coursetransfer_remove_page', JSON.stringify(this.data, JSONutil.replacer));
         }
-        this.selectCourse();
+        console.log('Initial data:', this.data);
+        if (this.data.courses.size > 0) {
+            this.node.find(ACTIONS.NEXT).removeAttr('disabled');
+        } else {
+            this.node.find(ACTIONS.NEXT).prop("disabled", true);
+        }
         this.node.find(ACTIONS.COURSE_SELECT).on('click', this.selectCourse.bind(this));
         this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
     }
 
     originRemoveStep2.prototype.selectCourse = function(e) {
-        let selected = false;
-        let items = this.node.find(ACTIONS.COURSE_SELECT);
-        items.each(function(i, item) {
-            if($(item).prop('checked')) {
-                selected = true;
-            }
-        });
-        if (selected) {
+        let item = e.target;
+        let courseid = item.dataset.courseid;
+        if (item.checked) {
+            let course = {
+                id: courseid
+            };
+            this.data.courses.set(courseid.toString(), course);
             this.node.find(ACTIONS.NEXT).removeAttr('disabled');
         } else {
-            this.node.find(ACTIONS.NEXT).prop( "disabled", true );
+            this.data.courses.delete(courseid.toString());
+            if (this.data.courses.size < 1) {
+                this.node.find(ACTIONS.NEXT).prop("disabled", true);
+            }
         }
+        sessionStorage.setItem('local_coursetransfer_remove_page', JSON.stringify(this.data, JSONutil.replacer));
     };
 
     originRemoveStep2.prototype.clickNext = function(e) {
-        let courses = [];
-        let items = this.node.find(ACTIONS.COURSE_SELECT);
-        items.each(function(i, item) {
-            let courseid = $(item).data('courseid');
-            if ($(item).prop('checked')) {
-                let course = {
-                    id: courseid
-                };
-                courses.push(course);
-            }
-        });
-        let data = {
-            courses: courses
-        };
-        sessionStorage.setItem('local_coursetransfer_remove_page', JSON.stringify(data));
+        let form = this.generateForm();
+        form.submit();
+    };
 
+    originRemoveStep2.prototype.generateForm = function() {
         let currentUrl = $(location).attr('href');
         let url = new URL(currentUrl);
         url.searchParams.set('step', '3');
-        window.location.href = url.href;
+        let coursesForm = document.createElement("form");
+        coursesForm.action = url.href;
+        coursesForm.method = "POST";
+        let input = [];
+        this.data.courses.forEach(function(course, index) {
+            input[index] = document.createElement("INPUT");
+            input[index].name = 'courseids[]';
+            input[index].value = course.id;
+            input[index].type = 'hidden';
+            coursesForm.appendChild(input[index]);
+        });
+
+        document.body.appendChild(coursesForm);
+        return coursesForm;
     };
 
 
@@ -120,6 +137,7 @@ define([
     };
 
     originRemoveStep2.prototype.node = null;
+    originRemoveStep2.prototype.DOMregion = null;
 
     return {
         /**

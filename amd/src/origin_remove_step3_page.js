@@ -23,7 +23,7 @@
 
 /**
  *
- * @module     local_coursetransfer
+ * @module     local_coursetransfer/origin_remove_step3_page
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -35,10 +35,10 @@
 
 define([
     'jquery',
-    'core/str',
     'core/ajax',
-    'core/templates'
-], function($, Str, Ajax, Templates) {
+    'local_coursetransfer/JSONutil'
+
+], function($, Ajax, JSONutil) {
     "use strict";
 
     let SERVICES = {
@@ -49,7 +49,6 @@ define([
         SELECT: '[data-action="select"]',
         COURSE: '[data-action="course"]',
         NEXT: '[data-action="next"]',
-        DESTINY: '[data-action="destiny"]',
         CHECK: '[data-action="check"]',
         CHECK_ACT: '[data-action="act-check"]',
         RESTORE: '[data-action="execute-restore"]'
@@ -64,12 +63,15 @@ define([
     function originRemoveStep3(region, site) {
         this.node = $(region);
         this.site = site;
-        this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_remove_page'));
-        if (this.data) {
+        this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_remove_page'), JSONutil.reviver);
+        console.log('Step3 initial data:', this.data);
+
+        if (this.data !== null) {
             this.data.courses.forEach(function(course) {
                 let courseid = parseInt(course.id);
                 let row = 'tr[data-action="course"][data-courseid="' + courseid + '"]';
                 $(row).removeClass('hidden');
+                console.log('Courseid and row:', courseid, row);
             });
             this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
         } else {
@@ -98,7 +100,7 @@ define([
             methodname: SERVICES.ORIGIN_REMOVE_STEP3,
             args: {
                 siteurl: parseInt(this.site),
-                courses: this.data.courses,
+                courses: Array.from(this.data.courses.values()),
                 nextruntime: nextruntime
             }
         };

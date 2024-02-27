@@ -70,23 +70,18 @@ class origin_remove_page_step3 extends origin_remove_page_base {
         $site = coursetransfer::get_site_by_position($this->site);
         $data->siteposition = $this->site;
         $data->host = $site->host;
+        $courseids = required_param_array('courseids', PARAM_INT);
+        $courseids = array_flip($courseids);
         try {
             $request = new request($site);
             $res = $request->origin_get_courses($USER);
             if ($res->success) {
                 $courses = $res->data;
                 $datacourses = [];
-                $coursesdest = get_courses();
-                $destinies = [];
-                foreach ($coursesdest as $cd) {
-                    $destinies[] = [
-                            'id' => $cd->id,
-                            'name' => $cd->fullname,
-                            'shortname' => $cd->shortname,
-                    ];
-                }
                 foreach ($courses as $c) {
-                    $c->destinies = $destinies;
+                    if ( ! isset($courseids[$c->id])) {
+                        continue;
+                    }
                     $datacourses[] = $c;
                 }
                 $data->courses = $datacourses;

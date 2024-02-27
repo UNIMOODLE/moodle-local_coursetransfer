@@ -85,7 +85,8 @@ define([
                     configuration.push({"name": $(this).attr("id"), "value": datetime});
                 } else {
                     configuration.push({"name": $(this).attr("id"), "selected": $(this).prop('checked')});
-                }            });
+                }
+            });
             this.data.configuration = configuration;
             sessionStorage.setItem('local_coursetransfer_restore_cat_page', JSON.stringify(this.data));
 
