@@ -83,12 +83,13 @@ class restore_external extends external_api {
     public static function origin_restore_step1(int $siteurl, string $type): array {
         global $USER;
         $params = self::validate_parameters(
-            self::origin_restore_step1_parameters(),
-            [
+            self::origin_restore_step1_parameters(), [
                 'siteurl' => $siteurl,
                 'type' => $type,
             ]
         );
+        $siteurl = $params['siteurl'];
+        $type = $params['type'];
 
         $siteurl = $params['siteurl'];
         $type = $params['type'];
@@ -202,13 +203,15 @@ class restore_external extends external_api {
     public static function origin_restore_step4(int $siteurl, array $courses, array $configuration): array {
         global $USER;
         $params = self::validate_parameters(
-            self::origin_restore_step4_parameters(),
-                [
-                        'siteurl' => $siteurl,
-                        'courses' => $courses,
-                        'configuration' => $configuration,
-                ]
+            self::origin_restore_step4_parameters(), [
+                'siteurl' => $siteurl,
+                'courses' => $courses,
+                'configuration' => $configuration,
+            ]
         );
+        $siteurl = $params['siteurl'];
+        $courses = $params['courses'];
+        $configuration = $params['configuration'];
 
         $siteurl = $params['siteurl'];
         $courses = $params['courses'];
@@ -348,14 +351,17 @@ class restore_external extends external_api {
             int $siteurl, int $catid, int $destinyid, array $configuration): array {
         global $USER;
         $params = self::validate_parameters(
-            self::origin_restore_cat_step4_parameters(),
-                [
-                    'siteurl' => $siteurl,
-                    'catid' => $catid,
-                    'destinyid' => $destinyid,
-                    'configuration' => $configuration,
-                ]
+            self::origin_restore_cat_step4_parameters(), [
+                'siteurl' => $siteurl,
+                'catid' => $catid,
+                'destinyid' => $destinyid,
+                'configuration' => $configuration,
+            ]
         );
+        $siteurl = $params['siteurl'];
+        $catid = $params['catid'];
+        $destinyid = $params['destinyid'];
+        $configuration = $params['configuration'];
 
         $siteurl = $params['siteurl'];
         $catid = $params['catid'];

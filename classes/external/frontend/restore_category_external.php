@@ -81,12 +81,13 @@ class restore_category_external extends external_api {
     public static function new_origin_restore_category_step1(int $siteurl, int $categoryid): array {
         global $USER;
         $params = self::validate_parameters(
-            self::new_origin_restore_category_step1_parameters(),
-            [
+            self::new_origin_restore_category_step1_parameters(), [
                 'siteurl' => $siteurl,
                 'categoryid' => $categoryid,
             ]
         );
+        $siteurl = $params['siteurl'];
+        $categoryid = $params['categoryid'];
 
         $siteurl = $params['siteurl'];
         $categoryid = $params['categoryid'];
@@ -194,15 +195,19 @@ class restore_category_external extends external_api {
         global $USER;
 
         $params = self::validate_parameters(
-                self::new_origin_restore_category_step4_parameters(),
-                [
-                        'siteurl' => $siteurl,
-                        'categoryid' => $categoryid,
-                        'destinyid' => $destinyid,
-                        'courses' => $courses,
-                        'nextruntime' => $nextruntime,
-                ]
+            self::new_origin_restore_category_step4_parameters(), [
+                'siteurl' => $siteurl,
+                'categoryid' => $categoryid,
+                'destinyid' => $destinyid,
+                'courses' => $courses,
+                'nextruntime' => $nextruntime,
+            ]
         );
+        $siteurl = $params['siteurl'];
+        $categoryid = $params['categoryid'];
+        $destinyid = $params['destinyid'];
+        $courses = $params['courses'];
+        $nextruntime = $params['nextruntime'];
 
         $siteurl = $params['siteurl'];
         $categoryid = $params['categoryid'];

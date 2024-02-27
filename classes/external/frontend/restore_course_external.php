@@ -80,12 +80,13 @@ class restore_course_external extends external_api {
     public static function new_origin_restore_course_step1(int $siteurl, int $courseid): array {
         global $USER;
         $params = self::validate_parameters(
-            self::new_origin_restore_course_step1_parameters(),
-            [
+            self::new_origin_restore_course_step1_parameters(), [
                 'siteurl' => $siteurl,
                 'courseid' => $courseid,
             ]
         );
+        $siteurl = $params['siteurl'];
+        $courseid = $params['courseid'];
 
         $siteurl = $params['siteurl'];
         $courseid = $params['courseid'];
@@ -213,8 +214,7 @@ class restore_course_external extends external_api {
 
         global $USER;
         $params = self::validate_parameters(
-            self::new_origin_restore_course_step5_parameters(),
-            [
+            self::new_origin_restore_course_step5_parameters(), [
                 'siteurl' => $siteurl,
                 'courseid' => $courseid,
                 'destinyid' => $destinyid,
@@ -222,6 +222,11 @@ class restore_course_external extends external_api {
                 'sections' => $sections,
             ]
         );
+        $siteurl = $params['siteurl'];
+        $courseid = $params['courseid'];
+        $destinyid = $params['destinyid'];
+        $configuration = $params['configuration'];
+        $sections = $params['sections'];
 
         $siteurl = $params['siteurl'];
         $courseid = $params['courseid'];

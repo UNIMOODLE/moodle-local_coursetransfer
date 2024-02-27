@@ -81,13 +81,15 @@ class sites_external extends external_api {
     public static function site_add(string $type, string $host, string $token): array {
         global $DB, $USER;
         $params = self::validate_parameters(
-            self::site_add_parameters(),
-            [
+            self::site_add_parameters(), [
                 'type' => $type,
                 'host' => $host,
                 'token' => $token,
             ]
         );
+        $type = $params['type'];
+        $host = $params['host'];
+        $token = $params['token'];
 
         $type = $params['type'];
         $host = $params['host'];
@@ -199,14 +201,17 @@ class sites_external extends external_api {
     public static function site_edit(string $type, int $id, string $host, string $token): array {
         global $DB, $USER;
         $params = self::validate_parameters(
-                self::site_edit_parameters(),
-                [
-                        'type' => $type,
-                        'id' => $id,
-                        'host' => $host,
-                        'token' => $token,
-                ]
+            self::site_edit_parameters(), [
+                'type' => $type,
+                'id' => $id,
+                'host' => $host,
+                'token' => $token,
+            ]
         );
+        $type = $params['type'];
+        $id = $params['id'];
+        $host = $params['host'];
+        $token = $params['token'];
 
         $type = $params['type'];
         $id = $params['id'];
@@ -313,12 +318,13 @@ class sites_external extends external_api {
     public static function site_remove(string $type, int $id): array {
         global $DB;
         $params = self::validate_parameters(
-                self::site_remove_parameters(),
-                [
-                        'type' => $type,
-                        'id' => $id,
-                ]
+            self::site_remove_parameters(), [
+                'type' => $type,
+                'id' => $id,
+            ]
         );
+        $type = $params['type'];
+        $id = $params['id'];
 
         $type = $params['type'];
         $id = $params['id'];
@@ -401,12 +407,13 @@ class sites_external extends external_api {
     public static function site_test(string $type, int $id): array {
         global $USER;
         $params = self::validate_parameters(
-                self::site_test_parameters(),
-                [
-                        'type' => $type,
-                        'id' => $id,
-                ]
+            self::site_test_parameters(), [
+                'type' => $type,
+                'id' => $id,
+            ]
         );
+        $type = $params['type'];
+        $id = $params['id'];
 
         $type = $params['type'];
         $id = $params['id'];
@@ -519,12 +526,15 @@ class sites_external extends external_api {
     public static function origin_test(string $field, string $value, string $destinysite): array {
         global $USER;
         $params = self::validate_parameters(
-                self::origin_test_parameters(), [
-                        'field' => $field,
-                        'value' => $value,
-                        'destinysite' => $destinysite,
-                ]
+            self::origin_test_parameters(), [
+                'field' => $field,
+                'value' => $value,
+                'destinysite' => $destinysite,
+            ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
+        $destinysite = $params['destinysite'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -612,11 +622,13 @@ class sites_external extends external_api {
     public static function destiny_test(string $field, string $value): array {
 
         $params = self::validate_parameters(
-                self::destiny_test_parameters(), [
-                        'field' => $field,
-                        'value' => $value,
-                ]
+            self::destiny_test_parameters(), [
+                'field' => $field,
+                'value' => $value,
+            ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
 
         $field = $params['field'];
         $value = $params['value'];

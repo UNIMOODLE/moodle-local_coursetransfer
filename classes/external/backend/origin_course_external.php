@@ -208,6 +208,9 @@ class origin_course_external extends external_api {
                 'courseid' => $courseid,
             ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
+        $courseid = $params['courseid'];
 
         $field = $params['field'];
         $value = $params['value'];
