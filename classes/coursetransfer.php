@@ -638,7 +638,7 @@ class coursetransfer {
 
             // 2. If destinycategoryid is new (0)
             if ($destinycategoryid === 0) {
-                $destinycategoryid = category::create(get_string('newcategory', 'grades'));
+                $destinycategoryid = category::create($origincategoryname);
             }
 
             $requestobject->origin_category_name = $origincategoryname;
