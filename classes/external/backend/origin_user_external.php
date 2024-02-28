@@ -75,12 +75,13 @@ class origin_user_external extends external_api {
      */
     public static function origin_has_user(string $field, string $value): array {
         $params = self::validate_parameters(
-            self::origin_has_user_parameters(),
-            [
+            self::origin_has_user_parameters(), [
                 'field' => $field,
                 'value' => $value,
             ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
 
         $field = $params['field'];
         $value = $params['value'];

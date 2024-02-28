@@ -136,6 +136,14 @@ class origin_course_backup_external extends external_api {
                 'sections' => $sections,
             ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
+        $courseid = $params['courseid'];
+        $destinycourseid = $params['destinycourseid'];
+        $requestid = $params['requestid'];
+        $destinysite = $params['destinysite'];
+        $configuration = $params['configuration'];
+        $sections = $params['sections'];
 
         $field = $params['field'];
         $value = $params['value'];

@@ -49,7 +49,7 @@ class response {
     /** @var bool Success */
     public $success;
 
-    /** @var stdClass[] Errors  */
+    /** @var array Errors  */
     public $errors;
 
     /** @var stdClass|array Data */

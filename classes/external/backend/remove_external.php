@@ -90,15 +90,21 @@ class remove_external extends external_api {
             int $requestid, string $destinysite, int $nextruntime): array {
 
         $params = self::validate_parameters(
-                self::origin_remove_course_parameters(), [
-                        'field' => $field,
-                        'value' => $value,
-                        'courseid' => $courseid,
-                        'requestid' => $requestid,
-                        'destinysite' => $destinysite,
-                        'nextruntime' => $nextruntime,
-                ]
+            self::origin_remove_course_parameters(), [
+                'field' => $field,
+                'value' => $value,
+                'courseid' => $courseid,
+                'requestid' => $requestid,
+                'destinysite' => $destinysite,
+                'nextruntime' => $nextruntime,
+            ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
+        $courseid = $params['courseid'];
+        $requestid = $params['requestid'];
+        $destinysite = $params['destinysite'];
+        $nextruntime = $params['nextruntime'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -266,15 +272,21 @@ class remove_external extends external_api {
             int $requestid, string $destinysite, int $nextruntime): array {
 
         $params = self::validate_parameters(
-                self::origin_remove_category_parameters(), [
-                        'field' => $field,
-                        'value' => $value,
-                        'catid' => $catid,
-                        'requestid' => $requestid,
-                        'destinysite' => $destinysite,
-                        'nextruntime' => $nextruntime,
-                ]
+            self::origin_remove_category_parameters(), [
+                'field' => $field,
+                'value' => $value,
+                'catid' => $catid,
+                'requestid' => $requestid,
+                'destinysite' => $destinysite,
+                'nextruntime' => $nextruntime,
+            ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
+        $catid = $params['catid'];
+        $requestid = $params['requestid'];
+        $destinysite = $params['destinysite'];
+        $nextruntime = $params['nextruntime'];
 
         $field = $params['field'];
         $value = $params['value'];

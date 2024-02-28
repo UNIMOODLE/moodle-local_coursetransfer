@@ -82,12 +82,13 @@ class origin_remove_external extends external_api {
     public static function origin_remove_step1(int $siteurl, string $type): array {
         global $USER;
         $params = self::validate_parameters(
-                self::origin_remove_step1_parameters(),
-                [
-                        'siteurl' => $siteurl,
-                        'type' => $type,
-                ]
+            self::origin_remove_step1_parameters(), [
+                'siteurl' => $siteurl,
+                'type' => $type,
+            ]
         );
+        $siteurl = $params['siteurl'];
+        $type = $params['type'];
 
         $siteurl = $params['siteurl'];
         $type = $params['type'];
@@ -192,13 +193,15 @@ class origin_remove_external extends external_api {
     public static function origin_remove_step3(int $siteurl, array $courses, int $nextruntime): array {
         global $USER;
         $params = self::validate_parameters(
-                self::origin_remove_step3_parameters(),
-                [
-                        'siteurl' => $siteurl,
-                        'courses' => $courses,
-                        'nextruntime' => $nextruntime,
-                ]
+            self::origin_remove_step3_parameters(), [
+                'siteurl' => $siteurl,
+                'courses' => $courses,
+                'nextruntime' => $nextruntime,
+            ]
         );
+        $siteurl = $params['siteurl'];
+        $courses = $params['courses'];
+        $nextruntime = $params['nextruntime'];
 
         $siteurl = $params['siteurl'];
         $courses = $params['courses'];
@@ -317,13 +320,15 @@ class origin_remove_external extends external_api {
     public static function origin_remove_cat_step3(int $siteurl, int $catid, int $nextruntime): array {
         global $USER;
         $params = self::validate_parameters(
-                self::origin_remove_cat_step3_parameters(),
-                [
-                        'siteurl' => $siteurl,
-                        'catid' => $catid,
-                        'nextruntime' => $nextruntime,
-                ]
+            self::origin_remove_cat_step3_parameters(), [
+                'siteurl' => $siteurl,
+                'catid' => $catid,
+                'nextruntime' => $nextruntime,
+            ]
         );
+        $siteurl = $params['siteurl'];
+        $catid = $params['catid'];
+        $nextruntime = $params['nextruntime'];
 
         $siteurl = $params['siteurl'];
         $catid = $params['catid'];

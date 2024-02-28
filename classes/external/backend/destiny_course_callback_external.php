@@ -97,6 +97,11 @@ class destiny_course_callback_external extends external_api {
                 'fileurl' => $fileurl,
             ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
+        $requestid = $params['requestid'];
+        $backupsize = $params['backupsize'];
+        $fileurl = $params['fileurl'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -204,6 +209,9 @@ class destiny_course_callback_external extends external_api {
                 'requestid' => $requestid,
             ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
+        $requestid = $params['requestid'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -318,6 +326,12 @@ class destiny_course_callback_external extends external_api {
                 'errormsg' => $errormsg,
             ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
+        $requestid = $params['requestid'];
+        $backupsize = $params['backupsize'];
+        $errorcode = $params['errorcode'];
+        $errormsg = $params['errormsg'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -430,6 +444,11 @@ class destiny_course_callback_external extends external_api {
                 'errormsg' => $errormsg,
             ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
+        $requestid = $params['requestid'];
+        $errorcode = $params['errorcode'];
+        $errormsg = $params['errormsg'];
 
         $field = $params['field'];
         $value = $params['value'];
