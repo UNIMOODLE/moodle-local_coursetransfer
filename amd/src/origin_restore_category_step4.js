@@ -70,12 +70,47 @@ define([
                 let courserow = $(selector);
                 courserow.prop('checked', true);
             });
+            if (this.sessiondata.configuration) {
+                this.sessiondata.configuration.forEach(function(config) {
+                    let item = $('#' + config.name);
+                    if (config.name === 'origin_schedule_datetime') {
+                        item.val(config.value);
+                    } else {
+                        item.prop('disabled', true);
+                        item.prop('checked', config.selected);
+                    }
+                });
+                this.sessiondata.configuration.forEach(function(config) {
+                    if (config.name === 'origin_schedule') {
+                        if (!config.selected) {
+                            $('#origin_schedule_datetime').val(null);
+                        }
+                    }
+                });
+                this.sessiondata.configuration.forEach(function(config) {
+                    if (config.name === 'origin_schedule_datetime') {
+                        if (!config.value) {
+                            $('#origin_schedule').prop('checked', false);
+                        }
+                    }
+                });
+            }
         }
 
         restoreCategoryStep4.prototype.clickNext = function(e) {
             this.node.find(ACTIONS.RESTORE).prop('disabled', true);
             let self = this; // Store the reference of this.
             let alertbox = this.node.find(".alert");
+            let nextruntime = $('#origin_schedule_datetime').val();
+            if ($('#origin_schedule').prop('checked')) {
+                if (nextruntime === '') {
+                    nextruntime  = 0;
+                } else {
+                    nextruntime  = new Date(nextruntime).getTime();
+                }
+            } else {
+                nextruntime  = 0;
+            }
             let siteurl = this.site;
             let categoryid = this.restoreid;
             let destinyid = this.destinyid;
@@ -86,6 +121,7 @@ define([
                     categoryid: categoryid,
                     destinyid: destinyid,
                     courses: this.sessiondata.category.courses,
+                    nextruntime: nextruntime
                 }
             };
             Ajax.call([request])[0].done(function(response) {

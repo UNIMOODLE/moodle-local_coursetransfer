@@ -52,6 +52,15 @@ use stdClass;
 class origin_restore_step2_page extends origin_restore_step_page {
 
     /**
+     * Base url used to build html paging bar links.
+     *
+     * @return string
+     */
+    public function get_paging_url() : string {
+        return parent::URL . '?step=2&type=courses&site=' . $this->site;
+    }
+
+    /**
      * Export for Template.
      *
      * @param renderer_base $output
@@ -65,7 +74,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
         $data->steps = self::get_steps(2);
         $backurl = new moodle_url(self::URL);
         $nexturl = new moodle_url(self::URL,
-            ['step' => 3, 'site' => $this->site, 'type' => 'courses']
+            ['step' => 3, 'site' => $this->site, 'type' => 'courses', 'page' => $this->page]
         );
         $tableurl = new moodle_url(self::URL);
         $data->table_url = $tableurl->out(false);
@@ -77,7 +86,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
         if (has_capability('local/coursetransfer:origin_view_courses', $context)) {
             try {
                 $request = new request($site);
-                $res = $request->origin_get_courses($USER);
+                $res = $request->origin_get_courses($USER, $this->page, $this->perpage);
                 if ($res->success) {
                     $courses = $res->data;
                     $datacourses = [];
@@ -88,7 +97,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
                             $destinies[] = [
                                     'id' => $cd->id,
                                     'name' => $cd->fullname,
-                                    'shortname' => $cd->shortname
+                                    'shortname' => $cd->shortname,
                             ];
                         }
                     }
@@ -98,6 +107,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
                     }
                     $data->courses = $datacourses;
                     $data->haserrors = false;
+                    $data->paging = $res->paging;
                 } else {
                     $data->errors = $res->errors;
                     $data->haserrors = true;

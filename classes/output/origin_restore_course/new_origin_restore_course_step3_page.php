@@ -33,6 +33,7 @@
 
 namespace local_coursetransfer\output\origin_restore_course;
 
+use coding_exception;
 use context_course;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
@@ -53,6 +54,18 @@ use stdClass;
 class new_origin_restore_course_step3_page extends new_origin_restore_course_step_page {
 
     /**
+     *  constructor.
+     *
+     * @param stdClass $course
+     * @throws coding_exception
+     */
+    public function __construct(stdClass $course) {
+        parent::__construct($course);
+        $this->site = required_param('site', PARAM_INT);
+        $this->restoreid = required_param('restoreid', PARAM_INT);
+    }
+
+    /**
      * Export for Template.
      *
      * @param renderer_base $output
@@ -62,24 +75,25 @@ class new_origin_restore_course_step3_page extends new_origin_restore_course_ste
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
         $data = new stdClass();
-        $siteposition = required_param('site', PARAM_INT);
-        $restoreid = required_param('restoreid', PARAM_INT);
-        $backurl = new moodle_url(self::PAGE, ['id' => $this->course->id, 'new' => 1, 'step' => 2, 'site' => $siteposition]);
-        $url = new moodle_url(self::PAGE, ['id' => $this->course->id]);
-        $nexturl = new moodle_url(self::PAGE,
-                ['id' => $this->course->id, 'new' => 1, 'step' => 4, 'site' => $siteposition, 'restoreid' => $restoreid]);
+        $backurl = new moodle_url(self::URL,
+            ['id' => $this->course->id, 'new' => 1, 'step' => 2, 'site' => $this->site, 'page' => $this->page]
+        );
+        $url = new moodle_url(self::URL, ['id' => $this->course->id]);
+        $nexturl = new moodle_url(self::URL,
+                ['id' => $this->course->id, 'new' => 1, 'step' => 4, 'site' => $this->site, 'restoreid' => $this->restoreid]);
         $data->back_url = $backurl->out(false);
-        $data->table_url = $url->out(false);        $data->next_url = $nexturl->out(false);
+        $data->table_url = $url->out(false);
+        $data->next_url = $nexturl->out(false);
         $data->steps = self::get_steps(3);
         $data->button = false;
         $data->next_url_disabled = true;
         $errors = [];
-        $site = coursetransfer::get_site_by_position($siteposition);
+        $site = coursetransfer::get_site_by_position($this->site);
         if (coursetransfer::validate_origin_site($site->host)) {
             $data->haserrors = false;
             try {
                 $request = new request($site);
-                $res = $request->origin_get_course_detail($restoreid, $USER);
+                $res = $request->origin_get_course_detail($this->restoreid, $USER);
                 if ($res->success) {
                     $data->course = $res->data;
                     $data->course->sessionStorage_id = "local_coursetransfer_".$this->course->id."_".$data->course->id;

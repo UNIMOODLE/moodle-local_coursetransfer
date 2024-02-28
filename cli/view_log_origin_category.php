@@ -62,7 +62,7 @@ list($options, $unrecognised) = cli_get_params([
         'help' => false,
         'categoryid' => null,
 ], [
-        'h' => 'help'
+        'h' => 'help',
 ]);
 
 if ($unrecognised) {
@@ -87,7 +87,8 @@ if ( $categoryid === null ) {
 
 try {
 
-    $mask = "| %10.10s |%-12.12s  |%-35.35s | %-14.14s | %-14.14s  | %-14.14s | %-30.30s  | %-30.30s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
+    $mask = "| %10.10s |%-12.12s  |%-35.35s | %-14.14s | %-14.14s " .
+            " | %-14.14s | %-30.30s  | %-30.30s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
     printf($mask,
             'Request ID', 'Dest Req', 'Dest Site', 'Dest Category', 'Orig Category',
             'Status', 'Courses Selected', 'Error', 'UserID', 'TimeModified', 'TimeCreated');

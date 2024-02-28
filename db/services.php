@@ -53,7 +53,7 @@ $functions = [
         'description' => 'Asks to origin if user exists',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_get_courses' => [
@@ -62,7 +62,7 @@ $functions = [
         'description' => 'Get all courses from user',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_get_categories' => [
@@ -71,7 +71,7 @@ $functions = [
         'description' => 'Get all categories from user',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_get_course_detail' => [
@@ -80,7 +80,7 @@ $functions = [
         'description' => 'Get specific course details',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_get_category_detail' => [
@@ -89,7 +89,7 @@ $functions = [
         'description' => 'Get specific category details',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_backup_course' => [
@@ -98,7 +98,7 @@ $functions = [
         'description' => 'Asks origin to make a backup of the course',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_backup_category_course' => [
@@ -107,7 +107,7 @@ $functions = [
         'description' => 'Asks origin to make a backup of the course',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
 
     'local_coursetransfer_destiny_backup_course_completed' => [
@@ -116,7 +116,7 @@ $functions = [
         'description' => 'Notify origin that the backup is completed',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
 
     'local_coursetransfer_destiny_backup_course_error' => [
@@ -125,7 +125,7 @@ $functions = [
         'description' => 'Notify origin that an error ocurred',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
 
     'local_coursetransfer_destiny_remove_course_completed' => [
@@ -134,7 +134,7 @@ $functions = [
         'description' => 'Notify origin that the course remove is completed',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
 
     'local_coursetransfer_destiny_remove_course_error' => [
@@ -143,7 +143,7 @@ $functions = [
         'description' => 'Notify origin that an error ocurred',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
 
     'local_coursetransfer_new_origin_restore_course_step1' => [
@@ -152,7 +152,7 @@ $functions = [
         'description' => 'Verify that user exists in origin and check if it has courses as a teacher',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
 
     'local_coursetransfer_new_origin_restore_course_step5' => [
@@ -161,7 +161,7 @@ $functions = [
         'description' => 'Execute course restauration from moodle remote in step5',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
 
     'local_coursetransfer_new_origin_restore_category_step1' => [
@@ -170,7 +170,7 @@ $functions = [
             'description' => 'Verify that user exists in origin and check if it has courses as a teacher',
             'type' => 'read',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_new_origin_restore_category_step4' => [
@@ -179,7 +179,7 @@ $functions = [
             'description' => 'Execute category restauration from moodle remote in step4',
             'type' => 'write',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_restore_step1' => [
@@ -188,7 +188,7 @@ $functions = [
             'description' => 'Execute restauration from moodle remote in step1',
             'type' => 'write',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_restore_step4' => [
@@ -197,7 +197,7 @@ $functions = [
             'description' => 'Execute courses restauration from moodle remote in step4',
             'type' => 'write',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_restore_cat_step4' => [
@@ -206,7 +206,7 @@ $functions = [
             'description' => 'Execute category restauration from moodle remote in step4',
             'type' => 'write',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_remove_step1' => [
@@ -215,7 +215,7 @@ $functions = [
             'description' => 'Execute courses or category remove from moodle remote in step1',
             'type' => 'write',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_remove_step3' => [
@@ -224,7 +224,7 @@ $functions = [
             'description' => 'Execute courses remove from moodle remote in step3',
             'type' => 'write',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_remove_cat_step3' => [
@@ -233,7 +233,7 @@ $functions = [
             'description' => 'Execute category remove from moodle remote in step3',
             'type' => 'write',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_remove_course' => [
@@ -242,7 +242,7 @@ $functions = [
             'description' => 'Remove origin course',
             'type' => 'write',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_remove_category' => [
@@ -251,7 +251,7 @@ $functions = [
             'description' => 'Remove origin category',
             'type' => 'write',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_site_add' => [
@@ -260,7 +260,7 @@ $functions = [
             'description' => 'Site Add',
             'type' => 'write',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_site_edit' => [
@@ -269,7 +269,7 @@ $functions = [
             'description' => 'Site Edit',
             'type' => 'write',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_site_remove' => [
@@ -278,7 +278,7 @@ $functions = [
             'description' => 'Site Remove',
             'type' => 'write',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_site_test' => [
@@ -287,7 +287,7 @@ $functions = [
             'description' => 'Site Test',
             'type' => 'read',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_site_origin_test' => [
@@ -296,7 +296,7 @@ $functions = [
             'description' => 'Site Origin Test',
             'type' => 'read',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
     'local_coursetransfer_site_destiny_test' => [
@@ -305,7 +305,7 @@ $functions = [
             'description' => 'Site Destiny Test',
             'type' => 'read',
             'ajax' => true,
-            'loginrequired' => true
+            'loginrequired' => true,
     ],
 
 ];
@@ -340,10 +340,10 @@ $services = [
             'local_coursetransfer_site_remove',
             'local_coursetransfer_site_test',
             'local_coursetransfer_site_origin_test',
-            'local_coursetransfer_site_destiny_test'
+            'local_coursetransfer_site_destiny_test',
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,
-        'enabled' => 1
-    ]
+        'enabled' => 1,
+    ],
 ];

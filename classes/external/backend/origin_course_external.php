@@ -58,10 +58,12 @@ class origin_course_external extends external_api {
      */
     public static function origin_get_courses_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
-                'value' => new external_value(PARAM_TEXT, 'Value')
-            )
+                'value' => new external_value(PARAM_TEXT, 'Value'),
+                'page' => new external_value(PARAM_INT, 'Page number been requested (starts with page 0)', VALUE_DEFAULT, 0),
+                'perpage' => new external_value(PARAM_INT, 'Items per page to  (starts with page 0)', VALUE_DEFAULT, 0),
+            ]
         );
     }
 
@@ -70,28 +72,38 @@ class origin_course_external extends external_api {
      *
      * @param string $field
      * @param string $value
+     * @param int $page
+     * @param int $perpage
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_get_courses(string $field, string $value): array {
-        self::validate_parameters(
+    public static function origin_get_courses(string $field, string $value, int $page = 0, int $perpage = 0): array {
+        $params = self::validate_parameters(
             self::origin_get_courses_parameters(), [
                 'field' => $field,
-                'value' => $value
+                'value' => $value,
+                'page' => $page,
+                'perpage' => $perpage,
             ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
+        $perpage = $params['perpage'] ?? 0;
+        $page = $perpage == 0 ? 0 : $params['page'] ?? 0;
 
         $success = true;
         $errors = [];
         $data = [];
+        $paging = [];
 
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $user = $authres['data'];
-                $courses = coursetransfer::get_courses_user($user);
+                $courses = coursetransfer::get_courses_user($user, $page, $perpage);
+                $totalcourses = coursetransfer::count_courses_user($user);
                 foreach ($courses as $course) {
                     $url = new moodle_url('/course/view.php', ['id' => $course->id]);
                     $item = new stdClass();
@@ -106,6 +118,9 @@ class origin_course_external extends external_api {
                     $item->categoryname = $category->name;
                     $data[] = $item;
                 }
+                $paging['totalcount'] = $totalcourses;
+                $paging['page'] = $page;
+                $paging['perpage'] = ($perpage !== 0 && $perpage < $totalcourses) ? $perpage : $totalcourses;
             } else {
                 $success = false;
                 $errors[] = $authres['error'];
@@ -115,14 +130,15 @@ class origin_course_external extends external_api {
             $errors[] =
                 [
                     'code' => '22011',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'paging' => $paging,
+            'data' => $data,
         ];
     }
 
@@ -131,16 +147,21 @@ class origin_course_external extends external_api {
      */
     public static function origin_get_courses_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ), PARAM_TEXT, 'Errors'
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ], 'Errors'
                 )),
+                'paging' => new external_single_structure([
+                    'totalcount' => new external_value(PARAM_INT, 'Total number of courses', VALUE_OPTIONAL),
+                    'page' => new external_value(PARAM_INT, 'Current page', VALUE_OPTIONAL),
+                    'perpage' => new external_value(PARAM_INT, 'Items per page', VALUE_OPTIONAL),
+                ], 'Paging data'),
                 'data' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'id' => new external_value(PARAM_INT, 'Course ID'),
                         'url' => new external_value(PARAM_RAW, 'URL', VALUE_OPTIONAL),
                         'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
@@ -148,10 +169,10 @@ class origin_course_external extends external_api {
                         'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
                         'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                         'backupsizeestimated' => new external_value(PARAM_TEXT, 'Backup Size Estimated', VALUE_OPTIONAL),
-                        'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL)
-                    ), PARAM_TEXT, 'Data'
-                ))
-            )
+                        'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
+                    ], 'Course info'
+                ), 'Courses info'),
+            ]
         );
     }
 
@@ -160,11 +181,11 @@ class origin_course_external extends external_api {
      */
     public static function origin_get_course_detail_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
                 'value' => new external_value(PARAM_TEXT, 'Value'),
-                'courseid' => new external_value(PARAM_INT, 'Course ID')
-            )
+                'courseid' => new external_value(PARAM_INT, 'Course ID'),
+            ]
         );
     }
 
@@ -180,13 +201,17 @@ class origin_course_external extends external_api {
      * @throws moodle_exception
      */
     public static function origin_get_course_detail(string $field, string $value, int $courseid): array {
-        self::validate_parameters(
+        $params = self::validate_parameters(
             self::origin_get_course_detail_parameters(), [
                 'field' => $field,
                 'value' => $value,
-                'courseid' => $courseid
+                'courseid' => $courseid,
             ]
         );
+
+        $field = $params['field'];
+        $value = $params['value'];
+        $courseid = $params['courseid'];
 
         $errors = [];
         $data = [
@@ -197,7 +222,7 @@ class origin_course_external extends external_api {
             'categoryid' => 0,
             'categoryname' => '',
             'backupsizeestimated' => 0,
-            'sections' => []
+            'sections' => [],
             ];
 
         try {
@@ -213,7 +238,7 @@ class origin_course_external extends external_api {
                         'categoryid' => $course->category,
                         'categoryname' => $category->name,
                         'backupsizeestimated' => coursetransfer::get_backup_size_estimated($course->id),
-                        'sections' => coursetransfer::get_sections_with_activities($course->id)
+                        'sections' => coursetransfer::get_sections_with_activities($course->id),
                 ];
                 $success = true;
             } else {
@@ -225,14 +250,14 @@ class origin_course_external extends external_api {
             $errors[] =
                 [
                     'code' => '22001',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
@@ -241,16 +266,16 @@ class origin_course_external extends external_api {
      */
     public static function origin_get_course_detail_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_INT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ), PARAM_TEXT, 'Errors'
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ], PARAM_TEXT, 'Errors'
                 )),
                 'data' => new external_single_structure(
-                    array(
+                    [
                         'id' => new external_value(PARAM_INT, 'Course ID', VALUE_OPTIONAL),
                         'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
                         'shortname' => new external_value(PARAM_TEXT, 'Shortname', VALUE_OPTIONAL),
@@ -259,23 +284,23 @@ class origin_course_external extends external_api {
                         'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
                         'backupsizeestimated' => new external_value(PARAM_TEXT, 'Backup Size Estimated', VALUE_OPTIONAL),
                         'sections' => new external_multiple_structure(new external_single_structure(
-                            array(
+                            [
                                 'sectionnum' => new external_value(PARAM_INT, 'Section Number', VALUE_OPTIONAL),
                                 'sectionid' => new external_value(PARAM_INT, 'Section ID', VALUE_OPTIONAL),
                                 'sectionname' => new external_value(PARAM_TEXT, 'Section Name', VALUE_OPTIONAL),
                                 'activities' => new external_multiple_structure(new external_single_structure(
-                                    array(
+                                    [
                                         'cmid' => new external_value(PARAM_INT, 'CMID', VALUE_OPTIONAL),
                                         'name' => new external_value(PARAM_TEXT, 'Name', VALUE_OPTIONAL),
                                         'instance' => new external_value(PARAM_INT, 'Instance', VALUE_OPTIONAL),
-                                        'modname' => new external_value(PARAM_TEXT, 'Module Name', VALUE_OPTIONAL)
-                                    )
-                                ))
-                            )
-                        ))
-                    ), PARAM_TEXT
-                )
-            )
+                                        'modname' => new external_value(PARAM_TEXT, 'Module Name', VALUE_OPTIONAL),
+                                    ]
+                                )),
+                            ]
+                        )),
+                    ], PARAM_TEXT
+                ),
+            ]
         );
     }
 

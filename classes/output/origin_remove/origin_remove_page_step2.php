@@ -38,10 +38,8 @@ use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use moodle_url;
-use renderable;
 use renderer_base;
 use stdClass;
-use templatable;
 
 /**
  * origin_remove_page_step2
@@ -52,18 +50,15 @@ use templatable;
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class origin_remove_page_step2 implements renderable, templatable {
-
-    /** @var int Site */
-    protected $site;
+class origin_remove_page_step2 extends origin_remove_page_base {
 
     /**
-     *  constructor.
+     * Base url used to build html paging bar links.
      *
-     * @throws coding_exception
+     * @return string
      */
-    public function __construct() {
-        $this->site = required_param('site', PARAM_INT);
+    public function get_paging_url() : string {
+        return parent::URL . '?step=2&type=courses&site=' . $this->site;
     }
 
     /**
@@ -76,19 +71,17 @@ class origin_remove_page_step2 implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
         $data = new stdClass();
-        $data->steps = origin_remove_page::get_steps(2);
-        $backurl = new moodle_url(origin_remove_page::PAGE);
-        $nexturl = new moodle_url(origin_remove_page::PAGE,
-                ['step' => 3, 'site' => $this->site, 'type' => 'courses']
-        );
-        $tableurl = new moodle_url(origin_remove_page::PAGE);
+        $data->steps = self::get_steps(2);
+        $backurl = new moodle_url(self::URL);
+        $nexturl = new moodle_url(self::URL, ['step' => 3, 'site' => $this->site, 'type' => 'courses']);
+        $tableurl = new moodle_url(self::URL);
         $data->table_url = $tableurl->out(false);
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $site = coursetransfer::get_site_by_position($this->site);
         try {
             $request = new request($site);
-            $res = $request->origin_get_courses($USER);
+            $res = $request->origin_get_courses($USER, $this->page, $this->perpage);
             if ($res->success) {
                 $courses = $res->data;
                 $datacourses = [];
@@ -98,7 +91,7 @@ class origin_remove_page_step2 implements renderable, templatable {
                     $destinies[] = [
                             'id' => $cd->id,
                             'name' => $cd->fullname,
-                            'shortname' => $cd->shortname
+                            'shortname' => $cd->shortname,
                     ];
                 }
                 foreach ($courses as $c) {
@@ -107,6 +100,7 @@ class origin_remove_page_step2 implements renderable, templatable {
                 }
                 $data->courses = $datacourses;
                 $data->haserrors = false;
+                $data->paging = $res->paging;
             } else {
                 $data->errors = $res->errors;
                 $data->haserrors = true;

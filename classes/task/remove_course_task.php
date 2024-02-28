@@ -80,7 +80,7 @@ class remove_course_task extends \core\task\adhoc_task {
 
             $requestorigin = coursetransfer_request::get($requestoriginid);
 
-            $res = \core_course_external::delete_courses(array($courseid));
+            $res = \core_course_external::delete_courses([$courseid]);
 
             if (count($res['warnings']) > 0) {
                 $errors[] = json_encode($res['warnings']);

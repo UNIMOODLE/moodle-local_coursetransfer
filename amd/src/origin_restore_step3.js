@@ -23,7 +23,7 @@
 
 /**
  *
- * @module     local_coursetransfer
+ * @module     local_coursetransfer/origin_restore_step3
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -37,8 +37,9 @@ define([
         'jquery',
         'core/str',
         'core/ajax',
-        'core/templates'
-    ], function($, Str, Ajax, Templates) {
+        'core/templates',
+        'local_coursetransfer/JSONutil'
+    ], function($, Str, Ajax, Templates, JSONutil) {
         "use strict";
 
         let ACTIONS = {
@@ -57,12 +58,12 @@ define([
          */
         function originRestoreStep3(region) {
             this.node = $(region);
-            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'));
-            if (this.data) {
+            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'), JSONutil.reviver);
+            if (this.data !== null) {
                 this.data.courses.forEach(function(course) {
                     let courseid = parseInt(course.courseid);
                     let destinyid = parseInt(course.destinyid);
-                    $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop( "checked", true );
+                    $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop("checked", true);
                     let seldestiny = '[data-action="destiny"][data-courseid="' + courseid + '"] option[value="' + destinyid + '"]';
                     $(seldestiny).prop('selected', true);
                 });
@@ -86,11 +87,30 @@ define([
                 }
             });
             this.data.configuration = configuration;
-            sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data));
+            sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
+            // Generate a form with selected courses so next step will return selected courses only.
+            let form = this.generateForm();
+            form.submit();
+        };
+
+        originRestoreStep3.prototype.generateForm = function() {
             let currentUrl = $(location).attr('href');
             let url = new URL(currentUrl);
             url.searchParams.set('step', '4');
-            window.location.href = url.href;
+            let coursesForm = document.createElement("form");
+            coursesForm.action = url.href;
+            coursesForm.method = "POST";
+            let input = [];
+            this.data.courses.forEach(function(course, index) {
+                input[index] = document.createElement("INPUT");
+                input[index].name = 'courseids[]';
+                input[index].value = course.courseid;
+                input[index].type = 'hidden';
+                coursesForm.appendChild(input[index]);
+            });
+
+            document.body.appendChild(coursesForm);
+            return coursesForm;
         };
 
         originRestoreStep3.prototype.clickSchedule = function(e) {

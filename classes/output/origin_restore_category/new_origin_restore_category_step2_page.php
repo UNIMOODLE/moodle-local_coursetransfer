@@ -33,6 +33,8 @@
 
 namespace local_coursetransfer\output\origin_restore_category;
 
+use coding_exception;
+use core_course_category;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -52,6 +54,27 @@ use stdClass;
 class new_origin_restore_category_step2_page  extends new_origin_restore_category_step_page {
 
     /**
+     *  constructor.
+     *
+     * @param core_course_category $category
+     * @throws coding_exception
+     */
+    public function __construct(core_course_category $category) {
+        parent::__construct($category);
+        $this->site = required_param('site', PARAM_INT);
+    }
+
+    /**
+     * Base url used to build html paging bar links.
+     *
+     * @return string
+     */
+    public function get_paging_url() : string {
+        $categoryid = $this->category->id;
+        return parent::URL . "?id=$categoryid&new=1&step=2&site=$this->site";
+    }
+
+    /**
      * Export for Template.
      *
      * @param renderer_base $output
@@ -61,23 +84,25 @@ class new_origin_restore_category_step2_page  extends new_origin_restore_categor
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
         $data = new stdClass();
-        $siteposition = required_param('site', PARAM_INT);
         $data->button = true;
         $data->steps = self::get_steps(2);
-        $backurl = new moodle_url(self::PAGE, ['id' => $this->category->id, 'new' => 1, 'step' => 1]);
-        $tableurl = new moodle_url(self::PAGE, ['id' => $this->category->id]);
+        $backurl = new moodle_url(self::URL, ['id' => $this->category->id, 'new' => 1, 'step' => 1]);
+        $tableurl = new moodle_url(self::URL, ['id' => $this->category->id]);
         $data->categoryid = $this->category->id;
-        $nexturl = new moodle_url(self::PAGE, ['id' => $this->category->id, 'new' => 1, 'step' => 3, 'site' => $siteposition]);
+        $nexturl = new moodle_url(self::URL,
+            ['id' => $this->category->id, 'new' => 1, 'step' => 3, 'site' => $this->site,  'page' => $this->page]
+        );
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $data->table_url = $tableurl->out(false);
-        $site = coursetransfer::get_site_by_position($siteposition);
+        $site = coursetransfer::get_site_by_position($this->site);
         try {
             $request = new request($site);
-            $res = $request->origin_get_categories($USER);
+            $res = $request->origin_get_categories($USER, $this->page, $this->perpage);
             if ($res->success) {
                 $data->categories = $res->data;
                 $data->haserrors = false;
+                $data->paging = $res->paging;
             } else {
                 $data->errors = $res->errors;
                 $data->haserrors = true;

@@ -120,7 +120,7 @@ class coursetransfer_backup {
                 'destinysite' => $destinysite->id,
                 'requestid' => $requestid,
                 'requestoriginid' => $requestoriginid,
-                'istest' => $istest
+                'istest' => $istest,
         ];
         $asynctask->set_custom_data($payload);
         $asynctask->set_userid($userid);

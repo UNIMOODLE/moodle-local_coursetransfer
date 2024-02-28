@@ -65,34 +65,34 @@ class logs_category_remove_response_page extends logs_page {
                         [
                                 'value' => 0,
                                 'name' => get_string('restore_course', 'local_coursetransfer'),
-                                'selected' => false
+                                'selected' => false,
                         ],
                         [
                                 'value' => 1,
                                 'name' => get_string('restore_category', 'local_coursetransfer'),
-                                'selected' => false
+                                'selected' => false,
                         ],
                         [
                                 'value' => 2,
                                 'name' => get_string('remove_course', 'local_coursetransfer'),
-                                'selected' => false
+                                'selected' => false,
                         ],
                         [
                                 'value' => 3,
                                 'name' => get_string('remove_category', 'local_coursetransfer'),
-                                'selected' => true
+                                'selected' => true,
                         ],
                 ],
                 'direction' => [
                         [
                                 'value' => 0,
                                 'name' => get_string('request', 'local_coursetransfer'),
-                                'selected' => false
+                                'selected' => false,
                         ],
                         [
                                 'value' => 1,
                                 'name' => get_string('response', 'local_coursetransfer'),
-                                'selected' => true
+                                'selected' => true,
                         ],
                 ],
         ];

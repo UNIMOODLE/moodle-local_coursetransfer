@@ -58,10 +58,12 @@ class origin_category_external extends external_api {
      */
     public static function origin_get_categories_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
-                'value' => new external_value(PARAM_TEXT, 'Value')
-            )
+                'value' => new external_value(PARAM_TEXT, 'Value'),
+                'page' => new external_value(PARAM_INT, 'Page number been requested (starts with page 0)', VALUE_DEFAULT, 0),
+                'perpage' => new external_value(PARAM_INT, 'Items per page to  (starts with page 0)', VALUE_DEFAULT, 0),
+            ]
         );
     }
 
@@ -70,30 +72,39 @@ class origin_category_external extends external_api {
      *
      * @param string $field
      * @param string $value
+     * @param int $page
+     * @param int $perpage
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_get_categories(string $field, string $value): array {
-        self::validate_parameters(
+    public static function origin_get_categories(string $field, string $value, int $page = 0, int $perpage = 0): array {
+        $params = self::validate_parameters(
             self::origin_get_categories_parameters(), [
                 'field' => $field,
-                'value' => $value
+                'value' => $value,
+                'page' => $page,
+                'perpage' => $perpage,
             ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
+        $perpage = $params['perpage'] ?? 0;
+        $page = $perpage == 0 ? 0 : $params['page'] ?? 0;
 
         $success = true;
         $errors = [];
         $data = [];
+        $paging = [];
 
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $user = $authres['data'];
-                $categories = coursetransfer::get_categories_user($user);
+                $categories = coursetransfer::get_categories_user($user, $page, $perpage);
+                $totalcategories = coursetransfer::count_categories_user();
                 foreach ($categories as $category) {
-                    // TODO. review total count courses and child for user.
                     $item = new stdClass();
                     $item->id = $category->id;
                     $item->name = $category->name;
@@ -108,6 +119,9 @@ class origin_category_external extends external_api {
                             $category->get_courses_count(), $subcategories);
                     $data[] = $item;
                 }
+                $paging['totalcount'] = $totalcategories;
+                $paging['page'] = $page;
+                $paging['perpage'] = ($perpage !== 0 && $perpage < $totalcategories) ? $perpage : $totalcategories;
             } else {
                 $success = false;
                 $errors[] = $authres['error'];
@@ -117,14 +131,15 @@ class origin_category_external extends external_api {
             $errors[] =
                 [
                     'code' => '23011',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'paging' => $paging,
+            'data' => $data,
         ];
     }
 
@@ -133,16 +148,21 @@ class origin_category_external extends external_api {
      */
     public static function origin_get_categories_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ), PARAM_TEXT, 'Errors'
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ], PARAM_TEXT, 'Errors'
                 )),
+                'paging' => new external_single_structure([
+                    'totalcount' => new external_value(PARAM_INT, 'Total number of courses', VALUE_OPTIONAL),
+                    'page' => new external_value(PARAM_INT, 'Current page', VALUE_OPTIONAL),
+                    'perpage' => new external_value(PARAM_INT, 'Items per page', VALUE_OPTIONAL),
+                ], 'Paging data'),
                 'data' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'id' => new external_value(PARAM_INT, 'Category ID'),
                         'name' => new external_value(PARAM_TEXT, 'Name', VALUE_OPTIONAL),
                         'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
@@ -150,10 +170,10 @@ class origin_category_external extends external_api {
                         'parentname' => new external_value(PARAM_TEXT, 'Category parent Name', VALUE_OPTIONAL),
                         'totalcourses' => new external_value(PARAM_INT, 'Total courses', VALUE_OPTIONAL),
                         'totalsubcategories' => new external_value(PARAM_INT, 'Total subcategories', VALUE_OPTIONAL),
-                        'totalcourseschild' => new external_value(PARAM_INT, 'Total courses all subcategory', VALUE_OPTIONAL)
-                    ), PARAM_TEXT, 'Data'
-                ))
-            )
+                        'totalcourseschild' => new external_value(PARAM_INT, 'Total courses all subcategory', VALUE_OPTIONAL),
+                    ], PARAM_TEXT, 'Data'
+                )),
+            ]
         );
     }
 
@@ -162,11 +182,11 @@ class origin_category_external extends external_api {
      */
     public static function origin_get_category_detail_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
                 'value' => new external_value(PARAM_TEXT, 'Value'),
-                'categoryid' => new external_value(PARAM_INT, 'Category ID')
-            )
+                'categoryid' => new external_value(PARAM_INT, 'Category ID'),
+            ]
         );
     }
 
@@ -180,13 +200,16 @@ class origin_category_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function origin_get_category_detail(string $field, string $value, int $categoryid): array {
-        self::validate_parameters(
+        $params = self::validate_parameters(
             self::origin_get_category_detail_parameters(), [
                 'field' => $field,
                 'value' => $value,
-                'categoryid' => $categoryid
+                'categoryid' => $categoryid,
             ]
         );
+        $field = $params['field'];
+        $value = $params['value'];
+        $categoryid = $params['categoryid'] ?? 0;
 
         $errors = [];
         $data = [
@@ -195,13 +218,12 @@ class origin_category_external extends external_api {
             'idnumber' => 0,
             'parentid' => 0,
             'parentname' => '',
-            'courses' => []
+            'courses' => [],
             ];
 
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
-                // TODO. review total count courses and child for user.
                 $category = core_course_category::get($categoryid);
                 $categoryparent = core_course_category::get($category->parent);
                 $courses = [];
@@ -230,7 +252,7 @@ class origin_category_external extends external_api {
                         'idnumber' => $category->idnumber,
                         'parentid' => $category->parent,
                         'parentname' => $parentname,
-                        'courses' => $courses
+                        'courses' => $courses,
                 ];
                 $success = true;
             } else {
@@ -242,14 +264,14 @@ class origin_category_external extends external_api {
             $errors[] =
                 [
                     'code' => '23001',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
@@ -258,38 +280,38 @@ class origin_category_external extends external_api {
      */
     public static function origin_get_category_detail_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_INT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ), PARAM_TEXT, 'Errors'
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ], PARAM_TEXT, 'Errors'
                 )),
                 'data' => new external_single_structure(
-                    array(
+                    [
                         'id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                         'name' => new external_value(PARAM_TEXT, 'Name', VALUE_OPTIONAL),
                         'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
                         'parentid' => new external_value(PARAM_INT, 'Category Parent ID', VALUE_OPTIONAL),
                         'parentname' => new external_value(PARAM_TEXT, 'Category ParentName', VALUE_OPTIONAL),
-                        'courses' => new external_multiple_structure(new external_single_structure(
-                            array(
-                                'id' => new external_value(PARAM_INT, 'Course ID', VALUE_OPTIONAL),
-                                'url' => new external_value(PARAM_RAW, 'Course URL', VALUE_OPTIONAL),
-                                'fullname' => new external_value(PARAM_TEXT, 'Course fullname', VALUE_OPTIONAL),
-                                'shortname' => new external_value(PARAM_TEXT, 'Course ShortName', VALUE_OPTIONAL),
-                                'idnumber' => new external_value(PARAM_TEXT, 'Course Idnumber', VALUE_OPTIONAL),
-                                'categoryid' => new external_value(PARAM_INT, 'Category Id', VALUE_OPTIONAL),
-                                'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
-                                'categoryidnumber' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
-                                )
+                        'courses' => new external_multiple_structure(
+                            new external_single_structure(
+                                [
+                                    'id' => new external_value(PARAM_INT, 'Course ID', VALUE_OPTIONAL),
+                                    'url' => new external_value(PARAM_RAW, 'Course URL', VALUE_OPTIONAL),
+                                    'fullname' => new external_value(PARAM_TEXT, 'Course fullname', VALUE_OPTIONAL),
+                                    'shortname' => new external_value(PARAM_TEXT, 'Course ShortName', VALUE_OPTIONAL),
+                                    'idnumber' => new external_value(PARAM_TEXT, 'Course Idnumber', VALUE_OPTIONAL),
+                                    'categoryid' => new external_value(PARAM_INT, 'Category Id', VALUE_OPTIONAL),
+                                    'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
+                                    'categoryidnumber' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
+                                ]
                             )
-                        )
-                    )
-                )
-            )
+                        ),
+                    ]
+                ),
+            ]
         );
     }
-
 };

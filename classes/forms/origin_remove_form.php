@@ -70,7 +70,7 @@ class origin_remove_form extends moodleform {
                 get_string('course_categories_remove', 'local_coursetransfer'),
                 [
                         'courses' => get_string('courses'),
-                        'categories' => get_string('category')
+                        'categories' => get_string('category'),
                 ]);
         $mform->addHelpButton(
                 'course_categories', 'course_categories', 'local_coursetransfer');

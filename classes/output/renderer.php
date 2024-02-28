@@ -70,6 +70,7 @@ use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_
 use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step5_page;
 use local_coursetransfer\output\origin_restore_course\origin_restore_course_page;
 use moodle_exception;
+use paging_bar;
 use plugin_renderer_base;
 
 /**
@@ -113,6 +114,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_origin_restore_step2_page(origin_restore_step2_page $page) {
         $data = $page->export_for_template($this);
+        $data->htmlpagingbar = $this->get_html_paging_bar($data->paging, $page->get_paging_url(), 'page');
         return parent::render_from_template('local_coursetransfer/origin_restore/origin_restore_step2_page', $data);
     }
 
@@ -146,6 +148,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_origin_restore_cat_step2_page(origin_restore_cat_step2_page $page) {
         $data = $page->export_for_template($this);
+        $data->htmlpagingbar = $this->get_html_paging_bar($data->paging, $page->get_paging_url(), 'page');
         return parent::render_from_template('local_coursetransfer/origin_restore/origin_restore_cat_step2_page', $data);
     }
 
@@ -203,6 +206,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_new_origin_restore_course_step2_page(new_origin_restore_course_step2_page $page) {
         $data = $page->export_for_template($this);
+        $data->htmlpagingbar = $this->get_html_paging_bar($data->paging, $page->get_paging_url(), 'page');
         return parent::render_from_template(
                 'local_coursetransfer/origin_restore_course/new_origin_restore_course_step2_page', $data);
     }
@@ -274,6 +278,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_new_origin_restore_category_step2_page(new_origin_restore_category_step2_page $page) {
         $data = $page->export_for_template($this);
+        $data->htmlpagingbar = $this->get_html_paging_bar($data->paging, $page->get_paging_url(), 'page');
         return parent::render_from_template(
                 'local_coursetransfer/origin_restore_category/new_origin_restore_category_step2_page', $data);
     }
@@ -365,6 +370,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_origin_remove_page_step2(origin_remove_page_step2 $page) {
         $data = $page->export_for_template($this);
+        $data->htmlpagingbar = $this->get_html_paging_bar($data->paging, $page->get_paging_url(), 'page');
         return parent::render_from_template('local_coursetransfer/origin_remove/origin_remove_page_step2', $data);
     }
 
@@ -387,6 +393,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_origin_remove_page_cat_step2(origin_remove_page_cat_step2 $page) {
         $data = $page->export_for_template($this);
+        $data->htmlpagingbar = $this->get_html_paging_bar($data->paging, $page->get_paging_url(), 'page');
         return parent::render_from_template('local_coursetransfer/origin_remove/origin_remove_page_cat_step2', $data);
     }
 
@@ -500,4 +507,20 @@ class renderer extends plugin_renderer_base {
         return parent::render_from_template('local_coursetransfer/logs/logs_course_response_page', $data);
     }
 
+    /**
+     * Returns the html for a paging bar or empty string if no need for paging.
+     *
+     * @param \stdClass|null $pager
+     * @param string $url
+     * @param string $pageparam
+     * @return string|null
+     */
+    public function get_html_paging_bar($paging, string $url, string $pageparam) {
+        if (! $paging) {
+            return null;
+        }
+        $pagingbar = new paging_bar($paging->totalcount, $paging->page, $paging->perpage, $url, $pageparam);
+        $html = $this->render($pagingbar);
+        return $html;
+    }
 }

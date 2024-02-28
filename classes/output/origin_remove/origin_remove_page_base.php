@@ -31,10 +31,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_coursetransfer\output;
+namespace local_coursetransfer\output\origin_remove;
 
-use dml_exception;
-use local_coursetransfer\factory\user;
+use coding_exception;
+use local_coursetransfer\api\request;
+use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use moodle_url;
 use renderable;
@@ -43,7 +44,7 @@ use stdClass;
 use templatable;
 
 /**
- * index_page
+ * origin_remove_page_base
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -51,14 +52,39 @@ use templatable;
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class index_page implements renderable, templatable {
+class origin_remove_page_base implements renderable, templatable {
+
+    const URL = '/local/coursetransfer/origin_remove.php';
+
+    /** @var int Site */
+    protected $site;
 
     /**
-     * constructor.
+     * Page of data requested.
      *
+     * @var int
+     */
+    protected $page;
+
+    /**
+     * Number of items to show on each page.
+     *
+     * @var int
+     */
+    protected $perpage;
+
+    /**
+     *  constructor.
+     *
+     * @throws coding_exception
      */
     public function __construct() {
+        global $CFG;
+        $this->site = required_param('site', PARAM_INT);
+        $this->page = optional_param('page', 0, PARAM_INT);
+        $this->perpage = optional_param('perpage', $CFG->coursesperpage, PARAM_INT);
     }
+
 
     /**
      * Export for Template.
@@ -68,47 +94,21 @@ class index_page implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        global $DB;
-
-        $error = false;
-        $message = '';
-
-        try {
-            $user = \core_user::get_user_by_username(user::USERNAME_WS);
-
-            $tokensql =
-                    "SELECT token
-                     FROM {external_tokens} et
-                     LEFT JOIN {external_services} es ON et.externalserviceid = es.id
-                     WHERE es.name = 'local_coursetransfer' AND et.userid = " . $user->id;
-
-            $token = $DB->get_record_sql($tokensql);
-
-            if ($token) {
-                $token = $token->token;
-            } else {
-                $message = get_string('token_not_found', 'local_coursetransfer');
-                $token = '';
-                $error = true;
-            }
-
-        } catch (moodle_exception $e) {
-            $token = '';
-            $message = $e->getMessage();
-            $error = true;
-        }
-
-        $urlconfig = new moodle_url('/admin/settings.php', ['section' => 'local_coursetransfer']);
-        $urlpostinstall = new moodle_url('/local/coursetransfer/postinstall.php');
-
-        $data = new stdClass();
-        $data->token = $token;
-        $data->url_config = $urlconfig->out(false);
-        $data->url_postinstall = $urlpostinstall->out(false);
-        $data->error = $error;
-        $data->message = $message;
-        return $data;
+        return new stdClass();
     }
 
+    /**
+     * Get Steps.
+     *
+     * @param int $current
+     * @return array|array[]
+     */
+    public static function get_steps(int $current): array {
+        $steps = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $step = ['current' => $current === $i, 'num' => $i];
+            $steps[] = $step;
+        }
+        return $steps;
+    }
 }
-

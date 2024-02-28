@@ -86,7 +86,8 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
 
             $bc = \backup_controller::load_controller($backupid);
 
-            $backuprecord = $DB->get_record('backup_controllers', array('backupid' => $backupid), 'id, controller', MUST_EXIST);
+            $backuprecord = $DB->get_record(
+                    'backup_controllers', ['backupid' => $backupid], 'id, controller', MUST_EXIST);
             mtrace('Processing asynchronous backup for backup: ' . $backupid);
 
             // Get the backup controller by backup id. If controller is invalid, this task can never complete.

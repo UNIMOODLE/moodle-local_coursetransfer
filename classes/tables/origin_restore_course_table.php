@@ -82,7 +82,7 @@ class origin_restore_course_table extends table_sql {
 
         $this->define_columns([
             'id', 'siteurl', 'origin_course_id', 'status', 'origin_activities',
-                    'configuration', 'backupsize', 'userid', 'timemodified', 'timecreated'
+                    'configuration', 'backupsize', 'userid', 'timemodified', 'timecreated',
         ]);
 
         $this->define_headers([
@@ -181,8 +181,13 @@ class origin_restore_course_table extends table_sql {
     public function col_configuration(stdClass $row): string {
         global $PAGE;
         $configuration = new configuration_course(
-                (int)$row->destiny_target, $row->destiny_remove_enrols, $row->destiny_remove_groups,
-                $row->origin_enrolusers, $row->origin_remove_course, $row->origin_schedule_datetime);
+                (int)$row->destiny_target,
+                $row->destiny_remove_enrols,
+                $row->destiny_remove_groups,
+                $row->origin_enrolusers,
+                $row->origin_remove_course,
+                $row->origin_schedule_datetime
+        );
         $output = $PAGE->get_renderer('local_coursetransfer');
         $component = new configuration_component($configuration, $row->id);
         return $output->render($component);

@@ -33,15 +33,10 @@
 
 namespace local_coursetransfer;
 
-use backup;
-use backup_controller;
-use base_plan_exception;
-use base_setting;
-use base_setting_exception;
-use cm_info;
 use coding_exception;
 use context;
 use context_course;
+use core_collator;
 use core_course_category;
 use core_user;
 use course_modinfo;
@@ -54,12 +49,8 @@ use local_coursetransfer\factory\role;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\models\configuration_category;
 use local_coursetransfer\models\configuration_course;
-use local_coursetransfer\task\create_backup_course_task;
-use local_coursetransfer\task\download_file_course_task;
 use moodle_exception;
 use moodle_url;
-use restore_controller;
-use section_info;
 use stdClass;
 use stored_file;
 
@@ -159,8 +150,8 @@ class coursetransfer {
                 'error' =>
                     [
                     'code' => '',
-                    'msg' => ''
-                    ]
+                    'msg' => '',
+                    ],
             ];
         } else {
             return
@@ -170,8 +161,8 @@ class coursetransfer {
                 'error' =>
                         [
                                 'code' => '18001',
-                                'msg' => 'Destination site not founded'
-                        ]
+                                'msg' => 'Destination site not founded',
+                        ],
             ];
         }
     }
@@ -200,8 +191,8 @@ class coursetransfer {
                             'error' =>
                                 [
                                     'code' => '',
-                                    'msg' => ''
-                                ]
+                                    'msg' => '',
+                                ],
                         ];
                 } else {
                     return
@@ -211,8 +202,8 @@ class coursetransfer {
                             'error' =>
                                 [
                                     'code' => '17001',
-                                    'msg' => get_string('user_does_not_have_courses', 'local_coursetransfer')
-                                ]
+                                    'msg' => get_string('user_does_not_have_courses', 'local_coursetransfer'),
+                                ],
                         ];
                 }
 
@@ -224,8 +215,8 @@ class coursetransfer {
                         'error' =>
                             [
                                 'code' => '17002',
-                                'msg' => get_string('user_not_found', 'local_coursetransfer')
-                            ]
+                                'msg' => get_string('user_not_found', 'local_coursetransfer'),
+                            ],
                     ];
             }
 
@@ -237,8 +228,8 @@ class coursetransfer {
                     'error' =>
                         [
                             'code' => '17001',
-                            'msg' => get_string('field_not_valid', 'local_coursetransfer')
-                        ]
+                            'msg' => get_string('field_not_valid', 'local_coursetransfer'),
+                        ],
                 ];
         }
     }
@@ -250,7 +241,6 @@ class coursetransfer {
      * @return bool
      */
     public static function validate_origin_site(string $siteurl): bool {
-        // TODO: comprobar que en el setting la url existe (comparacion de url).
         return true;
     }
 
@@ -338,7 +328,7 @@ class coursetransfer {
                 'sectionid' => $section->id,
                 'sectionname' => is_null($section->name) ?
                     get_string('sectionname', 'format_'. $course->format) . ' ' . $section->section : $section->name,
-                'activities' => self::get_activities_by_section($modinfo, $section->id)
+                'activities' => self::get_activities_by_section($modinfo, $section->id),
             ];
             $finalsections[] = $finalsection;
         }
@@ -361,7 +351,7 @@ class coursetransfer {
                     'cmid' => $module->id,
                     'name' => $module->name,
                     'instance' => $module->instance,
-                    'modname' => $module->modname
+                    'modname' => $module->modname,
                 ];
                 $activities[] = $activity;
             }
@@ -428,7 +418,7 @@ class coursetransfer {
             $fs = get_file_storage();
             $timestamp = time();
 
-            $filerecord = array(
+            $filerecord = [
                     'contextid' => $context->id,
                     'component' => 'local_coursetransfer',
                     'filearea' => 'backup',
@@ -436,8 +426,8 @@ class coursetransfer {
                     'filepath' => '/',
                     'filename' => 'backup.mbz',
                     'timecreated' => $timestamp,
-                    'timemodified' => $timestamp
-            );
+                    'timemodified' => $timestamp,
+            ];
             $storedfile = $fs->create_file_from_storedfile($filerecord, $file);
 
             $filesize = $storedfile->get_filesize();
@@ -493,12 +483,12 @@ class coursetransfer {
         } catch (moodle_exception $e) {
             $error = [
                     'code' => '10010',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
             ];
             $errors[] = $error;
             return [
                     'success' => false,
-                    'errors' => $errors
+                    'errors' => $errors,
             ];
         }
     }
@@ -552,8 +542,8 @@ class coursetransfer {
                 'success' => $success,
                 'errors' => $errors,
                 'data' => [
-                        'requestid' => $requestobject->id
-                ]
+                        'requestid' => $requestobject->id,
+                ],
         ];
     }
 
@@ -584,7 +574,7 @@ class coursetransfer {
         if ($res->success) {
             // 4a. Update Request DB Completed.
             $requestobject->status = coursetransfer_request::STATUS_IN_PROGRESS;
-            $requestobject->origin_category_id = $res->data->course_category_id;
+            $requestobject->origin_category_id = $origincatid;
             $requestobject->origin_category_name = $res->data->course_category_name;
             $requestobject->origin_category_idnumber = $res->data->course_category_idnumber;
             coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
@@ -603,8 +593,8 @@ class coursetransfer {
                 'success' => $success,
                 'errors' => $errors,
                 'data' => [
-                        'requestid' => $requestobject->id
-                ]
+                        'requestid' => $requestobject->id,
+                ],
         ];
     }
 
@@ -662,8 +652,12 @@ class coursetransfer {
 
                 // 1. Configuration Course.
                 $configurationcourse = new configuration_course(
-                        $configuration->destinytarget, $configuration->destinyremovegroups,
-                $configuration->destinyremoveenrols, $configuration->originenrolusers, $configuration->nextruntime);
+                        $configuration->destinytarget,
+                        $configuration->destinyremoveenrols,
+                        $configuration->destinyremovegroups,
+                        $configuration->originenrolusers,
+                        false,
+                        $configuration->nextruntime);
 
                 // 2. Create new course in this category.
                 $destinycourseid = course::create(
@@ -692,18 +686,18 @@ class coursetransfer {
                     'success' => $success,
                     'errors' => $errors,
                     'data' => [
-                        'requestid' => $requestobject->id
-                    ]
+                        'requestid' => $requestobject->id,
+                    ],
             ];
         } catch (moodle_exception $e) {
             $error = [
                     'code' => '11001',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
             ];
             $errors[] = $error;
             return [
                     'success' => false,
-                    'errors' => $errors
+                    'errors' => $errors,
             ];
         }
     }
@@ -761,8 +755,8 @@ class coursetransfer {
                 'success' => $success,
                 'errors' => $errors,
                 'data' => [
-                        'requestid' => $requestobject->id
-                ]
+                        'requestid' => $requestobject->id,
+                ],
         ];
     }
 
@@ -914,71 +908,86 @@ class coursetransfer {
     }
 
     /**
+     * Count the courses a user can backup.
+     *
+     * @param stdClass $user
+     * @param int $page
+     * @param int $perpage
+     * @return int
+     * @throws coding_exception
+     */
+    public static function count_courses_user(stdClass $user, int $page = 0, int $perpage = 0): int {
+        // Prepare the search API options.
+        // Empty search criteria returns all.
+        $searchcriteria = ['search' => ''];
+
+        $options = [];
+        if ($perpage != 0) {
+            $offset = $page * $perpage;
+            $options = ['offset' => $offset, 'limit' => $perpage];
+        }
+        $requiredcapabilities = ['moodle/backup:backupcourse'];
+
+        // Search the courses.
+        $count = core_course_category::search_courses_count($searchcriteria, $options, $requiredcapabilities);
+        return $count;
+    }
+
+    /**
      * Get Courses User.
      *
      * @param stdClass $user
+     * @param int $page
+     * @param int $perpage
      * @return array
      * @throws coding_exception
      */
-    public static function get_courses_user(stdClass $user): array {
-        $courses = [];
-        $cs = get_courses();
-        foreach ($cs as $course) {
-            if (self::filter_course($course, $user)) {
-                $courses[] = $course;
-            }
+    public static function get_courses_user(stdClass $user, int $page = 0, int $perpage = 0): array {
+        // Prepare the search API options.
+        // Empty search criteria returns all.
+        $searchcriteria = ['search' => ''];
+
+        $options = [];
+        if ($perpage != 0) {
+            $offset = $page * $perpage;
+            $options = ['offset' => $offset, 'limit' => $perpage];
         }
+        $options['sort'] = ['fullname' => 1];
+        $requiredcapabilities = ['moodle/backup:backupcourse'];
+
+        // Search the courses.
+        $courses = core_course_category::search_courses($searchcriteria, $options, $requiredcapabilities);
         return $courses;
+    }
+
+    /**
+     * Count categories User.
+     *
+     * @return int
+     */
+    public static function count_categories_user(): int {
+        $categories = \core_course_category::get_all();
+
+        return count($categories);
     }
 
     /**
      * Get Categories User.
      *
      * @param stdClass $user
+     * @param int $page
+     * @param int $perpage
      * @return array
      */
-    public static function get_categories_user(stdClass $user): array {
-        $categories = [];
-        $cs = \core_course_category::get_all();
-        foreach ($cs as $cat) {
-            if (self::filter_category($cat, $user)) {
-                $categories[] = $cat;
-            }
+    public static function get_categories_user(stdClass $user, int $page = 0, int $perpage = 0): array {
+        $categories = \core_course_category::get_all();
+        // Categories are not sorted as are listed to user using nested name.
+        if ($perpage != 0) {
+            $offset = $page * $perpage;
+            $categories = array_slice($categories, $offset, $perpage, true);
         }
+
         return $categories;
-    }
-
-    /**
-     * Filter Course.
-     *
-     * @param stdClass $course
-     * @param stdClass $user
-     * @return bool
-     * @throws coding_exception
-     */
-    protected static function filter_course(stdClass $course, stdClass $user): bool {
-        $context = \context_course::instance($course->id);
-        if (!has_capability('moodle/backup:backupcourse', $context, $user->id)) {
-            return false;
-        }
-        if ((int)$course->id === 1) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Filter Category.
-     *
-     * @param core_course_category $cat
-     * @param stdClass $user
-     * @return bool
-     */
-    protected static function filter_category(core_course_category $cat, stdClass $user): bool {
-        if ($cat->is_uservisible($user)) {
-            return true;
-        }
-        return false;
     }
 
     /**

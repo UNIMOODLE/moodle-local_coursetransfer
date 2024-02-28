@@ -77,7 +77,7 @@ class logs_course_remove_request_table extends table_sql {
                 'userid',
                 'timemodified',
                 'timecreated',
-                'detail'
+                'detail',
         ]);
 
         $this->define_headers([

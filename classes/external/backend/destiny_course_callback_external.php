@@ -62,13 +62,13 @@ class destiny_course_callback_external extends external_api {
      */
     public static function destiny_backup_course_completed_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
                 'value' => new external_value(PARAM_TEXT, 'Value'),
                 'requestid' => new external_value(PARAM_INT, 'Request ID'),
                 'backupsize' => new external_value(PARAM_INT, 'Backup Size (Bytes)'),
                 'fileurl' => new external_value(PARAM_RAW, 'File URL'),
-            )
+            ]
         );
     }
 
@@ -88,15 +88,21 @@ class destiny_course_callback_external extends external_api {
     public static function destiny_backup_course_completed(string $field, string $value, int $requestid,
                                                            int $backupsize, string $fileurl): array {
 
-        self::validate_parameters(
+        $params = self::validate_parameters(
             self::destiny_backup_course_completed_parameters(), [
                 'field' => $field,
                 'value' => $value,
                 'requestid' => $requestid,
                 'backupsize' => $backupsize,
-                'fileurl' => $fileurl
+                'fileurl' => $fileurl,
             ]
         );
+
+        $field = $params['field'];
+        $value = $params['value'];
+        $requestid = $params['requestid'];
+        $backupsize = $params['backupsize'];
+        $fileurl = $params['fileurl'];
 
         $errors = [];
         $data = new stdClass();
@@ -122,7 +128,7 @@ class destiny_course_callback_external extends external_api {
                     $errors[] =
                         [
                             'code' => '10301',
-                            'msg' => 'Request id not found: ' . $requestid
+                            'msg' => 'Request id not found: ' . $requestid,
                         ];
                 }
             } else {
@@ -134,7 +140,7 @@ class destiny_course_callback_external extends external_api {
             $errors[] =
                 [
                     'code' => '10300',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
@@ -150,20 +156,20 @@ class destiny_course_callback_external extends external_api {
      */
     public static function destiny_backup_course_completed_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'data' => new external_single_structure(
-                        array(
-                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL)
-                        )
+                        [
+                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                        ]
                 ),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ), PARAM_TEXT, 'Errors'
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ], PARAM_TEXT, 'Errors'
                 )),
-            )
+            ]
         );
     }
 
@@ -172,11 +178,11 @@ class destiny_course_callback_external extends external_api {
      */
     public static function destiny_remove_course_completed_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
                 'value' => new external_value(PARAM_TEXT, 'Value'),
-                'requestid' => new external_value(PARAM_INT, 'Request ID')
-            )
+                'requestid' => new external_value(PARAM_INT, 'Request ID'),
+            ]
         );
     }
 
@@ -191,13 +197,17 @@ class destiny_course_callback_external extends external_api {
      */
     public static function destiny_remove_course_completed(string $field, string $value, int $requestid): array {
 
-        self::validate_parameters(
+        $params = self::validate_parameters(
             self::destiny_remove_course_completed_parameters(), [
                 'field' => $field,
                 'value' => $value,
-                'requestid' => $requestid
+                'requestid' => $requestid,
             ]
         );
+
+        $field = $params['field'];
+        $value = $params['value'];
+        $requestid = $params['requestid'];
 
         $errors = [];
         $data = new stdClass();
@@ -222,7 +232,7 @@ class destiny_course_callback_external extends external_api {
                     $errors[] =
                         [
                             'code' => '14022',
-                            'msg' => 'Request id not found: ' . $requestid
+                            'msg' => 'Request id not found: ' . $requestid,
                         ];
                 }
             } else {
@@ -234,7 +244,7 @@ class destiny_course_callback_external extends external_api {
             $errors[] =
                 [
                     'code' => '14021',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
@@ -250,20 +260,20 @@ class destiny_course_callback_external extends external_api {
      */
     public static function destiny_remove_course_completed_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'data' => new external_single_structure(
-                        array(
-                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL)
-                        )
+                        [
+                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                        ]
                 ),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ), PARAM_TEXT, 'Errors'
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ], PARAM_TEXT, 'Errors'
                 )),
-            )
+            ]
         );
     }
 
@@ -272,14 +282,14 @@ class destiny_course_callback_external extends external_api {
      */
     public static function destiny_backup_course_error_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
                 'value' => new external_value(PARAM_TEXT, 'Value'),
                 'requestid' => new external_value(PARAM_INT, 'Request ID'),
                 'backupsize' => new external_value(PARAM_INT, 'Backup Size (Bytes)'),
                 'errorcode' => new external_value(PARAM_INT, 'Error Code'),
                 'errormsg' => new external_value(PARAM_TEXT, 'Error Message'),
-            )
+            ]
         );
     }
 
@@ -298,16 +308,23 @@ class destiny_course_callback_external extends external_api {
      */
     public static function destiny_backup_course_error(string $field, string $value, int $requestid, int $backupsize,
                                                        int $errorcode, string $errormsg): array {
-        self::validate_parameters(
+        $params = self::validate_parameters(
             self::destiny_backup_course_error_parameters(), [
                 'field' => $field,
                 'value' => $value,
                 'requestid' => $requestid,
                 'backupsize' => $backupsize,
                 'errorcode' => $errorcode,
-                'errormsg' => $errormsg
+                'errormsg' => $errormsg,
             ]
         );
+
+        $field = $params['field'];
+        $value = $params['value'];
+        $requestid = $params['requestid'];
+        $backupsize = $params['backupsize'];
+        $errorcode = $params['errorcode'];
+        $errormsg = $params['errormsg'];
 
         $data = new stdClass();
         $data->id = 0;
@@ -330,7 +347,7 @@ class destiny_course_callback_external extends external_api {
                     $errors[] =
                         [
                             'code' => '14002',
-                            'msg' => 'Request id not found: ' . $requestid
+                            'msg' => 'Request id not found: ' . $requestid,
                         ];
                 }
             } else {
@@ -342,7 +359,7 @@ class destiny_course_callback_external extends external_api {
             $errors[] =
                 [
                     'code' => '14001',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
@@ -358,20 +375,20 @@ class destiny_course_callback_external extends external_api {
      */
     public static function destiny_backup_course_error_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'data' => new external_single_structure(
-                        array(
-                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL)
-                        )
+                        [
+                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                        ]
                 ),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_INT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ), PARAM_TEXT, 'Errors'
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ], PARAM_TEXT, 'Errors'
                 )),
-            )
+            ]
         );
     }
 
@@ -380,13 +397,13 @@ class destiny_course_callback_external extends external_api {
      */
     public static function destiny_remove_course_error_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
                 'value' => new external_value(PARAM_TEXT, 'Value'),
                 'requestid' => new external_value(PARAM_INT, 'Request ID'),
                 'errorcode' => new external_value(PARAM_INT, 'Error Code'),
                 'errormsg' => new external_value(PARAM_TEXT, 'Error Message'),
-            )
+            ]
         );
     }
 
@@ -404,15 +421,21 @@ class destiny_course_callback_external extends external_api {
      */
     public static function destiny_remove_course_error(string $field, string $value, int $requestid,
                                                        int $errorcode, string $errormsg): array {
-        self::validate_parameters(
+        $params = self::validate_parameters(
             self::destiny_remove_course_error_parameters(), [
                 'field' => $field,
                 'value' => $value,
                 'requestid' => $requestid,
                 'errorcode' => $errorcode,
-                'errormsg' => $errormsg
+                'errormsg' => $errormsg,
             ]
         );
+
+        $field = $params['field'];
+        $value = $params['value'];
+        $requestid = $params['requestid'];
+        $errorcode = $params['errorcode'];
+        $errormsg = $params['errormsg'];
 
         $data = new stdClass();
         $data->id = 0;
@@ -434,7 +457,7 @@ class destiny_course_callback_external extends external_api {
                     $errors[] =
                         [
                             'code' => '14012',
-                            'msg' => 'Request id not found: ' . $requestid
+                            'msg' => 'Request id not found: ' . $requestid,
                         ];
                 }
             } else {
@@ -446,7 +469,7 @@ class destiny_course_callback_external extends external_api {
             $errors[] =
                 [
                     'code' => '14011',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
@@ -462,20 +485,20 @@ class destiny_course_callback_external extends external_api {
      */
     public static function destiny_remove_course_error_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'data' => new external_single_structure(
-                        array(
-                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL)
-                        )
+                        [
+                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                        ]
                 ),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_INT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ), PARAM_TEXT, 'Errors'
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ], PARAM_TEXT, 'Errors'
                 )),
-            )
+            ]
         );
     }
 }

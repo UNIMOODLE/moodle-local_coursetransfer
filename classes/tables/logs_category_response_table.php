@@ -79,7 +79,7 @@ class logs_category_response_table extends table_sql {
                 'userid',
                 'timemodified',
                 'timecreated',
-                'detail'
+                'detail',
         ]);
 
         $this->define_headers([
