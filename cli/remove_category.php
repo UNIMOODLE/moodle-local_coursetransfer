@@ -52,7 +52,7 @@ Usage:
 
     --site_url=<site_url> Origin Site URL (string)
     --origin_category_id=<origin_category_id>  Origin Category ID (int).
-    --origin_schedule_datetime=<origin_schedule_datetime>  Date in UNIX timestamp (int).
+    --origin_schedule_datetime=<origin_schedule_datetime>   Date in UNIX timestamp (int). Max deferral 30 days, 0 (default) to execute ASAP.
 
 Options:
     -h --help                   Print this help.
@@ -71,7 +71,7 @@ list($options, $unrecognised) = cli_get_params([
     'help' => false,
     'site_url' => null,
     'origin_category_id' => null,
-    'origin_schedule_datetime' => null,
+    'origin_schedule_datetime' => 0,
 ], [
     'h' => 'help',
 ]);
@@ -88,7 +88,7 @@ if ($options['help']) {
 
 $siteurl = $options['site_url'];
 $origincategoryid = !is_null($options['origin_category_id']) ? (int) $options['origin_category_id'] : null;
-$originscheduledatetime = (int) $options['origin_schedule_datetime'];
+$originscheduledatetime = intval($options['origin_schedule_datetime']);
 
 if (empty($siteurl)) {
     cli_writeln( get_string('site_url_required', 'local_coursetransfer') );
@@ -102,8 +102,10 @@ if ( $origincategoryid === null ) {
     cli_writeln( get_string('origin_category_id_integer', 'local_coursetransfer') );
     exit(128);
 }
-
-if ($originscheduledatetime < time() && $originscheduledatetime <= 7286691556) {
+$now = time();
+// 30 days of maximun deferred execution.
+$maxtimerange = $now + (60 * 60 * 24 * 30);
+if ($originscheduledatetime != 0  && ($originscheduledatetime < $now || $originscheduledatetime > $maxtimerange )) {
     cli_writeln( 'origin_schedule_datetime is not valid format');
     exit(128);
 } else {
