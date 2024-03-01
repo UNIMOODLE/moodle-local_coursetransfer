@@ -1,3 +1,5 @@
+![Logo Plugin Course Transfer](https://docs.moodle.org/all/es/images_es/thumb/9/9b/coursetransfer_logo.png/300px-coursetransfer_logo.png)
+
 # Plugin Local Course Transfer
 
 Plugin local para la transferencia de cursos entre plataformas
