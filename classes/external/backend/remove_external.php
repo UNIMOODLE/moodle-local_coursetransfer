@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Remove External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -57,9 +58,16 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/course/externallib.php');
 
+/**
+ * Class remove_external
+ *
+ * @package local_coursetransfer\external\backend
+ */
 class remove_external extends external_api {
 
     /**
+     * Origin remove course parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_remove_course_parameters(): external_function_parameters {
@@ -76,6 +84,7 @@ class remove_external extends external_api {
     }
 
     /**
+     * Origin remove course.
      *
      * @param string $field
      * @param string $value
@@ -99,12 +108,6 @@ class remove_external extends external_api {
                 'nextruntime' => $nextruntime,
             ]
         );
-        $field = $params['field'];
-        $value = $params['value'];
-        $courseid = $params['courseid'];
-        $requestid = $params['requestid'];
-        $destinysite = $params['destinysite'];
-        $nextruntime = $params['nextruntime'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -214,6 +217,8 @@ class remove_external extends external_api {
     }
 
     /**
+     * Origin remove course returns.
+     *
      * @return external_single_structure
      */
     public static function origin_remove_course_returns(): external_single_structure {
@@ -243,6 +248,8 @@ class remove_external extends external_api {
     }
 
     /**
+     * Origin remove category parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_remove_category_parameters(): external_function_parameters {
@@ -259,6 +266,8 @@ class remove_external extends external_api {
     }
 
     /**
+     * Origin remove category.
+     *
      * @param string $field
      * @param string $value
      * @param int $catid
@@ -281,12 +290,6 @@ class remove_external extends external_api {
                 'nextruntime' => $nextruntime,
             ]
         );
-        $field = $params['field'];
-        $value = $params['value'];
-        $catid = $params['catid'];
-        $requestid = $params['requestid'];
-        $destinysite = $params['destinysite'];
-        $nextruntime = $params['nextruntime'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -389,6 +392,8 @@ class remove_external extends external_api {
     }
 
     /**
+     * Origin remove category returns.
+     *
      * @return external_single_structure
      */
     public static function origin_remove_category_returns(): external_single_structure {

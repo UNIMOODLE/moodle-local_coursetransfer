@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Origin Course External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -52,8 +53,16 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+/**
+ * Class origin_course_external
+ *
+ * @package local_coursetransfer\external\backend
+ */
 class origin_course_external extends external_api {
+
     /**
+     * Origin get courses parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_get_courses_parameters(): external_function_parameters {
@@ -68,7 +77,7 @@ class origin_course_external extends external_api {
     }
 
     /**
-     * Get list of courses
+     * Origin get courses.
      *
      * @param string $field
      * @param string $value
@@ -143,6 +152,8 @@ class origin_course_external extends external_api {
     }
 
     /**
+     * Origin get courses returns.
+     *
      * @return external_single_structure
      */
     public static function origin_get_courses_returns(): external_single_structure {
@@ -177,6 +188,8 @@ class origin_course_external extends external_api {
     }
 
     /**
+     * Origin get course detail parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_get_course_detail_parameters(): external_function_parameters {
@@ -190,7 +203,7 @@ class origin_course_external extends external_api {
     }
 
     /**
-     * Get course details
+     * Origin get course detail.
      *
      * @param string $field
      * @param string $value
@@ -208,9 +221,6 @@ class origin_course_external extends external_api {
                 'courseid' => $courseid,
             ]
         );
-        $field = $params['field'];
-        $value = $params['value'];
-        $courseid = $params['courseid'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -265,6 +275,8 @@ class origin_course_external extends external_api {
     }
 
     /**
+     * Origin get course detail returns.
+     *
      * @return external_single_structure
      */
     public static function origin_get_course_detail_returns(): external_single_structure {

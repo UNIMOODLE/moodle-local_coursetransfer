@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Restore Course External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -53,9 +54,16 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+/**
+ * Class restore_course_external
+ *
+ * @package local_coursetransfer\external\frontend
+ */
 class restore_course_external extends external_api {
 
     /**
+     * New Origin restore course Step1 parameters.
+     *
      * @return external_function_parameters
      */
     public static function new_origin_restore_course_step1_parameters(): external_function_parameters {
@@ -68,7 +76,7 @@ class restore_course_external extends external_api {
     }
 
     /**
-     *
+     * New Origin restore course Step1.
      *
      * @param int $siteurl
      * @param int $courseid
@@ -85,8 +93,6 @@ class restore_course_external extends external_api {
                 'courseid' => $courseid,
             ]
         );
-        $siteurl = $params['siteurl'];
-        $courseid = $params['courseid'];
 
         $siteurl = $params['siteurl'];
         $courseid = $params['courseid'];
@@ -132,6 +138,8 @@ class restore_course_external extends external_api {
     }
 
     /**
+     * New Origin restore course Step1 returns.
+     *
      * @return external_single_structure
      */
     public static function new_origin_restore_course_step1_returns(): external_single_structure {
@@ -159,6 +167,8 @@ class restore_course_external extends external_api {
     }
 
     /**
+     * New Origin restore course Step5 parameters.
+     *
      * @return external_function_parameters
      */
     public static function new_origin_restore_course_step5_parameters(): external_function_parameters {
@@ -197,7 +207,7 @@ class restore_course_external extends external_api {
     }
 
     /**
-     *
+     * New Origin restore course Step5.
      *
      * @param int $siteurl
      * @param int $courseid
@@ -222,11 +232,6 @@ class restore_course_external extends external_api {
                 'sections' => $sections,
             ]
         );
-        $siteurl = $params['siteurl'];
-        $courseid = $params['courseid'];
-        $destinyid = $params['destinyid'];
-        $configuration = $params['configuration'];
-        $sections = $params['sections'];
 
         $siteurl = $params['siteurl'];
         $courseid = $params['courseid'];
@@ -270,6 +275,8 @@ class restore_course_external extends external_api {
     }
 
     /**
+     * New Origin restore course Step5 returns.
+     *
      * @return external_single_structure
      */
     public static function new_origin_restore_course_step5_returns(): external_single_structure {

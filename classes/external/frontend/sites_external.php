@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Sites External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -53,9 +54,16 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+/**
+ * Class sites_external
+ *
+ * @package local_coursetransfer\external\frontend
+ */
 class sites_external extends external_api {
 
     /**
+     * Site add parameters.
+     *
      * @return external_function_parameters
      */
     public static function site_add_parameters(): external_function_parameters {
@@ -69,7 +77,7 @@ class sites_external extends external_api {
     }
 
     /**
-     *
+     * Site add.
      *
      * @param string $type
      * @param string $host
@@ -87,9 +95,6 @@ class sites_external extends external_api {
                 'token' => $token,
             ]
         );
-        $type = $params['type'];
-        $host = $params['host'];
-        $token = $params['token'];
 
         $type = $params['type'];
         $host = $params['host'];
@@ -152,6 +157,8 @@ class sites_external extends external_api {
     }
 
     /**
+     * Site add returns.
+     *
      * @return external_single_structure
      */
     public static function site_add_returns(): external_single_structure {
@@ -174,6 +181,8 @@ class sites_external extends external_api {
     }
 
     /**
+     * Site edit parameters.
+     *
      * @return external_function_parameters
      */
     public static function site_edit_parameters(): external_function_parameters {
@@ -188,7 +197,7 @@ class sites_external extends external_api {
     }
 
     /**
-     *
+     * Site edit.
      *
      * @param string $type
      * @param int $id
@@ -208,10 +217,6 @@ class sites_external extends external_api {
                 'token' => $token,
             ]
         );
-        $type = $params['type'];
-        $id = $params['id'];
-        $host = $params['host'];
-        $token = $params['token'];
 
         $type = $params['type'];
         $id = $params['id'];
@@ -274,6 +279,8 @@ class sites_external extends external_api {
     }
 
     /**
+     * Site edit returns.
+     *
      * @return external_single_structure
      */
     public static function site_edit_returns(): external_single_structure {
@@ -296,6 +303,8 @@ class sites_external extends external_api {
     }
 
     /**
+     * Site remove parameters.
+     *
      * @return external_function_parameters
      */
     public static function site_remove_parameters(): external_function_parameters {
@@ -308,7 +317,7 @@ class sites_external extends external_api {
     }
 
     /**
-     *
+     * Site remove.
      *
      * @param string $type
      * @param int $id
@@ -323,8 +332,6 @@ class sites_external extends external_api {
                 'id' => $id,
             ]
         );
-        $type = $params['type'];
-        $id = $params['id'];
 
         $type = $params['type'];
         $id = $params['id'];
@@ -361,6 +368,8 @@ class sites_external extends external_api {
     }
 
     /**
+     * Site remove returns.
+     *
      * @return external_single_structure
      */
     public static function site_remove_returns(): external_single_structure {
@@ -382,9 +391,9 @@ class sites_external extends external_api {
         );
     }
 
-
-
     /**
+     * Site test parameters.
+     *
      * @return external_function_parameters
      */
     public static function site_test_parameters(): external_function_parameters {
@@ -397,7 +406,7 @@ class sites_external extends external_api {
     }
 
     /**
-     *
+     * Site test.
      *
      * @param string $type
      * @param int $id
@@ -412,8 +421,6 @@ class sites_external extends external_api {
                 'id' => $id,
             ]
         );
-        $type = $params['type'];
-        $id = $params['id'];
 
         $type = $params['type'];
         $id = $params['id'];
@@ -478,6 +485,8 @@ class sites_external extends external_api {
     }
 
     /**
+     * Site test returns.
+     *
      * @return external_single_structure
      */
     public static function site_test_returns(): external_single_structure {
@@ -500,6 +509,8 @@ class sites_external extends external_api {
     }
 
     /**
+     * Origin test parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_test_parameters(): external_function_parameters {
@@ -513,7 +524,7 @@ class sites_external extends external_api {
     }
 
     /**
-     * Origin Test
+     * Origin test.
      *
      * @param string $field
      * @param string $value
@@ -532,9 +543,6 @@ class sites_external extends external_api {
                 'destinysite' => $destinysite,
             ]
         );
-        $field = $params['field'];
-        $value = $params['value'];
-        $destinysite = $params['destinysite'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -581,6 +589,8 @@ class sites_external extends external_api {
     }
 
     /**
+     * Origin test returns.
+     *
      * @return external_single_structure
      */
     public static function origin_test_returns(): external_single_structure {
@@ -598,6 +608,8 @@ class sites_external extends external_api {
     }
 
     /**
+     * Destiny test parameters.
+     *
      * @return external_function_parameters
      */
     public static function destiny_test_parameters(): external_function_parameters {
@@ -610,7 +622,7 @@ class sites_external extends external_api {
     }
 
     /**
-     * Origin Test
+     * Destiny test.
      *
      * @param string $field
      * @param string $value
@@ -627,8 +639,6 @@ class sites_external extends external_api {
                 'value' => $value,
             ]
         );
-        $field = $params['field'];
-        $value = $params['value'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -660,6 +670,8 @@ class sites_external extends external_api {
     }
 
     /**
+     * Destiny test returns.
+     *
      * @return external_single_structure
      */
     public static function destiny_test_returns(): external_single_structure {

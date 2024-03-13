@@ -70,7 +70,8 @@ Usage:
     --destiny_remove_enrols=<destiny_remove_enrols> Remove Enrols (only in target: 4 - Remove Content) (Boolean).
     --destiny_remove_groups=<destiny_remove_groups> Remove Groups (only in target: 4 - Remove Content) (Boolean).
     --origin_remove_course=<origin_remove_course>   Remove Origin Course (Boolean).
-    --origin_schedule_datetime=<origin_schedule_datetime>   Date in UNIX timestamp (int). Max deferral 30 days, 0 (default) to execute ASAP.
+    --origin_schedule_datetime=<origin_schedule_datetime>
+            Date in UNIX timestamp (int). Max deferral 30 days, 0 (default) to execute ASAP.
 
 Options:
     -h --help                   Print this help.

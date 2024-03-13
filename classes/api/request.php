@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Request.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -53,6 +54,7 @@ require_once($CFG->libdir . '/filelib.php');
  */
 class request {
 
+    /** @var int Timeout */
     const TIMEOUT = 20;
 
     /** @var string Host */
@@ -212,6 +214,7 @@ class request {
     }
 
     /**
+     * Destiny Backup Course Completed.
      *
      * @param string $fileurl
      * @param int $requestid
@@ -230,6 +233,7 @@ class request {
     }
 
     /**
+     * Destiny Remove Course Completed.
      *
      * @param int $requestid
      * @param stdClass|null $user
@@ -268,6 +272,7 @@ class request {
     }
 
     /**
+     * Destiny Remove Course Error.
      *
      * @param stdClass $user
      * @param int $requestid

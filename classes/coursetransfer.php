@@ -24,6 +24,8 @@
 
 /**
  *
+ * Coursetransfer.
+ *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
@@ -63,7 +65,7 @@ require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 require_once($CFG->dirroot . '/local/coursetransfer/classes/task/create_backup_course_task.php');
 
 /**
- * coursetransfer
+ * Coursetransfer.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -73,8 +75,10 @@ require_once($CFG->dirroot . '/local/coursetransfer/classes/task/create_backup_c
  */
 class coursetransfer {
 
+    /** @var string[] Fields User */
     const FIELDS_USER = ['username', 'email', 'userid', 'idnumber'];
 
+    /** @var string[][] Status */
     const STATUS = [
         0 => ['shortname' => 'error', 'alert' => 'danger'],
         1 => ['shortname' => 'not_started', 'alert' => 'warning'],
@@ -360,6 +364,8 @@ class coursetransfer {
     }
 
     /**
+     * Get Site by position.
+     *
      * @param int $id
      * @param string $type
      * @return stdClass

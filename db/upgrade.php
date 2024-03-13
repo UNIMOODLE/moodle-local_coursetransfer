@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Upgrade.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -31,6 +32,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * XMLDB xmldb_local_coursetransfer_upgrade.
+ * @param int $oldversion
+ * @return bool
+ */
 function xmldb_local_coursetransfer_upgrade($oldversion) {
     global $CFG;
 

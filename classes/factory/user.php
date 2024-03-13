@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * User.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -53,18 +54,19 @@ use stdClass;
  */
 class user {
 
+    /** @var string Username WS */
     const USERNAME_WS = 'local_coursetransfer_ws';
 
     /**
      * Create User.
      *
-     * @param $roleid
+     * @param int $roleid Role ID.
      * @return int
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function create_user($roleid): int {
+    public static function create_user(int $roleid): int {
         global $DB;
         $username = self::USERNAME_WS;
         $email = 'coursetransfer@test.xxx';
@@ -128,18 +130,19 @@ class user {
         return $token;
     }
 
+
     /**
      * Create User.
      *
-     * @param $username
-     * @param $email
-     * @param $firstname
-     * @param $lastname
-     * @param $desc
+     * @param string $username
+     * @param string $email
+     * @param string $firstname
+     * @param string $lastname
+     * @param string $desc
      * @return int
      * @throws moodle_exception
      */
-    public static function create($username, $email, $firstname, $lastname, $desc): int {
+    public static function create(string $username, string $email, string $firstname, string $lastname, string $desc): int {
         global $CFG;
         require_once($CFG->dirroot . '/user/lib.php');
         $user = new stdClass();

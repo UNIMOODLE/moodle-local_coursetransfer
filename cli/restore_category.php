@@ -63,7 +63,8 @@ Usage:
     --destiny_remove_enrols=<destiny_remove_enrols> Destination Remove Enrols (Boolean).
     --destiny_remove_groups=<destiny_remove_groups> Destination Remove Groups (Boolean).
     --origin_remove_category=<origin_remove_category> Origin Remove Category (Boolean).
-    --origin_schedule_datetime=<origin_schedule_datetime>   Date in UNIX timestamp (int). Max deferral 30 days, 0 (default) to execute ASAP.
+    --origin_schedule_datetime=<origin_schedule_datetime>
+            Date in UNIX timestamp (int). Max deferral 30 days, 0 (default) to execute ASAP.
 
 Options:
     -h --help                   Print this help.

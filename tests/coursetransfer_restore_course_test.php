@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * coursetransfer_restore_course_test
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -448,8 +449,11 @@ class coursetransfer_restore_course_test extends advanced_testcase {
     }
 
     /**
+     * Execute Callback.
+     *
      * @param stdClass $requestdestination
      * @param stdClass $requestorigin
+     * @param stdClass $origincourse
      * @return bool|stored_file
      * @throws dml_exception
      * @throws invalid_parameter_exception
@@ -659,6 +663,8 @@ class coursetransfer_restore_course_test extends advanced_testcase {
     }
 
     /**
+     * Review modules.
+     *
      * @param stdClass $coursedestiny
      * @throws moodle_exception
      */
@@ -698,6 +704,8 @@ class coursetransfer_restore_course_test extends advanced_testcase {
     }
 
     /**
+     * Review modules3.
+     *
      * @param stdClass $coursedestiny
      * @throws moodle_exception
      */
@@ -710,6 +718,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
     }
 
     /**
+     * Review enrols.
      *
      * @param stdClass $coursedestiny
      * @param int $userscount

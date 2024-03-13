@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Origin User External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -50,8 +51,16 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+/**
+ * Class origin_user_external
+ *
+ * @package local_coursetransfer\external\backend
+ */
 class origin_user_external extends external_api {
+
     /**
+     * Origin has user parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_has_user_parameters(): external_function_parameters {
@@ -64,7 +73,7 @@ class origin_user_external extends external_api {
     }
 
     /**
-     * Check if user exists
+     * Origin has user.
      *
      * @param string $field
      * @param string $value
@@ -80,8 +89,6 @@ class origin_user_external extends external_api {
                 'value' => $value,
             ]
         );
-        $field = $params['field'];
-        $value = $params['value'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -119,6 +126,8 @@ class origin_user_external extends external_api {
     }
 
     /**
+     * Origin has user returns.
+     *
      * @return external_single_structure
      */
     public static function origin_has_user_returns(): external_single_structure {
