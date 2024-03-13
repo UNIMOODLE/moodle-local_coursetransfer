@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * new_origin_restore_course_step1_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -33,6 +34,7 @@
 
 namespace local_coursetransfer\output\origin_restore_course;
 
+use coding_exception;
 use local_coursetransfer\forms\new_origin_restore_course_step1_form;
 use moodle_exception;
 use moodle_url;
@@ -58,8 +60,8 @@ class new_origin_restore_course_step1_page extends new_origin_restore_course_ste
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $backurl = new moodle_url(self::PAGE, ['id' => $this->course->id]);
-        $url = new moodle_url(self::PAGE, ['id' => $this->course->id, 'new' => 1, 'step' => 2 ]);
+        $backurl = new moodle_url(self::URL, ['id' => $this->course->id]);
+        $url = new moodle_url(self::URL, ['id' => $this->course->id, 'new' => 1, 'step' => 2 ]);
         $data = new stdClass();
         $data->button = true;
         $data->courseid = $this->course->id;

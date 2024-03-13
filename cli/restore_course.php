@@ -70,7 +70,8 @@ Usage:
     --destiny_remove_enrols=<destiny_remove_enrols> Remove Enrols (only in target: 4 - Remove Content) (Boolean).
     --destiny_remove_groups=<destiny_remove_groups> Remove Groups (only in target: 4 - Remove Content) (Boolean).
     --origin_remove_course=<origin_remove_course>   Remove Origin Course (Boolean).
-    --origin_schedule_datetime=<origin_schedule_datetime>   Date in UNIX timestamp (int).
+    --origin_schedule_datetime=<origin_schedule_datetime>
+            Date in UNIX timestamp (int). Max deferral 30 days, 0 (default) to execute ASAP.
 
 Options:
     -h --help                   Print this help.
@@ -105,9 +106,9 @@ list($options, $unrecognised) = cli_get_params([
     'destiny_remove_groups' => false,
     'origin_remove_course' => false,
     'origin_schedule_datetime' => 0,
-    'destiny_not_remove_activities' => ""
+    'destiny_not_remove_activities' => "",
 ], [
-    'h' => 'help'
+    'h' => 'help',
 ]);
 
 if ($unrecognised) {
@@ -130,7 +131,7 @@ $destinyremoveenrols = ($options['destiny_remove_enrols'] === 'true' || (int)$op
 $destinyremovegroups = ($options['destiny_remove_groups'] === 'true' || (int)$options['destiny_remove_groups'] === 1) ? 1 : 0;
 $originremovecourse = ($options['origin_remove_course'] === 'true' ||(int) $options['origin_remove_course'] === 1) ? 1 : 0;
 $destinynotremoveactivities = '';
-$originscheduledatetime = (int) $options['origin_schedule_datetime'];
+$originscheduledatetime = intval($options['origin_schedule_datetime']);
 
 if (empty($siteurl)) {
     cli_writeln( get_string('site_url_required', 'local_coursetransfer') );
@@ -191,13 +192,15 @@ if ( !in_array((int)$originremovecourse, [0, 1])) {
     cli_writeln( get_string('origin_remove_course_boolean', 'local_coursetransfer') );
     exit(128);
 }
-
-if ($originscheduledatetime < time() && $originscheduledatetime <= 7286691556) {
-    cli_writeln( 'origin_schedule_datetime is not valid format');
+$now = time();
+// 30 days of maximun deferred execution.
+$maxtimerange = $now + (60 * 60 * 24 * 30);
+if ($originscheduledatetime != 0  && ($originscheduledatetime < $now || $originscheduledatetime > $maxtimerange )) {
+    cli_writeln( 'origin_schedule_datetime is not valid');
     exit(128);
 } else {
     $date = new DateTime();
-    $date->setTimestamp(intval($originscheduledatetime));
+    $date->setTimestamp($originscheduledatetime);
     cli_writeln( 'Scheduler Time: ' . userdate($date->getTimestamp()));
 }
 
@@ -207,8 +210,14 @@ try {
 
     // 1. Setup Configuration.
     $configuration = new configuration_course(
-            $destinytarget, $destinyremoveenrols, $destinyremovegroups, $originenrolusers,
-            $originremovecourse, $originscheduledatetime, $destinynotremoveactivities);
+            $destinytarget,
+            $destinyremoveenrols,
+            $destinyremovegroups,
+            $originenrolusers,
+            $originremovecourse,
+            $originscheduledatetime,
+            $destinynotremoveactivities
+    );
 
     // 2. User Login.
     $user = core_user::get_user_by_username(user::USERNAME_WS);

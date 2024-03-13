@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Remove External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -57,25 +58,33 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/course/externallib.php');
 
+/**
+ * Class remove_external
+ *
+ * @package local_coursetransfer\external\backend
+ */
 class remove_external extends external_api {
 
     /**
+     * Origin remove course parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_remove_course_parameters(): external_function_parameters {
         return new external_function_parameters(
-                array(
+                [
                         'field' => new external_value(PARAM_TEXT, 'Field'),
                         'value' => new external_value(PARAM_TEXT, 'Value'),
                         'courseid' => new external_value(PARAM_INT, 'Course ID'),
                         'requestid' => new external_value(PARAM_INT, 'Request ID'),
                         'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site'),
-                        'nextruntime' => new external_value(PARAM_INT, 'Next Run Time Timestamp - 0 Not scheduler')
-                )
+                        'nextruntime' => new external_value(PARAM_INT, 'Next Run Time Timestamp - 0 Not scheduler'),
+                ]
         );
     }
 
     /**
+     * Origin remove course.
      *
      * @param string $field
      * @param string $value
@@ -89,16 +98,23 @@ class remove_external extends external_api {
     public static function origin_remove_course(string $field, string $value, int $courseid,
             int $requestid, string $destinysite, int $nextruntime): array {
 
-        self::validate_parameters(
-                self::origin_remove_course_parameters(), [
-                        'field' => $field,
-                        'value' => $value,
-                        'courseid' => $courseid,
-                        'requestid' => $requestid,
-                        'destinysite' => $destinysite,
-                        'nextruntime' => $nextruntime
-                ]
+        $params = self::validate_parameters(
+            self::origin_remove_course_parameters(), [
+                'field' => $field,
+                'value' => $value,
+                'courseid' => $courseid,
+                'requestid' => $requestid,
+                'destinysite' => $destinysite,
+                'nextruntime' => $nextruntime,
+            ]
         );
+
+        $field = $params['field'];
+        $value = $params['value'];
+        $courseid = $params['courseid'];
+        $requestid = $params['requestid'];
+        $destinysite = $params['destinysite'];
+        $nextruntime = $params['nextruntime'];
 
         $errors = [];
         $data = new stdClass();
@@ -165,7 +181,7 @@ class remove_external extends external_api {
                             $errors[] =
                                     [
                                             'code' => $requestorigin->error_code,
-                                            'msg' => $requestorigin->error_message
+                                            'msg' => $requestorigin->error_message,
                                     ];
                         }
                     } else {
@@ -173,7 +189,7 @@ class remove_external extends external_api {
                         $errors[] =
                                 [
                                         'code' => '16011',
-                                        'msg' => 'USER HAS NOT CAPABILITY'
+                                        'msg' => 'USER HAS NOT CAPABILITY',
                                 ];
                     }
                 } else {
@@ -189,63 +205,69 @@ class remove_external extends external_api {
             $errors[] =
                     [
                             'code' => '16010',
-                            'msg' => $e->getMessage()
+                            'msg' => $e->getMessage(),
                     ];
         }
 
         return [
                 'success' => $success,
                 'errors' => $errors,
-                'data' => $data
+                'data' => $data,
         ];
     }
 
     /**
+     * Origin remove course returns.
+     *
      * @return external_single_structure
      */
     public static function origin_remove_course_returns(): external_single_structure {
         return new external_single_structure(
-                array(
-                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                        'errors' => new external_multiple_structure(new external_single_structure(
-                                array(
-                                        'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                                ), PARAM_TEXT, 'Errors'
-                        )),
-                        'data' => new external_single_structure(
-                            array(
-                                'requestid' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
-                                'request_origin_id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
-                                'course_fullname' => new external_value(PARAM_RAW, 'Origin Course Fullname', VALUE_OPTIONAL),
-                                'course_shortname' => new external_value(PARAM_RAW, 'Origin Course Shortname', VALUE_OPTIONAL),
-                                'course_idnumber' => new external_value(PARAM_RAW, 'Origin Course ID Number', VALUE_OPTIONAL),
-                                'course_category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
-                                'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
-                                'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
-                            ), PARAM_TEXT, 'Data'
-                        )
-                )
+                [
+                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'errors' => new external_multiple_structure(new external_single_structure(
+                        [
+                                'code' => new external_value(PARAM_TEXT, 'Code'),
+                                'msg' => new external_value(PARAM_TEXT, 'Message'),
+                        ], PARAM_TEXT, 'Errors'
+                )),
+                'data' => new external_single_structure(
+                    [
+                        'requestid' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                        'request_origin_id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                        'course_fullname' => new external_value(PARAM_RAW, 'Origin Course Fullname', VALUE_OPTIONAL),
+                        'course_shortname' => new external_value(PARAM_RAW, 'Origin Course Shortname', VALUE_OPTIONAL),
+                        'course_idnumber' => new external_value(PARAM_RAW, 'Origin Course ID Number', VALUE_OPTIONAL),
+                        'course_category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                        'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
+                        'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
+                    ], PARAM_TEXT, 'Data'
+                ),
+                ]
         );
     }
 
     /**
+     * Origin remove category parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_remove_category_parameters(): external_function_parameters {
         return new external_function_parameters(
-                array(
+                [
                         'field' => new external_value(PARAM_TEXT, 'Field'),
                         'value' => new external_value(PARAM_TEXT, 'Value'),
                         'catid' => new external_value(PARAM_INT, 'Course Category ID'),
                         'requestid' => new external_value(PARAM_INT, 'Request ID'),
                         'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site'),
-                        'nextruntime' => new external_value(PARAM_INT, 'Next Run Time Timestamp - 0 Not scheduler')
-                )
+                        'nextruntime' => new external_value(PARAM_INT, 'Next Run Time Timestamp - 0 Not scheduler'),
+                ]
         );
     }
 
     /**
+     * Origin remove category.
+     *
      * @param string $field
      * @param string $value
      * @param int $catid
@@ -258,16 +280,23 @@ class remove_external extends external_api {
     public static function origin_remove_category(string $field, string $value, int $catid,
             int $requestid, string $destinysite, int $nextruntime): array {
 
-        self::validate_parameters(
-                self::origin_remove_category_parameters(), [
-                        'field' => $field,
-                        'value' => $value,
-                        'catid' => $catid,
-                        'requestid' => $requestid,
-                        'destinysite' => $destinysite,
-                        'nextruntime' => $nextruntime
-                ]
+        $params = self::validate_parameters(
+            self::origin_remove_category_parameters(), [
+                'field' => $field,
+                'value' => $value,
+                'catid' => $catid,
+                'requestid' => $requestid,
+                'destinysite' => $destinysite,
+                'nextruntime' => $nextruntime,
+            ]
         );
+
+        $field = $params['field'];
+        $value = $params['value'];
+        $catid = $params['catid'];
+        $requestid = $params['requestid'];
+        $destinysite = $params['destinysite'];
+        $nextruntime = $params['nextruntime'];
 
         $errors = [];
         $data = new stdClass();
@@ -327,7 +356,7 @@ class remove_external extends external_api {
                             $errors[] =
                                     [
                                             'code' => $requestorigin->error_code,
-                                            'msg' => $requestorigin->error_message
+                                            'msg' => $requestorigin->error_message,
                                     ];
                         }
                     } else {
@@ -335,7 +364,7 @@ class remove_external extends external_api {
                         $errors[] =
                                 [
                                         'code' => '16001',
-                                        'msg' => 'USER HAS NOT CAPABILITY'
+                                        'msg' => 'USER HAS NOT CAPABILITY',
                                 ];
                     }
                 } else {
@@ -351,40 +380,42 @@ class remove_external extends external_api {
             $errors[] =
                     [
                             'code' => '16000',
-                            'msg' => $e->getMessage()
+                            'msg' => $e->getMessage(),
                     ];
         }
 
         return [
                 'success' => $success,
                 'errors' => $errors,
-                'data' => $data
+                'data' => $data,
         ];
     }
 
     /**
+     * Origin remove category returns.
+     *
      * @return external_single_structure
      */
     public static function origin_remove_category_returns(): external_single_structure {
         return new external_single_structure(
-                array(
+                [
                         'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                         'errors' => new external_multiple_structure(new external_single_structure(
-                                array(
+                                [
                                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                                ), PARAM_TEXT, 'Errors'
+                                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                                ], PARAM_TEXT, 'Errors'
                         )),
                         'data' => new external_single_structure(
-                            array(
+                            [
                                 'requestid' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
                                 'request_origin_id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
                                 'course_category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                                 'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
                                 'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
-                            ), PARAM_TEXT, 'Data'
-                        )
-                )
+                            ], PARAM_TEXT, 'Data'
+                        ),
+                ]
         );
     }
 };

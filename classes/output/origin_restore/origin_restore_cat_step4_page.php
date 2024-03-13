@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * origin_restore_cat_step4_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -69,7 +70,7 @@ class origin_restore_cat_step4_page extends origin_restore_step_page {
                 ['current' => false, 'num' => 1],
                 ['current' => false,  'num' => 2],
                 ['current' => false, 'num' => 3],
-                ['current' => true, 'num' => 4]
+                ['current' => true, 'num' => 4],
         ];
         $tableurl = new moodle_url(self::URL);
         $backurl = new moodle_url(self::URL,

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * logs_course_response_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -42,7 +43,7 @@ use moodle_exception;
 use stdClass;
 
 /**
- * create_backup_course_task
+ * logs_course_response_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -86,7 +87,8 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
 
             $bc = \backup_controller::load_controller($backupid);
 
-            $backuprecord = $DB->get_record('backup_controllers', array('backupid' => $backupid), 'id, controller', MUST_EXIST);
+            $backuprecord = $DB->get_record(
+                    'backup_controllers', ['backupid' => $backupid], 'id, controller', MUST_EXIST);
             mtrace('Processing asynchronous backup for backup: ' . $backupid);
 
             // Get the backup controller by backup id. If controller is invalid, this task can never complete.

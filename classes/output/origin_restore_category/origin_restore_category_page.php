@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * origin_restore_category_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -54,7 +55,8 @@ use templatable;
  */
 class origin_restore_category_page implements renderable, templatable {
 
-    const PAGE = '/local/coursetransfer/origin_restore_category.php';
+    /** @var string URL */
+    const URL = '/local/coursetransfer/origin_restore_category.php';
 
     /** @var core_course_category Category */
     protected $category;
@@ -77,7 +79,7 @@ class origin_restore_category_page implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $newurl = new moodle_url(self::PAGE, ['id' => $this->category->id, 'new' => 1, 'step' => 1]);
+        $newurl = new moodle_url(self::URL, ['id' => $this->category->id, 'new' => 1, 'step' => 1]);
         $data = new stdClass();
         $data->new_url = $newurl->out(false);
         $data->table = $this->get_restore_table();
@@ -104,13 +106,13 @@ class origin_restore_category_page implements renderable, templatable {
         $params = [
                 'categoryid' => $this->category->id,
                 'direction' => coursetransfer_request::DIRECTION_REQUEST,
-                'type' => coursetransfer_request::TYPE_CATEGORY
+                'type' => coursetransfer_request::TYPE_CATEGORY,
         ];
         $table->set_sql($select, $from, $where, $params);
         $table->sortable(true, 'timemodified', SORT_DESC);
         $table->collapsible(false);
         $table->define_baseurl(
-            new moodle_url(self::PAGE, ['id' => $this->category->id])
+            new moodle_url(self::URL, ['id' => $this->category->id])
         );
         ob_start();
         $table->out(200, true, false);

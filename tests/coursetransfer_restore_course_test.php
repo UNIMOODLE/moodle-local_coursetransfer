@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * coursetransfer_restore_course_test
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -214,7 +215,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 'fullname' => 'Origen Course',
                 'shortname' => 'phpunit-origin-course',
                 'summary' => 'This a Summary',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->origincourse = $this->getDataGenerator()->create_course($oc);
 
@@ -243,7 +244,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 'fullname' => 'Origen Course 2',
                 'shortname' => 'phpunit-origin-course-2',
                 'summary' => 'This a Summary 2',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->origincourse2 = $this->getDataGenerator()->create_course($oc2);
 
@@ -252,7 +253,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 'fullname' => 'Remote Restoring in process...',
                 'shortname' => 'IN-PROGRESS-' . time(),
                 'summary' => 'This a other Summary',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->destinynewcourse1 = $this->getDataGenerator()->create_course($dnc1);
 
@@ -261,7 +262,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 'fullname' => 'Destination Course 2',
                 'shortname' => 'phpunit-destination-course-2',
                 'summary' => 'This a Summary of Destination 2',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->destinycourse2 = $this->getDataGenerator()->create_course($dnc2);
 
@@ -270,7 +271,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 'fullname' => 'Destination Course 3',
                 'shortname' => 'phpunit-destination-course-3',
                 'summary' => 'This a Summary of Destination 3',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->destinycourse3 = $this->getDataGenerator()->create_course($dnc3);
         $this->create_sections_destiny3($this->destinycourse3);
@@ -296,7 +297,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 'fullname' => 'Destination Course 5',
                 'shortname' => 'phpunit-destination-course-5',
                 'summary' => 'This a Summary of Destination 5',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->destinycourse5 = $this->getDataGenerator()->create_course($dnc5);
     }
@@ -368,7 +369,9 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 false,
                 false,
                 false,
-                false, 0);
+                false,
+                0
+        );
         list($requestdestination1, $requestorigin1) = $this->test_restore_course(
                 $configuration1, $this->destinynewcourse1, $this->origincourse);
         // 2. Test in Destination Course. With Users and Groups.
@@ -377,7 +380,9 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 false,
                 false,
                 true,
-                false, 0);
+                false,
+                0
+        );
         list($requestdestination2, $requestorigin2) = $this->test_restore_course(
                 $configuration2, $this->destinycourse2, $this->origincourse);
         // 3. Test in Destination Course. Witouth Users. Delete Content and Users and Groups.
@@ -386,7 +391,9 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 true,
                 true,
                 false,
-                false, 0);
+                false,
+                0
+        );
         list($requestdestination3, $requestorigin3) = $this->test_restore_course(
                 $configuration3, $this->destinycourse3, $this->origincourse);
         $this->validate_request_not_started($requestdestination3);
@@ -396,7 +403,9 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 false,
                 false,
                 true,
-                true, 0);
+                true,
+                0
+        );
         list($requestdestination5, $requestorigin5) = $this->test_restore_course(
                 $configuration5, $this->destinycourse5, $this->origincourse2);
 
@@ -440,8 +449,11 @@ class coursetransfer_restore_course_test extends advanced_testcase {
     }
 
     /**
+     * Execute Callback.
+     *
      * @param stdClass $requestdestination
      * @param stdClass $requestorigin
+     * @param stdClass $origincourse
      * @return bool|stored_file
      * @throws dml_exception
      * @throws invalid_parameter_exception
@@ -651,6 +663,8 @@ class coursetransfer_restore_course_test extends advanced_testcase {
     }
 
     /**
+     * Review modules.
+     *
      * @param stdClass $coursedestiny
      * @throws moodle_exception
      */
@@ -690,6 +704,8 @@ class coursetransfer_restore_course_test extends advanced_testcase {
     }
 
     /**
+     * Review modules3.
+     *
      * @param stdClass $coursedestiny
      * @throws moodle_exception
      */
@@ -702,6 +718,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
     }
 
     /**
+     * Review enrols.
      *
      * @param stdClass $coursedestiny
      * @param int $userscount

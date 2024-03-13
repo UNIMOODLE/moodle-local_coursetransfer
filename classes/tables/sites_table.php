@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * logs_course_response_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -45,7 +46,7 @@ defined('MOODLE_INTERNAL') || die;
 require_once('../../lib/tablelib.php');
 
 /**
- * sites_table
+ * logs_course_response_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -64,6 +65,7 @@ class sites_table extends table_sql {
     /**
      * constructor.
      *
+     * @param string $type
      * @throws coding_exception
      * @throws moodle_exception
      */
@@ -81,7 +83,7 @@ class sites_table extends table_sql {
         $this->define_baseurl($moodleurl);
 
         $this->define_columns([
-            'id', 'url', 'token', 'actions'
+            'id', 'url', 'token', 'actions',
         ]);
 
         $this->define_headers([

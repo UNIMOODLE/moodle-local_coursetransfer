@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * logs_course_response_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -50,7 +51,7 @@ defined('MOODLE_INTERNAL') || die;
 require_once('../../lib/tablelib.php');
 
 /**
- * origin_restore_category_table
+ * logs_course_response_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -87,7 +88,7 @@ class origin_restore_category_table extends table_sql {
                 'origin_category_courses',
                 'userid',
                 'timemodified',
-                'timecreated'
+                'timecreated',
         ]);
 
         $this->define_headers([

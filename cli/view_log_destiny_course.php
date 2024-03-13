@@ -62,7 +62,7 @@ list($options, $unrecognised) = cli_get_params([
         'help' => false,
         'courseid' => null,
 ], [
-        'h' => 'help'
+        'h' => 'help',
 ]);
 
 if ($unrecognised) {

@@ -1,4 +1,3 @@
-<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -23,37 +22,43 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Origin Sites.
  *
- * @package    local_coursetransfer
+ * @module     local_coursetransfer/JSONutil
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_coursetransfer\output\sites_page;
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-console */
 
-require_once('../../config.php');
+define([], function() {
+    "use strict";
 
-global $PAGE, $OUTPUT, $USER;
+    let replacer = function(key, value) {
+        if (value instanceof Map) {
+          return {
+            dataType: 'Map',
+            value: Array.from(value.entries()),
+          };
+        } else {
+          return value;
+        }
+    };
 
-$title = get_string('setting_origin_sites_link', 'local_coursetransfer');
+    let reviver = function(key, value) {
+        if (typeof value === 'object' && value !== null) {
+          if (value.dataType === 'Map') {
+            return new Map(value.value);
+          }
+        }
+        return value;
+    };
 
-require_login();
 
-$PAGE->set_pagelayout('standard');
-$PAGE->set_context(context_system::instance());
-$PAGE->set_title($title);
-$PAGE->set_heading($title);
-$PAGE->set_url('/local/coursetransfer/originsites.php');
-
-$output = $PAGE->get_renderer('local_coursetransfer');
-
-echo $OUTPUT->header();
-
-if (is_siteadmin()) {
-    $page = new sites_page('origin');
-    echo $output->render($page);
-}
-echo $OUTPUT->footer();
+    return {
+        replacer: replacer,
+        reviver: reviver
+    };
+});

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * origin_restore_step4_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -76,6 +77,9 @@ class origin_restore_step4_page extends origin_restore_step_page {
         $site = coursetransfer::get_site_by_position($siteposition);
         $data->host = $site->host;
 
+        $courseids = required_param_array('courseids', PARAM_INT);
+        $courseids = array_flip($courseids);
+
         $context = \context_system::instance();
         if (has_capability('local/coursetransfer:origin_view_courses', $context)) {
             try {
@@ -91,7 +95,7 @@ class origin_restore_step4_page extends origin_restore_step_page {
                             $destinies[] = [
                                     'id' => $cd->id,
                                     'name' => $cd->fullname,
-                                    'shortname' => $cd->shortname
+                                    'shortname' => $cd->shortname,
                             ];
                         }
                     }
@@ -104,6 +108,9 @@ class origin_restore_step4_page extends origin_restore_step_page {
                         $cats[] = $ct;
                     }
                     foreach ($courses as $c) {
+                        if ( ! isset($courseids[$c->id])) {
+                            continue;
+                        }
                         $c->destinies = $destinies;
                         $datacourses[] = $c;
                     }

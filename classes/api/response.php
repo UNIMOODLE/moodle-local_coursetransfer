@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Response.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -49,22 +50,31 @@ class response {
     /** @var bool Success */
     public $success;
 
-    /** @var string[] Errors  */
+    /** @var array Errors  */
     public $errors;
 
     /** @var stdClass|array Data */
     public $data;
 
     /**
+     * Info about response paging.
+     *
+     * @var array
+     */
+    public $paging;
+
+    /**
      * response constructor.
      *
      * @param bool $success
-     * @param stdClass|null|array $data
+     * @param null $data
      * @param array|null $errors
+     * @param null $paging
      */
-    public function __construct(bool $success,  $data = null, array $errors = null) {
+    public function __construct(bool $success,  $data = null, array $errors = null, $paging =  null) {
         $this->success = $success;
         $this->data = $data;
         $this->errors = $errors;
+        $this->paging = $paging;
     }
 }

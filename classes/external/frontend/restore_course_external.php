@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Restore Course External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -53,22 +54,29 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+/**
+ * Class restore_course_external
+ *
+ * @package local_coursetransfer\external\frontend
+ */
 class restore_course_external extends external_api {
 
     /**
+     * New Origin restore course Step1 parameters.
+     *
      * @return external_function_parameters
      */
     public static function new_origin_restore_course_step1_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                'courseid' => new external_value(PARAM_INT, 'Course ID')
-            )
+                'courseid' => new external_value(PARAM_INT, 'Course ID'),
+            ]
         );
     }
 
     /**
-     *
+     * New Origin restore course Step1.
      *
      * @param int $siteurl
      * @param int $courseid
@@ -79,13 +87,15 @@ class restore_course_external extends external_api {
      */
     public static function new_origin_restore_course_step1(int $siteurl, int $courseid): array {
         global $USER;
-        self::validate_parameters(
-            self::new_origin_restore_course_step1_parameters(),
-            [
+        $params = self::validate_parameters(
+            self::new_origin_restore_course_step1_parameters(), [
                 'siteurl' => $siteurl,
-                'courseid' => $courseid
+                'courseid' => $courseid,
             ]
         );
+
+        $siteurl = $params['siteurl'];
+        $courseid = $params['courseid'];
 
         $success = false;
         $errors = [];
@@ -116,84 +126,88 @@ class restore_course_external extends external_api {
             $errors[] =
                 [
                     'code' => '20011',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
     /**
+     * New Origin restore course Step1 returns.
+     *
      * @return external_single_structure
      */
     public static function new_origin_restore_course_step1_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_RAW, 'Message')
-                    )
+                        'msg' => new external_value(PARAM_RAW, 'Message'),
+                    ]
                 )),
                 'data' => new external_single_structure(
-                    array(
+                    [
                         'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
                         'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
                         'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
                         'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
                         'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
-                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL)
-                    )
-                )
-            )
+                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL),
+                    ]
+                ),
+            ]
         );
     }
 
     /**
+     * New Origin restore course Step5 parameters.
+     *
      * @return external_function_parameters
      */
     public static function new_origin_restore_course_step5_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                 'courseid' => new external_value(PARAM_INT, 'Course ID'),
                 'destinyid' => new external_value(PARAM_INT, 'Destiny ID'),
                 'configuration' => new external_single_structure(
-                    array(
+                    [
                         'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
                         'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
                         'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
-                        'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities')
-                    )
+                        'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
+                    ]
                 ),
                 'sections' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'sectionnum' => new external_value(PARAM_INT, 'Section Number'),
                         'sectionid' => new external_value(PARAM_INT, 'Section ID'),
                         'sectionname' => new external_value(PARAM_TEXT, 'Section Name'),
                         'selected' => new external_value(PARAM_BOOL, 'Selected'),
                         'activities' => new external_multiple_structure(new external_single_structure(
-                            array(
+                            [
                                 'cmid' => new external_value(PARAM_INT, 'CMID'),
                                 'name' => new external_value(PARAM_TEXT, 'Name'),
                                 'instance' => new external_value(PARAM_INT, 'Instance ID'),
                                 'modname' => new external_value(PARAM_TEXT, 'Module Name'),
                                 'selected' => new external_value(PARAM_BOOL, 'Selected'),
-                            )
-                        ))
-                    )
-                ))
-            )
+                            ]
+                        )),
+                    ]
+                )),
+            ]
         );
     }
 
     /**
-     *
+     * New Origin restore course Step5.
      *
      * @param int $siteurl
      * @param int $courseid
@@ -209,16 +223,21 @@ class restore_course_external extends external_api {
                                                            array $configuration, array $sections): array {
 
         global $USER;
-        self::validate_parameters(
-            self::new_origin_restore_course_step5_parameters(),
-            [
+        $params = self::validate_parameters(
+            self::new_origin_restore_course_step5_parameters(), [
                 'siteurl' => $siteurl,
                 'courseid' => $courseid,
                 'destinyid' => $destinyid,
                 'configuration' => $configuration,
-                'sections' => $sections
+                'sections' => $sections,
             ]
         );
+
+        $siteurl = $params['siteurl'];
+        $courseid = $params['courseid'];
+        $destinyid = $params['destinyid'];
+        $configuration = $params['configuration'];
+        $sections = $params['sections'];
 
         $success = false;
         $errors = [];
@@ -231,7 +250,10 @@ class restore_course_external extends external_api {
             $target = $configuration['destiny_merge_activities'] ?
                     \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
             $configuration = new configuration_course(
-                    $target, $configuration['destiny_remove_enrols'], $configuration['destiny_remove_groups']);
+                    $target,
+                    $configuration['destiny_remove_enrols'],
+                    $configuration['destiny_remove_groups']
+            );
             $res = coursetransfer::restore_course($USER, $site, $destinyid, $courseid, $configuration, $sections);
             $success = $res['success'];
             if (!$success) {
@@ -241,36 +263,38 @@ class restore_course_external extends external_api {
             $errors[] =
                 [
                     'code' => '20010',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
     /**
+     * New Origin restore course Step5 returns.
+     *
      * @return external_single_structure
      */
     public static function new_origin_restore_course_step5_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'data' => new external_single_structure(
-                        array(
-                                'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#')
-                        )
+                    [
+                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#'),
+                    ]
                 ),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_RAW, 'Message')
-                    )
-                ))
-            )
+                        'msg' => new external_value(PARAM_RAW, 'Message'),
+                    ]
+                )),
+            ]
         );
     }
 };

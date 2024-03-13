@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * coursetransfer_restore_course_test
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -199,7 +200,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
                 'fullname' => 'Origen Course',
                 'shortname' => 'phpunit-origin-course',
                 'summary' => 'This a Summary',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->origincourse = $this->getDataGenerator()->create_course($oc);
 
@@ -228,7 +229,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
                 'fullname' => 'Destination Course 4',
                 'shortname' => 'phpunit-destination-course-4',
                 'summary' => 'This a Summary of Destination 4',
-                'numsections' => 0
+                'numsections' => 0,
         ];
         $this->destinycourse4 = $this->getDataGenerator()->create_course($dnc4);
         $this->create_sections_destiny4($this->destinycourse4);
@@ -302,7 +303,9 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
                 false,
                 false,
                 true,
-                false, 0);
+                false,
+                0
+        );
         list($requestdestination4, $requestorigin4) = $this->test_restore_course(
                 $configuration4, $this->destinycourse4, $this->origincourse);
 
@@ -326,8 +329,11 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     }
 
     /**
+     * Execute Callback.
+     *
      * @param stdClass $requestdestination
      * @param stdClass $requestorigin
+     * @param stdClass $origincourse
      * @return bool|stored_file
      * @throws dml_exception
      * @throws invalid_parameter_exception
@@ -537,6 +543,8 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     }
 
     /**
+     * Review modules4.
+     *
      * @param stdClass $coursedestiny
      * @throws moodle_exception
      */
@@ -549,6 +557,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     }
 
     /**
+     * Review Enrols.
      *
      * @param stdClass $coursedestiny
      * @param int $userscount

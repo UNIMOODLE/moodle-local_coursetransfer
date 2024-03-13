@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * logs_course_response_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -41,7 +42,7 @@ use local_coursetransfer\coursetransfer_restore;
 use moodle_exception;
 
 /**
- * download_file_course_task
+ * logs_course_response_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -77,13 +78,14 @@ class download_file_course_task extends \core\task\adhoc_task {
             $context = context_course::instance($request->destiny_course_id);
             $filename = 'local_coursetransfer_' . $request->origin_course_id . '_' . time() . '.mbz';
 
-            $fileinfo = array(
+            $fileinfo = [
                     'contextid' => $context->id,
                     'component' => 'backup',
                     'filearea' => 'course',
                     'itemid' => 0,
                     'filepath' => '/',
-                    'filename' => $filename);
+                    'filename' => $filename,
+            ];
 
             $file = $fs->create_file_from_string($fileinfo, $filecontent);
 

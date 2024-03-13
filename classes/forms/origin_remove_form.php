@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Origin Remove Form.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -70,7 +71,7 @@ class origin_remove_form extends moodleform {
                 get_string('course_categories_remove', 'local_coursetransfer'),
                 [
                         'courses' => get_string('courses'),
-                        'categories' => get_string('category')
+                        'categories' => get_string('category'),
                 ]);
         $mform->addHelpButton(
                 'course_categories', 'course_categories', 'local_coursetransfer');

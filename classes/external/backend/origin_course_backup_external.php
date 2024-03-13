@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Origin Course Backup External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -55,14 +56,21 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+/**
+ * Class origin_course_backup_external
+ *
+ * @package local_coursetransfer\external\backend
+ */
 class origin_course_backup_external extends external_api {
 
     /**
+     * Origin Backup course parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_backup_course_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
                 'value' => new external_value(PARAM_TEXT, 'Value'),
                 'courseid' => new external_value(PARAM_INT, 'Course ID'),
@@ -70,7 +78,7 @@ class origin_course_backup_external extends external_api {
                 'requestid' => new external_value(PARAM_INT, 'Request ID'),
                 'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site'),
                 'configuration' => new external_single_structure(
-                        array(
+                        [
                                'destiny_target' => new external_value(PARAM_INT, 'Destiny Target'),
                                'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
                                'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
@@ -81,32 +89,32 @@ class origin_course_backup_external extends external_api {
                                'destiny_notremove_activities' => new external_value(PARAM_TEXT,
                                                'Destiny Not Remove Activities by commas', VALUE_DEFAULT, ''),
                                'nextruntime' => new external_value(PARAM_INT,
-                                               'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0)
-                        )
+                                               'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0),
+                        ]
                 ),
                 'sections' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'sectionnum' => new external_value(PARAM_INT, 'Section Number'),
                         'sectionid' => new external_value(PARAM_INT, 'Section ID'),
                         'sectionname' => new external_value(PARAM_TEXT, 'Section Name'),
                         'selected' => new external_value(PARAM_BOOL, 'Enabled'),
                         'activities' => new external_multiple_structure(new external_single_structure(
-                            array(
+                            [
                                 'cmid' => new external_value(PARAM_INT, 'CMID'),
                                 'name' => new external_value(PARAM_TEXT, 'Name'),
                                 'instance' => new external_value(PARAM_INT, 'Instance ID'),
                                 'modname' => new external_value(PARAM_TEXT, 'Module Name'),
                                 'selected' => new external_value(PARAM_BOOL, 'Selected'),
-                            )
-                        ), '', VALUE_DEFAULT, [])
-                    )
-                ), '', VALUE_DEFAULT, [])
-            )
+                            ]
+                        ), '', VALUE_DEFAULT, []),
+                    ]
+                ), '', VALUE_DEFAULT, []),
+            ]
         );
     }
 
     /**
-     * Backup of the course in origin
+     * Origin Backup course.
      *
      * @param string $field
      * @param string $value
@@ -124,7 +132,7 @@ class origin_course_backup_external extends external_api {
     public static function origin_backup_course(string $field, string $value, int $courseid, int $destinycourseid,
             int $requestid, string $destinysite, array $configuration, array $sections = []): array {
 
-        self::validate_parameters(
+        $params = self::validate_parameters(
             self::origin_backup_course_parameters(), [
                 'field' => $field,
                 'value' => $value,
@@ -136,6 +144,15 @@ class origin_course_backup_external extends external_api {
                 'sections' => $sections,
             ]
         );
+
+        $field = $params['field'];
+        $value = $params['value'];
+        $courseid = $params['courseid'];
+        $destinycourseid = $params['destinycourseid'];
+        $requestid = $params['requestid'];
+        $destinysite = $params['destinysite'];
+        $configuration = $params['configuration'];
+        $sections = $params['sections'];
 
         $errors = [];
         $data = new stdClass();
@@ -202,7 +219,7 @@ class origin_course_backup_external extends external_api {
                             $errors[] =
                                     [
                                             'code' => $requestorigin->error_code,
-                                            'msg' => $requestorigin->error_message
+                                            'msg' => $requestorigin->error_message,
                                     ];
                         }
                     } else {
@@ -210,7 +227,7 @@ class origin_course_backup_external extends external_api {
                         $errors[] =
                                 [
                                         'code' => '10102',
-                                        'msg' => 'USER HAS NOT CAPABILITY'
+                                        'msg' => 'USER HAS NOT CAPABILITY',
                                 ];
                     }
                 } else {
@@ -226,32 +243,34 @@ class origin_course_backup_external extends external_api {
             $errors[] =
                 [
                     'code' => '10010',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
     /**
+     * Origin Backup course returns.
+     *
      * @return external_single_structure
      */
     public static function origin_backup_course_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ), PARAM_TEXT, 'Errors'
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ], PARAM_TEXT, 'Errors'
                 )),
                 'data' => new external_single_structure(
-                    array(
+                    [
                         'requestid' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
                         'request_origin_id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
                         'course_fullname' => new external_value(PARAM_RAW, 'Origin Course Fullname', VALUE_OPTIONAL),
@@ -262,10 +281,9 @@ class origin_course_backup_external extends external_api {
                         'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
                         'origin_backup_size_estimated' => new external_value(PARAM_INT,
                             'Backup Size Estimated (MB)', VALUE_OPTIONAL ),
-                    ), PARAM_TEXT, 'Data'
-                )
-            )
+                    ], PARAM_TEXT, 'Data'
+                ),
+            ]
         );
     }
-
 };

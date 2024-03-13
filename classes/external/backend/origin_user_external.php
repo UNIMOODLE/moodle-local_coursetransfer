@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Origin User External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -50,21 +51,29 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+/**
+ * Class origin_user_external
+ *
+ * @package local_coursetransfer\external\backend
+ */
 class origin_user_external extends external_api {
+
     /**
+     * Origin has user parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_has_user_parameters(): external_function_parameters {
         return new external_function_parameters(
-            array(
+            [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
-                'value' => new external_value(PARAM_TEXT, 'Value')
-            )
+                'value' => new external_value(PARAM_TEXT, 'Value'),
+            ]
         );
     }
 
     /**
-     * Check if user exists
+     * Origin has user.
      *
      * @param string $field
      * @param string $value
@@ -74,13 +83,15 @@ class origin_user_external extends external_api {
      * @throws moodle_exception
      */
     public static function origin_has_user(string $field, string $value): array {
-        self::validate_parameters(
-            self::origin_has_user_parameters(),
-            [
+        $params = self::validate_parameters(
+            self::origin_has_user_parameters(), [
                 'field' => $field,
-                'value' => $value
+                'value' => $value,
             ]
         );
+
+        $field = $params['field'];
+        $value = $params['value'];
 
         $success = true;
         $errors = [];
@@ -103,44 +114,46 @@ class origin_user_external extends external_api {
             $errors[] =
                 [
                     'code' => '17100',
-                    'msg' => $e->getMessage()
+                    'msg' => $e->getMessage(),
                 ];
         }
 
         return [
             'success' => $success,
             'errors' => $errors,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
     /**
+     * Origin has user returns.
+     *
      * @return external_single_structure
      */
     public static function origin_has_user_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                    array(
+                    [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
-                        'msg' => new external_value(PARAM_TEXT, 'Message')
-                    ),
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ],
                     PARAM_TEXT,
                     'Errors'
                 )),
                 'data' => new external_single_structure(
-                    array(
+                    [
                         'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
                         'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
                         'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
                         'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
-                        'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL)
-                    ),
+                        'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
+                    ],
                     PARAM_TEXT,
                     'Data'
-                )
-            )
+                ),
+            ]
         );
     }
 }

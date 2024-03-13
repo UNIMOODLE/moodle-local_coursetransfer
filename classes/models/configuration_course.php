@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Configuration Course.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -62,9 +63,20 @@ class configuration_course extends configuration {
      * @param string $destinynotremoveactivities
      */
     public function __construct(
-            int $destinytarget, bool $destinyremoveenrols, bool $destinyremovegroups, bool $originenrolusers = false,
-            bool $originremovecourse = false, int $nextruntime = null, string $destinynotremoveactivities = '') {
-        parent::__construct($destinytarget, $destinyremoveenrols, $destinyremovegroups, $originenrolusers, $nextruntime);
+            int $destinytarget,
+            bool $destinyremoveenrols,
+            bool $destinyremovegroups,
+            bool $originenrolusers = false,
+            bool $originremovecourse = false,
+            int $nextruntime = null,
+            string $destinynotremoveactivities = '') {
+        parent::__construct(
+                $destinytarget,
+                $destinyremoveenrols,
+                $destinyremovegroups,
+                $originenrolusers,
+                $nextruntime
+        );
         $this->set_origin_remove_course($originremovecourse);
         $this->set_destiny_notremove_activities($destinynotremoveactivities);
     }

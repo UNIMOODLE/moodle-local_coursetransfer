@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * new_origin_restore_category_step4_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -33,7 +34,9 @@
 
 namespace local_coursetransfer\output\origin_restore_category;
 
+use coding_exception;
 use context_system;
+use core_course_category;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -53,6 +56,19 @@ use stdClass;
 class new_origin_restore_category_step4_page extends new_origin_restore_category_step_page {
 
     /**
+     *  constructor.
+     *
+     * @param core_course_category $category
+     * @throws coding_exception
+     */
+    public function __construct(core_course_category $category) {
+        parent::__construct($category);
+        $this->site = required_param('site', PARAM_INT);
+        $this->restoreid = required_param('restoreid', PARAM_INT);
+        $this->destinyid = required_param('id', PARAM_INT);
+    }
+
+    /**
      * Export for Template.
      *
      * @param renderer_base $output
@@ -61,29 +77,26 @@ class new_origin_restore_category_step4_page extends new_origin_restore_category
      */
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
-        $siteposition = required_param('site', PARAM_RAW);
-        $restoreid = required_param('restoreid', PARAM_INT);
-        $destinyid = required_param('id', PARAM_INT);
-        $backurl = new moodle_url(self::PAGE, [
+        $backurl = new moodle_url(self::URL, [
                     'id' => $this->category->id,
-                    'new' => 1, 'step' => 3, 'site' => $siteposition, 'restoreid' => $restoreid]
+                    'new' => 1, 'step' => 3, 'site' => $this->site, 'restoreid' => $this->restoreid]
         );
-        $tableurl = new moodle_url(self::PAGE, ['id' => $this->category->id]);
+        $tableurl = new moodle_url(self::URL, ['id' => $this->category->id]);
         $data = new stdClass();
         $data->button = false;
-        $data->restoreid = $restoreid;
-        $data->destinyid = $destinyid;
-        $data->siteposition = $siteposition;
+        $data->restoreid = $this->restoreid;
+        $data->destinyid = $this->destinyid;
+        $data->siteposition = $this->site;
         $data->steps = self::get_steps(4);
         $data->back_url = $backurl->out(false);
         $data->table_url = $tableurl->out(false);
-        $site = coursetransfer::get_site_by_position($siteposition);
+        $site = coursetransfer::get_site_by_position($this->site);
         $data->host = $site->host;
         if (coursetransfer::validate_origin_site($site->host)) {
             $data->haserrors = false;
             try {
                 $request = new request($site);
-                $res = $request->origin_get_category_detail($restoreid, $USER);
+                $res = $request->origin_get_category_detail($this->restoreid, $USER);
                 if ($res->success) {
                     $data->category = $res->data;
                     $data->category->sessionStorage_id = "local_coursetransfer_".$this->category->id."_".$data->restoreid;

@@ -37,8 +37,9 @@ define([
         'jquery',
         'core/str',
         'core/ajax',
-        'core/templates'
-    ], function($, Str, Ajax, Templates) {
+        'core/templates',
+        'local_coursetransfer/JSONutil'
+    ], function($, Str, Ajax, Templates, JSONutil) {
         "use strict";
 
         let SERVICES = {
@@ -59,7 +60,7 @@ define([
         function originRestoreStep4(region, site) {
             this.node = $(region);
             this.site = site;
-            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'));
+            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'), JSONutil.reviver);
             if (this.data) {
                 this.data.courses.forEach(function(course) {
                     let courseid = parseInt(course.courseid);
@@ -107,19 +108,12 @@ define([
         }
 
         originRestoreStep4.prototype.changeCategory = function(e) {
-            let $select = $(e.currentTarget);
-            let catvalue = $select.val();
-            let catcourse = $select.data('courseid');
-            let courses = this.data.courses;
-            let newcourses = [];
-            courses.forEach(function(course) {
-                if (course.courseid === catcourse) {
-                    course.categorydestiny = catvalue;
-                }
-                newcourses.push(course);
-            });
-            this.data.courses = newcourses;
-            sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data));
+            let newCategoryId = e.currentTarget.value;
+            let courseId = e.currentTarget.dataset.courseid.toString();
+            let course = this.data.courses.get(courseId);
+            course.categorydestiny = newCategoryId;
+            this.data.courses.set(courseId, course);
+            sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
         };
 
         originRestoreStep4.prototype.clickNext = function(e) {
@@ -133,7 +127,7 @@ define([
                     configuration[config.name] = config.selected;
                 }
             });
-
+            console.log('type of configuration: ', typeof configuration);
             let alertbox = this.node.find(".alert");
             let config = {
                 destiny_merge_activities: false,
@@ -169,7 +163,7 @@ define([
                 methodname: SERVICES.ORIGIN_RESTORE_STEP4,
                 args: {
                     siteurl: this.site,
-                    courses: this.data.courses,
+                    courses: Array.from(this.data.courses.values()),
                     configuration: config,
                 }
             };
@@ -209,6 +203,7 @@ define([
             });
             alertbox.append(errorString);
         };
+
 
         originRestoreStep4.prototype.node = null;
 

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Coursetransfer Download.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -78,7 +79,7 @@ class coursetransfer_download {
         $asynctask = new download_file_course_task();
         $asynctask->set_blocking(false);
         $asynctask->set_custom_data(
-                array('requestid' => $request->id, 'fileurl' => $fileurl)
+                ['requestid' => $request->id, 'fileurl' => $fileurl]
         );
         return \core\task\manager::queue_adhoc_task($asynctask);
     }

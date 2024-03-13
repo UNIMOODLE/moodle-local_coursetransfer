@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * new_origin_restore_course_step2_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -33,6 +34,7 @@
 
 namespace local_coursetransfer\output\origin_restore_course;
 
+use coding_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -52,6 +54,27 @@ use stdClass;
 class new_origin_restore_course_step2_page  extends new_origin_restore_course_step_page {
 
     /**
+     *  constructor.
+     *
+     * @param stdClass $course
+     * @throws coding_exception
+     */
+    public function __construct(stdClass $course) {
+        parent::__construct($course);
+        $this->site = required_param('site', PARAM_INT);
+    }
+
+    /**
+     * Base url used to build html paging bar links.
+     *
+     * @return string
+     */
+    public function get_paging_url() : string {
+        $courseid = $this->course->id;
+        return parent::URL . "?id=$courseid&new=1&step=2&site=$this->site";
+    }
+
+    /**
      * Export for Template.
      *
      * @param renderer_base $output
@@ -61,24 +84,26 @@ class new_origin_restore_course_step2_page  extends new_origin_restore_course_st
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
         $data = new stdClass();
-        $siteposition = required_param('site', PARAM_INT);
         $data->button = true;
         $data->steps = self::get_steps(2);
-        $backurl = new moodle_url(self::PAGE, ['id' => $this->course->id, 'new' => 1, 'step' => 1]);
-        $url = new moodle_url(self::PAGE, ['id' => $this->course->id]);
+        $backurl = new moodle_url(self::URL, ['id' => $this->course->id, 'new' => 1, 'step' => 1]);
+        $url = new moodle_url(self::URL, ['id' => $this->course->id]);
         $data->courseid = $this->course->id;
-        $nexturl = new moodle_url(self::PAGE, ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $siteposition]);
+        $nexturl = new moodle_url(self::URL,
+            ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $this->site, 'page' => $this->page]
+        );
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $data->table_url = $url->out(false);
         $data->next_url_disabled = true;
-        $site = coursetransfer::get_site_by_position($siteposition);
+        $site = coursetransfer::get_site_by_position($this->site);
         try {
             $request = new request($site);
-            $res = $request->origin_get_courses($USER);
+            $res = $request->origin_get_courses($USER, $this->page, $this->perpage);
             if ($res->success) {
                 $data->courses = $res->data;
                 $data->haserrors = false;
+                $data->paging = $res->paging;
             } else {
                 $data->errors = $res->errors;
                 $data->haserrors = true;

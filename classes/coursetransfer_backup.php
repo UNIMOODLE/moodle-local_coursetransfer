@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Coursetransfer Backup.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -88,7 +89,7 @@ class coursetransfer_backup {
                 backup::FORMAT_MOODLE,
                 backup::INTERACTIVE_NO,
                 backup::MODE_GENERAL, $userid,
-                backup::RELEASESESSION_NO);
+                backup::RELEASESESSION_YES);
         $bc->set_status(backup::STATUS_AWAITING);
         $bc->set_status(backup::STATUS_AWAITING);
         $bc->get_plan()->get_setting('users')->set_status(base_setting::NOT_LOCKED);
@@ -120,7 +121,7 @@ class coursetransfer_backup {
                 'destinysite' => $destinysite->id,
                 'requestid' => $requestid,
                 'requestoriginid' => $requestoriginid,
-                'istest' => $istest
+                'istest' => $istest,
         ];
         $asynctask->set_custom_data($payload);
         $asynctask->set_userid($userid);

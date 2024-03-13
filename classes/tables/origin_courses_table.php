@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * logs_course_response_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -45,7 +46,7 @@ defined('MOODLE_INTERNAL') || die;
 require_once('../../lib/tablelib.php');
 
 /**
- * origin_courses_table
+ * logs_course_response_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -89,7 +90,7 @@ class origin_courses_table extends table_sql {
         $this->define_baseurl($moodleurl);
 
         $this->define_columns([
-            'courseid', 'fullname', 'shortname'
+            'courseid', 'fullname', 'shortname',
         ]);
         $this->define_headers([
                 get_string('courseid', 'local_coursetransfer'),
@@ -137,11 +138,11 @@ class origin_courses_table extends table_sql {
     /**
      * Data Sort Columns.
      *
-     * @param $data
-     * @return mixed
+     * @param array $data
+     * @return array
      * @throws coding_exception
      */
-    protected function data_sort_columns($data) {
+    protected function data_sort_columns(array $data) {
         $columns = array_reverse($this->get_sort_columns());
         foreach ($columns as $k => $v) {
             usort($data, function($a, $b) use ($k, $v){

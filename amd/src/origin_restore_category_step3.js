@@ -66,11 +66,21 @@ define([
                     idnumber: $("[data-category-idnumber]").attr("data-category-idnumber"),
                     parentname: $("[data-category-parentname]").attr("data-category-parentname"),
                     courses: []
-                }
+                },
+                configuration: {}
             };
             this.node.find(ACTIONS.COURSE_SELECT).on('click', this.selectCourse.bind(this));
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
+            this.node.find('#origin_schedule').on('click', this.clickSchedule.bind(this));
         }
+
+        restoreCategoryStep3.prototype.clickSchedule = function(e) {
+            if (this.node.find('#origin_schedule').is(':checked')) {
+                this.node.find('#origin_schedule_datetime').attr('disabled', false);
+            } else {
+                this.node.find('#origin_schedule_datetime').attr('disabled', true);
+            }
+        };
 
         restoreCategoryStep3.prototype.selectCourse = function(e) {
             this.node.find(ACTIONS.CATEGORY).removeClass('selected');
@@ -91,6 +101,17 @@ define([
                 data.category.courses.push(course);
             });
             let storageid = this.node.find('[data-region="session-storage"]');
+            let checkboxes = $('.configuration-checkbox');
+            let configuration = [];
+            checkboxes.each(function() {
+                if ($(this).attr("id") === 'origin_schedule_datetime') {
+                    let datetime = $(this).val();
+                    configuration.push({"name": $(this).attr("id"), "value": datetime});
+                } else {
+                    configuration.push({"name": $(this).attr("id"), "selected": $(this).prop('checked')});
+                }
+            });
+            this.data.configuration = configuration;
             sessionStorage.removeItem(storageid.data('session'));
             if (data.category.courses.length > 0) {
                 sessionStorage.setItem(storageid.data('session'), JSON.stringify(data));
@@ -113,7 +134,7 @@ define([
             /**
              * @param {String} region
              * @param {String} nexturl
-             * @return {restoreCategoryStep2}
+             * @return {restoreCategoryStep3}
              */
             initRestoreCategoryStep3: function(region, nexturl) {
                 return new restoreCategoryStep3(region, nexturl);
