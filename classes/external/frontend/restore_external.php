@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Restore External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -58,9 +59,16 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+/**
+ * Class restore_external
+ *
+ * @package local_coursetransfer\external\frontend
+ */
 class restore_external extends external_api {
 
     /**
+     * Origin restore Step1 parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_restore_step1_parameters(): external_function_parameters {
@@ -73,7 +81,7 @@ class restore_external extends external_api {
     }
 
     /**
-     *
+     * Origin restore Step1.
      *
      * @param int $siteurl
      * @param string $type
@@ -88,8 +96,6 @@ class restore_external extends external_api {
                 'type' => $type,
             ]
         );
-        $siteurl = $params['siteurl'];
-        $type = $params['type'];
 
         $siteurl = $params['siteurl'];
         $type = $params['type'];
@@ -135,6 +141,8 @@ class restore_external extends external_api {
     }
 
     /**
+     * Origin restore Step1 returns.
+     *
      * @return external_single_structure
      */
     public static function origin_restore_step1_returns(): external_single_structure {
@@ -162,6 +170,8 @@ class restore_external extends external_api {
     }
 
     /**
+     * Origin restore Step4 parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_restore_step4_parameters(): external_function_parameters {
@@ -191,7 +201,7 @@ class restore_external extends external_api {
     }
 
     /**
-     *
+     * Origin restore Step4.
      *
      * @param int $siteurl
      * @param array $courses
@@ -209,9 +219,6 @@ class restore_external extends external_api {
                 'configuration' => $configuration,
             ]
         );
-        $siteurl = $params['siteurl'];
-        $courses = $params['courses'];
-        $configuration = $params['configuration'];
 
         $siteurl = $params['siteurl'];
         $courses = $params['courses'];
@@ -295,6 +302,8 @@ class restore_external extends external_api {
     }
 
     /**
+     * Origin restore Step4 returns.
+     *
      * @return external_single_structure
      */
     public static function origin_restore_step4_returns(): external_single_structure {
@@ -317,6 +326,8 @@ class restore_external extends external_api {
     }
 
     /**
+     * Origin restore category Step4 parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_restore_cat_step4_parameters(): external_function_parameters {
@@ -337,7 +348,7 @@ class restore_external extends external_api {
     }
 
     /**
-     *
+     * Origin restore category Step4.
      *
      * @param int $siteurl
      * @param int $catid
@@ -358,10 +369,6 @@ class restore_external extends external_api {
                 'configuration' => $configuration,
             ]
         );
-        $siteurl = $params['siteurl'];
-        $catid = $params['catid'];
-        $destinyid = $params['destinyid'];
-        $configuration = $params['configuration'];
 
         $siteurl = $params['siteurl'];
         $catid = $params['catid'];
@@ -407,6 +414,8 @@ class restore_external extends external_api {
     }
 
     /**
+     * Origin restore category Step4 returns.
+     *
      * @return external_single_structure
      */
     public static function origin_restore_cat_step4_returns(): external_single_structure {

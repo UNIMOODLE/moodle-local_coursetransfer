@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Origin Remove External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -57,9 +58,16 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+/**
+ * Class origin_remove_external
+ *
+ * @package local_coursetransfer\external\frontend
+ */
 class origin_remove_external extends external_api {
 
     /**
+     * Origin remove step1 parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_remove_step1_parameters(): external_function_parameters {
@@ -72,7 +80,7 @@ class origin_remove_external extends external_api {
     }
 
     /**
-     *
+     * Origin remove step1.
      *
      * @param int $siteurl
      * @param string $type
@@ -87,8 +95,6 @@ class origin_remove_external extends external_api {
                 'type' => $type,
             ]
         );
-        $siteurl = $params['siteurl'];
-        $type = $params['type'];
 
         $siteurl = $params['siteurl'];
         $type = $params['type'];
@@ -134,6 +140,8 @@ class origin_remove_external extends external_api {
     }
 
     /**
+     * Origin remove step1 returns.
+     *
      * @return external_single_structure
      */
     public static function origin_remove_step1_returns(): external_single_structure {
@@ -161,6 +169,8 @@ class origin_remove_external extends external_api {
     }
 
     /**
+     * Origin remove step3 parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_remove_step3_parameters(): external_function_parameters {
@@ -179,7 +189,7 @@ class origin_remove_external extends external_api {
     }
 
     /**
-     *
+     * Origin remove step3.
      *
      * @param int $siteurl
      * @param array $courses
@@ -199,9 +209,6 @@ class origin_remove_external extends external_api {
                 'nextruntime' => $nextruntime,
             ]
         );
-        $siteurl = $params['siteurl'];
-        $courses = $params['courses'];
-        $nextruntime = $params['nextruntime'];
 
         $siteurl = $params['siteurl'];
         $courses = $params['courses'];
@@ -270,6 +277,8 @@ class origin_remove_external extends external_api {
     }
 
     /**
+     * Origin remove step3 returns.
+     *
      * @return external_single_structure
      */
     public static function origin_remove_step3_returns(): external_single_structure {
@@ -292,6 +301,8 @@ class origin_remove_external extends external_api {
     }
 
     /**
+     * Origin remove category step3 parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_remove_cat_step3_parameters(): external_function_parameters {
@@ -306,7 +317,7 @@ class origin_remove_external extends external_api {
     }
 
     /**
-     *
+     * Origin remove category step3.
      *
      * @param int $siteurl
      * @param int $catid
@@ -326,9 +337,6 @@ class origin_remove_external extends external_api {
                 'nextruntime' => $nextruntime,
             ]
         );
-        $siteurl = $params['siteurl'];
-        $catid = $params['catid'];
-        $nextruntime = $params['nextruntime'];
 
         $siteurl = $params['siteurl'];
         $catid = $params['catid'];
@@ -394,6 +402,8 @@ class origin_remove_external extends external_api {
     }
 
     /**
+     * Origin remove category step3 returns.
+     *
      * @return external_single_structure
      */
     public static function origin_remove_cat_step3_returns(): external_single_structure {

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Restore Category External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -54,9 +55,16 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+/**
+ * Class restore_category_external
+ *
+ * @package local_coursetransfer\external\frontend
+ */
 class restore_category_external extends external_api {
 
     /**
+     * New Origin restore category Step1 parameters.
+     *
      * @return external_function_parameters
      */
     public static function new_origin_restore_category_step1_parameters(): external_function_parameters {
@@ -69,7 +77,7 @@ class restore_category_external extends external_api {
     }
 
     /**
-     *
+     * New Origin restore category Step1.
      *
      * @param int $siteurl
      * @param int $categoryid
@@ -86,8 +94,6 @@ class restore_category_external extends external_api {
                 'categoryid' => $categoryid,
             ]
         );
-        $siteurl = $params['siteurl'];
-        $categoryid = $params['categoryid'];
 
         $siteurl = $params['siteurl'];
         $categoryid = $params['categoryid'];
@@ -133,6 +139,8 @@ class restore_category_external extends external_api {
     }
 
     /**
+     * New Origin restore category Step1 returns.
+     *
      * @return external_single_structure
      */
     public static function new_origin_restore_category_step1_returns(): external_single_structure {
@@ -160,6 +168,8 @@ class restore_category_external extends external_api {
     }
 
     /**
+     * New Origin restore category Step4 parameters.
+     *
      * @return external_function_parameters
      */
     public static function new_origin_restore_category_step4_parameters(): external_function_parameters {
@@ -179,6 +189,7 @@ class restore_category_external extends external_api {
     }
 
     /**
+     * New Origin restore category Step4.
      *
      * @param int $siteurl
      * @param int $categoryid
@@ -203,11 +214,6 @@ class restore_category_external extends external_api {
                 'nextruntime' => $nextruntime,
             ]
         );
-        $siteurl = $params['siteurl'];
-        $categoryid = $params['categoryid'];
-        $destinyid = $params['destinyid'];
-        $courses = $params['courses'];
-        $nextruntime = $params['nextruntime'];
 
         $siteurl = $params['siteurl'];
         $categoryid = $params['categoryid'];
@@ -248,6 +254,8 @@ class restore_category_external extends external_api {
     }
 
     /**
+     * New Origin restore category Step4 returns.
+     *
      * @return external_single_structure
      */
     public static function new_origin_restore_category_step4_returns(): external_single_structure {

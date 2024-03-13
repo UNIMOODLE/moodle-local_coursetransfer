@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Origin Course Backup External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -55,9 +56,16 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+/**
+ * Class origin_course_backup_external
+ *
+ * @package local_coursetransfer\external\backend
+ */
 class origin_course_backup_external extends external_api {
 
     /**
+     * Origin Backup course parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_backup_course_parameters(): external_function_parameters {
@@ -106,7 +114,7 @@ class origin_course_backup_external extends external_api {
     }
 
     /**
-     * Backup of the course in origin
+     * Origin Backup course.
      *
      * @param string $field
      * @param string $value
@@ -136,14 +144,6 @@ class origin_course_backup_external extends external_api {
                 'sections' => $sections,
             ]
         );
-        $field = $params['field'];
-        $value = $params['value'];
-        $courseid = $params['courseid'];
-        $destinycourseid = $params['destinycourseid'];
-        $requestid = $params['requestid'];
-        $destinysite = $params['destinysite'];
-        $configuration = $params['configuration'];
-        $sections = $params['sections'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -255,6 +255,8 @@ class origin_course_backup_external extends external_api {
     }
 
     /**
+     * Origin Backup course returns.
+     *
      * @return external_single_structure
      */
     public static function origin_backup_course_returns(): external_single_structure {

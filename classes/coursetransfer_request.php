@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Coursetransfer Request.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -51,24 +52,40 @@ use stdClass;
  */
 class coursetransfer_request {
 
+    /** @var string Table */
     const TABLE = 'local_coursetransfer_request';
 
+    /** @var int Type Course */
     const TYPE_COURSE = 0;
+    /** @var int Type Category */
     const TYPE_CATEGORY = 1;
+    /** @var int Type Remove Course */
     const TYPE_REMOVE_COURSE = 2;
+    /** @var int Type Remove Category */
     const TYPE_REMOVE_CATEGORY = 3;
 
+    /** @var int Direction Request */
     const DIRECTION_REQUEST = 0;
+    /** @var int Direction Response */
     const DIRECTION_RESPONSE = 1;
 
+    /** @var int Status Error */
     const STATUS_ERROR = 0;
+    /** @var int Status not started */
     const STATUS_NOT_STARTED = 1;
+    /** @var int Status in progress */
     const STATUS_IN_PROGRESS = 10;
+    /** @var int Status Backup */
     const STATUS_BACKUP = 30;
+    /** @var int Status Download */
     const STATUS_DOWNLOAD = 50;
+    /** @var int Status Downloaded */
     const STATUS_DOWNLOADED = 70;
+    /** @var int Status Restore */
     const STATUS_RESTORE = 80;
+    /** @var int Status Incompleted */
     const STATUS_INCOMPLETED = 90;
+    /** @var int Status Completed */
     const STATUS_COMPLETED = 100;
 
     /**

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Destiny Course Callback Externa.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -55,9 +56,16 @@ require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->dirroot . '/local/coursetransfer/classes/task/download_file_course_task.php');
 
+/**
+ * Class destiny_course_callback_external
+ *
+ * @package local_coursetransfer\external\backend
+ */
 class destiny_course_callback_external extends external_api {
 
     /**
+     * Destiny Backup Course Completed Parameters.
+     *
      * @return external_function_parameters
      */
     public static function destiny_backup_course_completed_parameters(): external_function_parameters {
@@ -73,7 +81,7 @@ class destiny_course_callback_external extends external_api {
     }
 
     /**
-     * Notify that the backup is completed
+     * Destiny Backup Course Completed.
      *
      * @param string $field
      * @param string $value
@@ -97,11 +105,6 @@ class destiny_course_callback_external extends external_api {
                 'fileurl' => $fileurl,
             ]
         );
-        $field = $params['field'];
-        $value = $params['value'];
-        $requestid = $params['requestid'];
-        $backupsize = $params['backupsize'];
-        $fileurl = $params['fileurl'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -157,6 +160,8 @@ class destiny_course_callback_external extends external_api {
     }
 
     /**
+     * Destiny Backup Course Completed Returns.
+     *
      * @return external_single_structure
      */
     public static function destiny_backup_course_completed_returns(): external_single_structure {
@@ -179,6 +184,8 @@ class destiny_course_callback_external extends external_api {
     }
 
     /**
+     * Destiny Remove Course Completed parameters.
+     *
      * @return external_function_parameters
      */
     public static function destiny_remove_course_completed_parameters(): external_function_parameters {
@@ -192,7 +199,7 @@ class destiny_course_callback_external extends external_api {
     }
 
     /**
-     * Notify that the backup is completed
+     * Destiny Remove Course Completed.
      *
      * @param string $field
      * @param string $value
@@ -209,9 +216,6 @@ class destiny_course_callback_external extends external_api {
                 'requestid' => $requestid,
             ]
         );
-        $field = $params['field'];
-        $value = $params['value'];
-        $requestid = $params['requestid'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -264,6 +268,8 @@ class destiny_course_callback_external extends external_api {
     }
 
     /**
+     * Destiny Remove Course Completed returns.
+     *
      * @return external_single_structure
      */
     public static function destiny_remove_course_completed_returns(): external_single_structure {
@@ -286,6 +292,8 @@ class destiny_course_callback_external extends external_api {
     }
 
     /**
+     * Destiny Backup course error parameters.
+     *
      * @return external_function_parameters
      */
     public static function destiny_backup_course_error_parameters(): external_function_parameters {
@@ -302,7 +310,7 @@ class destiny_course_callback_external extends external_api {
     }
 
     /**
-     * Notify that the backup is completed
+     * Destiny Backup course error.
      *
      * @param string $field
      * @param string $value
@@ -326,12 +334,6 @@ class destiny_course_callback_external extends external_api {
                 'errormsg' => $errormsg,
             ]
         );
-        $field = $params['field'];
-        $value = $params['value'];
-        $requestid = $params['requestid'];
-        $backupsize = $params['backupsize'];
-        $errorcode = $params['errorcode'];
-        $errormsg = $params['errormsg'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -385,6 +387,8 @@ class destiny_course_callback_external extends external_api {
     }
 
     /**
+     * Destiny Backup course error returns.
+     *
      * @return external_single_structure
      */
     public static function destiny_backup_course_error_returns(): external_single_structure {
@@ -407,6 +411,8 @@ class destiny_course_callback_external extends external_api {
     }
 
     /**
+     * Destiny Remove Course Error parameters.
+     *
      * @return external_function_parameters
      */
     public static function destiny_remove_course_error_parameters(): external_function_parameters {
@@ -422,7 +428,7 @@ class destiny_course_callback_external extends external_api {
     }
 
     /**
-     * Notify that the backup is completed
+     * Destiny Remove Course Error.
      *
      * @param string $field
      * @param string $value
@@ -444,11 +450,6 @@ class destiny_course_callback_external extends external_api {
                 'errormsg' => $errormsg,
             ]
         );
-        $field = $params['field'];
-        $value = $params['value'];
-        $requestid = $params['requestid'];
-        $errorcode = $params['errorcode'];
-        $errormsg = $params['errormsg'];
 
         $field = $params['field'];
         $value = $params['value'];
@@ -500,6 +501,8 @@ class destiny_course_callback_external extends external_api {
     }
 
     /**
+     * Destiny Remove Course Error returns.
+     *
      * @return external_single_structure
      */
     public static function destiny_remove_course_error_returns(): external_single_structure {

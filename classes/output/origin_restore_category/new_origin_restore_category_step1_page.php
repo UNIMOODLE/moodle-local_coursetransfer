@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * new_origin_restore_category_step1_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE

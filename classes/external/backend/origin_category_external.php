@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Origin Category External.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -52,8 +53,16 @@ require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
+/**
+ * Class origin_category_external
+ *
+ * @package local_coursetransfer\external\backend
+ */
 class origin_category_external extends external_api {
+
     /**
+     * Origin get categories parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_get_categories_parameters(): external_function_parameters {
@@ -68,7 +77,7 @@ class origin_category_external extends external_api {
     }
 
     /**
-     * Get list of courses
+     * Origin get categories.
      *
      * @param string $field
      * @param string $value
@@ -144,6 +153,8 @@ class origin_category_external extends external_api {
     }
 
     /**
+     * Origin get categories returns.
+     *
      * @return external_single_structure
      */
     public static function origin_get_categories_returns(): external_single_structure {
@@ -178,6 +189,8 @@ class origin_category_external extends external_api {
     }
 
     /**
+     * Origin get categories detail parameters.
+     *
      * @return external_function_parameters
      */
     public static function origin_get_category_detail_parameters(): external_function_parameters {
@@ -191,7 +204,7 @@ class origin_category_external extends external_api {
     }
 
     /**
-     * Get course details
+     * Origin get categories detail.
      *
      * @param string $field
      * @param string $value
@@ -276,6 +289,8 @@ class origin_category_external extends external_api {
     }
 
     /**
+     * Origin get categories detail returns.
+     *
      * @return external_single_structure
      */
     public static function origin_get_category_detail_returns(): external_single_structure {

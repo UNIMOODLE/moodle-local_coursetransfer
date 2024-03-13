@@ -52,7 +52,8 @@ Usage:
 
     --site_url=<site_url> Origin Site URL (string)
     --origin_category_id=<origin_category_id>  Origin Category ID (int).
-    --origin_schedule_datetime=<origin_schedule_datetime>   Date in UNIX timestamp (int). Max deferral 30 days, 0 (default) to execute ASAP.
+    --origin_schedule_datetime=<origin_schedule_datetime>
+            Date in UNIX timestamp (int). Max deferral 30 days, 0 (default) to execute ASAP.
 
 Options:
     -h --help                   Print this help.

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * logs_page
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -54,6 +55,7 @@ use templatable;
  */
 class logs_page implements renderable, templatable {
 
+    /** @var string Page */
     const PAGE = '/local/coursetransfer/logs.php';
 
     /** @var int Type  */

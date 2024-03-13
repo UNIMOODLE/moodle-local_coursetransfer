@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * renderer
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -72,6 +73,7 @@ use local_coursetransfer\output\origin_restore_course\origin_restore_course_page
 use moodle_exception;
 use paging_bar;
 use plugin_renderer_base;
+use stdClass;
 
 /**
  * renderer
@@ -85,6 +87,7 @@ use plugin_renderer_base;
 class renderer extends plugin_renderer_base {
 
     /**
+     * Render Index Page.
      *
      * @param index_page $page
      * @return bool|string
@@ -96,6 +99,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Restore page.
      *
      * @param origin_restore_page $page
      * @return bool|string
@@ -107,6 +111,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Restore Step2 Page.
      *
      * @param origin_restore_step2_page $page
      * @return bool|string
@@ -119,6 +124,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Restore Step3 Page.
      *
      * @param origin_restore_step3_page $page
      * @return bool|string
@@ -130,6 +136,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Restore Step4 Page.
      *
      * @param origin_restore_step4_page $page
      * @return bool|string
@@ -141,6 +148,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Restore Category Step2 Page.
      *
      * @param origin_restore_cat_step2_page $page
      * @return bool|string
@@ -153,6 +161,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Restore Category Step3 Page.
      *
      * @param origin_restore_cat_step3_page $page
      * @return bool|string
@@ -164,6 +173,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Restore Category Step4 Page.
      *
      * @param origin_restore_cat_step4_page $page
      * @return bool|string
@@ -175,6 +185,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Restore Course Page.
      *
      * @param origin_restore_course_page $page
      * @return bool|string
@@ -187,6 +198,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render New Origin Restore Course Step1 Page.
      *
      * @param new_origin_restore_course_step1_page $page
      * @return bool|string
@@ -199,6 +211,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render New Origin Restore Course Step2 Page.
      *
      * @param new_origin_restore_course_step2_page $page
      * @return bool|string
@@ -212,6 +225,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render New Origin Restore Course Step3 Page.
      *
      * @param new_origin_restore_course_step3_page $page
      * @return bool|string
@@ -224,6 +238,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render New Origin Restore Course Step4 Page.
      *
      * @param new_origin_restore_course_step4_page $page
      * @return bool|string
@@ -236,6 +251,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render New Origin Restore Course Step5 Page.
      *
      * @param new_origin_restore_course_step5_page $page
      * @return bool|string
@@ -248,6 +264,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Restore Category Page.
      *
      * @param origin_restore_category_page $page
      * @return bool|string
@@ -259,6 +276,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render New Origin Restore Category Step1 Page.
      *
      * @param new_origin_restore_category_step1_page $page
      * @return bool|string
@@ -271,6 +289,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render New Origin Restore Category Step2 Page.
      *
      * @param new_origin_restore_category_step2_page $page
      * @return bool|string
@@ -284,6 +303,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render New Origin Restore Category Step3 Page.
      *
      * @param new_origin_restore_category_step3_page $page
      * @return bool|string
@@ -296,6 +316,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render New Origin Restore Category Step4 Page.
      *
      * @param new_origin_restore_category_step4_page $page
      * @return bool|string
@@ -308,6 +329,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Activities Component.
      *
      * @param activities_component $component
      * @return bool|string
@@ -319,6 +341,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Category Course Component.
      *
      * @param category_course_component $component
      * @return bool|string
@@ -330,6 +353,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Configuration Component.
      *
      * @param configuration_component $component
      * @return bool|string
@@ -341,6 +365,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Actions Site Component.
      *
      * @param actions_site_component $page
      * @return bool|string
@@ -352,6 +377,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Remove Page.
      *
      * @param origin_remove_page $page
      * @return bool|string
@@ -363,6 +389,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Remove Page Step2.
      *
      * @param origin_remove_page_step2 $page
      * @return bool|string
@@ -375,6 +402,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Remove Page Step3.
      *
      * @param origin_remove_page_step3 $page
      * @return bool|string
@@ -386,6 +414,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Remove Page Category Step2.
      *
      * @param origin_remove_page_cat_step2 $page
      * @return bool|string
@@ -398,6 +427,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Origin Remove Page Category Step3.
      *
      * @param origin_remove_page_cat_step3 $page
      * @return bool|string
@@ -409,6 +439,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Log Page.
      *
      * @param log_page $page
      * @return bool|string
@@ -420,6 +451,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Logs Category Remove Request page.
      *
      * @param logs_category_remove_request_page $page
      * @return bool|string
@@ -431,6 +463,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Logs Category Remove Response page.
      *
      * @param logs_category_remove_response_page $page
      * @return bool|string
@@ -442,6 +475,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Logs Category Request page.
      *
      * @param logs_category_request_page $page
      * @return bool|string
@@ -453,6 +487,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Logs Category Response page.
      *
      * @param logs_category_response_page $page
      * @return bool|string
@@ -464,6 +499,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Logs Course Remove Request page.
      *
      * @param logs_course_remove_request_page $page
      * @return bool|string
@@ -475,6 +511,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Logs Course Request page.
      *
      * @param logs_course_request_page $page
      * @return bool|string
@@ -486,6 +523,7 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render Logs Course Remove Response page.
      *
      * @param logs_course_remove_response_page $page
      * @return bool|string
@@ -495,8 +533,8 @@ class renderer extends plugin_renderer_base {
         $data = $page->export_for_template($this);
         return parent::render_from_template('local_coursetransfer/logs/logs_course_remove_response_page', $data);
     }
-
     /**
+     * Render Logs Course Remove Response page.
      *
      * @param logs_course_response_page $page
      * @return bool|string
@@ -510,17 +548,16 @@ class renderer extends plugin_renderer_base {
     /**
      * Returns the html for a paging bar or empty string if no need for paging.
      *
-     * @param \stdClass|null $pager
+     * @param stdClass $paging
      * @param string $url
      * @param string $pageparam
      * @return string|null
      */
-    public function get_html_paging_bar($paging, string $url, string $pageparam) {
+    public function get_html_paging_bar(stdClass $paging, string $url, string $pageparam): ?string {
         if (! $paging) {
             return null;
         }
         $pagingbar = new paging_bar($paging->totalcount, $paging->page, $paging->perpage, $url, $pageparam);
-        $html = $this->render($pagingbar);
-        return $html;
+        return $this->render($pagingbar);
     }
 }
