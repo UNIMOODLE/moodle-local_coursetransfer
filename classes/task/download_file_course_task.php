@@ -69,33 +69,37 @@ class download_file_course_task extends \core\task\adhoc_task {
         $request = coursetransfer_request::get($requestid);
 
         try {
-
             $fs = get_file_storage();
-            $filecontent = file_get_contents($fileurle);
+            $filecontent = @file_get_contents($fileurle);
 
-            $this->log('Backup File Dowload Success!');
+            if (!empty($filecontent)) {
+                $this->log('Backup File Dowload Success!');
 
-            $context = context_course::instance($request->destiny_course_id);
-            $filename = 'local_coursetransfer_' . $request->origin_course_id . '_' . time() . '.mbz';
+                $context = context_course::instance($request->destiny_course_id);
+                $filename = 'local_coursetransfer_' . $request->origin_course_id . '_' . time() . '.mbz';
 
-            $fileinfo = [
-                    'contextid' => $context->id,
-                    'component' => 'backup',
-                    'filearea' => 'course',
-                    'itemid' => 0,
-                    'filepath' => '/',
-                    'filename' => $filename,
-            ];
-
-            $file = $fs->create_file_from_string($fileinfo, $filecontent);
-
-            $this->log('Backup File Dowload in Moodle Success!');
-
-            $request->status = coursetransfer_request::STATUS_DOWNLOADED;
-            coursetransfer_request::insert_or_update($request, $request->id);
-
-            coursetransfer_restore::create_task_restore_course($request, $file);
-
+                $fileinfo = [
+                        'contextid' => $context->id,
+                        'component' => 'backup',
+                        'filearea' => 'course',
+                        'itemid' => 0,
+                        'filepath' => '/',
+                        'filename' => $filename,
+                ];
+                $file = $fs->create_file_from_string($fileinfo, $filecontent);
+                $this->log('Backup File Dowload in Moodle Success!');
+                $request->status = coursetransfer_request::STATUS_DOWNLOADED;
+                coursetransfer_request::insert_or_update($request, $request->id);
+                coursetransfer_restore::create_task_restore_course($request, $file);
+            } else {
+                $errorlast = error_get_last();
+                $error = isset($errorlast['message']) ? $errorlast['message'] : 'HTTP request failed in file download';
+                $this->log($error);
+                $request->status = coursetransfer_request::STATUS_ERROR;
+                $request->error_code = '13001';
+                $request->error_message = $error;
+                coursetransfer_request::insert_or_update($request, $request->id);
+            }
         } catch (\Exception $e) {
             $this->log($e->getMessage());
             $request->status = coursetransfer_request::STATUS_ERROR;
@@ -103,7 +107,6 @@ class download_file_course_task extends \core\task\adhoc_task {
             $request->error_message = $e->getMessage();
             coursetransfer_request::insert_or_update($request, $request->id);
         }
-
         $this->log_finish("Download File Backup Course Remote and Restore Finishing...");
     }
 

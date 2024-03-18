@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Version details.
+ * tasks.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -31,10 +31,18 @@
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2024031503;
-$plugin->requires  = 2021051703;
-$plugin->component = 'local_coursetransfer';
-$plugin->release   = '1.0.0';
-$plugin->maturity  = MATURITY_ALPHA;
+defined('MOODLE_INTERNAL') || die();
+
+$tasks = [
+        [
+                'classname' => '\local_coursetransfer\task\clean_adhoc_failed_task',
+                'blocking' => 0,
+                'minute' => 'R',
+                'hour' => '5',
+                'day' => '*',
+                'month' => '*',
+                'dayofweek' => '*',
+                'disabled' => 0,
+        ],
+];

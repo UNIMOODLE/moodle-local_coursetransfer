@@ -82,55 +82,60 @@ class restore_course_task extends \core\task\adhoc_task {
             $request->error_message = 'Restore in Moodle not working beacuse File not found! :' . $fileid;
             coursetransfer_request::insert_or_update($request, $requestid);
         } else {
-            coursetransfer_restore::restore_course($request, $file);
+            $success = coursetransfer_restore::restore_course($request, $file);
+            if ($success) {
+                $this->log('Restore in Moodle Success!');
+                $request->status = coursetransfer_request::STATUS_COMPLETED;
+                coursetransfer_request::insert_or_update($request, $request->id);
 
-            $this->log('Restore in Moodle Success!');
-            $request->status = coursetransfer_request::STATUS_COMPLETED;
-            coursetransfer_request::insert_or_update($request, $request->id);
+                $site = coursetransfer::get_site_by_url($request->siteurl);
 
-            $site = coursetransfer::get_site_by_url($request->siteurl);
-
-            // Category Request logical.
-            if (!is_null($request->request_category_id)) {
-                $reqcat = coursetransfer_request::update_status_request_cat($request->request_category_id);
-                $this->log('Update Status Category Request');
-                $remcaterrormsg = null;
-                if ($reqcat->status === coursetransfer_request::STATUS_COMPLETED) {
-                    coursetransfer_notification::send_restore_category_completed($request->userid, $request->origin_category_id);
-                    if ($reqcat->origin_remove_category) {
-                        $this->log('Origin Category Removing...');
-                        if (has_capability('local/coursetransfer:origin_remove_category', context_system::instance())) {
-                            try {
-                                coursetransfer::remove_category($site, $request->origin_category_id);
-                            } catch (moodle_exception $e) {
-                                $remcaterrormsg = 'Origin Category Removed not working. Error: ' . $e->getMessage();
+                // Category Request logical.
+                if (!is_null($request->request_category_id)) {
+                    $reqcat = coursetransfer_request::update_status_request_cat($request->request_category_id);
+                    $this->log('Update Status Category Request');
+                    $remcaterrormsg = null;
+                    if ($reqcat->status === coursetransfer_request::STATUS_COMPLETED) {
+                        coursetransfer_notification::send_restore_category_completed(
+                                $request->userid, $request->origin_category_id);
+                        if ($reqcat->origin_remove_category) {
+                            $this->log('Origin Category Removing...');
+                            if (has_capability('local/coursetransfer:origin_remove_category',
+                                    context_system::instance())) {
+                                try {
+                                    coursetransfer::remove_category($site, $request->origin_category_id);
+                                } catch (moodle_exception $e) {
+                                    $remcaterrormsg = 'Origin Category Removed not working. Error: ' . $e->getMessage();
+                                    $this->log($remcaterrormsg);
+                                }
+                            } else {
+                                $remcaterrormsg = 'You dont have permission for remove category';
                                 $this->log($remcaterrormsg);
                             }
-                        } else {
-                            $remcaterrormsg = 'You dont have permission for remove category';
-                            $this->log($remcaterrormsg);
                         }
+                    }
+                } else {
+                    coursetransfer_notification::send_restore_course_completed($request->userid, $request->destiny_course_id);
+                }
+
+                // Remove origen course logical.
+                if ($request->origin_remove_course && !$request->origin_remove_category) {
+                    $this->log('Origin Course Removing...');
+                    $remcouerrormsg = null;
+                    if (has_capability('local/coursetransfer:origin_remove_course', context_system::instance())) {
+                        try {
+                            coursetransfer::remove_course($site, $request->origin_course_id);
+                        } catch (moodle_exception $e) {
+                            $remcouerrormsg = 'Origin Course Removed not working. Error: ' . $e->getMessage();
+                            $this->log($remcouerrormsg);
+                        }
+                    } else {
+                        $remcaterrormsg = 'You dont have permission for remove course';
+                        $this->log($remcaterrormsg);
                     }
                 }
             } else {
-                coursetransfer_notification::send_restore_course_completed($request->userid, $request->destiny_course_id);
-            }
-
-            // Remove origen course logical.
-            if ($request->origin_remove_course && !$request->origin_remove_category) {
-                $this->log('Origin Course Removing...');
-                $remcouerrormsg = null;
-                if (has_capability('local/coursetransfer:origin_remove_course', context_system::instance())) {
-                    try {
-                        coursetransfer::remove_course($site, $request->origin_course_id);
-                    } catch (moodle_exception $e) {
-                        $remcouerrormsg = 'Origin Course Removed not working. Error: ' . $e->getMessage();
-                        $this->log($remcouerrormsg);
-                    }
-                } else {
-                    $remcaterrormsg = 'You dont have permission for remove course';
-                    $this->log($remcaterrormsg);
-                }
+                $this->log('Restore in Moodle is Failed!');
             }
             $this->log_finish("Restore Backup Course Remote Finishing...");
         }

@@ -628,12 +628,15 @@ class coursetransfer {
 
             $request = new request($site);
             $origincategoryname = '';
+            $origincategoryidnumber = '';
+            $origincategordesc = '';
             if (count($courses) === 0) {
                 // 1a. Call CURL Origin Get Category Detail for courses list.
                 $res = $request->origin_get_category_detail($origincategoryid, $user);
                 if ($res->success) {
                     $courses = $res->data->courses;
                     $origincategoryname = $res->data->name;
+                    $origincategoryidnumber = $res->data->idnumber;
                 } else {
                     throw new moodle_exception(json_encode($res->errors));
                 }
@@ -644,7 +647,9 @@ class coursetransfer {
 
             // 2. If destinycategoryid is new (0)
             if ($destinycategoryid === 0) {
-                $destinycategoryid = category::create($origincategoryname);
+                $destinycategoryid = category::create($origincategoryname, $origincategoryidnumber, $origincategordesc);
+            } else {
+                category::update($destinycategoryid, $origincategoryname, $origincategoryidnumber, $origincategordesc);
             }
 
             $requestobject->origin_category_name = $origincategoryname;
@@ -1087,6 +1092,45 @@ class coursetransfer {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Cleanup Course Bin.
+     *
+     * @param int $courseid
+     * @throws dml_exception
+     */
+    public static function cleanup_course_bin(int $courseid) {
+        global $DB;
+        if (get_config('local_coursetransfer', 'remove_course_cleanup')) {
+            mtrace("Remove course items recycle bin enabled ...");
+            $items = $DB->get_records('tool_recyclebin_course', ['courseid' => $courseid]);
+            foreach ($items as $item) {
+                mtrace("[tool_recyclebin] Deleting item '{$item->id}' from the course recycle bin ...");
+                $bin = new \tool_recyclebin\course_bin($item->courseid);
+                $bin->delete_item($item);
+            }
+        }
+    }
+
+    /**
+     * Cleanup Category Bin.
+     *
+     * @param int $catid
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function cleanup_category_bin(int $catid) {
+        global $DB;
+        if (get_config('local_coursetransfer', 'remove_cat_cleanup')) {
+            mtrace("Remove category items recycle bin enabled ...");
+            $items = $DB->get_records('tool_recyclebin_category', ['categoryid' => $catid]);
+            foreach ($items as $item) {
+                mtrace("[tool_recyclebin] Deleting item '{$item->id}' from the category recycle bin ...");
+                $bin = new \tool_recyclebin\category_bin($item->categoryid);
+                $bin->delete_item($item);
+            }
+        }
     }
 
 }
