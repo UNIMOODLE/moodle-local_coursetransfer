@@ -34,16 +34,11 @@
 
 namespace local_coursetransfer;
 
-use backup;
-use dml_exception;
+use local_coursetransfer\task\cleanup_category_bin_task;
+use local_coursetransfer\task\cleanup_course_bin_task;
 use local_coursetransfer\task\remove_category_task;
 use local_coursetransfer\task\remove_course_task;
-use local_coursetransfer\task\restore_course_task;
-use moodle_exception;
-use restore_controller;
 use stdClass;
-use stored_file;
-
 
 /**
  * coursetransfer_remove
@@ -55,6 +50,9 @@ use stored_file;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_remove {
+
+    /** @var int Cleanup bin task nextruntim plus */
+    const CLEANUP_BIN_TASK_NEXTRUNTIME_PLUS = 240;
 
     /**
      * Create task remove course.
@@ -112,6 +110,41 @@ class coursetransfer_remove {
         if (!is_null($nextruntime)) {
             $resasynctask->set_next_run_time($nextruntime);
         }
+        return \core\task\manager::queue_adhoc_task($resasynctask);
+    }
+
+    /**
+     * Create cleanup course bin task.
+     *
+     * @param stdClass $course
+     * @return bool
+     */
+    public static function create_cleanup_course_bin_task(stdClass $course): bool {
+        $resasynctask = new cleanup_course_bin_task();
+        $resasynctask->set_blocking(false);
+        $payload = [
+                'courseid' => $course->id,
+                'shortname' => $course->shortname,
+        ];
+        $resasynctask->set_custom_data($payload);
+        $resasynctask->set_next_run_time(time() + self::CLEANUP_BIN_TASK_NEXTRUNTIME_PLUS);
+        return \core\task\manager::queue_adhoc_task($resasynctask);
+    }
+
+    /**
+     * Create cleanup category bin task.
+     *
+     * @param int $catid
+     * @return bool
+     */
+    public static function create_cleanup_category_bin_task(int $catid): bool {
+        $resasynctask = new cleanup_category_bin_task();
+        $resasynctask->set_blocking(false);
+        $payload = [
+                'categoryid' => $catid,
+        ];
+        $resasynctask->set_custom_data($payload);
+        $resasynctask->set_next_run_time(time() + self::CLEANUP_BIN_TASK_NEXTRUNTIME_PLUS);
         return \core\task\manager::queue_adhoc_task($resasynctask);
     }
 

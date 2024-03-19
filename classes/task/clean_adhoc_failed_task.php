@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Category.
+ * logs_course_response_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -32,20 +32,15 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_coursetransfer\factory;
+namespace local_coursetransfer\task;
 
-use core_course_category;
+
+use coding_exception;
+use dml_exception;
 use moodle_exception;
-use stdClass;
-
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-require_once($CFG->dirroot . '/course/lib.php');
-require_once($CFG->dirroot . '/user/externallib.php');
 
 /**
- * category
+ * logs_course_response_table
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -53,43 +48,48 @@ require_once($CFG->dirroot . '/user/externallib.php');
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class category {
+class clean_adhoc_failed_task extends \core\task\scheduled_task {
+
+    /** @var int Max FAIL Delay time in seconds */
+    const MAX_FAILDELAY = 60;
+
+    // Use the logging trait to get some nice, juicy, logging.
+    use \core\task\logging_trait;
 
     /**
-     * Create
+     * Get a descriptive name for this task (shown to admins).
      *
-     * @param string $name
-     * @param string $idnumber
-     * @param string $description
-     * @return int
-     * @throws moodle_exception
+     * @return string
+     * @throws coding_exception
      */
-    public static function create(string $name, string $idnumber, string $description = ''): int {
-        $record = new stdClass();
-        $record->name = $name;
-        $record->description = $description;
-        $record->idnumber = $idnumber;
-        $res = core_course_category::create($record);
-        return $res->id;
+    public function get_name(): string {
+        return get_string('clean_adhoc_failed_task', 'local_coursetransfer');
     }
 
     /**
-     * Update
+     * Execute.
      *
-     * @param int $id
-     * @param string $name
-     * @param string $idnumber
-     * @param string $description
-     * @throws moodle_exception
+     * @throws dml_exception
      */
-    public static function update(int $id, string $name, string $idnumber, string $description = '') {
-        $record = new stdClass();
-        $record->id = $id;
-        $record->name = $name;
-        $record->idnumber = $idnumber;
-        $record->description = $description;
-        $cat = core_course_category::get($id);
-        $cat->update($record);
+    public function execute() {
+        global $DB;
+        $this->log_start("Clean Adhoc Failed Task - Starting...");
+        $tasksdb = $DB->get_records_select('task_adhoc',
+                'component = ? AND faildelay > ?',
+                ['local_coursetransfer', self::MAX_FAILDELAY]);
+        if (count($tasksdb) > 0) {
+            foreach ($tasksdb as $taskdb) {
+                try {
+                    $DB->delete_records('task_adhoc', ['id' => $taskdb->id]);
+                    $this->log("Adhoc tasks remove" . json_encode($taskdb, JSON_PRETTY_PRINT));
+                } catch (moodle_exception $e) {
+                    $this->log("Adhoc tasks remove - ERROR" . json_encode($taskdb, JSON_PRETTY_PRINT) .
+                            ' - Msg: ' . $e->getMessage());
+                }
+            }
+        } else {
+            $this->log("Adhoc tasks with faildelay not found");
+        }
+        $this->log_finish("Clean Adhoc Failed Task - Finishing...");
     }
-
 }

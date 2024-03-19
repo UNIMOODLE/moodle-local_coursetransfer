@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Version details.
+ * cleanup category bin task
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -31,10 +31,48 @@
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2024031800;
-$plugin->requires  = 2021051703;
-$plugin->component = 'local_coursetransfer';
-$plugin->release   = '1.0.0';
-$plugin->maturity  = MATURITY_ALPHA;
+namespace local_coursetransfer\task;
+
+use local_coursetransfer\api\request;
+use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\coursetransfer_sites;
+use moodle_exception;
+
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+
+require_once($CFG->dirroot . '/course/externallib.php');
+
+/**
+ * cleanup category bin task
+ *
+ * @package    local_coursetransfer
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class cleanup_category_bin_task extends \core\task\adhoc_task {
+
+    // Use the logging trait to get some nice, juicy, logging.
+    use \core\task\logging_trait;
+
+    /**
+     * Execute.
+     *
+     */
+    public function execute() {
+        try {
+            $this->log_start("Cleanup category bin - Starting...");
+            $categoryid = $this->get_custom_data()->categoryid;
+            coursetransfer::cleanup_category_bin($categoryid);
+        } catch (moodle_exception $e) {
+            mtrace('Cleanup category bin - ERROR: ' . $e->getMessage());
+            $this->log($e->getMessage());
+        }
+        $this->log_finish("Cleanup category bin - Finishing...");
+    }
+}

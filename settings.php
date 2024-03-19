@@ -90,6 +90,16 @@ if ($hassiteconfig) {
             html_writer::link(new moodle_url('/local/coursetransfer/originsites.php'),
                     new lang_string('setting_origin_sites_link', 'local_coursetransfer'))));
 
+    $settings->add(new admin_setting_configcheckbox('local_coursetransfer/remove_course_cleanup',
+            get_string('remove_course_cleanup', 'local_coursetransfer'),
+            get_string('remove_course_cleanup_desc', 'local_coursetransfer'),
+            false));
+
+    $settings->add(new admin_setting_configcheckbox('local_coursetransfer/remove_cat_cleanup',
+            get_string('remove_cat_cleanup', 'local_coursetransfer'),
+            get_string('remove_cat_cleanup_desc', 'local_coursetransfer'),
+            false));
+
     $choices = coursetransfer::FIELDS_USER;
     $options = [];
     foreach ($choices as $choice) {

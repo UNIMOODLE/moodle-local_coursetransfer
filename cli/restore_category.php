@@ -127,19 +127,15 @@ if ( $origincategoryid === null ) {
 if ($destinycategoryid !== null) {
     try {
         $category = core_course_category::get($destinycategoryid);
+        $destinycategoryid = $category->id;
     } catch (moodle_exception $e) {
         cli_writeln('40011: ' . $e->getMessage());
         exit(1);
     }
 } else {
-    try {
-        $category = core_course_category::create(['name' => get_string('defaultcategoryname')]);
-    } catch (moodle_exception $e) {
-        cli_writeln('40012: ' . $e->getMessage());
-        exit(1);
-    }
+    $destinycategoryid = 0;
 }
-$destinycategoryid = $category->id;
+
 
 if ( !in_array((int)$originenrolusers, [0, 1])) {
     cli_writeln( get_string('origin_enrolusers_boolean', 'local_coursetransfer') );

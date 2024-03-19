@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Category.
+ * cleanup course bin task
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -32,20 +32,22 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_coursetransfer\factory;
+namespace local_coursetransfer\task;
 
-use core_course_category;
+use local_coursetransfer\api\request;
+use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\coursetransfer_sites;
 use moodle_exception;
-use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/course/lib.php');
-require_once($CFG->dirroot . '/user/externallib.php');
+
+require_once($CFG->dirroot . '/course/externallib.php');
 
 /**
- * category
+ * cleanup course bin task
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -53,43 +55,25 @@ require_once($CFG->dirroot . '/user/externallib.php');
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class category {
+class cleanup_course_bin_task extends \core\task\adhoc_task {
+
+    // Use the logging trait to get some nice, juicy, logging.
+    use \core\task\logging_trait;
 
     /**
-     * Create
+     * Execute.
      *
-     * @param string $name
-     * @param string $idnumber
-     * @param string $description
-     * @return int
-     * @throws moodle_exception
      */
-    public static function create(string $name, string $idnumber, string $description = ''): int {
-        $record = new stdClass();
-        $record->name = $name;
-        $record->description = $description;
-        $record->idnumber = $idnumber;
-        $res = core_course_category::create($record);
-        return $res->id;
+    public function execute() {
+        try {
+            $this->log_start("Cleanup course bin - Starting...");
+            $courseid = $this->get_custom_data()->courseid;
+            $shortname = $this->get_custom_data()->shortname;
+            coursetransfer::cleanup_course_bin($courseid, $shortname);
+        } catch (moodle_exception $e) {
+            mtrace('Cleanup course bin - ERROR: ' . $e->getMessage());
+            $this->log($e->getMessage());
+        }
+        $this->log_finish("Cleanup course bin - Finishing...");
     }
-
-    /**
-     * Update
-     *
-     * @param int $id
-     * @param string $name
-     * @param string $idnumber
-     * @param string $description
-     * @throws moodle_exception
-     */
-    public static function update(int $id, string $name, string $idnumber, string $description = '') {
-        $record = new stdClass();
-        $record->id = $id;
-        $record->name = $name;
-        $record->idnumber = $idnumber;
-        $record->description = $description;
-        $cat = core_course_category::get($id);
-        $cat->update($record);
-    }
-
 }

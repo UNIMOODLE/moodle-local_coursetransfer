@@ -35,6 +35,8 @@
 namespace local_coursetransfer\task;
 
 use local_coursetransfer\api\request;
+use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_remove;
 use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\coursetransfer_sites;
 use moodle_exception;
@@ -71,6 +73,7 @@ class remove_course_task extends \core\task\adhoc_task {
 
             $destinysiteid = $this->get_custom_data()->destinysiteid;
             $courseid = $this->get_custom_data()->courseid;
+            $course = get_course($courseid);
             $requestoriginid = $this->get_custom_data()->requestoriginid;
             $requestdestid = $this->get_custom_data()->requestdestid;
             $userid = $this->get_custom_data()->userid;
@@ -98,6 +101,8 @@ class remove_course_task extends \core\task\adhoc_task {
             } else {
                 $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
                 coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
+
+                coursetransfer_remove::create_cleanup_course_bin_task($course);
 
                 $res = $request->destiny_remove_course_completed($requestdestid, $user);
 

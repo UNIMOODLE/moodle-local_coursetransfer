@@ -141,25 +141,36 @@ class coursetransfer_restore {
             $rc = new restore_controller($filepath, $courseid,
                     backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, $target);
 
-            foreach ($restoreoptions as $option => $value) {
-                $rc->get_plan()->get_setting($option)->set_status(\base_setting::NOT_LOCKED);
-                $rc->get_plan()->get_setting($option)->set_value($value);
-            }
+            $plan = $rc->get_plan();
+            if (!is_null($plan)) {
+                foreach ($restoreoptions as $option => $value) {
+                    $plan->get_setting($option)->set_status(\base_setting::NOT_LOCKED);
+                    $plan->get_setting($option)->set_value($value);
+                }
 
-            if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
-                $rc->convert();
-            }
+                if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
+                    $rc->convert();
+                }
 
-            // Execute restore.
-            $rc->execute_precheck();
-            $rc->execute_plan();
-            $rc->destroy();
+                // Execute restore.
+                $rc->execute_precheck();
+                $rc->execute_plan();
+                $rc->destroy();
+                return true;
+            } else {
+                $request->status = coursetransfer_request::STATUS_ERROR;
+                $request->error_code = '104001';
+                $request->error_message = 'MBZ file is invalid. Plan is NULL: ' . $file->get_filepath();
+                coursetransfer_request::insert_or_update($request, $request->id);
+                return false;
+            }
 
         } catch (\Exception $e) {
             $request->status = coursetransfer_request::STATUS_ERROR;
             $request->error_code = '10400';
             $request->error_message = $e->getMessage();
             coursetransfer_request::insert_or_update($request, $request->id);
+            return false;
         }
     }
 
