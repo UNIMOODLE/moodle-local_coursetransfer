@@ -34,7 +34,6 @@
 
 namespace local_coursetransfer\task;
 
-use backup;
 use context_system;
 use dml_exception;
 use local_coursetransfer\coursetransfer;
@@ -42,7 +41,6 @@ use local_coursetransfer\coursetransfer_notification;
 use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\coursetransfer_restore;
 use moodle_exception;
-use restore_controller;
 
 /**
  * logs_course_response_table
