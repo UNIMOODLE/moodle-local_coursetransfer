@@ -1098,18 +1098,45 @@ class coursetransfer {
      * Cleanup Course Bin.
      *
      * @param int $courseid
+     * @param string $shortname
      * @throws dml_exception
      */
-    public static function cleanup_course_bin(int $courseid) {
+    public static function cleanup_course_bin(int $courseid, string $shortname) {
         global $DB;
         if (get_config('local_coursetransfer', 'remove_course_cleanup')) {
             mtrace("Remove course items recycle bin enabled ...");
-            $items = $DB->get_records('tool_recyclebin_course', ['courseid' => $courseid]);
-            foreach ($items as $item) {
-                mtrace("[tool_recyclebin] Deleting item '{$item->id}' from the course recycle bin ...");
-                $bin = new \tool_recyclebin\course_bin($item->courseid);
-                $bin->delete_item($item);
+            try {
+                $items = $DB->get_records('tool_recyclebin_course', ['courseid' => $courseid]);
+                foreach ($items as $item) {
+                    mtrace("[tool_recyclebin] Deleting item '{$item->id}' from the course recycle bin ...");
+                    try {
+                        $bin = new \tool_recyclebin\course_bin($item->courseid);
+                        $bin->delete_item($item);
+                        mtrace("[tool_recyclebin] Deleted item '{$item->name}' from the course recycle bin ...");
+                    } catch (moodle_exception $e) {
+                        mtrace("Error cleanup_course_bin item: " . $e->getMessage());
+                    }
+                }
+            } catch (moodle_exception $e) {
+                mtrace("Error cleanup_course_bin: " . $e->getMessage());
             }
+            try {
+                $item = $DB->get_record('tool_recyclebin_category', ['shortname' => $shortname]);
+                if ($item) {
+                    mtrace("[tool_recyclebin] Deleting item '{$item->shortname}' from the category recycle bin ...");
+                    try {
+                        $bin = new \tool_recyclebin\category_bin($item->categoryid);
+                        $bin->delete_item($item);
+                        mtrace("[tool_recyclebin] Deleted item '{$item->shortname}' from the category recycle bin ...");
+                    } catch (moodle_exception $e) {
+                        mtrace("Error cleanup_course_bin item: " . $e->getMessage());
+                    }
+                }
+            } catch (moodle_exception $e) {
+                mtrace("Error cleanup_course_bin: " . $e->getMessage());
+            }
+        } else {
+            mtrace("remove_course_cleanup is not active");
         }
     }
 
@@ -1117,19 +1144,30 @@ class coursetransfer {
      * Cleanup Category Bin.
      *
      * @param int $catid
-     * @throws coding_exception
      * @throws dml_exception
      */
     public static function cleanup_category_bin(int $catid) {
         global $DB;
         if (get_config('local_coursetransfer', 'remove_cat_cleanup')) {
             mtrace("Remove category items recycle bin enabled ...");
-            $items = $DB->get_records('tool_recyclebin_category', ['categoryid' => $catid]);
-            foreach ($items as $item) {
-                mtrace("[tool_recyclebin] Deleting item '{$item->id}' from the category recycle bin ...");
-                $bin = new \tool_recyclebin\category_bin($item->categoryid);
-                $bin->delete_item($item);
+            try {
+                $items = $DB->get_records('tool_recyclebin_category', ['categoryid' => $catid]);
+                foreach ($items as $item) {
+                    mtrace("[tool_recyclebin] Deleting item '{$item->id}' from the category recycle bin ...");
+                    try {
+                        $bin = new \tool_recyclebin\category_bin($item->categoryid);
+                        $bin->delete_item($item);
+                        mtrace("[tool_recyclebin] Deleted item '{$item->shortname}' from the category recycle bin ...");
+                    } catch (moodle_exception $e) {
+                        mtrace("Error cleanup_category_bin item: " . $e->getMessage());
+                    }
+                }
+            } catch (moodle_exception $e) {
+                mtrace("Error cleanup_category_bin: " . $e->getMessage());
             }
+
+        } else {
+            mtrace("remove_cat_cleanup is not active");
         }
     }
 

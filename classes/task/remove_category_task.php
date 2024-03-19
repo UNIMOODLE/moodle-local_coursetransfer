@@ -36,6 +36,7 @@ namespace local_coursetransfer\task;
 
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_remove;
 use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\coursetransfer_sites;
 use moodle_exception;
@@ -90,7 +91,7 @@ class remove_category_task extends \core\task\adhoc_task {
                 $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
                 coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
 
-                coursetransfer::cleanup_category_bin($catid);
+                coursetransfer_remove::create_cleanup_category_bin_task($catid);
 
                 $res = $request->destiny_remove_course_completed($requestdestid, $user);
 
