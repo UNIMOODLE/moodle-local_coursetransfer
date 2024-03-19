@@ -397,13 +397,13 @@ class coursetransfer_restore_course_test extends advanced_testcase {
         list($requestdestination3, $requestorigin3) = $this->test_restore_course(
                 $configuration3, $this->destinycourse3, $this->origincourse);
         $this->validate_request_not_started($requestdestination3);
-        // 5. Test in Destination Course. Remove Origin Course.
+        // 5. Test in Destination Course.
         $configuration5 = new configuration_course(
                 backup::TARGET_EXISTING_DELETING,
                 false,
                 false,
                 true,
-                true,
+                false,
                 0
         );
         list($requestdestination5, $requestorigin5) = $this->test_restore_course(
@@ -422,7 +422,6 @@ class coursetransfer_restore_course_test extends advanced_testcase {
         $file5 = $this->execute_callback($requestdestination5, $requestorigin5, $this->origincourse2);
         $this->validate_request_in_backup($requestdestination5);
 
-        // 1. Test New Course. Without Users.
         $this->execute_restore($requestdestination1, $requestorigin1, $this->destinynewcourse1, $this->origincourse, $file1);
         $this->execute_restore($requestdestination2, $requestorigin2, $this->destinycourse2, $this->origincourse, $file2);
         $this->execute_restore($requestdestination3, $requestorigin3, $this->destinycourse3, $this->origincourse, $file3);
@@ -443,7 +442,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
         $this->validate_request_completed($requestdestination3);
         $this->review_enrols($this->destinycourse3, 0, 0, []);
         $this->review_modules3($this->destinycourse3);
-        // 5. Test in Destination Course. Remove Origin Course.
+        // 5. Test in Destination Course.
         $this->validate_course_not_equals($this->destinycourse5, $this->origincourse2);
         $this->validate_request_completed($requestdestination5);
     }

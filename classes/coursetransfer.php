@@ -507,7 +507,6 @@ class coursetransfer {
      * @param stdClass|null $user
      * @param int|null $nextruntime
      * @return array
-     * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
