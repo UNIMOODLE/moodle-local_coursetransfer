@@ -204,6 +204,21 @@ if ($originscheduledatetime != 0  && ($originscheduledatetime < $now || $origins
     cli_writeln( 'Scheduler Time: ' . userdate($date->getTimestamp()));
 }
 
+if ($destinytarget === backup::TARGET_EXISTING_ADDING && $destinyremovegroups === 1) {
+    cli_writeln( get_string('in_target_adding_not_remove_groups', 'local_coursetransfer'));
+    exit(128);
+}
+
+if ($destinytarget === backup::TARGET_EXISTING_ADDING && $destinyremovegroups === 1) {
+    cli_writeln( get_string('in_target_adding_not_remove_groups', 'local_coursetransfer'));
+    exit(128);
+}
+
+if ($destinytarget === backup::TARGET_EXISTING_ADDING && $destinyremoveenrols === 1) {
+    cli_writeln( get_string('in_target_adding_not_remove_enrols', 'local_coursetransfer'));
+    exit(128);
+}
+
 $errors = [];
 
 try {
