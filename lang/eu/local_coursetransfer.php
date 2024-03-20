@@ -323,3 +323,5 @@ $string['remove_course_cleanup'] = 'Azken ezabatzea noski';
 $string['remove_course_cleanup_desc'] = 'Aktibatuta badago, ikastaroa behin betiko ezabatuko da birziklatzeko paperontzia kontuan hartu gabe';
 $string['remove_cat_cleanup'] = 'Kategoria behin betiko ezabatzea';
 $string['remove_cat_cleanup_desc'] = 'Aktibatuta badago, kategoria behin betiko ezabatuko da birziklatzeko paperontzia kontuan hartu gabe';
+$string['in_target_adding_not_remove_enrols'] = 'Destination enrols cannot be deleted when the target is a content merge (--destiny_target=4)';
+$string['in_target_adding_not_remove_groups'] = 'Groups cannot be deleted in destination, when the target is a content merge (--destiny_target=4)';

@@ -89,10 +89,11 @@ class coursetransfer_restore {
      *
      * @param stdClass $request
      * @param stored_file $file
+     * @return bool
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function restore_course(stdClass $request, stored_file $file) {
+    public static function restore_course(stdClass $request, stored_file $file): bool {
         try {
             $courseid = (int)$request->destiny_course_id;
             $userid = (int)$request->userid;
@@ -115,21 +116,21 @@ class coursetransfer_restore {
             $fb->extract_to_pathname($file, $backuptempdir . '/' . $filepath . '/');
 
             if ($target !== backup::TARGET_EXISTING_DELETING && $target !== backup::TARGET_CURRENT_DELETING) {
-                $keeprolesenrolments = 0;
-                $keepgroupsgroupings = 0;
+                $keeprolesenrolments = true;
+                $keepgroupsgroupings = true;
             } else {
-                $keeprolesenrolments = $removeenrols === 1 ? 0 : 1;
-                $keepgroupsgroupings = $removegroups === 1 ? 0 : 1;
+                $keeprolesenrolments = $removeenrols === 1 ? false : true;
+                $keepgroupsgroupings = $removegroups === 1 ? false : true;
             }
 
             $restoreoptions = [
-                    'overwrite_conf' => 0,
+                    'overwrite_conf' => false,
                     'keep_roles_and_enrolments' => $keeprolesenrolments,
                     'keep_groups_and_groupings' => $keepgroupsgroupings,
             ];
 
             if ($target === backup::TARGET_NEW_COURSE) {
-                $restoreoptions['overwrite_conf'] = 1;
+                $restoreoptions['overwrite_conf'] = true;
                 $restoreoptions['course_fullname'] = $fullname;
                 $restoreoptions['course_shortname'] = $shortname;
             }
@@ -142,6 +143,7 @@ class coursetransfer_restore {
                     backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, $target);
 
             $plan = $rc->get_plan();
+
             if (!is_null($plan)) {
                 foreach ($restoreoptions as $option => $value) {
                     $plan->get_setting($option)->set_status(\base_setting::NOT_LOCKED);
@@ -152,11 +154,21 @@ class coursetransfer_restore {
                     $rc->convert();
                 }
 
-                // Execute restore.
-                $rc->execute_precheck();
-                $rc->execute_plan();
-                $rc->destroy();
-                return true;
+                // Execute precheck.
+                $resexecute = $rc->execute_precheck();
+                if ($resexecute) {
+                    // Execute restore.
+                    $rc->execute_plan();
+                    $rc->destroy();
+                    return true;
+                } else {
+                    // Error in precheck.
+                    $request->status = coursetransfer_request::STATUS_ERROR;
+                    $request->error_code = '104002';
+                    $request->error_message = 'Error en precheck: ' . json_encode($rc->get_precheck_results());
+                    coursetransfer_request::insert_or_update($request, $request->id);
+                    return false;
+                }
             } else {
                 $request->status = coursetransfer_request::STATUS_ERROR;
                 $request->error_code = '104001';

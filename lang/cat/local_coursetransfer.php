@@ -323,3 +323,5 @@ $string['remove_course_cleanup'] = 'Esborrat definitiu curs';
 $string['remove_course_cleanup_desc'] = "Si està actiu, s'esborrarà definitivament el curs sense tenir en compte la paperera de reciclatge";
 $string['remove_cat_cleanup'] = 'Esborrat definitiu categoria';
 $string['remove_cat_cleanup_desc'] = "Si està actiu, s'esborrarà definitivament la categoria sense tenir en compte la paperera de reciclatge";
+$string['in_target_adding_not_remove_enrols'] = 'Destination enrols cannot be deleted when the target is a content merge (--destiny_target=4)';
+$string['in_target_adding_not_remove_groups'] = 'Groups cannot be deleted in destination, when the target is a content merge (--destiny_target=4)';
