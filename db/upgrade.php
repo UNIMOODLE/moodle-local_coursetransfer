@@ -36,7 +36,7 @@
  *
  * XMLDB xmldb_local_coursetransfer_upgrade.
 
- * @param $oldversion
+ * @param int $oldversion Old Version.
  * @return bool
  * @throws ddl_exception
  * @throws ddl_table_missing_exception
@@ -53,11 +53,11 @@ function xmldb_local_coursetransfer_upgrade($oldversion): bool {
         $destinytable = new xmldb_table('local_coursetransfer_destiny');
 
         if ($dbman->table_exists($destinytable)) {
-            // Rename table local_coursetransfer_destiny to local_coursetransfer_target
+            // Rename table local_coursetransfer_destiny to local_coursetransfer_target.
             $dbman->rename_table($destinytable, 'local_coursetransfer_target');
-            error_log('Table local_coursetransfer_destiny change name');
+            debugging('Table local_coursetransfer_destiny change name');
         } else {
-            error_log('Table local_coursetransfer_destiny not exists');
+            debugging('Table local_coursetransfer_destiny not exists');
         }
 
         $requesttable = new xmldb_table('local_coursetransfer_request');
@@ -67,52 +67,52 @@ function xmldb_local_coursetransfer_upgrade($oldversion): bool {
                 $field = new xmldb_field('destiny_request_id', XMLDB_TYPE_INTEGER,
                         '10', null, false, null, null);
                 $dbman->rename_field($requesttable, $field, 'target_request_id');
-                error_log('Field destiny_request_id change name');
+                debugging('Field destiny_request_id change name');
             } else {
-                error_log('Field destiny_request_id not exists');
+                debugging('Field destiny_request_id not exists');
             }
             if ($dbman->field_exists($requesttable, 'destiny_course_id')) {
                 $field = new xmldb_field('destiny_course_id', XMLDB_TYPE_INTEGER,
                         '10', null, false, null, null);
                 $dbman->rename_field($requesttable, $field, 'target_course_id');
-                error_log('Field destiny_course_id change name');
+                debugging('Field destiny_course_id change name');
             } else {
-                error_log('Field destiny_course_id not exists');
+                debugging('Field destiny_course_id not exists');
             }
             if ($dbman->field_exists($requesttable, 'destiny_category_id')) {
                 $field = new xmldb_field('destiny_category_id', XMLDB_TYPE_INTEGER,
                         '10', null, false, null, null);
                 $dbman->rename_field($requesttable, $field, 'target_category_id');
-                error_log('Field destiny_category_id change name');
+                debugging('Field destiny_category_id change name');
             } else {
-                error_log('Field destiny_category_id not exists');
+                debugging('Field destiny_category_id not exists');
             }
             if ($dbman->field_exists($requesttable, 'destiny_remove_enrols')) {
                 $field = new xmldb_field('destiny_remove_enrols', XMLDB_TYPE_INTEGER,
                         '1', null, false, null, '0');
                 $dbman->rename_field($requesttable, $field, 'target_remove_enrols');
-                error_log('Field destiny_remove_enrols change name');
+                debugging('Field destiny_remove_enrols change name');
             } else {
-                error_log('Field destiny_remove_enrols not exists');
+                debugging('Field destiny_remove_enrols not exists');
             }
             if ($dbman->field_exists($requesttable, 'destiny_remove_groups')) {
                 $field = new xmldb_field('destiny_remove_groups', XMLDB_TYPE_INTEGER,
                         '1', null, false, null, '0');
                 $dbman->rename_field($requesttable, $field, 'target_remove_groups');
-                error_log('Field destiny_remove_groups change name');
+                debugging('Field destiny_remove_groups change name');
             } else {
-                error_log('Field destiny_remove_groups not exists');
+                debugging('Field destiny_remove_groups not exists');
             }
             if ($dbman->field_exists($requesttable, 'destiny_target')) {
                 $field = new xmldb_field('destiny_target', XMLDB_TYPE_INTEGER,
                         '1', null, false, null, '3');
                 $dbman->rename_field($requesttable, $field, 'target_target');
-                error_log('Field destiny_target change name');
+                debugging('Field destiny_target change name');
             } else {
-                error_log('Field destiny_target not exists');
+                debugging('Field destiny_target not exists');
             }
         } else {
-            error_log('Table local_coursetransfer_request not exists');
+            debugging('Table local_coursetransfer_request not exists');
         }
 
     }
