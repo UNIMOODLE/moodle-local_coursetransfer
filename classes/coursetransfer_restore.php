@@ -156,12 +156,21 @@ class coursetransfer_restore {
 
                 // Execute precheck.
                 $resexecute = $rc->execute_precheck();
+                $results = $rc->get_precheck_results();
                 if ($resexecute) {
                     // Execute restore.
                     $rc->execute_plan();
                     $rc->destroy();
                     return true;
                 } else {
+                    if (!array_key_exists('errors', $results)) {
+                        $request->error_code = '104003';
+                        $request->error_message = 'Warnings en precheck: ' . json_encode($rc->get_precheck_results());
+                        coursetransfer_request::insert_or_update($request, $request->id);
+                        $rc->execute_plan();
+                        $rc->destroy();
+                        return true;
+                    }
                     // Error in precheck.
                     $request->status = coursetransfer_request::STATUS_ERROR;
                     $request->error_code = '104002';
