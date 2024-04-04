@@ -46,7 +46,7 @@ Usage:
     # php view_log_origin_category.php
         --categoryid=<categoryid>
 
-    --categoryid=<categoryid>  Destination Category ID (int)
+    --categoryid=<categoryid>  Target Category ID (int)
 
 Options:
     -h --help                   Print this help.

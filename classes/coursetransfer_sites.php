@@ -51,7 +51,7 @@ class coursetransfer_sites {
 
     /** @var string Table Prex */
     const TABLE_PREX = 'local_coursetransfer_';
-    /** @var string Table Destination */
+    /** @var string Table Target */
     const TABLE_TARGET = 'local_coursetransfer_target';
     /** @var string Table Origin */
     const TABLE_ORIGIN = 'local_coursetransfer_origin';

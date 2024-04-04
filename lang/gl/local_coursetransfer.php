@@ -323,5 +323,5 @@ $string['remove_course_cleanup'] = 'Eliminación definitiva da curso';
 $string['remove_course_cleanup_desc'] = 'Se está activo, o curso eliminarase definitivamente sen ter en conta a papeleira';
 $string['remove_cat_cleanup'] = 'Eliminación definitiva da categoría';
 $string['remove_cat_cleanup_desc'] = 'Se está activa, a categoría eliminarase permanentemente sen ter en conta a papeleira';
-$string['in_target_adding_not_remove_enrols'] = 'Destination enrols cannot be deleted when the target is a content merge (--target_target=4)';
-$string['in_target_adding_not_remove_groups'] = 'Groups cannot be deleted in destination, when the target is a content merge (--target_target=4)';
+$string['in_target_adding_not_remove_enrols'] = 'Target enrols cannot be deleted when the target is a content merge (--target_target=4)';
+$string['in_target_adding_not_remove_groups'] = 'Groups cannot be deleted in target, when the target is a content merge (--target_target=4)';

@@ -57,11 +57,11 @@ Usage:
         --origin_schedule_datetime=<origin_schedule_datetime>
 
     --site_url=<site_url> Origin Site URL (string)
-    --origin_category_id=<courseid> Origin Course ID (int).
-    --target_category_id=<courseid> Destination Course ID (int). (Optional - New Category)
+    --origin_category_id=<courseid> Origin Category ID (int).
+    --target_category_id=<courseid> Target Category ID (int). (Optional - New Category)
     --origin_enrolusers=<enrolusers> Origin Enrol users (Boolean).
-    --target_remove_enrols=<target_remove_enrols> Destination Remove Enrols (Boolean).
-    --target_remove_groups=<target_remove_groups> Destination Remove Groups (Boolean).
+    --target_remove_enrols=<target_remove_enrols> Target Remove Enrols (Boolean).
+    --target_remove_groups=<target_remove_groups> Target Remove Groups (Boolean).
     --origin_remove_category=<origin_remove_category> Origin Remove Category (Boolean).
     --origin_schedule_datetime=<origin_schedule_datetime>
             Date in UNIX timestamp (int). Max deferral 30 days, 0 (default) to execute ASAP.

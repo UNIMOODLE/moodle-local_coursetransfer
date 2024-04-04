@@ -63,7 +63,7 @@ class new_origin_restore_course_step_page implements renderable, templatable {
     /** @var int Restore ID */
     protected $restoreid;
 
-    /** @var int Destination ID */
+    /** @var int Target ID */
     protected $targetid;
 
     /** @var int Page of data requested */

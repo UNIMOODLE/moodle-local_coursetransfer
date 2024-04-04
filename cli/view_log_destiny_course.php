@@ -46,7 +46,7 @@ Usage:
     # php view_log_target_course.php
         --courseid=<courseid>
 
-    --courseid=<courseid>  Destination Course ID (int)
+    --courseid=<courseid>  Target Course ID (int)
 
 Options:
     -h --help                   Print this help.

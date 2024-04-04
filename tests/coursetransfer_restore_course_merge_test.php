@@ -86,7 +86,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     /** @var stdClass Origin Course */
     protected $origincourse;
 
-    /** @var stdClass Destination 4 */
+    /** @var stdClass Target 4 */
     protected $targetcourse4;
 
     /** @var stdClass User */
@@ -95,7 +95,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     /** @var stdClass Site Origin */
     protected $siteorigin;
 
-    /** @var stdClass Site Destination */
+    /** @var stdClass Site Target */
     protected $sitetarget;
 
     /** @var testing_data_generator Generator */
@@ -224,11 +224,11 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
 
         $this->create_sections_origin($this->origincourse);
 
-        // Create Destination Course 4 with modules and users&groups..
+        // Create Target Course 4 with modules and users&groups..
         $dnc4 = [
-                'fullname' => 'Destination Course 4',
-                'shortname' => 'phpunit-destination-course-4',
-                'summary' => 'This a Summary of Destination 4',
+                'fullname' => 'Target Course 4',
+                'shortname' => 'phpunit-target-course-4',
+                'summary' => 'This a Summary of Target 4',
                 'numsections' => 0,
         ];
         $this->targetcourse4 = $this->getDataGenerator()->create_course($dnc4);
@@ -297,7 +297,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
      */
     public function tests_restore_course() {
         $this->create_courses();
-        // 4. Test in Destination Course. With Users and Groups. Merge Content and Users and Groups.
+        // 4. Test in Target Course. With Users and Groups. Merge Content and Users and Groups.
         $configuration4 = new configuration_course(
                 backup::TARGET_EXISTING_ADDING,
                 false,
@@ -306,23 +306,23 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
                 false,
                 0
         );
-        list($requestdestination4, $requestorigin4) = $this->test_restore_course(
+        list($requesttarget4, $requestorigin4) = $this->test_restore_course(
                 $configuration4, $this->targetcourse4, $this->origincourse);
 
         // EXECUTE TASKS.
         $this->execute_tasks();
 
         // CALLBACKS.
-        $file4 = $this->execute_callback($requestdestination4, $requestorigin4, $this->origincourse);
-        $this->validate_request_in_backup($requestdestination4);
+        $file4 = $this->execute_callback($requesttarget4, $requestorigin4, $this->origincourse);
+        $this->validate_request_in_backup($requesttarget4);
 
         // 1. Test New Course. Without Users.
-        $this->execute_restore($requestdestination4, $requestorigin4, $this->targetcourse4, $this->origincourse, $file4);
+        $this->execute_restore($requesttarget4, $requestorigin4, $this->targetcourse4, $this->origincourse, $file4);
 
         // VALIDATE DATA.
-        // 4. Test in Destination Course. With Users and Groups. Merge Content and Users and Groups.
+        // 4. Test in Target Course. With Users and Groups. Merge Content and Users and Groups.
         $this->validate_course_not_equals($this->targetcourse4, $this->origincourse);
-        $this->validate_request_completed($requestdestination4);
+        $this->validate_request_completed($requesttarget4);
         $this->review_enrols($this->targetcourse4, 5, 2, [
                 ['group' => $this->group1, 'count' => 2], ['group' => $this->group2, 'count' => 1]]);
         $this->review_modules4($this->targetcourse4);
@@ -331,7 +331,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     /**
      * Execute Callback.
      *
-     * @param stdClass $requestdestination
+     * @param stdClass $requesttarget
      * @param stdClass $requestorigin
      * @param stdClass $origincourse
      * @return bool|stored_file
@@ -339,13 +339,13 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    protected function execute_callback(stdClass $requestdestination, stdClass $requestorigin, stdClass $origincourse) {
+    protected function execute_callback(stdClass $requesttarget, stdClass $requestorigin, stdClass $origincourse) {
         $file = $this->get_file($origincourse, $requestorigin);
         global $USER;
         $field = get_config('local_coursetransfer', 'origin_field_search_user');
         $value = $USER->{$field};
         target_course_callback_external::target_backup_course_completed(
-                $field, $value, $requestdestination->id, $file->get_filesize(), $file->get_filepath()
+                $field, $value, $requesttarget->id, $file->get_filesize(), $file->get_filepath()
         );
         return $file;
     }
@@ -367,7 +367,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     protected function test_restore_course(
             configuration_course $configuration, stdClass $coursetarget, stdClass $courseorigin, $sections = []): array {
 
-        $requestdestination = coursetransfer_request::set_request_restore_course(
+        $requesttarget = coursetransfer_request::set_request_restore_course(
                 $this->user,
                 $this->siteorigin,
                 $coursetarget->id,
@@ -378,7 +378,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
 
         $requestorigin = coursetransfer_request::set_request_restore_course_response(
                 $this->user,
-                $requestdestination->id,
+                $requesttarget->id,
                 $this->sitetarget,
                 $coursetarget->id,
                 $courseorigin,
@@ -390,7 +390,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
                 $courseorigin->id,
                 $this->user->id,
                 $this->sitetarget,
-                $requestdestination->id,
+                $requesttarget->id,
                 $requestorigin->id,
                 $sections,
                 $configuration->originenrolusers,
@@ -400,7 +400,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
 
         $this->assertTrue($restask);
 
-        return [$requestdestination, $requestorigin];
+        return [$requesttarget, $requestorigin];
 
     }
 
@@ -442,7 +442,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     /**
      * Execute Tasks.
      *
-     * @param stdClass $requestdestination
+     * @param stdClass $requesttarget
      * @param stdClass $requestorigin
      * @param stdClass $coursetarget
      * @param stdClass $courseorigin
@@ -450,15 +450,15 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
      * @throws dml_exception
      */
     protected function execute_restore(
-            stdClass $requestdestination, stdClass $requestorigin, stdClass $coursetarget, stdClass $courseorigin,
+            stdClass $requesttarget, stdClass $requestorigin, stdClass $coursetarget, stdClass $courseorigin,
             stored_file $file) {
 
-        $requestdestination = coursetransfer_request::get($requestdestination->id);
+        $requesttarget = coursetransfer_request::get($requesttarget->id);
         $requestorigin = coursetransfer_request::get($requestorigin->id);
 
         $this->assertNotEmpty($requestorigin->origin_backup_url);
 
-        $resrest = coursetransfer_restore::create_task_restore_course($requestdestination, $file);
+        $resrest = coursetransfer_restore::create_task_restore_course($requesttarget, $file);
 
         $this->assertTrue($resrest);
         $this->assertNotEquals($courseorigin->summary, $coursetarget->summary);

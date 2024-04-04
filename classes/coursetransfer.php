@@ -165,7 +165,7 @@ class coursetransfer {
                 'error' =>
                         [
                                 'code' => '18001',
-                                'msg' => 'Destination site not founded',
+                                'msg' => 'Target site not founded',
                         ],
             ];
         }
@@ -1039,7 +1039,7 @@ class coursetransfer {
     }
 
     /**
-     * Can Destination restore content remove?
+     * Can Target restore content remove?
      *
      * @param stdClass $user
      * @param context $context
@@ -1051,7 +1051,7 @@ class coursetransfer {
     }
 
     /**
-     * Can Destination restore groups remove?
+     * Can Target restore groups remove?
      *
      * @param stdClass $user
      * @return false
@@ -1064,7 +1064,7 @@ class coursetransfer {
     }
 
     /**
-     * Can Destination restore enrols remove?
+     * Can Target restore enrols remove?
      *
      * @param stdClass $user
      * @return false

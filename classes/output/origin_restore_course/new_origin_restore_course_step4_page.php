@@ -107,7 +107,7 @@ class new_origin_restore_course_step4_page extends new_origin_restore_course_ste
                 $data->can_target_restore_enrol_remove = false;
                 $data->has_scheduled_time = false;
                 $data->restore_this_course = $data->can_target_restore_merge || $data->can_target_restore_content_remove;
-                $data->remove_in_destination = $data->can_target_restore_groups_remove || $data->can_target_restore_enrol_remove;
+                $data->remove_in_target = $data->can_target_restore_groups_remove || $data->can_target_restore_enrol_remove;
                 $data->origin_course_configuration = $data->has_origin_user_data || $data->has_scheduled_time;
             } else {
                 $data->errors = $res->errors;

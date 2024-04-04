@@ -64,7 +64,7 @@ Usage:
                                       4: Merge the backup course into this course
                                       (Int Enum)
     --origin_course_id=<origin_course_id>  Origin Course ID (int).
-    --target_course_id=<target_course_id>  Destination Course ID (int). (Optional - New Course)
+    --target_course_id=<target_course_id>  Target Course ID (int). (Optional - New Course)
     --target_category_id=<target_category_id>  Category ID (int). (Optional - Superior Category)
     --origin_enrolusers=<origin_enrolusers>  Include enrolled users data. Default: false (Boolean).
     --target_remove_enrols=<target_remove_enrols> Remove Enrols (only in target: 4 - Remove Content) (Boolean).
