@@ -133,7 +133,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
             if ($bc->get_status() === \backup::STATUS_FINISHED_OK) {
                 mtrace('Course Transfer Backup - Creating File ... ');
                 $resfileurl = coursetransfer::create_backupfile_url(
-                        $bc->get_courseid(), $result['backup_target'], $requestorigin->id);
+                        $bc->get_courseid(), $result['backup_destination'], $requestorigin->id);
                 if ($resfileurl->success) {
                     mtrace('Course Transfer Backup - Creating File OK');
                     if ($requestorigin) {
