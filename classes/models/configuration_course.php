@@ -49,36 +49,36 @@ class configuration_course extends configuration {
     public $originremovecourse;
 
     /** @var string Destinity Not Remove Activities */
-    public $destinynotremoveactivities;
+    public $targetnotremoveactivities;
 
     /**
      * constructor.
      *
-     * @param int $destinytarget
-     * @param bool $destinyremoveenrols
-     * @param bool $destinyremovegroups
+     * @param int $targettarget
+     * @param bool $targetremoveenrols
+     * @param bool $targetremovegroups
      * @param bool $originenrolusers
      * @param bool $originremovecourse
      * @param int|null $nextruntime
-     * @param string $destinynotremoveactivities
+     * @param string $targetnotremoveactivities
      */
     public function __construct(
-            int $destinytarget,
-            bool $destinyremoveenrols,
-            bool $destinyremovegroups,
+            int $targettarget,
+            bool $targetremoveenrols,
+            bool $targetremovegroups,
             bool $originenrolusers = false,
             bool $originremovecourse = false,
             int $nextruntime = null,
-            string $destinynotremoveactivities = '') {
+            string $targetnotremoveactivities = '') {
         parent::__construct(
-                $destinytarget,
-                $destinyremoveenrols,
-                $destinyremovegroups,
+                $targettarget,
+                $targetremoveenrols,
+                $targetremovegroups,
                 $originenrolusers,
                 $nextruntime
         );
         $this->set_origin_remove_course($originremovecourse);
-        $this->set_destiny_notremove_activities($destinynotremoveactivities);
+        $this->set_target_notremove_activities($targetnotremoveactivities);
     }
 
     /**
@@ -95,8 +95,8 @@ class configuration_course extends configuration {
      *
      * @param string $config
      */
-    protected function set_destiny_notremove_activities(string $config) {
-        $this->destinynotremoveactivities = $config;
+    protected function set_target_notremove_activities(string $config) {
+        $this->targetnotremoveactivities = $config;
     }
 
 }

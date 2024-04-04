@@ -95,13 +95,13 @@ class coursetransfer_restore {
      */
     public static function restore_course(stdClass $request, stored_file $file): bool {
         try {
-            $courseid = (int)$request->destiny_course_id;
+            $courseid = (int)$request->target_course_id;
             $userid = (int)$request->userid;
             $fullname = $request->origin_course_fullname;
             $shortname = $request->origin_course_shortname;
-            $removeenrols = (int)$request->destiny_remove_enrols;
-            $removegroups = (int)$request->destiny_remove_groups;
-            $target = (int)$request->destiny_target;
+            $removeenrols = (int)$request->target_remove_enrols;
+            $removegroups = (int)$request->target_remove_groups;
+            $target = (int)$request->target_target;
 
             $backuptmpdir = 'local_coursetransfer';
 

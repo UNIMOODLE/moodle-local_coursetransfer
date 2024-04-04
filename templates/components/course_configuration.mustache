@@ -31,55 +31,55 @@
     {{#restore_this_course }}
     <h5>{{#str}} restoretocurrentcourse, backup {{/str}}</h5>
     <ul class="configuration-list">
-        {{#can_destiny_restore_merge }}
+        {{#can_target_restore_merge }}
         <li class="configuration-group">
             <div class="checkbox">
-                <input class="configuration-checkbox" id="destiny_merge_activities" name="restore_into" type="radio" checked>
+                <input class="configuration-checkbox" id="target_merge_activities" name="restore_into" type="radio" checked>
             </div>
             <div class="config-info">
-                <div class="config-title">{{#str}} config_destiny_merge_activities, local_coursetransfer {{/str}}</div>
-                <div class="config-desc">{{#str}} config_destiny_merge_activities_desc, local_coursetransfer {{/str}}</div>
+                <div class="config-title">{{#str}} config_target_merge_activities, local_coursetransfer {{/str}}</div>
+                <div class="config-desc">{{#str}} config_target_merge_activities_desc, local_coursetransfer {{/str}}</div>
             </div>
         </li>
-        {{/can_destiny_restore_merge }}
-        {{#can_destiny_restore_content_remove }}
+        {{/can_target_restore_merge }}
+        {{#can_target_restore_content_remove }}
         <li class="configuration-group">
             <div class="checkbox">
-                <input class="configuration-checkbox" id="destiny_remove_activities" name="restore_into" type="radio">
+                <input class="configuration-checkbox" id="target_remove_activities" name="restore_into" type="radio">
             </div>
             <div class="config-info">
-                <div class="config-title">{{#str}} config_destiny_remove_activities, local_coursetransfer {{/str}}</div>
-                <div class="config-desc">{{#str}} config_destiny_remove_activities_desc, local_coursetransfer {{/str}}</div>
+                <div class="config-title">{{#str}} config_target_remove_activities, local_coursetransfer {{/str}}</div>
+                <div class="config-desc">{{#str}} config_target_remove_activities_desc, local_coursetransfer {{/str}}</div>
             </div>
         </li>
-        {{/can_destiny_restore_content_remove }}
+        {{/can_target_restore_content_remove }}
     </ul>
     {{/restore_this_course }}
     {{#remove_in_destination }}
-    <h5>{{#str}} deleteindestiny, local_coursetransfer {{/str}}</h5>
+    <h5>{{#str}} deleteintarget, local_coursetransfer {{/str}}</h5>
     <ul class="configuration-list">
-        {{#can_destiny_restore_groups_remove }}
+        {{#can_target_restore_groups_remove }}
         <li class="configuration-group">
             <div class="checkbox">
-                <input class="configuration-checkbox" id="destiny_remove_groups" type="checkbox">
+                <input class="configuration-checkbox" id="target_remove_groups" type="checkbox">
             </div>
             <div class="config-info">
-                <div class="config-title">{{#str}} config_destiny_remove_groups, local_coursetransfer {{/str}}</div>
-                <div class="config-desc">{{#str}} config_destiny_remove_groups_desc, local_coursetransfer {{/str}}</div>
+                <div class="config-title">{{#str}} config_target_remove_groups, local_coursetransfer {{/str}}</div>
+                <div class="config-desc">{{#str}} config_target_remove_groups_desc, local_coursetransfer {{/str}}</div>
             </div>
         </li>
-        {{/can_destiny_restore_groups_remove }}
-        {{#can_destiny_restore_enrol_remove }}
+        {{/can_target_restore_groups_remove }}
+        {{#can_target_restore_enrol_remove }}
         <li class="configuration-group">
             <div class="checkbox">
-                <input class="configuration-checkbox" id="destiny_remove_enrols" type="checkbox">
+                <input class="configuration-checkbox" id="target_remove_enrols" type="checkbox">
             </div>
             <div class="config-info">
-                <div class="config-title">{{#str}} config_destiny_remove_enrols, local_coursetransfer {{/str}}</div>
-                <div class="config-desc">{{#str}} config_destiny_remove_enrols_desc, local_coursetransfer {{/str}}</div>
+                <div class="config-title">{{#str}} config_target_remove_enrols, local_coursetransfer {{/str}}</div>
+                <div class="config-desc">{{#str}} config_target_remove_enrols_desc, local_coursetransfer {{/str}}</div>
             </div>
         </li>
-        {{/can_destiny_restore_enrol_remove }}
+        {{/can_target_restore_enrol_remove }}
     </ul>
     {{/remove_in_destination }}
     {{#origin_course_configuration }}

@@ -56,7 +56,7 @@ define([
         function restoreCourseStep5(region, site) {
             this.node = $(region);
             this.restoreid = $("[data-restoreid]").attr("data-restoreid");
-            this.destinyid = $("[data-destinyid]").attr("data-destinyid");
+            this.targetid = $("[data-targetid]").attr("data-targetid");
             this.site = site;
             this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
             let sessiondata = JSON.parse(sessionStorage.getItem($("[data-course-sessionStorageId]")
@@ -93,7 +93,7 @@ define([
             let alertbox = this.node.find(".alert");
             let siteurl = this.site;
             let courseid = this.restoreid;
-            let destinyid = this.destinyid;
+            let targetid = this.targetid;
             let sessiondata = JSON.parse(sessionStorage.getItem($("[data-course-sessionStorageId]")
                 .attr("data-course-sessionStorageId")));
             let configuration = {};
@@ -102,29 +102,29 @@ define([
             });
 
             let config = {
-                destiny_merge_activities: false,
-                destiny_remove_activities: false,
-                destiny_remove_groups: false,
-                destiny_remove_enrols: false
+                target_merge_activities: false,
+                target_remove_activities: false,
+                target_remove_groups: false,
+                target_remove_enrols: false
             };
-            if (configuration['destiny_merge_activities']) {
-                config.destiny_merge_activities = configuration['destiny_merge_activities'];
+            if (configuration['target_merge_activities']) {
+                config.target_merge_activities = configuration['target_merge_activities'];
             }
-            if (configuration['destiny_remove_activities']) {
-                config.destiny_remove_activities = configuration['destiny_remove_activities'];
+            if (configuration['target_remove_activities']) {
+                config.target_remove_activities = configuration['target_remove_activities'];
             }
-            if (configuration['destiny_remove_groups']) {
-                config.destiny_remove_groups = configuration['destiny_remove_groups'];
+            if (configuration['target_remove_groups']) {
+                config.target_remove_groups = configuration['target_remove_groups'];
             }
-            if (configuration['destiny_remove_enrols']) {
-                config.destiny_remove_enrols = configuration['destiny_remove_enrols'];
+            if (configuration['target_remove_enrols']) {
+                config.target_remove_enrols = configuration['target_remove_enrols'];
             }
             const request = {
                 methodname: SERVICES.RESTORE_COURSE_STEP5,
                 args: {
                     siteurl: siteurl,
                     courseid: courseid,
-                    destinyid: destinyid,
+                    targetid: targetid,
                     configuration: config,
                     sections: sessiondata.course.sections,
                 }

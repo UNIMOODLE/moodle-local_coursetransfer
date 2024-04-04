@@ -71,7 +71,7 @@ class coursetransfer_remove {
         $resasynctask = new remove_course_task();
         $resasynctask->set_blocking(false);
         $payload = [
-                'destinysiteid' => $destsite->id,
+                'targetsiteid' => $destsite->id,
                 'courseid' => $courseid,
                 'requestoriginid' => $requestoriginid,
                 'requestdestid' => $requestdestid,
@@ -100,7 +100,7 @@ class coursetransfer_remove {
         $resasynctask = new remove_category_task();
         $resasynctask->set_blocking(false);
         $payload = [
-                'destinysiteid' => $destsite->id,
+                'targetsiteid' => $destsite->id,
                 'catid' => $catid,
                 'requestoriginid' => $requestoriginid,
                 'requestdestid' => $requestdestid,

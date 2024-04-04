@@ -194,20 +194,20 @@ class request {
      * @param stdClass $user
      * @param int $requestid
      * @param int $origincourseid
-     * @param int $destinycourseid
+     * @param int $targetcourseid
      * @param configuration_course $configuration
      * @param array $sections If array empty [], all sections and all activities will be backup.
      * @return response
      * @throws dml_exception
      */
-    public function origin_backup_course(stdClass $user, int $requestid, int $origincourseid, int $destinycourseid,
+    public function origin_backup_course(stdClass $user, int $requestid, int $origincourseid, int $targetcourseid,
                  configuration_course $configuration, array $sections =[]): response {
         global $CFG;
         $params = $this->get_request_params($user);
         $params['courseid'] = $origincourseid;
-        $params['destinycourseid'] = $destinycourseid;
+        $params['targetcourseid'] = $targetcourseid;
         $params['requestid'] = $requestid;
-        $params['destinysite'] = $CFG->wwwroot;
+        $params['targetsite'] = $CFG->wwwroot;
         $params = array_merge($params, $this->serialize_configuration($configuration));
         $params = array_merge($params, $this->serialize_sections($sections));
         return $this->req('local_coursetransfer_origin_backup_course', $params);
@@ -223,13 +223,13 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function destiny_backup_course_completed(
+    public function target_backup_course_completed(
             string $fileurl, int $requestid, int $filesize, stdClass $user = null): response {
         $params = $this->get_request_params($user);
         $params['requestid'] = $requestid;
         $params['backupsize'] = $filesize;
         $params['fileurl'] = $fileurl;
-        return $this->req('local_coursetransfer_destiny_backup_course_completed', $params);
+        return $this->req('local_coursetransfer_target_backup_course_completed', $params);
     }
 
     /**
@@ -240,10 +240,10 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function destiny_remove_course_completed(int $requestid, stdClass $user = null): response {
+    public function target_remove_course_completed(int $requestid, stdClass $user = null): response {
         $params = $this->get_request_params($user);
         $params['requestid'] = $requestid;
-        return $this->req('local_coursetransfer_destiny_remove_course_completed', $params);
+        return $this->req('local_coursetransfer_target_remove_course_completed', $params);
     }
 
     /**
@@ -257,7 +257,7 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function destiny_backup_course_error(
+    public function target_backup_course_error(
             stdClass $user, int $requestid, string $error, array $result = [], $filesize = 0): response {
         $params = $this->get_request_params($user);
         $params['requestid'] = $requestid;
@@ -268,7 +268,7 @@ class request {
         } else {
             $params['errormsg'] = json_encode($result);
         }
-        return $this->req('local_coursetransfer_destiny_backup_course_error', $params);
+        return $this->req('local_coursetransfer_target_backup_course_error', $params);
     }
 
     /**
@@ -281,13 +281,13 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function destiny_remove_course_error(
+    public function target_remove_course_error(
             stdClass $user, int $requestid, string $error, string $code): response {
         $params = $this->get_request_params($user);
         $params['requestid'] = $requestid;
         $params['errorcode'] = $code;
         $params['errormsg'] = $error;
-        return $this->req('local_coursetransfer_destiny_remove_course_error', $params);
+        return $this->req('local_coursetransfer_target_remove_course_error', $params);
     }
 
     /**
@@ -300,7 +300,7 @@ class request {
     public function site_origin_test(stdClass $user = null): response {
         global $CFG;
         $params = $this->get_request_params($user);
-        $params['destinysite'] = $CFG->wwwroot;
+        $params['targetsite'] = $CFG->wwwroot;
         return $this->req('local_coursetransfer_site_origin_test', $params);
     }
 
@@ -311,9 +311,9 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function site_destiny_test(stdClass $user = null): response {
+    public function site_target_test(stdClass $user = null): response {
         $params = $this->get_request_params($user);
-        return $this->req('local_coursetransfer_site_destiny_test', $params);
+        return $this->req('local_coursetransfer_site_target_test', $params);
     }
 
     /**
@@ -332,7 +332,7 @@ class request {
         $params = $this->get_request_params($user);
         $params['courseid'] = $origincourseid;
         $params['requestid'] = $requestid;
-        $params['destinysite'] = $CFG->wwwroot;
+        $params['targetsite'] = $CFG->wwwroot;
         $params['nextruntime'] = is_null($nextruntime) ? 0 : $nextruntime;
         return $this->req('local_coursetransfer_origin_remove_course', $params);
     }
@@ -353,7 +353,7 @@ class request {
         $params = $this->get_request_params($user);
         $params['catid'] = $origincatid;
         $params['requestid'] = $requestid;
-        $params['destinysite'] = $CFG->wwwroot;
+        $params['targetsite'] = $CFG->wwwroot;
         $params['nextruntime'] = is_null($nextruntime) ? 0 : $nextruntime;
         return $this->req('local_coursetransfer_origin_remove_category', $params);
     }
@@ -440,12 +440,12 @@ class request {
      */
     public function serialize_configuration(configuration_course $configuration): array {
         $res = [];
-        $res['configuration[destiny_target]'] = (int)$configuration->destinytarget;
-        $res['configuration[destiny_remove_enrols]'] = (int)$configuration->destinyremoveenrols;
-        $res['configuration[destiny_remove_groups]'] = (int)$configuration->destinyremovegroups;
+        $res['configuration[target_target]'] = (int)$configuration->targettarget;
+        $res['configuration[target_remove_enrols]'] = (int)$configuration->targetremoveenrols;
+        $res['configuration[target_remove_groups]'] = (int)$configuration->targetremovegroups;
         $res['configuration[origin_remove_course]'] = (int)$configuration->originremovecourse;
         $res['configuration[origin_enrol_users]'] = (int)$configuration->originenrolusers;
-        $res['configuration[destiny_notremove_activities]'] = $configuration->destinynotremoveactivities;
+        $res['configuration[target_notremove_activities]'] = $configuration->targetnotremoveactivities;
         $res['configuration[nextruntime]'] = (int)$configuration->nextruntime;
         return $res;
     }

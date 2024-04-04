@@ -8,9 +8,9 @@
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="type" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" COMMENT="0 = course, 1 = category, 2 = remove"/>
-                <FIELD NAME="siteurl" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="URL SITE (origin or destiny depend direction)"/>
+                <FIELD NAME="siteurl" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="URL SITE (origin or target depend direction)"/>
                 <FIELD NAME="direction" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" COMMENT="0 = request, 1 = answer"/>
-                <FIELD NAME="destiny_request_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="If direction is answer, request id"/>
+                <FIELD NAME="target_request_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="If direction is answer, request id"/>
                 <FIELD NAME="request_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="?"/>
                 <FIELD NAME="origin_course_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Course ID to restore"/>
                 <FIELD NAME="origin_course_fullname" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="Course Fullname to restore"/>
@@ -29,11 +29,11 @@
                 <FIELD NAME="origin_backup_size" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Final Backup size"/>
                 <FIELD NAME="origin_backup_size_estimated" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Estimated Backup size"/>
                 <FIELD NAME="origin_backup_url" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="URL Backup"/>
-                <FIELD NAME="destiny_course_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Course ID where restore origin course"/>
-                <FIELD NAME="destiny_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Category ID where restore origin course"/>
-                <FIELD NAME="destiny_remove_enrols" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="0 = don't remove enrol, 1 = remove enrol"/>
-                <FIELD NAME="destiny_remove_groups" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="0 = don't remove groups, 1 = remove groups"/>
-                <FIELD NAME="destiny_target" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="3" COMMENT="TARGET_NEW_COURSE = 2; TARGET_EXISTING_DELETING = 3; TARGET_EXISTING_ADDING = 4;"/>
+                <FIELD NAME="target_course_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Course ID where restore origin course"/>
+                <FIELD NAME="target_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Category ID where restore origin course"/>
+                <FIELD NAME="target_remove_enrols" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="0 = don't remove enrol, 1 = remove enrol"/>
+                <FIELD NAME="target_remove_groups" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="0 = don't remove groups, 1 = remove groups"/>
+                <FIELD NAME="target_target" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="3" COMMENT="TARGET_NEW_COURSE = 2; TARGET_EXISTING_DELETING = 3; TARGET_EXISTING_ADDING = 4;"/>
                 <FIELD NAME="error_code" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Code Error"/>
                 <FIELD NAME="error_message" SEQUENCE="false" TYPE="text" LENGTH="10" NOTNULL="false" COMMENT="Message Error"/>
                 <FIELD NAME="fileurl" SEQUENCE="false" TYPE="text" LENGTH="250" NOTNULL="false" COMMENT="File URL backup"/>
@@ -59,7 +59,7 @@
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
             </KEYS>
         </TABLE>
-        <TABLE NAME="local_coursetransfer_destiny" COMMENT="Destiny Sites availables">
+        <TABLE NAME="local_coursetransfer_target" COMMENT="Destiny Sites availables">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="host" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="Destiny Host URL"/>

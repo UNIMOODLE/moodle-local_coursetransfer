@@ -46,7 +46,7 @@ use core\task\manager;
 use core_user;
 use dml_exception;
 use invalid_parameter_exception;
-use local_coursetransfer\external\backend\destiny_course_callback_external;
+use local_coursetransfer\external\backend\target_course_callback_external;
 use local_coursetransfer\external\frontend\sites_external;
 use local_coursetransfer\factory\tools;
 use local_coursetransfer\factory\user;
@@ -87,7 +87,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     protected $origincourse;
 
     /** @var stdClass Destination 4 */
-    protected $destinycourse4;
+    protected $targetcourse4;
 
     /** @var stdClass User */
     protected $user;
@@ -96,7 +96,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     protected $siteorigin;
 
     /** @var stdClass Site Destination */
-    protected $sitedestiny;
+    protected $sitetarget;
 
     /** @var testing_data_generator Generator */
     protected $generator;
@@ -177,14 +177,14 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
         $token = coursetransfer::postinstall();
         $this->user = core_user::get_user_by_username(user::USERNAME_WS);
         $ressiteorigin = sites_external::site_add('origin', $CFG->wwwroot, $token);
-        $ressitedestiny = sites_external::site_add('destiny', $CFG->wwwroot, $token);
+        $ressitetarget = sites_external::site_add('target', $CFG->wwwroot, $token);
         if ($ressiteorigin['success']) {
             $site = coursetransfer_sites::get('origin', $ressiteorigin['data']->id);
             $this->siteorigin = $site;
         }
-        if ($ressitedestiny['success']) {
-            $site = coursetransfer_sites::get('destiny', $ressitedestiny['data']->id);
-            $this->sitedestiny = $site;
+        if ($ressitetarget['success']) {
+            $site = coursetransfer_sites::get('target', $ressitetarget['data']->id);
+            $this->sitetarget = $site;
         }
     }
 
@@ -231,8 +231,8 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
                 'summary' => 'This a Summary of Destination 4',
                 'numsections' => 0,
         ];
-        $this->destinycourse4 = $this->getDataGenerator()->create_course($dnc4);
-        $this->create_sections_destiny4($this->destinycourse4);
+        $this->targetcourse4 = $this->getDataGenerator()->create_course($dnc4);
+        $this->create_sections_target4($this->targetcourse4);
     }
 
     /**
@@ -268,7 +268,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    protected function create_sections_destiny4(stdClass $course) {
+    protected function create_sections_target4(stdClass $course) {
         $newsection = course_create_section($course->id);
         $new = clone($newsection);
         $new->name = 'Colors';
@@ -307,7 +307,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
                 0
         );
         list($requestdestination4, $requestorigin4) = $this->test_restore_course(
-                $configuration4, $this->destinycourse4, $this->origincourse);
+                $configuration4, $this->targetcourse4, $this->origincourse);
 
         // EXECUTE TASKS.
         $this->execute_tasks();
@@ -317,15 +317,15 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
         $this->validate_request_in_backup($requestdestination4);
 
         // 1. Test New Course. Without Users.
-        $this->execute_restore($requestdestination4, $requestorigin4, $this->destinycourse4, $this->origincourse, $file4);
+        $this->execute_restore($requestdestination4, $requestorigin4, $this->targetcourse4, $this->origincourse, $file4);
 
         // VALIDATE DATA.
         // 4. Test in Destination Course. With Users and Groups. Merge Content and Users and Groups.
-        $this->validate_course_not_equals($this->destinycourse4, $this->origincourse);
+        $this->validate_course_not_equals($this->targetcourse4, $this->origincourse);
         $this->validate_request_completed($requestdestination4);
-        $this->review_enrols($this->destinycourse4, 5, 2, [
+        $this->review_enrols($this->targetcourse4, 5, 2, [
                 ['group' => $this->group1, 'count' => 2], ['group' => $this->group2, 'count' => 1]]);
-        $this->review_modules4($this->destinycourse4);
+        $this->review_modules4($this->targetcourse4);
     }
 
     /**
@@ -344,7 +344,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
         global $USER;
         $field = get_config('local_coursetransfer', 'origin_field_search_user');
         $value = $USER->{$field};
-        destiny_course_callback_external::destiny_backup_course_completed(
+        target_course_callback_external::target_backup_course_completed(
                 $field, $value, $requestdestination->id, $file->get_filesize(), $file->get_filepath()
         );
         return $file;
@@ -355,7 +355,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
      *
      * @covers coursetransfer::restore_course
      * @param configuration_course $configuration
-     * @param stdClass $coursedestiny
+     * @param stdClass $coursetarget
      * @param stdClass $courseorigin
      * @param array $sections
      * @return array
@@ -365,12 +365,12 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
      * @throws moodle_exception
      */
     protected function test_restore_course(
-            configuration_course $configuration, stdClass $coursedestiny, stdClass $courseorigin, $sections = []): array {
+            configuration_course $configuration, stdClass $coursetarget, stdClass $courseorigin, $sections = []): array {
 
         $requestdestination = coursetransfer_request::set_request_restore_course(
                 $this->user,
                 $this->siteorigin,
-                $coursedestiny->id,
+                $coursetarget->id,
                 $courseorigin->id,
                 $configuration,
                 $sections,
@@ -379,8 +379,8 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
         $requestorigin = coursetransfer_request::set_request_restore_course_response(
                 $this->user,
                 $requestdestination->id,
-                $this->sitedestiny,
-                $coursedestiny->id,
+                $this->sitetarget,
+                $coursetarget->id,
                 $courseorigin,
                 $configuration,
                 $sections);
@@ -389,7 +389,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
         $restask = coursetransfer_backup::create_task_backup_course(
                 $courseorigin->id,
                 $this->user->id,
-                $this->sitedestiny,
+                $this->sitetarget,
                 $requestdestination->id,
                 $requestorigin->id,
                 $sections,
@@ -444,13 +444,13 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
      *
      * @param stdClass $requestdestination
      * @param stdClass $requestorigin
-     * @param stdClass $coursedestiny
+     * @param stdClass $coursetarget
      * @param stdClass $courseorigin
      * @param stored_file $file
      * @throws dml_exception
      */
     protected function execute_restore(
-            stdClass $requestdestination, stdClass $requestorigin, stdClass $coursedestiny, stdClass $courseorigin,
+            stdClass $requestdestination, stdClass $requestorigin, stdClass $coursetarget, stdClass $courseorigin,
             stored_file $file) {
 
         $requestdestination = coursetransfer_request::get($requestdestination->id);
@@ -461,7 +461,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
         $resrest = coursetransfer_restore::create_task_restore_course($requestdestination, $file);
 
         $this->assertTrue($resrest);
-        $this->assertNotEquals($courseorigin->summary, $coursedestiny->summary);
+        $this->assertNotEquals($courseorigin->summary, $coursetarget->summary);
 
         $rtasks = manager::get_adhoc_tasks('local_coursetransfer\task\restore_course_task');
 
@@ -475,27 +475,27 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     /**
      * Validate.
      *
-     * @param stdClass $coursedestiny
+     * @param stdClass $coursetarget
      * @param stdClass $courseorigin
      * @throws dml_exception
      * @throws moodle_exception
      */
-    protected function validate_course_equals(stdClass $coursedestiny, stdClass $courseorigin) {
-        $destinycoursemod = get_course($coursedestiny->id);
-        $this->assertEquals($courseorigin->summary, $destinycoursemod->summary);
+    protected function validate_course_equals(stdClass $coursetarget, stdClass $courseorigin) {
+        $targetcoursemod = get_course($coursetarget->id);
+        $this->assertEquals($courseorigin->summary, $targetcoursemod->summary);
     }
 
     /**
      * Validate.
      *
-     * @param stdClass $coursedestiny
+     * @param stdClass $coursetarget
      * @param stdClass $courseorigin
      * @throws dml_exception
      * @throws moodle_exception
      */
-    protected function validate_course_not_equals(stdClass $coursedestiny, stdClass $courseorigin) {
-        $destinycoursemod = get_course($coursedestiny->id);
-        $this->assertNotEquals($courseorigin->summary, $destinycoursemod->summary);
+    protected function validate_course_not_equals(stdClass $coursetarget, stdClass $courseorigin) {
+        $targetcoursemod = get_course($coursetarget->id);
+        $this->assertNotEquals($courseorigin->summary, $targetcoursemod->summary);
     }
 
     /**
@@ -545,11 +545,11 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     /**
      * Review modules4.
      *
-     * @param stdClass $coursedestiny
+     * @param stdClass $coursetarget
      * @throws moodle_exception
      */
-    protected function review_modules4(stdClass $coursedestiny) {
-        $modinfo = get_fast_modinfo($coursedestiny->id);
+    protected function review_modules4(stdClass $coursetarget) {
+        $modinfo = get_fast_modinfo($coursetarget->id);
         $cms = $modinfo->get_cms();
         $sections = $modinfo->get_section_info_all();
         $this->assertCount(10, $cms);
@@ -559,16 +559,16 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     /**
      * Review Enrols.
      *
-     * @param stdClass $coursedestiny
+     * @param stdClass $coursetarget
      * @param int $userscount
      * @param int $groupscount
      * @param array $gs
      * @throws coding_exception
      */
-    protected function review_enrols(stdClass $coursedestiny, int $userscount, int $groupscount, array $gs) {
-        $users = enrol_get_course_users($coursedestiny->id);
+    protected function review_enrols(stdClass $coursetarget, int $userscount, int $groupscount, array $gs) {
+        $users = enrol_get_course_users($coursetarget->id);
         $this->assertCount($userscount, $users);
-        $groups = groups_get_all_groups($coursedestiny->id);
+        $groups = groups_get_all_groups($coursetarget->id);
         $this->assertCount($groupscount, $groups);
         foreach ($gs as $g) {
             $members = groups_get_members($g['group']->id);

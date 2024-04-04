@@ -61,7 +61,7 @@
                 <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
                 <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
                 <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_destiny, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_target, local_coursetransfer {{/str}}</th>
             </tr>
             </thead>
             <tbody>
@@ -74,13 +74,13 @@
                     <td>{{ categoryid }}</td>
                     <td>{{ categoryname }}</td>
                     <td>
-                        <select name="destinyid" data-action="destiny" data-courseid="{{ id }}" disabled>
+                        <select name="targetid" data-action="target" data-courseid="{{ id }}" disabled>
                             <option value="0" selected>{{#str}} newcourse {{/str}}</option>
                             {{# destinies }}
                                 <option value="{{ id }}">{{ name }} ({{ shortname }})</option>
                             {{/ destinies }}
                         </select>
-                        <select class="hidden" name="destinycategoryid" data-action="destiny-category" data-courseid="{{ id }}">
+                        <select class="hidden" name="targetcategoryid" data-action="target-category" data-courseid="{{ id }}">
                             {{# categories }}
                                 <option value="{{ id }}">{{{ name }}}</option>
                             {{/ categories }}
@@ -197,10 +197,10 @@
     div[data-region='origin_restore_step4_page'] input[type="radio"]:checked, input[type="radio"]:active {
         box-shadow: none;
     }
-    div[data-region='origin_restore_step4_page'] select[data-action="destiny"] {
+    div[data-region='origin_restore_step4_page'] select[data-action="target"] {
         max-width: 200px;
     }
-    div[data-region='origin_restore_step4_page'] select[data-action="destiny-category"] {
+    div[data-region='origin_restore_step4_page'] select[data-action="target-category"] {
         max-width: 200px;
     }
 </style>

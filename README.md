@@ -50,11 +50,11 @@ Ir a la URL:
     {your/moodle/dirroot}/admin/settings.php?section=local_coursetransfer
 
 *   Tamaño máximo del curso a restaurar
-    * local_coursetransfer | destiny_restore_course_max_size
+    * local_coursetransfer | target_restore_course_max_size
     * Límite en el tamaño de la copia de seguridad (archivo MBZ) del curso origen a restaurar en MB. Si el archivo a restaurar es más grande, habrá un error al realizar el paso de la descarga, reflejando el error en la tabla de restauración correspondiente.
 
 *  Sitios destino
-   * local_coursetransfer | destiny_sites
+   * local_coursetransfer | target_sites
    * Listado de sitios destino, a los que se les podrá responder para copias de seguridad o borrado de los cursos. Hay que hacer clic para ir a la gestión de sitios de destino:
 
 
@@ -143,9 +143,9 @@ Se han creado los siguiente script de consola:
     - CLI de restauracion de curso
 * restore_category.php 
     - CLI de restauracion de categoría
-* view_log_destiny_course.php 
+* view_log_target_course.php 
     - CLI para ver los logs de restauraciones en un curso como destino
-* view_log_destiny_category.php
+* view_log_target_category.php
     - CLI para ver los logs de restauraciones en una categoría como destino
 * view_log_origin_course.php
     - CLI para ver los logs de restauraciones en un curso como origen. Las peticiones que ha recibido desde otro Moodle.
@@ -216,7 +216,7 @@ El administrador podrá desactivar, en cualquier caso, estas notificaciones para
   
   Contiene la información de los sitios de origen configurados.
 
-* local_coursetransfer_destiny 
+* local_coursetransfer_target 
   
     Contiene la información de los sitios de destino configurados.
 

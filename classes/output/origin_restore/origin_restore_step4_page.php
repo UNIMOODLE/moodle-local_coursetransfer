@@ -134,15 +134,15 @@ class origin_restore_step4_page extends origin_restore_step_page {
         $data->has_scheduled_time = true;
         $data->has_origin_user_data = coursetransfer::has_origin_user_data($USER);
         $data->can_remove_origin_course = coursetransfer::can_remove_origin_course($USER);
-        $data->can_destiny_restore_merge = coursetransfer::can_destiny_restore_merge($USER, context_system::instance());
-        $data->can_destiny_restore_content_remove =
-                coursetransfer::can_destiny_restore_content_remove($USER, context_system::instance());
-        $data->can_destiny_restore_groups_remove = coursetransfer::can_destiny_restore_groups_remove($USER);
-        $data->can_destiny_restore_enrol_remove = coursetransfer::can_destiny_restore_enrol_remove($USER);
+        $data->can_target_restore_merge = coursetransfer::can_target_restore_merge($USER, context_system::instance());
+        $data->can_target_restore_content_remove =
+                coursetransfer::can_target_restore_content_remove($USER, context_system::instance());
+        $data->can_target_restore_groups_remove = coursetransfer::can_target_restore_groups_remove($USER);
+        $data->can_target_restore_enrol_remove = coursetransfer::can_target_restore_enrol_remove($USER);
         $data->restore_this_course =
-                $data->can_destiny_restore_merge || $data->can_destiny_restore_content_remove;
+                $data->can_target_restore_merge || $data->can_target_restore_content_remove;
         $data->remove_in_destination =
-                $data->can_destiny_restore_groups_remove || $data->can_destiny_restore_enrol_remove;
+                $data->can_target_restore_groups_remove || $data->can_target_restore_enrol_remove;
         $data->origin_course_configuration = $data->has_origin_user_data || $data->has_scheduled_time;
 
         return $data;

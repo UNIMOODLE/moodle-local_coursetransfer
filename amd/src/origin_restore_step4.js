@@ -48,7 +48,7 @@ define([
 
         let ACTIONS = {
             RESTORE: '[data-action="execute-restore"]',
-            CATEGORIES: '[data-action="destiny-category"]'
+            CATEGORIES: '[data-action="target-category"]'
         };
 
         /**
@@ -64,13 +64,13 @@ define([
             if (this.data) {
                 this.data.courses.forEach(function(course) {
                     let courseid = parseInt(course.courseid);
-                    let destinyid = parseInt(course.destinyid);
-                    let seldestiny = '[data-action="destiny"][data-courseid="' + courseid + '"] option[value="' + destinyid + '"]';
-                    $(seldestiny).prop('selected', true);
+                    let targetid = parseInt(course.targetid);
+                    let seltarget = '[data-action="target"][data-courseid="' + courseid + '"] option[value="' + targetid + '"]';
+                    $(seltarget).prop('selected', true);
                     let row = 'tr[data-action="course"][data-courseid="' + courseid + '"]';
                     $(row).prop('selected', true).removeClass('hidden');
-                    if (destinyid === 0) {
-                        $('[data-action="destiny-category"][data-courseid="' + courseid + '"]').removeClass('hidden');
+                    if (targetid === 0) {
+                        $('[data-action="target-category"][data-courseid="' + courseid + '"]').removeClass('hidden');
                     }
                 });
                 if (this.data.configuration) {
@@ -104,14 +104,14 @@ define([
                 let errors = [{code: '100078', msg: 'error_session_cache'}];
                 this.renderErrors(errors, alertbox);
             }
-            this.node.find('[data-action="destiny-category"]').on('change', this.changeCategory.bind(this));
+            this.node.find('[data-action="target-category"]').on('change', this.changeCategory.bind(this));
         }
 
         originRestoreStep4.prototype.changeCategory = function(e) {
             let newCategoryId = e.currentTarget.value;
             let courseId = e.currentTarget.dataset.courseid.toString();
             let course = this.data.courses.get(courseId);
-            course.categorydestiny = newCategoryId;
+            course.categorytarget = newCategoryId;
             this.data.courses.set(courseId, course);
             sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
         };
@@ -130,25 +130,25 @@ define([
             console.log('type of configuration: ', typeof configuration);
             let alertbox = this.node.find(".alert");
             let config = {
-                destiny_merge_activities: false,
-                destiny_remove_activities: false,
-                destiny_remove_groups: false,
-                destiny_remove_enrols: false,
+                target_merge_activities: false,
+                target_remove_activities: false,
+                target_remove_groups: false,
+                target_remove_enrols: false,
                 origin_enrol_users: false,
                 origin_remove_course: false,
                 origin_schedule_datetime: 0
             };
-            if (configuration['destiny_merge_activities']) {
-                config.destiny_merge_activities = configuration['destiny_merge_activities'];
+            if (configuration['target_merge_activities']) {
+                config.target_merge_activities = configuration['target_merge_activities'];
             }
-            if (configuration['destiny_remove_activities']) {
-                config.destiny_remove_activities = configuration['destiny_remove_activities'];
+            if (configuration['target_remove_activities']) {
+                config.target_remove_activities = configuration['target_remove_activities'];
             }
-            if (configuration['destiny_remove_groups']) {
-                config.destiny_remove_groups = configuration['destiny_remove_groups'];
+            if (configuration['target_remove_groups']) {
+                config.target_remove_groups = configuration['target_remove_groups'];
             }
-            if (configuration['destiny_remove_enrols']) {
-                config.destiny_remove_enrols = configuration['destiny_remove_enrols'];
+            if (configuration['target_remove_enrols']) {
+                config.target_remove_enrols = configuration['target_remove_enrols'];
             }
             if (configuration['origin_enrol_users']) {
                 config.origin_enrol_users = configuration['origin_enrol_users'];

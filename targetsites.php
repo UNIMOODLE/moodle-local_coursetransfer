@@ -38,7 +38,7 @@ require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $USER;
 
-$title = get_string('setting_destiny_sites_link', 'local_coursetransfer');
+$title = get_string('setting_target_sites_link', 'local_coursetransfer');
 
 require_login();
 
@@ -46,14 +46,14 @@ $PAGE->set_pagelayout('standard');
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
-$PAGE->set_url('/local/coursetransfer/destinysites.php');
+$PAGE->set_url('/local/coursetransfer/targetsites.php');
 
 $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
 
 if (is_siteadmin()) {
-    $page = new sites_page('destiny');
+    $page = new sites_page('target');
     echo $output->render($page);
 }
 echo $OUTPUT->footer();

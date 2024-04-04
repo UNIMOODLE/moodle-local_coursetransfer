@@ -99,15 +99,15 @@ class new_origin_restore_course_step4_page extends new_origin_restore_course_ste
                 $data->course->sessionStorage_id = "local_coursetransfer_".$this->course->id."_".$data->course->id;
                 $data->has_origin_user_data = false;
                 $data->can_remove_origin_course = false;
-                $data->can_destiny_restore_merge =
-                        coursetransfer::can_destiny_restore_merge($USER, context_course::instance($this->course->id));
-                $data->can_destiny_restore_content_remove =
-                        coursetransfer::can_destiny_restore_content_remove($USER, context_course::instance($this->course->id));
-                $data->can_destiny_restore_groups_remove = false;
-                $data->can_destiny_restore_enrol_remove = false;
+                $data->can_target_restore_merge =
+                        coursetransfer::can_target_restore_merge($USER, context_course::instance($this->course->id));
+                $data->can_target_restore_content_remove =
+                        coursetransfer::can_target_restore_content_remove($USER, context_course::instance($this->course->id));
+                $data->can_target_restore_groups_remove = false;
+                $data->can_target_restore_enrol_remove = false;
                 $data->has_scheduled_time = false;
-                $data->restore_this_course = $data->can_destiny_restore_merge || $data->can_destiny_restore_content_remove;
-                $data->remove_in_destination = $data->can_destiny_restore_groups_remove || $data->can_destiny_restore_enrol_remove;
+                $data->restore_this_course = $data->can_target_restore_merge || $data->can_target_restore_content_remove;
+                $data->remove_in_destination = $data->can_target_restore_groups_remove || $data->can_target_restore_enrol_remove;
                 $data->origin_course_configuration = $data->has_origin_user_data || $data->has_scheduled_time;
             } else {
                 $data->errors = $res->errors;

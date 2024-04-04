@@ -112,7 +112,7 @@ try {
                 cli_writeln( $key . ': ' . $type);
             } else if ($key === 'origin_activities') {
                 cli_writeln( $key . ': ' . 'view more details in view_log_request_activities_detail');
-            } else if ($key === 'destiny_target' ) {
+            } else if ($key === 'target_target' ) {
                 switch ($item) {
                     case 2:
                         $target = 'In New Course';
@@ -130,8 +130,8 @@ try {
             } else if ($key === 'timemodified' || $key === 'timecreated' ) {
                 cli_writeln( $key . ': ' . userdate($item));
             } else if ($key === 'origin_enrolusers' || $key === 'origin_remove_course' ||
-                    $key === 'origin_remove_category' || $key === 'destiny_remove_enrols' ||
-                    $key === 'destiny_remove_groups' ) {
+                    $key === 'origin_remove_category' || $key === 'target_remove_enrols' ||
+                    $key === 'target_remove_groups' ) {
                 $bool = (int)$item === 1 ? 'true' : 'false';
                 cli_writeln( $key . ': ' . $bool);
             } else if ($key === 'status') {

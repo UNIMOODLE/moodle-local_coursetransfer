@@ -108,7 +108,7 @@ $capabilities = [
         ],
     ],
 
-    'local/coursetransfer:destiny_restore_enrol_remove' => [
+    'local/coursetransfer:target_restore_enrol_remove' => [
             'captype' => 'write',
             'contextlevel' => CONTEXT_COURSE,
             'archetypes' => [
@@ -120,7 +120,7 @@ $capabilities = [
             ],
     ],
 
-    'local/coursetransfer:destiny_restore_groups_remove' => [
+    'local/coursetransfer:target_restore_groups_remove' => [
             'captype' => 'write',
             'contextlevel' => CONTEXT_COURSE,
             'archetypes' => [
@@ -132,7 +132,7 @@ $capabilities = [
             ],
     ],
 
-    'local/coursetransfer:destiny_restore_content_remove' => [
+    'local/coursetransfer:target_restore_content_remove' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
@@ -144,7 +144,7 @@ $capabilities = [
         ],
     ],
 
-    'local/coursetransfer:destiny_restore_merge' => [
+    'local/coursetransfer:target_restore_merge' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [

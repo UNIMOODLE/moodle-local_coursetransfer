@@ -74,19 +74,19 @@ class origin_course_backup_external extends external_api {
                 'field' => new external_value(PARAM_TEXT, 'Field'),
                 'value' => new external_value(PARAM_TEXT, 'Value'),
                 'courseid' => new external_value(PARAM_INT, 'Course ID'),
-                'destinycourseid' => new external_value(PARAM_INT, 'Destiny Course ID'),
+                'targetcourseid' => new external_value(PARAM_INT, 'Destiny Course ID'),
                 'requestid' => new external_value(PARAM_INT, 'Request ID'),
-                'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site'),
+                'targetsite' => new external_value(PARAM_TEXT, 'Destiny Site'),
                 'configuration' => new external_single_structure(
                         [
-                               'destiny_target' => new external_value(PARAM_INT, 'Destiny Target'),
-                               'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
-                               'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
+                               'target_target' => new external_value(PARAM_INT, 'Destiny Target'),
+                               'target_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
+                               'target_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
                                'origin_remove_course' => new external_value(PARAM_BOOL,
                                                'Origin Remove Course', VALUE_DEFAULT, false),
                                'origin_enrol_users' => new external_value(PARAM_BOOL,
                                                'Origin Enrol Users', VALUE_DEFAULT, false),
-                               'destiny_notremove_activities' => new external_value(PARAM_TEXT,
+                               'target_notremove_activities' => new external_value(PARAM_TEXT,
                                                'Destiny Not Remove Activities by commas', VALUE_DEFAULT, ''),
                                'nextruntime' => new external_value(PARAM_INT,
                                                'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0),
@@ -119,9 +119,9 @@ class origin_course_backup_external extends external_api {
      * @param string $field
      * @param string $value
      * @param int $courseid
-     * @param int $destinycourseid
+     * @param int $targetcourseid
      * @param int $requestid
-     * @param string $destinysite
+     * @param string $targetsite
      * @param array $configuration
      * @param array $sections
      *
@@ -129,17 +129,17 @@ class origin_course_backup_external extends external_api {
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function origin_backup_course(string $field, string $value, int $courseid, int $destinycourseid,
-            int $requestid, string $destinysite, array $configuration, array $sections = []): array {
+    public static function origin_backup_course(string $field, string $value, int $courseid, int $targetcourseid,
+            int $requestid, string $targetsite, array $configuration, array $sections = []): array {
 
         $params = self::validate_parameters(
             self::origin_backup_course_parameters(), [
                 'field' => $field,
                 'value' => $value,
                 'courseid' => $courseid,
-                'destinycourseid' => $destinycourseid,
+                'targetcourseid' => $targetcourseid,
                 'requestid' => $requestid,
-                'destinysite' => $destinysite,
+                'targetsite' => $targetsite,
                 'configuration' => $configuration,
                 'sections' => $sections,
             ]
@@ -148,9 +148,9 @@ class origin_course_backup_external extends external_api {
         $field = $params['field'];
         $value = $params['value'];
         $courseid = $params['courseid'];
-        $destinycourseid = $params['destinycourseid'];
+        $targetcourseid = $params['targetcourseid'];
         $requestid = $params['requestid'];
-        $destinysite = $params['destinysite'];
+        $targetsite = $params['targetsite'];
         $configuration = $params['configuration'];
         $sections = $params['sections'];
 
@@ -164,16 +164,16 @@ class origin_course_backup_external extends external_api {
             $course = get_course($courseid);
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
-                $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
+                $verifytarget = coursetransfer::verify_target_site($targetsite);
                 $user = $authres['data'];
-                if ($verifydestiny['success']) {
+                if ($verifytarget['success']) {
                     if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id), $user)) {
 
                         $nextruntime = empty($configuration['nextruntime']) ? null : $configuration['nextruntime'];
                         $config = new configuration_course(
-                                $configuration['destiny_target'],
-                                $configuration['destiny_remove_enrols'],
-                                $configuration['destiny_remove_groups'],
+                                $configuration['target_target'],
+                                $configuration['target_remove_enrols'],
+                                $configuration['target_remove_groups'],
                                 $configuration['origin_enrol_users'],
                                 $configuration['origin_remove_course'],
                                 $nextruntime
@@ -181,14 +181,14 @@ class origin_course_backup_external extends external_api {
                         $requestorigin = coursetransfer_request::set_request_restore_course_response(
                                 $user,
                                 $requestid,
-                                $verifydestiny['data'],
-                                $destinycourseid,
+                                $verifytarget['data'],
+                                $targetcourseid,
                                 $course,
                                 $config,
                                 $sections);
 
                         $resbackup = coursetransfer_backup::create_task_backup_course(
-                                $course->id, $user->id, $verifydestiny['data'], $requestid, $requestorigin->id, $sections,
+                                $course->id, $user->id, $verifytarget['data'], $requestid, $requestorigin->id, $sections,
                                 $configuration['origin_enrol_users'], $nextruntime);
 
                         if ($resbackup) {
@@ -232,7 +232,7 @@ class origin_course_backup_external extends external_api {
                     }
                 } else {
                     $success = false;
-                    $errors[] = $verifydestiny['error'];
+                    $errors[] = $verifytarget['error'];
                 }
             } else {
                 $success = false;

@@ -46,7 +46,7 @@ define([
             COURSE_SELECT: '[data-action="select"]',
             COURSE: '[data-action="course"]',
             NEXT: '[data-action="next"]',
-            DESTINY: '[data-action="destiny"]',
+            DESTINY: '[data-action="target"]',
             CHECK: '[data-action="check"]',
             CHECK_ACT: '[data-action="act-check"]'
         };
@@ -64,10 +64,10 @@ define([
             if (this.data !== null) {
                 this.data.courses.forEach(function(course) {
                     let courseid = parseInt(course.courseid);
-                    let destinyid = parseInt(course.destinyid);
+                    let targetid = parseInt(course.targetid);
                     $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop("checked", true);
-                    let seldestiny = '[data-action="destiny"][data-courseid="' + courseid + '"] option[value="' + destinyid + '"]';
-                    $(seldestiny).prop('selected', true);
+                    let seltarget = '[data-action="target"][data-courseid="' + courseid + '"] option[value="' + targetid + '"]';
+                    $(seltarget).prop('selected', true);
                 });
             } else {
                 this.data = {
@@ -89,9 +89,9 @@ define([
             let item = e.target;
             let courseid = item.dataset.courseid;
             if (item.checked) {
-                let destiny = this.DOMregion.querySelector('[data-action="destiny"][data-courseid="' + courseid + '"]').value;
+                let target = this.DOMregion.querySelector('[data-action="target"][data-courseid="' + courseid + '"]').value;
                 let course = {
-                    courseid: courseid, destinyid: destiny, categorydestiny: 0
+                    courseid: courseid, targetid: target, categorytarget: 0
                 };
                 this.data.courses.set(courseid.toString(), course);
                 this.node.find(ACTIONS.NEXT).removeAttr('disabled');
@@ -110,9 +110,9 @@ define([
             let origin = this.DOMregion.querySelector('[data-action="select"][data-courseid="' + courseid + '"]');
 
             if (origin.checked) {
-                let destiny = item.value;
+                let target = item.value;
                 let course = {
-                    courseid: courseid, destinyid: destiny, categorydestiny: 0
+                    courseid: courseid, targetid: target, categorytarget: 0
                 };
                 this.data.courses.set(courseid, course);
                 sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));

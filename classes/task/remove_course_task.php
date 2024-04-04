@@ -71,7 +71,7 @@ class remove_course_task extends \core\task\adhoc_task {
 
             $this->log_start("Remove Course Remote Starting...");
 
-            $destinysiteid = $this->get_custom_data()->destinysiteid;
+            $targetsiteid = $this->get_custom_data()->targetsiteid;
             $courseid = $this->get_custom_data()->courseid;
             $course = get_course($courseid);
             $requestoriginid = $this->get_custom_data()->requestoriginid;
@@ -79,7 +79,7 @@ class remove_course_task extends \core\task\adhoc_task {
             $userid = $this->get_custom_data()->userid;
 
             $user = \core_user::get_user($userid);
-            $site = coursetransfer_sites::get('destiny', $destinysiteid);
+            $site = coursetransfer_sites::get('target', $targetsiteid);
             $request = new request($site);
 
             $requestorigin = coursetransfer_request::get($requestoriginid);
@@ -92,7 +92,7 @@ class remove_course_task extends \core\task\adhoc_task {
                 $requestorigin->error_code = '15001';
                 $requestorigin->error_message = json_encode($res['warnings']);
                 coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
-                $res = $request->destiny_remove_course_error(
+                $res = $request->target_remove_course_error(
                         $user, $requestdestid, $requestorigin->error_message, $requestorigin->error_code);
                 if (!$res->success) {
                     mtrace('Remove Course Remote in Error Callback ERROR: ' . $res->errors[0]->msg);
@@ -104,7 +104,7 @@ class remove_course_task extends \core\task\adhoc_task {
 
                 coursetransfer_remove::create_cleanup_course_bin_task($course);
 
-                $res = $request->destiny_remove_course_completed($requestdestid, $user);
+                $res = $request->target_remove_course_completed($requestdestid, $user);
 
                 if (!$res->success) {
                     $requestorigin->status = coursetransfer_request::STATUS_ERROR;

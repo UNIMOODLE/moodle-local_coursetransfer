@@ -97,7 +97,7 @@ try {
     foreach ($items as $item) {
         $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
         printf($mask,
-                $item->id, $item->destiny_request_id, $item->siteurl, $item->destiny_course_id, $item->origin_course_id,
+                $item->id, $item->target_request_id, $item->siteurl, $item->target_course_id, $item->origin_course_id,
                 get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
                 $error, $item->origin_backup_size, $item->userid, $item->timemodified, $item->timecreated);
     }

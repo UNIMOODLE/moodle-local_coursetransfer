@@ -51,7 +51,7 @@ Usage:
         --userid=<userid>
 
     --type=<type>  Type (int) - (0) restore course, (1) restore category
-    --direction=<direction>  Direction (int) - (0) request as destiny, (1) answer as origin
+    --direction=<direction>  Direction (int) - (0) request as target, (1) answer as origin
     --status=<status>  Status (int)
                 * (0) Error
                 * (1) Not started
@@ -127,8 +127,8 @@ try {
     foreach ($items as $item) {
         $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
         printf($mask,
-                $item->id, $item->type, $item->direction, $item->siteurl, $item->destiny_course_id, $item->origin_course_id,
-                $item->destiny_category_id, $item->origin_category_id,
+                $item->id, $item->type, $item->direction, $item->siteurl, $item->target_course_id, $item->origin_course_id,
+                $item->target_category_id, $item->origin_category_id,
                 get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
                 $item->userid, $item->timemodified, $item->timecreated, $error);
     }

@@ -57,18 +57,18 @@ require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->dirroot . '/local/coursetransfer/classes/task/download_file_course_task.php');
 
 /**
- * Class destiny_course_callback_external
+ * Class target_course_callback_external
  *
  * @package local_coursetransfer\external\backend
  */
-class destiny_course_callback_external extends external_api {
+class target_course_callback_external extends external_api {
 
     /**
      * Destiny Backup Course Completed Parameters.
      *
      * @return external_function_parameters
      */
-    public static function destiny_backup_course_completed_parameters(): external_function_parameters {
+    public static function target_backup_course_completed_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
@@ -93,11 +93,11 @@ class destiny_course_callback_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function destiny_backup_course_completed(string $field, string $value, int $requestid,
+    public static function target_backup_course_completed(string $field, string $value, int $requestid,
                                                            int $backupsize, string $fileurl): array {
 
         $params = self::validate_parameters(
-            self::destiny_backup_course_completed_parameters(), [
+            self::target_backup_course_completed_parameters(), [
                 'field' => $field,
                 'value' => $value,
                 'requestid' => $requestid,
@@ -164,7 +164,7 @@ class destiny_course_callback_external extends external_api {
      *
      * @return external_single_structure
      */
-    public static function destiny_backup_course_completed_returns(): external_single_structure {
+    public static function target_backup_course_completed_returns(): external_single_structure {
         return new external_single_structure(
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
@@ -188,7 +188,7 @@ class destiny_course_callback_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function destiny_remove_course_completed_parameters(): external_function_parameters {
+    public static function target_remove_course_completed_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
@@ -207,10 +207,10 @@ class destiny_course_callback_external extends external_api {
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function destiny_remove_course_completed(string $field, string $value, int $requestid): array {
+    public static function target_remove_course_completed(string $field, string $value, int $requestid): array {
 
         $params = self::validate_parameters(
-            self::destiny_remove_course_completed_parameters(), [
+            self::target_remove_course_completed_parameters(), [
                 'field' => $field,
                 'value' => $value,
                 'requestid' => $requestid,
@@ -272,7 +272,7 @@ class destiny_course_callback_external extends external_api {
      *
      * @return external_single_structure
      */
-    public static function destiny_remove_course_completed_returns(): external_single_structure {
+    public static function target_remove_course_completed_returns(): external_single_structure {
         return new external_single_structure(
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
@@ -296,7 +296,7 @@ class destiny_course_callback_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function destiny_backup_course_error_parameters(): external_function_parameters {
+    public static function target_backup_course_error_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
@@ -322,10 +322,10 @@ class destiny_course_callback_external extends external_api {
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function destiny_backup_course_error(string $field, string $value, int $requestid, int $backupsize,
+    public static function target_backup_course_error(string $field, string $value, int $requestid, int $backupsize,
                                                        int $errorcode, string $errormsg): array {
         $params = self::validate_parameters(
-            self::destiny_backup_course_error_parameters(), [
+            self::target_backup_course_error_parameters(), [
                 'field' => $field,
                 'value' => $value,
                 'requestid' => $requestid,
@@ -391,7 +391,7 @@ class destiny_course_callback_external extends external_api {
      *
      * @return external_single_structure
      */
-    public static function destiny_backup_course_error_returns(): external_single_structure {
+    public static function target_backup_course_error_returns(): external_single_structure {
         return new external_single_structure(
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
@@ -415,7 +415,7 @@ class destiny_course_callback_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function destiny_remove_course_error_parameters(): external_function_parameters {
+    public static function target_remove_course_error_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'field' => new external_value(PARAM_TEXT, 'Field'),
@@ -439,10 +439,10 @@ class destiny_course_callback_external extends external_api {
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function destiny_remove_course_error(string $field, string $value, int $requestid,
+    public static function target_remove_course_error(string $field, string $value, int $requestid,
                                                        int $errorcode, string $errormsg): array {
         $params = self::validate_parameters(
-            self::destiny_remove_course_error_parameters(), [
+            self::target_remove_course_error_parameters(), [
                 'field' => $field,
                 'value' => $value,
                 'requestid' => $requestid,
@@ -505,7 +505,7 @@ class destiny_course_callback_external extends external_api {
      *
      * @return external_single_structure
      */
-    public static function destiny_remove_course_error_returns(): external_single_structure {
+    public static function target_remove_course_error_returns(): external_single_structure {
         return new external_single_structure(
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),

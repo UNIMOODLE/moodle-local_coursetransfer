@@ -46,7 +46,7 @@ define([
             COURSE_SELECT: '[data-action="select"]',
             COURSE: '[data-action="course"]',
             NEXT: '[data-action="next"]',
-            DESTINY: '[data-action="destiny"]',
+            DESTINY: '[data-action="target"]',
             CHECK: '[data-action="check"]',
             CHECK_ACT: '[data-action="act-check"]'
         };
@@ -62,10 +62,10 @@ define([
             if (this.data !== null) {
                 this.data.courses.forEach(function(course) {
                     let courseid = parseInt(course.courseid);
-                    let destinyid = parseInt(course.destinyid);
+                    let targetid = parseInt(course.targetid);
                     $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop("checked", true);
-                    let seldestiny = '[data-action="destiny"][data-courseid="' + courseid + '"] option[value="' + destinyid + '"]';
-                    $(seldestiny).prop('selected', true);
+                    let seltarget = '[data-action="target"][data-courseid="' + courseid + '"] option[value="' + targetid + '"]';
+                    $(seltarget).prop('selected', true);
                 });
                 this.data.configuration.forEach(function(config) {
                     $('#' + config.name).prop('checked', config.selected);

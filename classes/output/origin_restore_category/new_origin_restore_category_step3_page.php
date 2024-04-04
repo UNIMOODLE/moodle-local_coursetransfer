@@ -123,14 +123,14 @@ class new_origin_restore_category_step3_page  extends new_origin_restore_categor
         $data->has_scheduled_time = true;
         $data->has_origin_user_data = coursetransfer::has_origin_user_data($USER);
         $data->can_remove_origin_course = false;
-        $data->can_destiny_restore_merge = false;
-        $data->can_destiny_restore_content_remove = false;
-        $data->can_destiny_restore_groups_remove = false;
-        $data->can_destiny_restore_enrol_remove = false;
+        $data->can_target_restore_merge = false;
+        $data->can_target_restore_content_remove = false;
+        $data->can_target_restore_groups_remove = false;
+        $data->can_target_restore_enrol_remove = false;
         $data->restore_this_course =
-                $data->can_destiny_restore_merge || $data->can_destiny_restore_content_remove;
+                $data->can_target_restore_merge || $data->can_target_restore_content_remove;
         $data->remove_in_destination =
-                $data->can_destiny_restore_groups_remove || $data->can_destiny_restore_enrol_remove;
+                $data->can_target_restore_groups_remove || $data->can_target_restore_enrol_remove;
         $data->origin_course_configuration = $data->has_origin_user_data || $data->has_scheduled_time;
         return $data;
     }

@@ -64,7 +64,7 @@ class new_origin_restore_course_step5_page extends new_origin_restore_course_ste
         parent::__construct($course);
         $this->site = required_param('site', PARAM_INT);
         $this->restoreid = required_param('restoreid', PARAM_INT);
-        $this->destinyid = required_param('id', PARAM_INT);
+        $this->targetid = required_param('id', PARAM_INT);
     }
 
     /**
@@ -82,7 +82,7 @@ class new_origin_restore_course_step5_page extends new_origin_restore_course_ste
         $data = new stdClass();
         $data->button = false;
         $data->restoreid = $this->restoreid;
-        $data->destinyid = $this->destinyid;
+        $data->targetid = $this->targetid;
         $data->siteposition = $this->site;
         $data->steps = self::get_steps(5);
         $data->back_url = $backurl->out(false);
@@ -99,17 +99,17 @@ class new_origin_restore_course_step5_page extends new_origin_restore_course_ste
                     $data->course->sessionStorage_id = "local_coursetransfer_".$this->course->id."_".$data->course->id;
                     $data->has_origin_user_data = false;
                     $data->can_remove_origin_course = false;
-                    $data->can_destiny_restore_merge =
-                            coursetransfer::can_destiny_restore_merge($USER, context_course::instance($this->course->id));
-                    $data->can_destiny_restore_content_remove =
-                            coursetransfer::can_destiny_restore_content_remove($USER, context_course::instance($this->course->id));
-                    $data->can_destiny_restore_groups_remove = false;
-                    $data->can_destiny_restore_enrol_remove = false;
+                    $data->can_target_restore_merge =
+                            coursetransfer::can_target_restore_merge($USER, context_course::instance($this->course->id));
+                    $data->can_target_restore_content_remove =
+                            coursetransfer::can_target_restore_content_remove($USER, context_course::instance($this->course->id));
+                    $data->can_target_restore_groups_remove = false;
+                    $data->can_target_restore_enrol_remove = false;
                     $data->has_scheduled_time = false;
                     $data->restore_this_course =
-                            $data->can_destiny_restore_merge || $data->can_destiny_restore_content_remove;
+                            $data->can_target_restore_merge || $data->can_target_restore_content_remove;
                     $data->remove_in_destination =
-                            $data->can_destiny_restore_groups_remove || $data->can_destiny_restore_enrol_remove;
+                            $data->can_target_restore_groups_remove || $data->can_target_restore_enrol_remove;
                     $data->origin_course_configuration = $data->has_origin_user_data || $data->has_scheduled_time;
                     if (isset($data->course->sections)) {
                         for ($i = 0; $i < count($data->course->sections); $i++) {

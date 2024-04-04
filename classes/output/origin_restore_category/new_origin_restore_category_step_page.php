@@ -65,7 +65,7 @@ class new_origin_restore_category_step_page implements renderable, templatable {
     protected $restoreid;
 
     /** @var int Destination ID */
-    protected $destinyid;
+    protected $targetid;
 
     /** @var int Page of data requested */
     protected $page;

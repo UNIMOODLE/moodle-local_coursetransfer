@@ -43,7 +43,7 @@ require_once($CFG->libdir . '/clilib.php');
 $usage = 'CLI to view the restore logs in a category from another category from another Moodle.
 
 Usage:
-    # php view_log_destiny_category.php
+    # php view_log_target_category.php
         --categoryid=<categoryid>
 
     --categoryid=<categoryid>  Destination Category ID (int)
@@ -55,7 +55,7 @@ Description.
 
 Examples:
 
-    # php local/coursetransfer/cli/view_log_destiny_category.php --categoryid=3
+    # php local/coursetransfer/cli/view_log_target_category.php --categoryid=3
 ';
 
 list($options, $unrecognised) = cli_get_params([
@@ -78,10 +78,10 @@ if ($options['help']) {
 $categoryid = (int) $options['categoryid'];
 
 if ( $categoryid === null ) {
-    cli_writeln( get_string('destiny_category_id_require', 'local_coursetransfer') );
+    cli_writeln( get_string('target_category_id_require', 'local_coursetransfer') );
     exit(128);
 } else if ( $categoryid <= 0 ) {
-    cli_writeln( get_string('destiny_category_id_integer', 'local_coursetransfer') );
+    cli_writeln( get_string('target_category_id_integer', 'local_coursetransfer') );
     exit(128);
 }
 
@@ -92,7 +92,7 @@ try {
             'Request ID', 'Dest Site', 'Dest Category', 'Orig Category',
             'Status', 'Courses Selected', 'Error', 'UserID', 'TimeModified', 'TimeCreated');
 
-    foreach (\local_coursetransfer\coursetransfer_request::get_by_destiny_category_id($categoryid) as $item) {
+    foreach (\local_coursetransfer\coursetransfer_request::get_by_target_category_id($categoryid) as $item) {
         $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
         $requests = json_decode($item->origin_category_requests);
         $coursesid = '';
@@ -105,7 +105,7 @@ try {
             }
         }
         printf($mask,
-                $item->id, $item->siteurl, $item->destiny_category_id, $item->origin_category_id,
+                $item->id, $item->siteurl, $item->target_category_id, $item->origin_category_id,
                 get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
                 $coursesid, $error, $item->userid, $item->timemodified, $item->timecreated);
     }

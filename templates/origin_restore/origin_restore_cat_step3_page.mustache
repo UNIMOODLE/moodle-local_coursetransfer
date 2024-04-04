@@ -50,11 +50,11 @@
         {{> local_coursetransfer/components/category_details }}
 
         <hr>
-        <h4 class="h4">{{#str}} step4_destiny_title, local_coursetransfer {{/str}}</h4>
+        <h4 class="h4">{{#str}} step4_target_title, local_coursetransfer {{/str}}</h4>
 
-        <p>{{#str}} step4_destiny_desc, local_coursetransfer {{/str}}</p>
+        <p>{{#str}} step4_target_desc, local_coursetransfer {{/str}}</p>
 
-        <select name="destinyid" data-action="destiny" data-catid="{{ id }}">
+        <select name="targetid" data-action="target" data-catid="{{ id }}">
             <option value="0" selected>{{#str}} createnewcategory, local_coursetransfer {{/str}}</option>
             {{# destinies }}
                 <option value="{{ id }}">{{ name }} {{# idnumber }}({{ idnumber }}){{/ idnumber }}</option>
@@ -163,7 +163,7 @@
         font-size: 16px;
         font-weight: 400;
     }
-    div[data-region='origin_restore_cat_step3_page'] select[data-action="destiny"] {
+    div[data-region='origin_restore_cat_step3_page'] select[data-action="target"] {
         max-width: 200px;
     }
 </style>

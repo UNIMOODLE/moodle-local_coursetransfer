@@ -176,13 +176,13 @@ class restore_course_external extends external_api {
             [
                 'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                 'courseid' => new external_value(PARAM_INT, 'Course ID'),
-                'destinyid' => new external_value(PARAM_INT, 'Destiny ID'),
+                'targetid' => new external_value(PARAM_INT, 'Destiny ID'),
                 'configuration' => new external_single_structure(
                     [
-                        'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
-                        'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
-                        'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
-                        'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
+                        'target_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
+                        'target_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
+                        'target_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
+                        'target_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
                     ]
                 ),
                 'sections' => new external_multiple_structure(new external_single_structure(
@@ -211,7 +211,7 @@ class restore_course_external extends external_api {
      *
      * @param int $siteurl
      * @param int $courseid
-     * @param int $destinyid
+     * @param int $targetid
      * @param array $configuration
      * @param array $sections
      *
@@ -219,7 +219,7 @@ class restore_course_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function new_origin_restore_course_step5(int $siteurl, int $courseid, int $destinyid,
+    public static function new_origin_restore_course_step5(int $siteurl, int $courseid, int $targetid,
                                                            array $configuration, array $sections): array {
 
         global $USER;
@@ -227,7 +227,7 @@ class restore_course_external extends external_api {
             self::new_origin_restore_course_step5_parameters(), [
                 'siteurl' => $siteurl,
                 'courseid' => $courseid,
-                'destinyid' => $destinyid,
+                'targetid' => $targetid,
                 'configuration' => $configuration,
                 'sections' => $sections,
             ]
@@ -235,26 +235,26 @@ class restore_course_external extends external_api {
 
         $siteurl = $params['siteurl'];
         $courseid = $params['courseid'];
-        $destinyid = $params['destinyid'];
+        $targetid = $params['targetid'];
         $configuration = $params['configuration'];
         $sections = $params['sections'];
 
         $success = false;
         $errors = [];
         $data = new stdClass();
-        $nexturl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $destinyid]);
+        $nexturl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $targetid]);
         $data->nexturl = $nexturl->out(false);
 
         try {
             $site = coursetransfer::get_site_by_position($siteurl);
-            $target = $configuration['destiny_merge_activities'] ?
+            $target = $configuration['target_merge_activities'] ?
                     \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
             $configuration = new configuration_course(
                     $target,
-                    $configuration['destiny_remove_enrols'],
-                    $configuration['destiny_remove_groups']
+                    $configuration['target_remove_enrols'],
+                    $configuration['target_remove_groups']
             );
-            $res = coursetransfer::restore_course($USER, $site, $destinyid, $courseid, $configuration, $sections);
+            $res = coursetransfer::restore_course($USER, $site, $targetid, $courseid, $configuration, $sections);
             $success = $res['success'];
             if (!$success) {
                 $errors = $res['errors'];

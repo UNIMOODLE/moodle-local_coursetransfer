@@ -49,7 +49,7 @@ define([
         SELECT: '[data-action="select"]',
         COURSE: '[data-action="course"]',
         NEXT: '[data-action="next"]',
-        DESTINY: '[data-action="destiny"]',
+        DESTINY: '[data-action="target"]',
         CHECK: '[data-action="check"]',
         CHECK_ACT: '[data-action="act-check"]',
         RESTORE: '[data-action="execute-restore"]'
