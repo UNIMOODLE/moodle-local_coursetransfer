@@ -133,7 +133,7 @@ class coursetransfer {
     }
 
     /**
-     * Verify Destiny Site.
+     * Verify Target Site.
      *
      * @param string $targetsite
      * @return array

@@ -46,7 +46,7 @@ define([
             COURSE_SELECT: '[data-action="select"]',
             COURSE: '[data-action="course"]',
             NEXT: '[data-action="next"]',
-            DESTINY: '[data-action="target"]',
+            TARGET: '[data-action="target"]',
             CHECK: '[data-action="check"]',
             CHECK_ACT: '[data-action="act-check"]'
         };
@@ -81,7 +81,7 @@ define([
                 this.node.find(ACTIONS.NEXT).prop("disabled", true);
             }
             this.node.find(ACTIONS.COURSE_SELECT).on('click', this.selectCourse.bind(this));
-            this.node.find(ACTIONS.DESTINY).on('change', this.selectDestiny.bind(this));
+            this.node.find(ACTIONS.TARGET).on('change', this.selectTarget.bind(this));
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         }
 
@@ -104,7 +104,7 @@ define([
             sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
         };
 
-        originRestoreStep2.prototype.selectDestiny = function(e) {
+        originRestoreStep2.prototype.selectTarget = function(e) {
             let item = e.target;
             let courseid = item.dataset.courseid;
             let origin = this.DOMregion.querySelector('[data-action="select"][data-courseid="' + courseid + '"]');

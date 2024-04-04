@@ -101,7 +101,7 @@ class coursetransfer_request {
     }
 
     /**
-     * Get by Destiny Course Id.
+     * Get by Target Course Id.
      *
      * @param int $courseid
      * @return false|mixed|stdClass
@@ -114,7 +114,7 @@ class coursetransfer_request {
     }
 
     /**
-     * Get by Destiny Category Id.
+     * Get by Target Category Id.
      *
      * @param int $catid
      * @return false|mixed|stdClass

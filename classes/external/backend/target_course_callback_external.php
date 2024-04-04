@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Destiny Course Callback Externa.
+ * Target Course Callback Externa.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -64,7 +64,7 @@ require_once($CFG->dirroot . '/local/coursetransfer/classes/task/download_file_c
 class target_course_callback_external extends external_api {
 
     /**
-     * Destiny Backup Course Completed Parameters.
+     * Target Backup Course Completed Parameters.
      *
      * @return external_function_parameters
      */
@@ -81,7 +81,7 @@ class target_course_callback_external extends external_api {
     }
 
     /**
-     * Destiny Backup Course Completed.
+     * Target Backup Course Completed.
      *
      * @param string $field
      * @param string $value
@@ -160,7 +160,7 @@ class target_course_callback_external extends external_api {
     }
 
     /**
-     * Destiny Backup Course Completed Returns.
+     * Target Backup Course Completed Returns.
      *
      * @return external_single_structure
      */
@@ -184,7 +184,7 @@ class target_course_callback_external extends external_api {
     }
 
     /**
-     * Destiny Remove Course Completed parameters.
+     * Target Remove Course Completed parameters.
      *
      * @return external_function_parameters
      */
@@ -199,7 +199,7 @@ class target_course_callback_external extends external_api {
     }
 
     /**
-     * Destiny Remove Course Completed.
+     * Target Remove Course Completed.
      *
      * @param string $field
      * @param string $value
@@ -268,7 +268,7 @@ class target_course_callback_external extends external_api {
     }
 
     /**
-     * Destiny Remove Course Completed returns.
+     * Target Remove Course Completed returns.
      *
      * @return external_single_structure
      */
@@ -292,7 +292,7 @@ class target_course_callback_external extends external_api {
     }
 
     /**
-     * Destiny Backup course error parameters.
+     * Target Backup course error parameters.
      *
      * @return external_function_parameters
      */
@@ -310,7 +310,7 @@ class target_course_callback_external extends external_api {
     }
 
     /**
-     * Destiny Backup course error.
+     * Target Backup course error.
      *
      * @param string $field
      * @param string $value
@@ -387,7 +387,7 @@ class target_course_callback_external extends external_api {
     }
 
     /**
-     * Destiny Backup course error returns.
+     * Target Backup course error returns.
      *
      * @return external_single_structure
      */
@@ -411,7 +411,7 @@ class target_course_callback_external extends external_api {
     }
 
     /**
-     * Destiny Remove Course Error parameters.
+     * Target Remove Course Error parameters.
      *
      * @return external_function_parameters
      */
@@ -428,7 +428,7 @@ class target_course_callback_external extends external_api {
     }
 
     /**
-     * Destiny Remove Course Error.
+     * Target Remove Course Error.
      *
      * @param string $field
      * @param string $value
@@ -501,7 +501,7 @@ class target_course_callback_external extends external_api {
     }
 
     /**
-     * Destiny Remove Course Error returns.
+     * Target Remove Course Error returns.
      *
      * @return external_single_structure
      */

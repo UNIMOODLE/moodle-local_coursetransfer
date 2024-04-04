@@ -84,7 +84,7 @@ abstract class configuration {
     }
 
     /**
-     * Set Destiny Remove Enrols.
+     * Set Target Remove Enrols.
      *
      * @param int $config
      */
@@ -93,7 +93,7 @@ abstract class configuration {
     }
 
     /**
-     * Set Destiny Remove Enrols.
+     * Set Target Remove Enrols.
      *
      * @param bool $config
      */
@@ -102,7 +102,7 @@ abstract class configuration {
     }
 
     /**
-     * Set Destiny Remove Groups.
+     * Set Target Remove Groups.
      *
      * @param bool $config
      */

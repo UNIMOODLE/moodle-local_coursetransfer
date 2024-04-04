@@ -49,7 +49,7 @@ define([
             CAT_SELECT: '[data-action="select"]',
             COURSE: '[data-action="course"]',
             NEXT: '[data-action="next"]',
-            DESTINY: '[data-action="target"]',
+            TARGET: '[data-action="target"]',
             CHECK: '[data-action="check"]',
             CHECK_ACT: '[data-action="act-check"]',
             RESTORE: '[data-action="execute-restore"]'
@@ -68,8 +68,8 @@ define([
             if (this.data) {
                 if (this.data.targetid) {
                     let targetid = parseInt(this.data.targetid);
-                    this.node.find(ACTIONS.DESTINY).val(targetid);
-                    this.node.find(ACTIONS.DESTINY).prop('disabled', true);
+                    this.node.find(ACTIONS.TARGET).val(targetid);
+                    this.node.find(ACTIONS.TARGET).prop('disabled', true);
                 }
                 if (this.data.configuration) {
                     this.data.configuration.forEach(function(config) {

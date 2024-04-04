@@ -176,13 +176,13 @@ class restore_course_external extends external_api {
             [
                 'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                 'courseid' => new external_value(PARAM_INT, 'Course ID'),
-                'targetid' => new external_value(PARAM_INT, 'Destiny ID'),
+                'targetid' => new external_value(PARAM_INT, 'Target ID'),
                 'configuration' => new external_single_structure(
                     [
-                        'target_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
-                        'target_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
-                        'target_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
-                        'target_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
+                        'target_merge_activities' => new external_value(PARAM_BOOL, 'Target Merge Activities'),
+                        'target_remove_enrols' => new external_value(PARAM_BOOL, 'Target Remove Enrols'),
+                        'target_remove_groups' => new external_value(PARAM_BOOL, 'Target Remove Groups'),
+                        'target_remove_activities' => new external_value(PARAM_BOOL, 'Target Remove Activities'),
                     ]
                 ),
                 'sections' => new external_multiple_structure(new external_single_structure(

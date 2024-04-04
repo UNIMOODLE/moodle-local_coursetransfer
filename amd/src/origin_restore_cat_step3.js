@@ -45,7 +45,7 @@ define([
             CAT_SELECT: '[data-action="select"]',
             COURSE: '[data-action="course"]',
             NEXT: '[data-action="next"]',
-            DESTINY: '[data-action="target"]',
+            TARGET: '[data-action="target"]',
             CHECK: '[data-action="check"]',
             CHECK_ACT: '[data-action="act-check"]'
         };
@@ -61,7 +61,7 @@ define([
             if (this.data) {
                 if (this.data.targetid) {
                     let targetid = parseInt(this.data.targetid);
-                    this.node.find(ACTIONS.DESTINY).val(targetid);
+                    this.node.find(ACTIONS.TARGET).val(targetid);
                 }
                 if (this.data.configuration) {
                     this.data.configuration.forEach(function(config) {
@@ -76,7 +76,7 @@ define([
         }
 
         originRestoreCatStep3.prototype.clickNext = function(e) {
-            this.data.targetid = parseInt(this.node.find(ACTIONS.DESTINY).val());
+            this.data.targetid = parseInt(this.node.find(ACTIONS.TARGET).val());
             let configuration = [];
             let checkboxes = $('.configuration-checkbox');
             checkboxes.each(function() {

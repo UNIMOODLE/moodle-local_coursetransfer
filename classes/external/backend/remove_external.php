@@ -77,7 +77,7 @@ class remove_external extends external_api {
                         'value' => new external_value(PARAM_TEXT, 'Value'),
                         'courseid' => new external_value(PARAM_INT, 'Course ID'),
                         'requestid' => new external_value(PARAM_INT, 'Request ID'),
-                        'targetsite' => new external_value(PARAM_TEXT, 'Destiny Site'),
+                        'targetsite' => new external_value(PARAM_TEXT, 'Target Site'),
                         'nextruntime' => new external_value(PARAM_INT, 'Next Run Time Timestamp - 0 Not scheduler'),
                 ]
         );
@@ -259,7 +259,7 @@ class remove_external extends external_api {
                         'value' => new external_value(PARAM_TEXT, 'Value'),
                         'catid' => new external_value(PARAM_INT, 'Course Category ID'),
                         'requestid' => new external_value(PARAM_INT, 'Request ID'),
-                        'targetsite' => new external_value(PARAM_TEXT, 'Destiny Site'),
+                        'targetsite' => new external_value(PARAM_TEXT, 'Target Site'),
                         'nextruntime' => new external_value(PARAM_INT, 'Next Run Time Timestamp - 0 Not scheduler'),
                 ]
         );

@@ -177,7 +177,7 @@ class restore_category_external extends external_api {
                 [
                     'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                     'categoryid' => new external_value(PARAM_INT, 'Category ID'),
-                    'targetid' => new external_value(PARAM_INT, 'Category Destiny ID'),
+                    'targetid' => new external_value(PARAM_INT, 'Category Target ID'),
                     'courses' => new external_multiple_structure(new external_single_structure(
                             [
                                 'id' => new external_value(PARAM_INT, 'Course ID'),

@@ -142,7 +142,7 @@ class logs_course_request_table extends table_sql {
     }
 
     /**
-     * Col Destiny Course ID
+     * Col Target Course ID
      *
      * @param stdClass $row Full data of the current row.
      * @return string

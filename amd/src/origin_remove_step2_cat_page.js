@@ -44,7 +44,7 @@ define([
     let ACTIONS = {
         CAT_SELECT: '[data-action="select"]',
         NEXT: '[data-action="next"]',
-        DESTINY: '[data-action="target"]',
+        TARGET: '[data-action="target"]',
         CHECK: '[data-action="check"]',
         CHECK_ACT: '[data-action="act-check"]'
     };

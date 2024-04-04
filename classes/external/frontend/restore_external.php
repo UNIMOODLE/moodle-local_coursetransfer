@@ -181,16 +181,16 @@ class restore_external extends external_api {
                 'courses' => new external_multiple_structure(new external_single_structure(
                     [
                         'courseid' => new external_value(PARAM_INT, 'Origin Course ID'),
-                        'targetid' => new external_value(PARAM_INT, 'Destiny Course ID'),
-                        'categorytarget' => new external_value(PARAM_INT, 'Destiny Category ID'),
+                        'targetid' => new external_value(PARAM_INT, 'Target Course ID'),
+                        'categorytarget' => new external_value(PARAM_INT, 'Target Category ID'),
                     ]
                 )),
                 'configuration' => new external_single_structure(
                     [
-                        'target_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
-                        'target_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
-                        'target_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
-                        'target_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
+                        'target_merge_activities' => new external_value(PARAM_BOOL, 'Target Merge Activities'),
+                        'target_remove_enrols' => new external_value(PARAM_BOOL, 'Target Remove Enrols'),
+                        'target_remove_groups' => new external_value(PARAM_BOOL, 'Target Remove Groups'),
+                        'target_remove_activities' => new external_value(PARAM_BOOL, 'Target Remove Activities'),
                         'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Restore User Data'),
                         'origin_remove_course' => new external_value(PARAM_BOOL, 'Origin Remove Course'),
                         'origin_schedule_datetime' => new external_value(PARAM_INT, 'Origin Schedule Datetime'),
@@ -335,7 +335,7 @@ class restore_external extends external_api {
             [
                 'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                 'catid' => new external_value(PARAM_INT, 'Origin Category Id'),
-                'targetid' => new external_value(PARAM_INT, 'Destiny Category Id'),
+                'targetid' => new external_value(PARAM_INT, 'Target Category Id'),
                 'configuration' => new external_single_structure(
                     [
                         'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Enrol Users'),

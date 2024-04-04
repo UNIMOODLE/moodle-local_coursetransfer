@@ -518,7 +518,7 @@ class sites_external extends external_api {
                 [
                     'field' => new external_value(PARAM_TEXT, 'Field'),
                     'value' => new external_value(PARAM_TEXT, 'Value'),
-                    'targetsite' => new external_value(PARAM_TEXT, 'Destiny Site URL'),
+                    'targetsite' => new external_value(PARAM_TEXT, 'Target Site URL'),
                 ]
         );
     }
@@ -608,7 +608,7 @@ class sites_external extends external_api {
     }
 
     /**
-     * Destiny test parameters.
+     * Target test parameters.
      *
      * @return external_function_parameters
      */
@@ -622,7 +622,7 @@ class sites_external extends external_api {
     }
 
     /**
-     * Destiny test.
+     * Target test.
      *
      * @param string $field
      * @param string $value
@@ -670,7 +670,7 @@ class sites_external extends external_api {
     }
 
     /**
-     * Destiny test returns.
+     * Target test returns.
      *
      * @return external_single_structure
      */

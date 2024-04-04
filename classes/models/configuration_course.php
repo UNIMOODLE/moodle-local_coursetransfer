@@ -91,7 +91,7 @@ class configuration_course extends configuration {
     }
 
     /**
-     * Set Destiny Not Remove Activities.
+     * Set Target Not Remove Activities.
      *
      * @param string $config
      */

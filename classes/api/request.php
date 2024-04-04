@@ -214,7 +214,7 @@ class request {
     }
 
     /**
-     * Destiny Backup Course Completed.
+     * Target Backup Course Completed.
      *
      * @param string $fileurl
      * @param int $requestid
@@ -233,7 +233,7 @@ class request {
     }
 
     /**
-     * Destiny Remove Course Completed.
+     * Target Remove Course Completed.
      *
      * @param int $requestid
      * @param stdClass|null $user
@@ -272,7 +272,7 @@ class request {
     }
 
     /**
-     * Destiny Remove Course Error.
+     * Target Remove Course Error.
      *
      * @param stdClass $user
      * @param int $requestid
@@ -305,7 +305,7 @@ class request {
     }
 
     /**
-     * Site Destiny test.
+     * Site Target test.
      *
      * @param stdClass|null $user
      * @return response

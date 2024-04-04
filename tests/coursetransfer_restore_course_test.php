@@ -248,7 +248,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
         ];
         $this->origincourse2 = $this->getDataGenerator()->create_course($oc2);
 
-        // Create Destiny New Course.
+        // Create Target New Course.
         $dnc1 = [
                 'fullname' => 'Remote Restoring in process...',
                 'shortname' => 'IN-PROGRESS-' . time(),
