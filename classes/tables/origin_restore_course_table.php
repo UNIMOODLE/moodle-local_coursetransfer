@@ -182,9 +182,9 @@ class origin_restore_course_table extends table_sql {
     public function col_configuration(stdClass $row): string {
         global $PAGE;
         $configuration = new configuration_course(
-                (int)$row->destiny_target,
-                $row->destiny_remove_enrols,
-                $row->destiny_remove_groups,
+                (int)$row->target_target,
+                $row->target_remove_enrols,
+                $row->target_remove_groups,
                 $row->origin_enrolusers,
                 $row->origin_remove_course,
                 $row->origin_schedule_datetime

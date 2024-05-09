@@ -71,14 +71,14 @@ class remove_category_task extends \core\task\adhoc_task {
 
             $this->log_start("Remove Category Remote Starting...");
 
-            $destinysiteid = $this->get_custom_data()->destinysiteid;
+            $targetsiteid = $this->get_custom_data()->targetsiteid;
             $catid = $this->get_custom_data()->catid;
             $requestoriginid = $this->get_custom_data()->requestoriginid;
             $requestdestid = $this->get_custom_data()->requestdestid;
             $userid = $this->get_custom_data()->userid;
 
             $user = \core_user::get_user($userid);
-            $site = coursetransfer_sites::get('destiny', $destinysiteid);
+            $site = coursetransfer_sites::get('target', $targetsiteid);
             $request = new request($site);
 
             $requestorigin = coursetransfer_request::get($requestoriginid);
@@ -93,7 +93,7 @@ class remove_category_task extends \core\task\adhoc_task {
 
                 coursetransfer_remove::create_cleanup_category_bin_task($catid);
 
-                $res = $request->destiny_remove_course_completed($requestdestid, $user);
+                $res = $request->target_remove_course_completed($requestdestid, $user);
 
                 if (!$res->success) {
                     $requestorigin->status = coursetransfer_request::STATUS_ERROR;
@@ -110,7 +110,7 @@ class remove_category_task extends \core\task\adhoc_task {
                 $requestorigin->error_code = '19001';
                 $requestorigin->error_message = $e->getMessage();
                 coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
-                $res = $request->destiny_remove_course_error(
+                $res = $request->target_remove_course_error(
                         $user, $requestdestid, $requestorigin->error_message, $requestorigin->error_code);
                 if (!$res->success) {
                     mtrace('Remove Course Remote in Error Callback ERROR: ' . $res->errors[0]->msg);

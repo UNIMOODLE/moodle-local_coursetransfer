@@ -65,7 +65,7 @@ class new_origin_restore_category_step4_page extends new_origin_restore_category
         parent::__construct($category);
         $this->site = required_param('site', PARAM_INT);
         $this->restoreid = required_param('restoreid', PARAM_INT);
-        $this->destinyid = required_param('id', PARAM_INT);
+        $this->targetid = required_param('id', PARAM_INT);
     }
 
     /**
@@ -85,7 +85,7 @@ class new_origin_restore_category_step4_page extends new_origin_restore_category
         $data = new stdClass();
         $data->button = false;
         $data->restoreid = $this->restoreid;
-        $data->destinyid = $this->destinyid;
+        $data->targetid = $this->targetid;
         $data->siteposition = $this->site;
         $data->steps = self::get_steps(4);
         $data->back_url = $backurl->out(false);
@@ -117,14 +117,14 @@ class new_origin_restore_category_step4_page extends new_origin_restore_category
         $data->has_origin_user_data = coursetransfer::has_origin_user_data($USER);
         $data->has_scheduled_time = true;
         $data->can_remove_origin_course = false;
-        $data->can_destiny_restore_merge = false;
-        $data->can_destiny_restore_content_remove = false;
-        $data->can_destiny_restore_groups_remove = false;
-        $data->can_destiny_restore_enrol_remove = false;
+        $data->can_target_restore_merge = false;
+        $data->can_target_restore_content_remove = false;
+        $data->can_target_restore_groups_remove = false;
+        $data->can_target_restore_enrol_remove = false;
         $data->restore_this_course =
-                $data->can_destiny_restore_merge || $data->can_destiny_restore_content_remove;
-        $data->remove_in_destination =
-                $data->can_destiny_restore_groups_remove || $data->can_destiny_restore_enrol_remove;
+                $data->can_target_restore_merge || $data->can_target_restore_content_remove;
+        $data->remove_in_target =
+                $data->can_target_restore_groups_remove || $data->can_target_restore_enrol_remove;
         $data->origin_course_configuration = $data->has_origin_user_data || $data->has_scheduled_time;
         return $data;
     }

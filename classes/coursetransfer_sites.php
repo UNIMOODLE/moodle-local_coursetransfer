@@ -51,8 +51,8 @@ class coursetransfer_sites {
 
     /** @var string Table Prex */
     const TABLE_PREX = 'local_coursetransfer_';
-    /** @var string Table Destination */
-    const TABLE_DESTINY = 'local_coursetransfer_destiny';
+    /** @var string Table Target */
+    const TABLE_TARGET = 'local_coursetransfer_target';
     /** @var string Table Origin */
     const TABLE_ORIGIN = 'local_coursetransfer_origin';
 
@@ -88,7 +88,7 @@ class coursetransfer_sites {
     }
 
     /**
-     * Get by Destiny Course Id.
+     * Get by Target Course Id.
      *
      * @param string $type
      * @param string $host

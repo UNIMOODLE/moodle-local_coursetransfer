@@ -133,17 +133,17 @@ class coursetransfer {
     }
 
     /**
-     * Verify Destiny Site.
+     * Verify Target Site.
      *
-     * @param string $destinysite
+     * @param string $targetsite
      * @return array
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function verify_destiny_site(string $destinysite): array {
+    public static function verify_target_site(string $targetsite): array {
         $res = new stdClass();
-        $res->host = $destinysite;
-        $record = coursetransfer_sites::get_by_host('destiny', $destinysite);
+        $res->host = $targetsite;
+        $record = coursetransfer_sites::get_by_host('target', $targetsite);
         if ($record && isset($record->token)) {
             $res->token = $record->token;
             $res->id = $record->id;
@@ -165,7 +165,7 @@ class coursetransfer {
                 'error' =>
                         [
                                 'code' => '18001',
-                                'msg' => 'Destination site not founded',
+                                'msg' => 'Target site not founded',
                         ],
             ];
         }
@@ -450,7 +450,7 @@ class coursetransfer {
             );
             $success = true;
             $url = $fileurl->out(true);
-            $sizeconfig = (int)get_config('local_coursetransfer', 'destiny_restore_course_max_size');
+            $sizeconfig = (int)get_config('local_coursetransfer', 'target_restore_course_max_size');
             if ($filesize > ($sizeconfig * 1000000)) {
                 $success = false;
                 $error = get_string('backupsize_larger', 'local_coursetransfer');
@@ -474,18 +474,18 @@ class coursetransfer {
      *
      * @param stdClass $user
      * @param stdClass $site
-     * @param int $destinycourseid
+     * @param int $targetcourseid
      * @param int $origincourseid
      * @param configuration_course $configuration
      * @param array|null $sections
      * @return array
      */
     public static function restore_course(stdClass $user,
-            stdClass $site, int $destinycourseid, int $origincourseid,
+            stdClass $site, int $targetcourseid, int $origincourseid,
             configuration_course $configuration, array $sections = []): array {
 
         try {
-            return self::restore_course_unity($user, $site, $destinycourseid, $origincourseid, $configuration, $sections);
+            return self::restore_course_unity($user, $site, $targetcourseid, $origincourseid, $configuration, $sections);
         } catch (moodle_exception $e) {
             $error = [
                     'code' => '10010',
@@ -608,21 +608,21 @@ class coursetransfer {
      *
      * @param stdClass $user
      * @param stdClass $site
-     * @param int $destinycategoryid
+     * @param int $targetcategoryid
      * @param int $origincategoryid
      * @param configuration_category $configuration $configuration
      * @param array $courses
      * @return array
      */
     public static function restore_category(
-            stdClass $user, stdClass $site, int $destinycategoryid, int $origincategoryid,
+            stdClass $user, stdClass $site, int $targetcategoryid, int $origincategoryid,
             configuration_category $configuration, array $courses = []): array {
 
         try {
 
             // 2. Category Request DB.
             $requestobject = coursetransfer_request::set_request_restore_category(
-                    $site, $destinycategoryid, $origincategoryid, '', $configuration, $user
+                    $site, $targetcategoryid, $origincategoryid, '', $configuration, $user
             );
 
             $request = new request($site);
@@ -644,11 +644,11 @@ class coursetransfer {
                 $courses = self::get_courses_detail($user, $site, $courses);
             }
 
-            // 2. If destinycategoryid is new (0)
-            if ($destinycategoryid === 0) {
-                $destinycategoryid = category::create($origincategoryname, $origincategoryidnumber, $origincategordesc);
+            // 2. If targetcategoryid is new (0)
+            if ($targetcategoryid === 0) {
+                $targetcategoryid = category::create($origincategoryname, $origincategoryidnumber, $origincategordesc);
             } else {
-                category::update($destinycategoryid, $origincategoryname, $origincategoryidnumber, $origincategordesc);
+                category::update($targetcategoryid, $origincategoryname, $origincategoryidnumber, $origincategordesc);
             }
 
             $requestobject->origin_category_name = $origincategoryname;
@@ -662,22 +662,22 @@ class coursetransfer {
 
                 // 1. Configuration Course.
                 $configurationcourse = new configuration_course(
-                        $configuration->destinytarget,
-                        $configuration->destinyremoveenrols,
-                        $configuration->destinyremovegroups,
+                        $configuration->targettarget,
+                        $configuration->targetremoveenrols,
+                        $configuration->targetremovegroups,
                         $configuration->originenrolusers,
                         false,
                         $configuration->nextruntime);
 
                 // 2. Create new course in this category.
-                $destinycourseid = course::create(
-                        core_course_category::get($destinycategoryid),
+                $targetcourseid = course::create(
+                        core_course_category::get($targetcategoryid),
                         $course->fullname, $course->shortname . uniqid());
                 $origincourseid = $course->id;
 
                 // 3. Request Restore Course.
                 $courseres = self::restore_course_unity(
-                        $user, $site, $destinycourseid, $origincourseid, $configurationcourse, [], $requestobject->id);
+                        $user, $site, $targetcourseid, $origincourseid, $configurationcourse, [], $requestobject->id);
 
                 if (!$courseres['success']) {
                     $success = false;
@@ -717,7 +717,7 @@ class coursetransfer {
      *
      * @param stdClass $user
      * @param stdClass $site
-     * @param int $destinycourseid
+     * @param int $targetcourseid
      * @param int $origincourseid
      * @param configuration_course $configuration
      * @param array $sections
@@ -726,18 +726,18 @@ class coursetransfer {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    protected static function restore_course_unity(stdClass $user, stdClass $site, int $destinycourseid, int $origincourseid,
+    protected static function restore_course_unity(stdClass $user, stdClass $site, int $targetcourseid, int $origincourseid,
             configuration_course $configuration, array $sections = [], int $requestcatid = null): array {
 
         $errors = [];
         // 1. Request DB.
         $requestobject = coursetransfer_request::set_request_restore_course($user,
-                $site, $destinycourseid, $origincourseid, $configuration, $sections, $requestcatid);
+                $site, $targetcourseid, $origincourseid, $configuration, $sections, $requestcatid);
 
         // 2. Call CURL Origin Backup Course.
         $request = new request($site);
         $res = $request->origin_backup_course(
-                $user, $requestobject->id, $origincourseid, $destinycourseid, $configuration, $sections);
+                $user, $requestobject->id, $origincourseid, $targetcourseid, $configuration, $sections);
         // 3. Success or Errors.
         if ($res->success) {
             // 4a. Update Request DB Completed.
@@ -1027,53 +1027,53 @@ class coursetransfer {
     }
 
     /**
-     * Can destiny restore merge?
+     * Can target restore merge?
      *
      * @param stdClass $user
      * @param context $context
      * @return false
      * @throws coding_exception
      */
-    public static function can_destiny_restore_merge(stdClass $user, context $context): bool {
-        return has_capability('local/coursetransfer:destiny_restore_merge', $context, $user->id);
+    public static function can_target_restore_merge(stdClass $user, context $context): bool {
+        return has_capability('local/coursetransfer:target_restore_merge', $context, $user->id);
     }
 
     /**
-     * Can Destination restore content remove?
+     * Can Target restore content remove?
      *
      * @param stdClass $user
      * @param context $context
      * @return false
      * @throws coding_exception
      */
-    public static function can_destiny_restore_content_remove(stdClass $user, context $context): bool {
-        return has_capability('local/coursetransfer:destiny_restore_content_remove', $context, $user->id);
+    public static function can_target_restore_content_remove(stdClass $user, context $context): bool {
+        return has_capability('local/coursetransfer:target_restore_content_remove', $context, $user->id);
     }
 
     /**
-     * Can Destination restore groups remove?
+     * Can Target restore groups remove?
      *
      * @param stdClass $user
      * @return false
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function can_destiny_restore_groups_remove(stdClass $user): bool {
+    public static function can_target_restore_groups_remove(stdClass $user): bool {
         $context = \context_system::instance();
-        return has_capability('local/coursetransfer:destiny_restore_groups_remove', $context, $user->id);
+        return has_capability('local/coursetransfer:target_restore_groups_remove', $context, $user->id);
     }
 
     /**
-     * Can Destination restore enrols remove?
+     * Can Target restore enrols remove?
      *
      * @param stdClass $user
      * @return false
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function can_destiny_restore_enrol_remove(stdClass $user): bool {
+    public static function can_target_restore_enrol_remove(stdClass $user): bool {
         $context = \context_system::instance();
-        return has_capability('local/coursetransfer:destiny_restore_enrol_remove', $context, $user->id);
+        return has_capability('local/coursetransfer:target_restore_enrol_remove', $context, $user->id);
     }
 
     /**
@@ -1086,8 +1086,8 @@ class coursetransfer {
      */
     public static function can_restore_in_not_new_course(stdClass $user): bool {
         $context = \context_system::instance();
-        if (has_capability('local/coursetransfer:destiny_restore_content_remove', $context, $user->id) &&
-                has_capability('local/coursetransfer:destiny_restore_merge', $context, $user->id)) {
+        if (has_capability('local/coursetransfer:target_restore_content_remove', $context, $user->id) &&
+                has_capability('local/coursetransfer:target_restore_merge', $context, $user->id)) {
             return true;
         }
         return false;

@@ -113,7 +113,7 @@ class restore_course_task extends \core\task\adhoc_task {
                         }
                     }
                 } else {
-                    coursetransfer_notification::send_restore_course_completed($request->userid, $request->destiny_course_id);
+                    coursetransfer_notification::send_restore_course_completed($request->userid, $request->target_course_id);
                 }
 
                 // Remove origen course logical.

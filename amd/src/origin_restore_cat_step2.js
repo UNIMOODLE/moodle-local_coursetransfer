@@ -45,7 +45,7 @@ define([
             CAT_SELECT: '[data-action="select"]',
             COURSE: '[data-action="course"]',
             NEXT: '[data-action="next"]',
-            DESTINY: '[data-action="destiny"]',
+            TARGET: '[data-action="target"]',
             CHECK: '[data-action="check"]',
             CHECK_ACT: '[data-action="act-check"]'
         };
@@ -91,7 +91,7 @@ define([
                 }
             });
             let data = {
-                catid: catid, destinyid: 0, configuration: []
+                catid: catid, targetid: 0, configuration: []
             };
             sessionStorage.setItem('local_coursetransfer_restore_cat_page', JSON.stringify(data));
 

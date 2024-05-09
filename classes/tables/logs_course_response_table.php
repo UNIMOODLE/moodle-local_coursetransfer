@@ -77,7 +77,7 @@ class logs_course_response_table extends table_sql {
                 'id',
                 'siteurl',
                 'origin_course_id',
-                'destiny_course_id',
+                'target_course_id',
                 'status',
                 'origin_activities',
                 'configuration',
@@ -90,9 +90,9 @@ class logs_course_response_table extends table_sql {
 
         $this->define_headers([
                 get_string('request_id', 'local_coursetransfer'),
-                get_string('destiny_site', 'local_coursetransfer'),
+                get_string('target_site', 'local_coursetransfer'),
                 get_string('origin_course_id', 'local_coursetransfer'),
-                get_string('destiny_course_id', 'local_coursetransfer'),
+                get_string('target_course_id', 'local_coursetransfer'),
                 get_string('status', 'local_coursetransfer'),
                 get_string('origin_activities', 'local_coursetransfer'),
                 get_string('configuration', 'local_coursetransfer'),
@@ -142,15 +142,15 @@ class logs_course_response_table extends table_sql {
     }
 
     /**
-     * Col Destiny Course ID
+     * Col Target Course ID
      *
      * @param stdClass $row Full data of the current row.
      * @return string
      * @throws moodle_exception
      */
-    public function col_destiny_course_id(stdClass $row): string {
-        $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->destiny_course_id]);
-        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->destiny_course_id . '</a>';
+    public function col_target_course_id(stdClass $row): string {
+        $href = new moodle_url($row->siteurl . '/course/view.php', ['id' => $row->target_course_id]);
+        return '<a href="' . $href->out(false) . '" target="_blank">' . $row->target_course_id . '</a>';
     }
 
     /**
@@ -198,9 +198,9 @@ class logs_course_response_table extends table_sql {
     public function col_configuration(stdClass $row): string {
         global $PAGE;
         $configuration = new configuration_course(
-                (int)$row->destiny_target,
-                $row->destiny_remove_enrols,
-                $row->destiny_remove_groups,
+                (int)$row->target_target,
+                $row->target_remove_enrols,
+                $row->target_remove_groups,
                 $row->origin_enrolusers,
                 $row->origin_remove_course,
                 $row->origin_schedule_datetime

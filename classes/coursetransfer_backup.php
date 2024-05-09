@@ -69,7 +69,7 @@ class coursetransfer_backup {
      *
      * @param int $courseid
      * @param int $userid
-     * @param stdClass $destinysite
+     * @param stdClass $targetsite
      * @param int $requestid
      * @param int $requestoriginid
      * @param array $sections
@@ -82,7 +82,7 @@ class coursetransfer_backup {
      * @throws moodle_exception
      */
     public static function create_task_backup_course(
-            int $courseid, int $userid, stdClass $destinysite, int $requestid, int $requestoriginid,
+            int $courseid, int $userid, stdClass $targetsite, int $requestid, int $requestoriginid,
             array $sections, int $rootusers = 0, int $nextruntime = null, bool $istest = false): bool {
         $bc = new backup_controller(
                 backup::TYPE_1COURSE, $courseid,
@@ -118,7 +118,7 @@ class coursetransfer_backup {
 
         $payload = [
                 'backupid' => $backupid,
-                'destinysite' => $destinysite->id,
+                'targetsite' => $targetsite->id,
                 'requestid' => $requestid,
                 'requestoriginid' => $requestoriginid,
                 'istest' => $istest,

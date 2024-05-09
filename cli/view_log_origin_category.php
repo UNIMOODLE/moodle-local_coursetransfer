@@ -46,7 +46,7 @@ Usage:
     # php view_log_origin_category.php
         --categoryid=<categoryid>
 
-    --categoryid=<categoryid>  Destination Category ID (int)
+    --categoryid=<categoryid>  Target Category ID (int)
 
 Options:
     -h --help                   Print this help.
@@ -105,7 +105,7 @@ try {
             }
         }
         printf($mask,
-                $item->id, $item->destiny_request_id, $item->siteurl, $item->destiny_category_id, $item->origin_category_id,
+                $item->id, $item->target_request_id, $item->siteurl, $item->target_category_id, $item->origin_category_id,
                 get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
                 $coursesid, $error, $item->userid, $item->timemodified, $item->timecreated);
     }

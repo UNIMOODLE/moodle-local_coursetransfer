@@ -32,7 +32,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_coursetransfer\external\backend\destiny_course_callback_external;
+use local_coursetransfer\external\backend\target_course_callback_external;
 use local_coursetransfer\external\backend\origin_category_external;
 use local_coursetransfer\external\backend\origin_course_backup_external;
 use local_coursetransfer\external\backend\origin_course_external;
@@ -111,36 +111,36 @@ $functions = [
         'loginrequired' => true,
     ],
 
-    'local_coursetransfer_destiny_backup_course_completed' => [
-        'classname' => destiny_course_callback_external::class,
-        'methodname' => 'destiny_backup_course_completed',
+    'local_coursetransfer_target_backup_course_completed' => [
+        'classname' => target_course_callback_external::class,
+        'methodname' => 'target_backup_course_completed',
         'description' => 'Notify origin that the backup is completed',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true,
     ],
 
-    'local_coursetransfer_destiny_backup_course_error' => [
-        'classname' => destiny_course_callback_external::class,
-        'methodname' => 'destiny_backup_course_error',
+    'local_coursetransfer_target_backup_course_error' => [
+        'classname' => target_course_callback_external::class,
+        'methodname' => 'target_backup_course_error',
         'description' => 'Notify origin that an error ocurred',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true,
     ],
 
-    'local_coursetransfer_destiny_remove_course_completed' => [
-        'classname' => destiny_course_callback_external::class,
-        'methodname' => 'destiny_remove_course_completed',
+    'local_coursetransfer_target_remove_course_completed' => [
+        'classname' => target_course_callback_external::class,
+        'methodname' => 'target_remove_course_completed',
         'description' => 'Notify origin that the course remove is completed',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true,
     ],
 
-    'local_coursetransfer_destiny_remove_course_error' => [
-        'classname' => destiny_course_callback_external::class,
-        'methodname' => 'destiny_remove_course_error',
+    'local_coursetransfer_target_remove_course_error' => [
+        'classname' => target_course_callback_external::class,
+        'methodname' => 'target_remove_course_error',
         'description' => 'Notify origin that an error ocurred',
         'type' => 'write',
         'ajax' => true,
@@ -300,10 +300,10 @@ $functions = [
             'loginrequired' => true,
     ],
 
-    'local_coursetransfer_site_destiny_test' => [
+    'local_coursetransfer_site_target_test' => [
             'classname' => sites_external::class,
-            'methodname' => 'destiny_test',
-            'description' => 'Site Destiny Test',
+            'methodname' => 'target_test',
+            'description' => 'Site Target Test',
             'type' => 'read',
             'ajax' => true,
             'loginrequired' => true,
@@ -320,10 +320,10 @@ $services = [
             'local_coursetransfer_origin_get_course_detail',
             'local_coursetransfer_origin_get_category_detail',
             'local_coursetransfer_origin_backup_course',
-            'local_coursetransfer_destiny_backup_course_completed',
-            'local_coursetransfer_destiny_backup_course_error',
-            'local_coursetransfer_destiny_remove_course_completed',
-            'local_coursetransfer_destiny_remove_course_error',
+            'local_coursetransfer_target_backup_course_completed',
+            'local_coursetransfer_target_backup_course_error',
+            'local_coursetransfer_target_remove_course_completed',
+            'local_coursetransfer_target_remove_course_error',
             'local_coursetransfer_new_origin_restore_course_step1',
             'local_coursetransfer_new_origin_restore_course_step5',
             'local_coursetransfer_new_origin_restore_category_step1',
@@ -341,7 +341,7 @@ $services = [
             'local_coursetransfer_site_remove',
             'local_coursetransfer_site_test',
             'local_coursetransfer_site_origin_test',
-            'local_coursetransfer_site_destiny_test',
+            'local_coursetransfer_site_target_test',
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,

@@ -69,7 +69,7 @@ class sites_external extends external_api {
     public static function site_add_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'type' => new external_value(PARAM_TEXT, 'Type: destiny or origin'),
+                'type' => new external_value(PARAM_TEXT, 'Type: target or origin'),
                 'host' => new external_value(PARAM_RAW, 'Host Url'),
                 'token' => new external_value(PARAM_RAW, 'Host Token'),
             ]
@@ -105,7 +105,7 @@ class sites_external extends external_api {
         $data = new stdClass();
         $data->id = 0;
 
-        if ($type !== 'destiny' && $type !== 'origin') {
+        if ($type !== 'target' && $type !== 'origin') {
             $errors[] =
                     [
                         'code' => '18044',
@@ -188,7 +188,7 @@ class sites_external extends external_api {
     public static function site_edit_parameters(): external_function_parameters {
         return new external_function_parameters(
                 [
-                    'type' => new external_value(PARAM_TEXT, 'Type: destiny or origin'),
+                    'type' => new external_value(PARAM_TEXT, 'Type: target or origin'),
                     'id' => new external_value(PARAM_INT, 'Host ID'),
                     'host' => new external_value(PARAM_RAW, 'Host Url'),
                     'token' => new external_value(PARAM_RAW, 'Host Token'),
@@ -228,7 +228,7 @@ class sites_external extends external_api {
         $data = new stdClass();
         $data->id = $id;
 
-        if ($type !== 'destiny' && $type !== 'origin') {
+        if ($type !== 'target' && $type !== 'origin') {
             $errors[] =
                     [
                         'code' => '18032',
@@ -310,7 +310,7 @@ class sites_external extends external_api {
     public static function site_remove_parameters(): external_function_parameters {
         return new external_function_parameters(
                 [
-                    'type' => new external_value(PARAM_TEXT, 'Type: destiny or origin'),
+                    'type' => new external_value(PARAM_TEXT, 'Type: target or origin'),
                     'id' => new external_value(PARAM_INT, 'Host ID'),
                 ]
         );
@@ -341,7 +341,7 @@ class sites_external extends external_api {
         $data = new stdClass();
         $data->id = $id;
 
-        if ($type !== 'destiny' && $type !== 'origin') {
+        if ($type !== 'target' && $type !== 'origin') {
             $errors[] =
                     [
                         'code' => '18022',
@@ -399,7 +399,7 @@ class sites_external extends external_api {
     public static function site_test_parameters(): external_function_parameters {
         return new external_function_parameters(
                 [
-                    'type' => new external_value(PARAM_TEXT, 'Type: destiny or origin'),
+                    'type' => new external_value(PARAM_TEXT, 'Type: target or origin'),
                     'id' => new external_value(PARAM_INT, 'Host ID'),
                 ]
         );
@@ -433,7 +433,7 @@ class sites_external extends external_api {
         $data = new stdClass();
         $data->id = $id;
 
-        if ($type !== 'destiny' && $type !== 'origin') {
+        if ($type !== 'target' && $type !== 'origin') {
             $error = [
                         'code' => '18011',
                         'msg' => 'TYPE INVALID',
@@ -454,10 +454,10 @@ class sites_external extends external_api {
                                 'msg' => !is_null($error) ? $error->msg : '',
                         ];
                     }
-                } else if ($type === 'destiny') {
-                    $site = coursetransfer::get_site_by_position($id, 'destiny');
+                } else if ($type === 'target') {
+                    $site = coursetransfer::get_site_by_position($id, 'target');
                     $request = new request($site);
-                    $res = $request->site_destiny_test($USER);
+                    $res = $request->site_target_test($USER);
                     if ($res->success) {
                         $success = true;
                     } else {
@@ -518,7 +518,7 @@ class sites_external extends external_api {
                 [
                     'field' => new external_value(PARAM_TEXT, 'Field'),
                     'value' => new external_value(PARAM_TEXT, 'Value'),
-                    'destinysite' => new external_value(PARAM_TEXT, 'Destiny Site URL'),
+                    'targetsite' => new external_value(PARAM_TEXT, 'Target Site URL'),
                 ]
         );
     }
@@ -528,25 +528,25 @@ class sites_external extends external_api {
      *
      * @param string $field
      * @param string $value
-     * @param string $destinysite
+     * @param string $targetsite
      *
      *
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function origin_test(string $field, string $value, string $destinysite): array {
+    public static function origin_test(string $field, string $value, string $targetsite): array {
         global $USER;
         $params = self::validate_parameters(
             self::origin_test_parameters(), [
                 'field' => $field,
                 'value' => $value,
-                'destinysite' => $destinysite,
+                'targetsite' => $targetsite,
             ]
         );
 
         $field = $params['field'];
         $value = $params['value'];
-        $destinysite = $params['destinysite'];
+        $targetsite = $params['targetsite'];
 
         $errors = [];
         $data = new stdClass();
@@ -554,11 +554,11 @@ class sites_external extends external_api {
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
-                $verifydestiny = coursetransfer::verify_destiny_site($destinysite);
-                if ($verifydestiny['success']) {
-                    $sitedestiny = coursetransfer::get_site_by_url($destinysite, 'destiny');
-                    $request = new request($sitedestiny);
-                    $res = $request->site_destiny_test($USER);
+                $verifytarget = coursetransfer::verify_target_site($targetsite);
+                if ($verifytarget['success']) {
+                    $sitetarget = coursetransfer::get_site_by_url($targetsite, 'target');
+                    $request = new request($sitetarget);
+                    $res = $request->site_target_test($USER);
                     if ($res->success) {
                         $success = true;
                     } else {
@@ -567,7 +567,7 @@ class sites_external extends external_api {
                     }
                 } else {
                     $success = false;
-                    $errors[] = $verifydestiny['error'];
+                    $errors[] = $verifytarget['error'];
                 }
             } else {
                 $success = false;
@@ -608,11 +608,11 @@ class sites_external extends external_api {
     }
 
     /**
-     * Destiny test parameters.
+     * Target test parameters.
      *
      * @return external_function_parameters
      */
-    public static function destiny_test_parameters(): external_function_parameters {
+    public static function target_test_parameters(): external_function_parameters {
         return new external_function_parameters(
                 [
                     'field' => new external_value(PARAM_TEXT, 'Field'),
@@ -622,7 +622,7 @@ class sites_external extends external_api {
     }
 
     /**
-     * Destiny test.
+     * Target test.
      *
      * @param string $field
      * @param string $value
@@ -631,10 +631,10 @@ class sites_external extends external_api {
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function destiny_test(string $field, string $value): array {
+    public static function target_test(string $field, string $value): array {
 
         $params = self::validate_parameters(
-            self::destiny_test_parameters(), [
+            self::target_test_parameters(), [
                 'field' => $field,
                 'value' => $value,
             ]
@@ -670,11 +670,11 @@ class sites_external extends external_api {
     }
 
     /**
-     * Destiny test returns.
+     * Target test returns.
      *
      * @return external_single_structure
      */
-    public static function destiny_test_returns(): external_single_structure {
+    public static function target_test_returns(): external_single_structure {
         return new external_single_structure(
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),

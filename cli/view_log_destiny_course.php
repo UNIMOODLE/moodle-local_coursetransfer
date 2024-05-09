@@ -43,10 +43,10 @@ require_once($CFG->libdir . '/clilib.php');
 $usage = 'CLI to view the restoration logs in a course from a course from another Moodle.
 
 Usage:
-    # php view_log_destiny_course.php
+    # php view_log_target_course.php
         --courseid=<courseid>
 
-    --courseid=<courseid>  Destination Course ID (int)
+    --courseid=<courseid>  Target Course ID (int)
 
 Options:
     -h --help                   Print this help.
@@ -55,7 +55,7 @@ Description.
 
 Examples:
 
-    # php local/coursetransfer/cli/view_log_destiny_course.php --courseid=3
+    # php local/coursetransfer/cli/view_log_target_course.php --courseid=3
 ';
 
 list($options, $unrecognised) = cli_get_params([
@@ -92,10 +92,10 @@ try {
             'Request ID', 'Dest Site', 'Dest Course', 'Orig Course',
             'Status', 'Error', 'Size', 'UserID', 'TimeModified', 'TimeCreated');
 
-    foreach (\local_coursetransfer\coursetransfer_request::get_by_destiny_course_id($courseid) as $item) {
+    foreach (\local_coursetransfer\coursetransfer_request::get_by_target_course_id($courseid) as $item) {
         $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
         printf($mask,
-                $item->id, $item->siteurl, $item->destiny_course_id, $item->origin_course_id,
+                $item->id, $item->siteurl, $item->target_course_id, $item->origin_course_id,
                 get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
                 $error, $item->origin_backup_size, $item->userid, $item->timemodified, $item->timecreated);
     }

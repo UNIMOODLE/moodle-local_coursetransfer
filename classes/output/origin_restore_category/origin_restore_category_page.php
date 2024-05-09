@@ -102,7 +102,7 @@ class origin_restore_category_page implements renderable, templatable {
                     csr.origin_category_requests, csr.error_code, csr.error_message, csr.userid,
                     csr.timemodified, csr.timecreated';
         $from = '{local_coursetransfer_request} csr';
-        $where = 'destiny_category_id = :categoryid AND direction = :direction AND type = :type';
+        $where = 'target_category_id = :categoryid AND direction = :direction AND type = :type';
         $params = [
                 'categoryid' => $this->category->id,
                 'direction' => coursetransfer_request::DIRECTION_REQUEST,

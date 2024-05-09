@@ -48,27 +48,27 @@ $usage = 'CLI for restore origin course.
 Usage:
     # php restore_course.php
         --site_url=<site_url>
-        --destiny_target=<destiny_target>
+        --target_target=<target_target>
         --origin_course_id=<origin_course_id>
-        --destiny_course_id=<destiny_course_id>
-        --destiny_category_id=<destiny_category_id>
+        --target_course_id=<target_course_id>
+        --target_category_id=<target_category_id>
         --origin_enrolusers=<origin_enrolusers>
-        --destiny_remove_enrols=<destiny_remove_enrols>
-        --destiny_remove_groups=<destiny_remove_groups>
+        --target_remove_enrols=<target_remove_enrols>
+        --target_remove_groups=<target_remove_groups>
         --origin_remove_course=<origin_remove_course>
         --origin_schedule_datetime=<origin_schedule_datetime>
 
     --site_url=<site_url> Origin Site URL (string)
-    --destiny_target=<destiny_target> 2: In New Course,
+    --target_target=<target_target>   2: In New Course,
                                       3: Remove Content (Section & Activities),
                                       4: Merge the backup course into this course
                                       (Int Enum)
     --origin_course_id=<origin_course_id>  Origin Course ID (int).
-    --destiny_course_id=<destiny_course_id>  Destination Course ID (int). (Optional - New Course)
-    --destiny_category_id=<destiny_category_id>  Category ID (int). (Optional - Superior Category)
+    --target_course_id=<target_course_id>  Target Course ID (int). (Optional - New Course)
+    --target_category_id=<target_category_id>  Category ID (int). (Optional - Superior Category)
     --origin_enrolusers=<origin_enrolusers>  Include enrolled users data. Default: false (Boolean).
-    --destiny_remove_enrols=<destiny_remove_enrols> Remove Enrols (only in target: 4 - Remove Content) (Boolean).
-    --destiny_remove_groups=<destiny_remove_groups> Remove Groups (only in target: 4 - Remove Content) (Boolean).
+    --target_remove_enrols=<target_remove_enrols> Remove Enrols (only in target: 4 - Remove Content) (Boolean).
+    --target_remove_groups=<target_remove_groups> Remove Groups (only in target: 4 - Remove Content) (Boolean).
     --origin_remove_course=<origin_remove_course>   Remove Origin Course (Boolean).
     --origin_schedule_datetime=<origin_schedule_datetime>
             Date in UNIX timestamp (int). Max deferral 30 days, 0 (default) to execute ASAP.
@@ -82,31 +82,31 @@ Examples:
 
     # php local/coursetransfer/cli/restore_course.php
         --site_url=https://origen.dominio
-        --destiny_target=2
+        --target_target=2
         --origin_course_id=12
-        --destiny_course_id=12
-        --destiny_category_id=101
+        --target_course_id=12
+        --target_category_id=101
         --origin_enrolusers=true
-        --destiny_remove_enrols=false
-        --destiny_remove_groups=false
+        --target_remove_enrols=false
+        --target_remove_groups=false
         --origin_remove_course=false
         --origin_schedule_datetime=1679404952
-        --destiny_not_remove_activities=[3,234,234]
+        --target_not_remove_activities=[3,234,234]
 ';
 
 list($options, $unrecognised) = cli_get_params([
     'help' => false,
     'site_url' => null,
     'origin_course_id' => null,
-    'destiny_course_id' => null,
-    'destiny_category_id' => null,
+    'target_course_id' => null,
+    'target_category_id' => null,
     'origin_enrolusers' => false,
-    'destiny_target' => null,
-    'destiny_remove_enrols' => false,
-    'destiny_remove_groups' => false,
+    'target_target' => null,
+    'target_remove_enrols' => false,
+    'target_remove_groups' => false,
     'origin_remove_course' => false,
     'origin_schedule_datetime' => 0,
-    'destiny_not_remove_activities' => "",
+    'target_not_remove_activities' => "",
 ], [
     'h' => 'help',
 ]);
@@ -123,14 +123,14 @@ if ($options['help']) {
 
 $siteurl = $options['site_url'];
 $origincourseid = !is_null($options['origin_course_id']) ? (int) $options['origin_course_id'] : null;
-$destinycourseid = !is_null($options['destiny_course_id']) ? (int) $options['destiny_course_id'] : null;
-$destinycategoryid = !is_null($options['destiny_category_id']) ? (int) $options['destiny_category_id'] : null;
+$targetcourseid = !is_null($options['target_course_id']) ? (int) $options['target_course_id'] : null;
+$targetcategoryid = !is_null($options['target_category_id']) ? (int) $options['target_category_id'] : null;
 $originenrolusers = ($options['origin_enrolusers'] === 'true' || (int)$options['origin_enrolusers'] === 1) ? 1 : 0;
-$destinytarget = !is_null($options['destiny_target']) ? (int) $options['destiny_target'] : null;
-$destinyremoveenrols = ($options['destiny_remove_enrols'] === 'true' || (int)$options['destiny_remove_enrols'] === 1) ? 1 : 0;
-$destinyremovegroups = ($options['destiny_remove_groups'] === 'true' || (int)$options['destiny_remove_groups'] === 1) ? 1 : 0;
+$targettarget = !is_null($options['target_target']) ? (int) $options['target_target'] : null;
+$targetremoveenrols = ($options['target_remove_enrols'] === 'true' || (int)$options['target_remove_enrols'] === 1) ? 1 : 0;
+$targetremovegroups = ($options['target_remove_groups'] === 'true' || (int)$options['target_remove_groups'] === 1) ? 1 : 0;
 $originremovecourse = ($options['origin_remove_course'] === 'true' ||(int) $options['origin_remove_course'] === 1) ? 1 : 0;
-$destinynotremoveactivities = '';
+$targetnotremoveactivities = '';
 $originscheduledatetime = intval($options['origin_schedule_datetime']);
 
 if (empty($siteurl)) {
@@ -146,15 +146,15 @@ if ( $origincourseid === null ) {
     exit(128);
 }
 
-if ( !in_array($destinytarget, [backup::TARGET_NEW_COURSE, backup::TARGET_EXISTING_DELETING, backup::TARGET_EXISTING_ADDING]) ) {
-    cli_writeln( get_string('destiny_target_is_incorrect', 'local_coursetransfer') );
+if ( !in_array($targettarget, [backup::TARGET_NEW_COURSE, backup::TARGET_EXISTING_DELETING, backup::TARGET_EXISTING_ADDING]) ) {
+    cli_writeln( get_string('target_target_is_incorrect', 'local_coursetransfer') );
     exit(128);
 }
 
-if ( empty($destinycourseid) && ($destinytarget === backup::TARGET_NEW_COURSE)) {
-    if ($destinycategoryid !== null) {
+if ( empty($targetcourseid) && ($targettarget === backup::TARGET_NEW_COURSE)) {
+    if ($targetcategoryid !== null) {
         try {
-            $category = core_course_category::get($destinycategoryid);
+            $category = core_course_category::get($targetcategoryid);
         } catch (moodle_exception $e) {
             cli_writeln('40001: ' . $e->getMessage());
             exit(1);
@@ -163,13 +163,13 @@ if ( empty($destinycourseid) && ($destinytarget === backup::TARGET_NEW_COURSE)) 
         $category = core_course_category::get_default();
     }
     // Create new course.
-    $destinycourseid = \local_coursetransfer\factory\course::create(
+    $targetcourseid = \local_coursetransfer\factory\course::create(
             $category, 'Remote Restoring in process...', 'IN-PROGRESS-' . time());
-} else if ( empty($destinycourseid) && $destinytarget !== backup::TARGET_NEW_COURSE ) {
-    cli_writeln( get_string('destiny_course_id_is_required', 'local_coursetransfer') );
+} else if ( empty($targetcourseid) && $targettarget !== backup::TARGET_NEW_COURSE ) {
+    cli_writeln( get_string('target_course_id_is_required', 'local_coursetransfer') );
     exit(128);
-} else if ( !empty($destinycourseid) && $destinytarget === backup::TARGET_NEW_COURSE ) {
-    cli_writeln( get_string('destiny_course_id_isnot_correct', 'local_coursetransfer') );
+} else if ( !empty($targetcourseid) && $targettarget === backup::TARGET_NEW_COURSE ) {
+    cli_writeln( get_string('target_course_id_isnot_correct', 'local_coursetransfer') );
     exit(128);
 }
 
@@ -178,13 +178,13 @@ if ( !in_array((int)$originenrolusers, [0, 1])) {
     exit(128);
 }
 
-if ( !in_array((int)$destinyremoveenrols, [0, 1])) {
-    cli_writeln( get_string('destiny_remove_enrols_boolean', 'local_coursetransfer') );
+if ( !in_array((int)$targetremoveenrols, [0, 1])) {
+    cli_writeln( get_string('target_remove_enrols_boolean', 'local_coursetransfer') );
     exit(128);
 }
 
-if ( !in_array((int)$destinyremovegroups, [0, 1])) {
-    cli_writeln( get_string('destiny_remove_groups_booelan', 'local_coursetransfer') );
+if ( !in_array((int)$targetremovegroups, [0, 1])) {
+    cli_writeln( get_string('target_remove_groups_booelan', 'local_coursetransfer') );
     exit(128);
 }
 
@@ -204,17 +204,17 @@ if ($originscheduledatetime != 0  && ($originscheduledatetime < $now || $origins
     cli_writeln( 'Scheduler Time: ' . userdate($date->getTimestamp()));
 }
 
-if ($destinytarget === backup::TARGET_EXISTING_ADDING && $destinyremovegroups === 1) {
+if ($targettarget === backup::TARGET_EXISTING_ADDING && $targetremovegroups === 1) {
     cli_writeln( get_string('in_target_adding_not_remove_groups', 'local_coursetransfer'));
     exit(128);
 }
 
-if ($destinytarget === backup::TARGET_EXISTING_ADDING && $destinyremovegroups === 1) {
+if ($targettarget === backup::TARGET_EXISTING_ADDING && $targetremovegroups === 1) {
     cli_writeln( get_string('in_target_adding_not_remove_groups', 'local_coursetransfer'));
     exit(128);
 }
 
-if ($destinytarget === backup::TARGET_EXISTING_ADDING && $destinyremoveenrols === 1) {
+if ($targettarget === backup::TARGET_EXISTING_ADDING && $targetremoveenrols === 1) {
     cli_writeln( get_string('in_target_adding_not_remove_enrols', 'local_coursetransfer'));
     exit(128);
 }
@@ -225,22 +225,22 @@ try {
 
     // 1. Setup Configuration.
     $configuration = new configuration_course(
-            $destinytarget,
-            $destinyremoveenrols,
-            $destinyremovegroups,
+            $targettarget,
+            $targetremoveenrols,
+            $targetremovegroups,
             $originenrolusers,
             $originremovecourse,
             $originscheduledatetime,
-            $destinynotremoveactivities
+            $targetnotremoveactivities
     );
 
     // 2. User Login.
     $user = core_user::get_user_by_username(user::USERNAME_WS);
 
     // 3. Restore Course.
-    $destiny = get_course($destinycourseid);
+    $target = get_course($targetcourseid);
     $site = coursetransfer::get_site_by_url($siteurl);
-    $res = coursetransfer::restore_course($user, $site, $destiny->id, $origincourseid, $configuration);
+    $res = coursetransfer::restore_course($user, $site, $target->id, $origincourseid, $configuration);
 
     // 4. Success or Errors.
     $errors = array_merge($errors, $res['errors']);
@@ -251,9 +251,9 @@ try {
                 $res['data']['requestid']);
         exit(0);
     } else {
-        if ($destinytarget === backup::TARGET_NEW_COURSE) {
+        if ($targettarget === backup::TARGET_NEW_COURSE) {
             // 5b. Remove new course.
-            delete_course($destinycourseid, false);
+            delete_course($targetcourseid, false);
         }
         cli_writeln(json_encode($errors));
         exit(1);
@@ -261,7 +261,7 @@ try {
 
 } catch (moodle_exception $e) {
     // 5b. Remove new course.
-    delete_course($destinycourseid, false);
+    delete_course($targetcourseid, false);
     cli_writeln('40000: ' . $e->getMessage());
     exit(1);
 }

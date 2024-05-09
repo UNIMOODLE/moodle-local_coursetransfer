@@ -104,10 +104,10 @@ class log_page implements renderable, templatable {
         $data->type = $this->get_type($record->type);
         $data->siteurl = $record->siteurl;
         $data->direction = $this->get_direction($record->direction);
-        $data->destiny_request_id = $record->destiny_request_id;
+        $data->target_request_id = $record->target_request_id;
         $data->request_category_id = $record->request_category_id;
         $data->origin_course_id = $record->origin_course_id;
-        $data->destiny_request_id = $record->destiny_request_id;
+        $data->target_request_id = $record->target_request_id;
         $data->request_category_id = $record->request_category_id;
         $data->origin_course_id = $record->origin_course_id;
         $data->origin_course_fullname = $record->origin_course_fullname;
@@ -140,16 +140,16 @@ class log_page implements renderable, templatable {
         $data->origin_backup_size_estimated = number_format($record->origin_backup_size_estimated / 1000000, 3, ',', ' ');
 
         $data->origin_backup_url = $record->origin_backup_url;
-        $data->destiny_course_id = $record->destiny_course_id;
-        $data->destiny_category_id = $record->destiny_category_id;
+        $data->target_course_id = $record->target_course_id;
+        $data->target_category_id = $record->target_category_id;
 
-        $data->destiny_remove_enrols =
-                is_null($record->destiny_remove_enrols) ? '-' : $this->get_bool($record->destiny_remove_enrols);
-        $data->destiny_remove_groups =
-                is_null($record->destiny_remove_groups) ? '-' : $this->get_bool($record->destiny_remove_groups);
+        $data->target_remove_enrols =
+                is_null($record->target_remove_enrols) ? '-' : $this->get_bool($record->target_remove_enrols);
+        $data->target_remove_groups =
+                is_null($record->target_remove_groups) ? '-' : $this->get_bool($record->target_remove_groups);
         $data->origin_enrolusers = is_null($record->origin_enrolusers) ? '-' : $this->get_bool($record->origin_enrolusers);
 
-        $data->destiny_target = $this->get_target($record->destiny_target);
+        $data->target_target = $this->get_target($record->target_target);
         $data->error_code = $record->error_code;
         $data->error_message = $record->error_message;
         $data->fileurl = $record->fileurl;
