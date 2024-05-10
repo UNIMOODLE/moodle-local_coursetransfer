@@ -40,6 +40,7 @@ use context;
 use context_course;
 use core_collator;
 use core_course_category;
+use core_course_list_element;
 use core_user;
 use course_modinfo;
 use dml_exception;
@@ -918,32 +919,6 @@ class coursetransfer {
     }
 
     /**
-     * Count the courses a user can backup.
-     *
-     * @param stdClass $user
-     * @param int $page
-     * @param int $perpage
-     * @return int
-     * @throws coding_exception
-     */
-    public static function count_courses_user(stdClass $user, int $page = 0, int $perpage = 0): int {
-        // Prepare the search API options.
-        // Empty search criteria returns all.
-        $searchcriteria = ['search' => ''];
-
-        $options = [];
-        if ($perpage != 0) {
-            $offset = $page * $perpage;
-            $options = ['offset' => $offset, 'limit' => $perpage];
-        }
-        $requiredcapabilities = ['moodle/backup:backupcourse'];
-
-        // Search the courses.
-        $count = core_course_category::search_courses_count($searchcriteria, $options, $requiredcapabilities);
-        return $count;
-    }
-
-    /**
      * Get Courses User.
      *
      * @param stdClass $user
@@ -953,21 +928,19 @@ class coursetransfer {
      * @throws coding_exception
      */
     public static function get_courses_user(stdClass $user, int $page = 0, int $perpage = 0): array {
-        // Prepare the search API options.
-        // Empty search criteria returns all.
-        $searchcriteria = ['search' => ''];
-
-        $options = [];
-        if ($perpage != 0) {
-            $offset = $page * $perpage;
-            $options = ['offset' => $offset, 'limit' => $perpage];
+        $courses = [];
+        $cs = get_courses();
+        $item = null;
+        foreach ($cs as $course) {
+            if (self::filter_course($course, $user)) {
+                $courses[] = $course;
+            }
         }
-        $options['sort'] = ['fullname' => 1];
-        $requiredcapabilities = ['moodle/backup:backupcourse'];
-
-        // Search the courses.
-        $courses = core_course_category::search_courses($searchcriteria, $options, $requiredcapabilities);
-        return $courses;
+        $total = count($courses);
+        $currentpage = max(0, $page);
+        $startIndex = $currentpage * $perpage;
+        $courses = array_slice($courses, $startIndex, $perpage);
+        return ['total' => $total, 'courses' => $courses];
     }
 
     /**
@@ -1168,6 +1141,25 @@ class coursetransfer {
         } else {
             mtrace("remove_cat_cleanup is not active");
         }
+    }
+
+    /**
+     * Filter Course.
+     *
+     * @param stdClass $course
+     * @param stdClass $user
+     * @return bool
+     * @throws coding_exception
+     */
+    protected static function filter_course(stdClass $course, stdClass $user): bool {
+        $context = \context_course::instance($course->id);
+        if (!has_capability('moodle/backup:backupcourse', $context, $user->id)) {
+            return false;
+        }
+        if ((int)$course->id === 1) {
+            return false;
+        }
+        return true;
     }
 
 }
