@@ -924,15 +924,16 @@ class coursetransfer {
      * @param stdClass $user
      * @param int $page
      * @param int $perpage
+     * @param string $search
      * @return array
      * @throws coding_exception
      */
-    public static function get_courses_user(stdClass $user, int $page = 0, int $perpage = 0): array {
+    public static function get_courses_user(stdClass $user, int $page = 0, int $perpage = 0, string $search = ''): array {
         $courses = [];
         $cs = get_courses();
         $item = null;
         foreach ($cs as $course) {
-            if (self::filter_course($course, $user)) {
+            if (self::filter_course($course, $user, $search)) {
                 $courses[] = $course;
             }
         }
@@ -1175,16 +1176,22 @@ class coursetransfer {
      *
      * @param stdClass $course
      * @param stdClass $user
+     * @param string $search
      * @return bool
      * @throws coding_exception
      */
-    protected static function filter_course(stdClass $course, stdClass $user): bool {
+    protected static function filter_course(stdClass $course, stdClass $user, string $search): bool {
         $context = \context_course::instance($course->id);
         if (!has_capability('moodle/backup:backupcourse', $context, $user->id)) {
             return false;
         }
         if ((int)$course->id === 1) {
             return false;
+        }
+        if (!empty($search)) {
+            if (strpos(strtolower($course->fullname), strtolower($search)) === false) {
+                return false;
+            }
         }
         return true;
     }

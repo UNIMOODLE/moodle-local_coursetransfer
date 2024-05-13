@@ -27,21 +27,17 @@
   Example context (json):
 
 }}
-<form class="search-form">
-    <div class="search-form-container">
-        <div class="search-form-div">
-            <input type="search" class="form-control" id="inputSearch" placeholder="{{#str}} search_with_name, local_coursetransfer {{/str}}">
-            <button type="submit" class="btn btn-primary">{{#str}} search, core {{/str}}</button>
-        </div>
+<div class="search-form-container" data-region="search_by_name_component">
+    <div class="search-form-div">
+        <input data-input="value" type="search" class="form-control" id="inputSearch" placeholder="{{#str}} search_with_name, local_coursetransfer {{/str}}" value="{{ search }}">
+        <button disabled type="submit" class="btn btn-primary" data-action="search">{{#str}} search, core {{/str}}</button>
+        <button type="reset" class="btn btn-secondary ml-2" data-action="reset">{{#str}} reset, core {{/str}}</button>
     </div>
-</form>
+</div>
 <style>
-    .search-form {
-        width: 100%;
-        padding: 8px 30px;
-    }
     .search-form-container {
         width: 100%;
+        padding: 8px 30px;
     }
     .search-form-div {
         display: flex;
@@ -54,7 +50,7 @@
 
 {{#js}}
     require(['local_coursetransfer/searchbyname'], function(searchbyname) {
-        searchbyname.initSearchbyname();
+        searchbyname.initSearchbyname('[data-region="search_by_name_component"]');
     });
 {{/js}}
 

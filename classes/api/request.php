@@ -86,22 +86,25 @@ class request {
      * Get Request Params.
      *
      * @param stdClass|null $user
-     * @param int $page
-     * @param int $perpage
+     * @param null $page
+     * @param null $perpage
+     * @param string $search
      * @return array
      * @throws dml_exception
      */
-    protected function get_request_params(stdClass $user = null, $page = null, $perpage = null): array {
+    protected function get_request_params(stdClass $user = null, $page = null, $perpage = null, string $search = ''): array {
         global $USER;
         $user = is_null($user) ? $USER : $user;
         $params = [];
         $params['field'] = get_config('local_coursetransfer', 'origin_field_search_user');
         $params['value'] = $user->{$params['field']};
-        if (! empty($perpage)) {
+        if (!empty($perpage)) {
             $params['page'] = $page ?? 0;
             $params['perpage'] = $perpage;
         }
-
+        if (!empty($search)) {
+            $params['search'] = $search;
+        }
         return $params;
     }
 
@@ -137,12 +140,13 @@ class request {
      * @param stdClass|null $user
      * @param int|null $page
      * @param int|null $perpage
+     * @param string $search
      * @return response
      * @throws dml_exception
      */
-    public function origin_get_courses(stdClass $user = null, int $page = null, int $perpage = null): response {
-        $params = $this->get_request_params($user, $page, $perpage);
-
+    public function origin_get_courses(stdClass $user = null, int $page = null,
+            int $perpage = null, string $search = ''): response {
+        $params = $this->get_request_params($user, $page, $perpage, $search);
         return $this->req('local_coursetransfer_origin_get_courses', $params);
     }
 

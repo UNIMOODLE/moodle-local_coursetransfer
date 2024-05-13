@@ -53,6 +53,9 @@ use stdClass;
  */
 class new_origin_restore_course_step2_page  extends new_origin_restore_course_step_page {
 
+    /** @var string Search */
+    protected $search;
+
     /**
      *  constructor.
      *
@@ -62,6 +65,7 @@ class new_origin_restore_course_step2_page  extends new_origin_restore_course_st
     public function __construct(stdClass $course) {
         parent::__construct($course);
         $this->site = required_param('site', PARAM_INT);
+        $this->search = optional_param('search', '', PARAM_TEXT);
     }
 
     /**
@@ -71,7 +75,7 @@ class new_origin_restore_course_step2_page  extends new_origin_restore_course_st
      */
     public function get_paging_url() : string {
         $courseid = $this->course->id;
-        return parent::URL . "?id=$courseid&new=1&step=2&site=$this->site";
+        return parent::URL . "?id=$courseid&new=1&step=2&site=$this->site&search=$this->search";
     }
 
     /**
@@ -92,14 +96,16 @@ class new_origin_restore_course_step2_page  extends new_origin_restore_course_st
         $nexturl = new moodle_url(self::URL,
             ['id' => $this->course->id, 'new' => 1, 'step' => 3, 'site' => $this->site, 'page' => $this->page]
         );
+
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $data->table_url = $url->out(false);
         $data->next_url_disabled = true;
+        $data->search = $this->search;
         $site = coursetransfer::get_site_by_position($this->site);
         try {
             $request = new request($site);
-            $res = $request->origin_get_courses($USER, $this->page, $this->perpage);
+            $res = $request->origin_get_courses($USER, $this->page, $this->perpage, $this->search);
             if ($res->success) {
                 $data->courses = $res->data;
                 $data->haserrors = false;
