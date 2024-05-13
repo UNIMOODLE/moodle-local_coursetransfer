@@ -919,7 +919,7 @@ class coursetransfer {
     }
 
     /**
-     * Get Courses User.
+     * Get Courses by User.
      *
      * @param stdClass $user
      * @param int $page
@@ -937,10 +937,37 @@ class coursetransfer {
             }
         }
         $total = count($courses);
-        $currentpage = max(0, $page);
-        $startIndex = $currentpage * $perpage;
-        $courses = array_slice($courses, $startIndex, $perpage);
+        if ($perpage > 0) {
+            $currentpage = max(0, $page);
+            $startIndex = $currentpage * $perpage;
+            $courses = array_slice($courses, $startIndex, $perpage);
+        }
         return ['total' => $total, 'courses' => $courses];
+    }
+
+    /**
+     * Get Courses.
+     *
+     * @param int $page
+     * @param int $perpage
+     * @return array
+     */
+    public static function get_courses(int $page = 0, int $perpage = 0): array {
+        // Prepare the search API options.
+        // Empty search criteria returns all.
+        $searchcriteria = ['search' => ''];
+
+        $options = [];
+        if ($perpage != 0) {
+            $offset = $page * $perpage;
+            $options = ['offset' => $offset, 'limit' => $perpage];
+        }
+        $requiredcapabilities = ['moodle/backup:backupcourse'];
+
+        // Search the courses.
+        return core_course_category::search_courses($searchcriteria, $options, $requiredcapabilities);
+
+
     }
 
     /**

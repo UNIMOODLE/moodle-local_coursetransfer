@@ -327,3 +327,4 @@ $string['remove_cat_cleanup'] = 'Borrado definitivo categoría';
 $string['remove_cat_cleanup_desc'] = 'Si está activo, se borrará definitivamente la categoría sin tener en cuenta la papelera de reciclaje';
 $string['in_target_adding_not_remove_enrols'] = 'No se pueden borrar matriculaciones en destino, cuando el target es una fusión de contenido (--target_target=4)';
 $string['in_target_adding_not_remove_groups'] = 'No se pueden borrar grupos en destino, cuando el target es una fusión de contenido (--target_target=4)';
+$string['search_with_name'] = 'Introduzca el nombre del curso a buscar...';
