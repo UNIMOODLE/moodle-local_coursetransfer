@@ -86,7 +86,7 @@ define([
         /**
          */
         searchbyname.prototype.change = function() {
-            if(this.node.find(INPUTS.VALUE).val().length > 3) {
+            if(this.node.find(INPUTS.VALUE).val().length > 2) {
                 this.node.find(ACTIONS.SEARCH).attr('disabled', false);
             } else {
                 this.node.find(ACTIONS.SEARCH).attr('disabled', true);

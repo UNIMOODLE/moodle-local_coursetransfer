@@ -58,7 +58,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
      * @return string
      */
     public function get_paging_url() : string {
-        return parent::URL . '?step=2&type=courses&site=' . $this->site;
+        return parent::URL . '?step=2&type=courses&site=' . $this->site . '&search=' . $this->search;
     }
 
     /**
@@ -82,12 +82,13 @@ class origin_restore_step2_page extends origin_restore_step_page {
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $data->next_url_disabled = true;
+        $data->search = $this->search;
         $site = coursetransfer::get_site_by_position($this->site);
         $context = \context_system::instance();
         if (has_capability('local/coursetransfer:origin_view_courses', $context)) {
             try {
                 $request = new request($site);
-                $res = $request->origin_get_courses($USER, $this->page, $this->perpage);
+                $res = $request->origin_get_courses($USER, $this->page, $this->perpage, $this->search);
                 if ($res->success) {
                     $courses = $res->data;
                     $datacourses = [];

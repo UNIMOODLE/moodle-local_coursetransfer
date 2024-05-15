@@ -72,6 +72,11 @@
                 {{/ courses }}
             </tbody>
         </table>
+        {{^ courses }}
+            <div class="alert alert-primary mt-4" role="alert" style="width: 100%; text-align: center">
+                {{#str}} not_courses, local_coursetransfer {{/str}}
+            </div>
+        {{/ courses }}
         <div class="alert alert-danger hidden" role="alert"></div>
     {{/ haserrors }}
     {{# htmlpagingbar }}

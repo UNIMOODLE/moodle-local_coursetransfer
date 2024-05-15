@@ -126,7 +126,7 @@ class coursetransfer {
      * Origin Get Courses?.
      *
      * @return response
-     * @throws dml_exception|coding_exception
+     * @throws dml_exception
      */
     public function origin_get_courses(): response {
         global $USER;
