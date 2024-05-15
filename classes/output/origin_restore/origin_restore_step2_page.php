@@ -91,23 +91,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
                 $res = $request->origin_get_courses($USER, $this->page, $this->perpage, $this->search);
                 if ($res->success) {
                     $courses = $res->data;
-                    $datacourses = [];
-                    $coursesdest = coursetransfer::get_courses();
-                    $destinies = [];
-                    if (coursetransfer::can_restore_in_not_new_course($USER)) {
-                        foreach ($coursesdest as $cd) {
-                            $destinies[] = [
-                                    'id' => $cd->id,
-                                    'name' => $cd->fullname,
-                                    'shortname' => $cd->shortname,
-                            ];
-                        }
-                    }
-                    foreach ($courses as $c) {
-                        $c->destinies = $destinies;
-                        $datacourses[] = $c;
-                    }
-                    $data->courses = $datacourses;
+                    $data->courses = $courses;
                     $data->haserrors = false;
                     $data->paging = $res->paging;
                 } else {

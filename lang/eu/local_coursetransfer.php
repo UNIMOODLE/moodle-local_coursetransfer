@@ -326,3 +326,5 @@ $string['remove_cat_cleanup_desc'] = 'Aktibatuta badago, kategoria behin betiko 
 $string['in_target_adding_not_remove_enrols'] = 'Target enrols cannot be deleted when the target is a content merge (--target_target=4)';
 $string['in_target_adding_not_remove_groups'] = 'Groups cannot be deleted in target, when the target is a content merge (--target_target=4)';
 $string['search_with_name'] = 'Idatzi ikastaroaren izena bilatzeko...';
+$string['in_exists_course'] = 'Lehendik dagoen ikastaro batean';
+$string['select_category_target'] = 'Hautatu ikastaro berria berreskuratuko den kategoria';

@@ -61,7 +61,7 @@
                 <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
                 <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
                 <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_target, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_target, local_coursetransfer {{/str}} ({{#str}} step2_course_categoryname, local_coursetransfer {{/str}})</th>
             </tr>
             </thead>
             <tbody>
@@ -74,17 +74,7 @@
                     <td>{{ categoryid }}</td>
                     <td>{{ categoryname }}</td>
                     <td>
-                        <select name="targetid" data-action="target" data-courseid="{{ id }}" disabled>
-                            <option value="0" selected>{{#str}} newcourse {{/str}}</option>
-                            {{# destinies }}
-                                <option value="{{ id }}">{{ name }} ({{ shortname }})</option>
-                            {{/ destinies }}
-                        </select>
-                        <select class="hidden" name="targetcategoryid" data-action="target-category" data-courseid="{{ id }}">
-                            {{# categories }}
-                                <option value="{{ id }}">{{{ name }}}</option>
-                            {{/ categories }}
-                        </select>
+                        {{> local_coursetransfer/components/select_course }}
                     </td>
                 </tr>
             {{/ courses }}

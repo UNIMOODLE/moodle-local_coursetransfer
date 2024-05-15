@@ -1,0 +1,88 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/components/select_course
+
+  Example context (json):
+
+}}
+<div data-region="select_course_component-{{id}}">
+    <button data-region="change-button" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalDestiny-{{ id }}" data-targetid="0" data-categorytarget="{{ categoryiddefault }}">
+        {{#str}} in_new_course, local_coursetransfer {{/str}}
+    </button>
+    <span class="badge badge-secondary ml-2" data-region="cattargetname">{{ categorynamedefault }}</span>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalDestiny-{{ id }}" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Seleccione el destino</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <select style="width: 100%" class="form-control" id="neworexist" data-action="new-or-exist">
+                        <option value="0">{{#str}} in_new_course, local_coursetransfer {{/str}}</option>
+                        <option value="1">{{#str}} in_exists_course, local_coursetransfer {{/str}}</option>
+                    </select>
+                    <div data-region="category-for-new">
+                        <label class="mt-4" for="targetcategoryid">{{#str}} select_category_target, local_coursetransfer {{/str}}</label>
+                        <select style="width: 100%; max-width: 100%" class="form-control" name="targetcategoryid" data-action="target-category" data-courseid="{{ id }}">
+                            {{# categories }}
+                                <option value="{{ id }}">{{{ name }}}</option>
+                            {{/ categories }}
+                        </select>
+                    </div>
+                    <div data-region="course-for-exist">
+                        <input class="form-control mt-4" type="search" placeholder="Busca el curso de destino">
+                        <div class="courses-founded" style="padding: 15px">
+                            No se ha encontrado nada...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<style>
+[data-region="select_course_component"] {
+
+}
+[data-region="select_course_component"] .search_course {
+    font-size: 11px;
+    padding: 11px;
+    height: 24px;
+}
+</style>
+
+{{#js}}
+    require(['local_coursetransfer/selectcourse'], function(selectcourse) {
+        selectcourse.initSelectcourse('[data-region="select_course_component-{{id}}"]', '{{ id }}');
+    });
+{{/js}}
+

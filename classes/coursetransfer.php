@@ -1002,6 +1002,15 @@ class coursetransfer {
     }
 
     /**
+     * Get Categories.
+     *
+     * @return array
+     */
+    public static function get_categories(): array {
+        return \core_course_category::get_all();
+    }
+
+    /**
      * Can remove origin course?
      *
      * @param stdClass $user

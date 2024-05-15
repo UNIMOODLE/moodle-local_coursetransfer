@@ -326,3 +326,5 @@ $string['remove_cat_cleanup_desc'] = "Si està actiu, s'esborrarà definitivamen
 $string['in_target_adding_not_remove_enrols'] = 'Target enrols cannot be deleted when the target is a content merge (--target_target=4)';
 $string['in_target_adding_not_remove_groups'] = 'Groups cannot be deleted in target, when the target is a content merge (--target_target=4)';
 $string['search_with_name'] = 'Introduïu el nom del curs a cercar...';
+$string['in_exists_course'] = 'En un curs que ja existeix';
+$string['select_category_target'] = 'Seleccioneu la categoria on es restaurarà el nou curs';

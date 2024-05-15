@@ -62,6 +62,8 @@ class origin_restore_step4_page extends origin_restore_step_page {
      */
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
+        $categorynamedefault = '';
+        $categoryiddefault = 0;
         $data = new stdClass();
         $data->button = true;
         $data->steps = self::get_steps(4);
@@ -101,7 +103,10 @@ class origin_restore_step4_page extends origin_restore_step_page {
                         }
                     }
                     $cats = [];
-                    $categories = coursetransfer::get_categories_user($USER);
+                    $categories = coursetransfer::get_categories();
+                    $default = reset($categories);
+                    $categorynamedefault = isset($default) ? $default->name : '';
+                    $categoryiddefault = isset($default) ? $default->id : 0;
                     foreach ($categories as $cat) {
                         $ct = new stdClass();
                         $ct->id = $cat->id;
@@ -132,6 +137,8 @@ class origin_restore_step4_page extends origin_restore_step_page {
                     'msg' => get_string('you_have_not_permission', 'local_coursetransfer')];
             $data->haserrors = true;
         }
+        $data->categorynamedefault = $categorynamedefault;
+        $data->categoryiddefault = $categoryiddefault;
         $data->has_scheduled_time = true;
         $data->has_origin_user_data = coursetransfer::has_origin_user_data($USER);
         $data->can_remove_origin_course = coursetransfer::can_remove_origin_course($USER);
