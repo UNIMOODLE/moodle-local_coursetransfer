@@ -83,6 +83,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
         $data->next_url = $nexturl->out(false);
         $data->next_url_disabled = true;
         $data->search = $this->search;
+        $data->categories = [];
         $site = coursetransfer::get_site_by_position($this->site);
         $context = \context_system::instance();
         if (has_capability('local/coursetransfer:origin_view_courses', $context)) {

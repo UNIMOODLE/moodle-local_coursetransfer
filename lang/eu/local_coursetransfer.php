@@ -328,3 +328,6 @@ $string['in_target_adding_not_remove_groups'] = 'Groups cannot be deleted in tar
 $string['search_with_name'] = 'Idatzi ikastaroaren izena bilatzeko...';
 $string['in_exists_course'] = 'Lehendik dagoen ikastaro batean';
 $string['select_category_target'] = 'Hautatu ikastaro berria berreskuratuko den kategoria';
+$string['select_destination'] = 'Hautatu helmuga';
+$string['search_course_destination'] = 'Aurkitu helmuga ikastaroa';
+$string['not_course_found'] = 'Ez da ikastarorik aurkitu...';

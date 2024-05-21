@@ -36,24 +36,29 @@ define([
         'jquery',
         'core/str',
         'core/ajax',
-        'core/templates'
-    ], function($, Str, Ajax, Templates) {
+        'core/templates',
+        'local_coursetransfer/JSONutil'
+    ], function($, Str, Ajax, Templates, JSONutil) {
         "use strict";
 
         let REGIONS = {
             CATFORNEW: '[data-region="category-for-new"]',
             COURSEFOREXIST: '[data-region="course-for-exist"]',
             CATTARGETNAME: '[data-region="cattargetname"]',
-            CHANGEBUTTON: '[data-region="change-button"]'
+            CHANGEBUTTON: '[data-region="change-button"]',
+            COURSES_EMPTY: '[data-region="courses-empty"]',
+            COURSES_CONTAINER: '[data-region="courses-found-container"]'
         };
 
         let ACTIONS = {
             NEWOREXIST: '[data-action="new-or-exist"]',
-            TARGETCAT: '[data-action="target-category"]'
+            TARGETCAT: '[data-action="target-category"]',
+            SEARCHCOURSE: '[data-acton="search-course"]',
+            SELECT_COURSE: '[data-action="select-course-destination"]',
         };
 
-        let INPUTS = {
-            VALUE: '[data-input="value"]'
+        let SERVICES = {
+            SEARCH_COURSE: 'local_coursetransfer_dest_search_course_name'
         };
 
         /**
@@ -66,8 +71,11 @@ define([
             this.node = $(region);
             this.courseid = courseid;
             this.node.find(REGIONS.COURSEFOREXIST).hide();
+            this.node.find(REGIONS.COURSES_EMPTY).hide();
             this.node.find(ACTIONS.NEWOREXIST).on('change', this.neworexist.bind(this));
             this.node.find(ACTIONS.TARGETCAT).on('change', this.targetcat.bind(this));
+            this.node.find(ACTIONS.SEARCHCOURSE).on('keyup', this.search.bind(this));
+            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'), JSONutil.reviver);
         }
 
         /**
@@ -78,10 +86,14 @@ define([
                 this.node.find(REGIONS.CATFORNEW).show();
                 this.node.find(REGIONS.COURSEFOREXIST).hide();
                 this.node.find(REGIONS.CATTARGETNAME).show();
+                this.node.find(REGIONS.CHANGEBUTTON).find('#in-new-course').show();
+                this.node.find(REGIONS.CHANGEBUTTON).find('#course-selected').hide();
             } else {
                 this.node.find(REGIONS.CATFORNEW).hide();
                 this.node.find(REGIONS.COURSEFOREXIST).show();
                 this.node.find(REGIONS.CATTARGETNAME).hide();
+                this.node.find(REGIONS.CHANGEBUTTON).find('#in-new-course').hide();
+                this.node.find(REGIONS.CHANGEBUTTON).find('#course-selected').show();
             }
         };
 
@@ -92,6 +104,82 @@ define([
             let id = this.node.find(ACTIONS.TARGETCAT).val();
             this.node.find(REGIONS.CATTARGETNAME).text(name);
             this.node.find(REGIONS.CHANGEBUTTON).data('categorytarget', id);
+            let that = this;
+            let newcourses = [];
+            this.data.courses.forEach(function(course) {
+                if (parseInt(course.courseid) == that.courseid) {
+                    course.categorytarget = id;
+                    this.data.courses.set(courseid.toString(), course);
+
+                    newcourses.push(course);
+                } else {
+                    newcourses.push(course);
+                }
+            });
+            this.data.courses = newcourses;
+            sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
+        };
+
+        selectcourse.prototype.selectcourse = function(e) {
+            let buttontarget = $(e.currentTarget);
+            let courseid = buttontarget.data('courseid');
+            let courseregion = this.node.find(REGIONS.COURSES_CONTAINER).find('[data-region="course-item-' + courseid + '"]');
+            let coursename = courseregion.find('.coursename').text();
+            this.node.find(ACTIONS.SEARCHCOURSE).val(coursename);
+            this.node.find(REGIONS.CHANGEBUTTON).find('#course-selected').text(coursename);
+            let that = this;
+            let newcourses = [];
+            this.data.courses.forEach(function(course) {
+                if (parseInt(course.courseid) == that.courseid) {
+                    course.targetid = courseid;
+                    newcourses.push(course);
+                } else {
+                    newcourses.push(course);
+                }
+            });
+            this.data.courses = newcourses;
+            sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
+        };
+
+        /**
+         */
+        selectcourse.prototype.search = function() {
+            let that = this;
+            let text = this.node.find(ACTIONS.SEARCHCOURSE).val();
+            if (text.length > 2) {
+                const request = {
+                    methodname: SERVICES.SEARCH_COURSE,
+                    args: {
+                        text: text
+                    }
+                };
+                Ajax.call([request])[0].done(function(response) {
+                    if (response.success) {
+                        if (response.data.length === 0) {
+                            that.node.find(REGIONS.COURSES_EMPTY).show();
+                        } else {
+                            that.node.find(REGIONS.COURSES_CONTAINER).empty();
+                            response.data.forEach( function(valor, indice, array) {
+                                let course = '<div class="courses-item" data-region="course-item-' + valor.id + '">' +
+                                    '<span class="coursename">' + valor.fullname + ' (' + valor.id + ')</span>' +
+                                    '<button data-courseid="' + valor.id +
+                                    '" data-action="select-course-destination-' + valor.id + '" ' +
+                                    'class="btn btn-primary btn-sm" type="submit">' +
+                                    '<i class="fa fa-check-square" aria-hidden="true"></i></button>' +
+                                    '</div>';
+                                that.node.find(REGIONS.COURSES_EMPTY).hide();
+                                that.node.find(REGIONS.COURSES_CONTAINER).append(course);
+                                let dataaction = '[data-action="select-course-destination-' + valor.id + '"]';
+                                that.node.find(dataaction).on('click', that.selectcourse.bind(that));
+                            });
+                        }
+                    } else {
+                        console.log(response);
+                    }
+                }).fail(function(fail) {
+                    console.log(fail);
+                });
+            }
         };
 
         selectcourse.prototype.node = null;

@@ -328,3 +328,6 @@ $string['in_target_adding_not_remove_groups'] = 'Groups cannot be deleted in tar
 $string['search_with_name'] = 'Introduïu el nom del curs a cercar...';
 $string['in_exists_course'] = 'En un curs que ja existeix';
 $string['select_category_target'] = 'Seleccioneu la categoria on es restaurarà el nou curs';
+$string['select_destination'] = 'Seleccioneu la destinació';
+$string['search_course_destination'] = 'Cerca el curs de destinació';
+$string['not_course_found'] = "No s'ha trobat cap curs...";

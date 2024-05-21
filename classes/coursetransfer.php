@@ -949,14 +949,15 @@ class coursetransfer {
     /**
      * Get Courses.
      *
+     * @param string $search
      * @param int $page
      * @param int $perpage
      * @return array
      */
-    public static function get_courses(int $page = 0, int $perpage = 0): array {
+    public static function get_courses(string $search = '', int $page = 0, int $perpage = 0): array {
         // Prepare the search API options.
         // Empty search criteria returns all.
-        $searchcriteria = ['search' => ''];
+        $searchcriteria = ['search' => $search];
 
         $options = [];
         if ($perpage != 0) {

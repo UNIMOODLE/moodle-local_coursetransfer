@@ -42,6 +42,7 @@ use local_coursetransfer\external\frontend\origin_remove_external;
 use local_coursetransfer\external\frontend\restore_category_external;
 use local_coursetransfer\external\frontend\restore_course_external;
 use local_coursetransfer\external\frontend\restore_external;
+use local_coursetransfer\external\frontend\search_course;
 use local_coursetransfer\external\frontend\sites_external;
 
 defined('MOODLE_INTERNAL') || die();
@@ -309,6 +310,15 @@ $functions = [
             'loginrequired' => true,
     ],
 
+    'local_coursetransfer_dest_search_course_name' => [
+            'classname' => search_course::class,
+            'methodname' => 'search_by_name',
+            'description' => 'Search course by name in destination',
+            'type' => 'read',
+            'ajax' => true,
+            'loginrequired' => true,
+    ],
+
 ];
 
 $services = [
@@ -342,6 +352,7 @@ $services = [
             'local_coursetransfer_site_test',
             'local_coursetransfer_site_origin_test',
             'local_coursetransfer_site_target_test',
+            'local_coursetransfer_dest_search_course_name',
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,

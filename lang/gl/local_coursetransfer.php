@@ -328,3 +328,6 @@ $string['in_target_adding_not_remove_groups'] = 'Non se poden eliminar grupos no
 $string['search_with_name'] = 'Introduzca el nombre del curso a buscar...';
 $string['in_exists_course'] = 'Nun curso que xa existe';
 $string['select_category_target'] = 'Seleccione a categoría onde se restaurará o novo curso';
+$string['select_destination'] = 'Seleccione o destino';
+$string['search_course_destination'] = 'Busca o curso de destino';
+$string['not_course_found'] = "Non se atopou ningún curso...";

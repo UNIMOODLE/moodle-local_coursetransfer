@@ -328,3 +328,6 @@ $string['in_target_adding_not_remove_groups'] = 'Groups cannot be deleted in tar
 $string['search_with_name'] = 'Enter the name of the course to search...';
 $string['in_exists_course'] = 'In a course that already exists';
 $string['select_category_target'] = 'Select the category where the new course will be restored';
+$string['select_destination'] = 'Select the destination';
+$string['search_course_destination'] = 'Search the destination course';
+$string['not_course_found'] = 'No course found...';
