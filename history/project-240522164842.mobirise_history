@@ -59,7 +59,9 @@
     "google-analytics": "<!-- Global site tag (gtag.js) - Google Analytics -->\n<script async src=\"https://www.googletagmanager.com/gtag/js?id=UA-17620215-5\"></script>\n<script>\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag('js', new Date());\n\n  gtag('config', 'UA-17620215-5');\n</script>",
     "imageResize": true,
     "mbrsiteDomain": "ngy3bovota",
-    "usedWebp": false
+    "usedWebp": false,
+    "publishType": "local",
+    "publishPath": "@PROJECT_PATH@"
   },
   "pages": {
     "install.html": {
@@ -67,7 +69,7 @@
         "meta_descr": "Installation",
         "title": "Install Plugin",
         "order": "4",
-        "meta_image": "@PROJECT_PATH@/assets/images/unimoodle_primarylogo_rgb-951x280.png"
+        "meta_image": "@PROJECT_PATH@/assets/images/screenshot%20-%2024_01_2020%20,%2010_10-2-178x148.png"
       },
       "components": [
         {
@@ -895,7 +897,7 @@
         "meta_descr": "Using the activity",
         "title": "Play",
         "order": "7",
-        "meta_image": "@PROJECT_PATH@/assets/images/unimoodle_primarylogo_rgb-951x280.png"
+        "meta_image": "@PROJECT_PATH@/assets/images/logo_unimoodle-436x260.png"
       },
       "components": [
         {
@@ -1624,7 +1626,7 @@
         "title": "Credits",
         "order": "3",
         "socialSharingUrl": "",
-        "meta_image": "@PROJECT_PATH@/assets/images/unimoodle_primarylogo_rgb-951x280.png"
+        "meta_image": "@PROJECT_PATH@/assets/images/logo_unimoodle-436x260.png"
       },
       "components": [
         {
@@ -2308,11 +2310,11 @@
           "_sourceTheme": "mobirise4",
           "_customHTML": "<section group=\"Images & Videos\">\n\n    <mbr-parameters>\n    <!-- Block parameters controls (Blue \"Gear\" panel) -->\n        <input type=\"checkbox\" title=\"Full Width\" name=\"fullWidth\" checked>\n\n        <input type=\"range\" inline title=\"Top\" name=\"paddingTop\" min=\"0\" max=\"8\" value=\"4\" step=\"1\" condition=\"fullWidth==false\">\n        <input type=\"range\" inline title=\"Bottom\" name=\"paddingBottom\" min=\"0\" max=\"8\" value=\"4\" step=\"1\" condition=\"fullWidth==false\">\n\n        <input type=\"checkbox\" title=\"Show Text\" name=\"showText\">        \n        \n        <input type=\"range\" inline title=\"Width\" name=\"imageSize\" min=\"20\" max=\"100\" value=\"100\" step=\"1\" condition=\"fullWidth==false\">\n\n        <input type=\"color\" title=\"Background Color\" name=\"bgColor\" value=\"#ffffff\" condition=\"fullWidth==false\">\n        <input type=\"checkbox\" title=\"Gradient\" name=\"gradientBg\" condition=\"fullWidth==false\">\n        <input type=\"color\" title=\"Color 2\" name=\"color2\" value=\"#149dcc\" condition=\"gradientBg && fullWidth==false\">\n    <!-- End block parameters -->\n    </mbr-parameters>\n\n    <figure class=\"mbr-figure\" mbr-class=\"{'container':fullWidth==false}\">\n        <div class=\"image-block\" mbr-style=\"{'width':imageSize+'%'}\">\n            <img src=\"@PROJECT_PATH@/assets/images/allunimoodle-2383x376.png\" alt=\"Universities\" title>\n            <figcaption class=\"mbr-figure-caption mbr-figure-caption-over\" mbr-if=\"showText\">\n                <div mbr-text class=\"pb-5 px-3 mbr-white align-center mbr-fonts-style\" mbr-theme-style=\"display-1\" data-app-selector=\".mbr-figure-caption div\">\n                    Create awesome websites!\n                </div>\n            </figcaption>\n        </div>\n    </figure>\n</section>",
           "_cid": "udvStLPqsp",
-          "_anchor": "image2-4c",
           "_protectedParams": [],
           "_global": false,
           "_once": false,
-          "_params": {}
+          "_params": {},
+          "_anchor": "image2-4c"
         },
         {
           "_name": "article09",
@@ -2385,7 +2387,7 @@
         "header_custom": "",
         "footer_custom": "",
         "html_before": "",
-        "meta_image": "@PROJECT_PATH@/assets/images/create_restore-meta.png"
+        "meta_image": "@PROJECT_PATH@/assets/images/logo_unimoodle-436x260.png"
       },
       "components": [
         {
