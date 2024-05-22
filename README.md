@@ -1,5 +1,234 @@
 ![Logo Plugin Course Transfer](https://docs.moodle.org/all/es/images_es/thumb/9/9b/coursetransfer_logo.png/300px-coursetransfer_logo.png)
 
+# Local Course Transfer Plugin
+
+Local plugin for transferring courses between platforms
+
+## Compatibility
+
+The plugin has been tested on the following versions:
+
+* Moodle 4.1.1 (Build: 20230116) - 2022112801.00
+* Moodle 3.11.17+ (Build: 20231124) - 2021051717.06
+
+## Requirements
+
+* User configuration and REST Web Services
+
+## Languages
+
+* English
+* Spanish
+
+## Installation via uploaded ZIP file
+
+1. Log in to your Moodle site as an administrator and go to _Site Administration > Plugins > Install plugins_.
+2. Upload the ZIP file with the plugin code. You should only be asked to add additional details if your plugin type is not automatically detected.
+3. Verify the plugin validation report and complete the installation.
+
+## Manual Installation
+
+The plugin can also be installed by placing the contents of this directory in
+
+    {your/moodle/dirroot}/local/coursetransfer
+
+Then, log in to your Moodle site as an administrator and go to _Site Administration > Notifications_ to complete the installation.
+
+Alternatively, you can run
+
+    $ php admin/cli/upgrade.php
+
+to complete the installation from the command line.
+
+## Global Configuration
+
+Go to the URL:
+
+    {your/moodle/dirroot}/admin/settings.php?section=local_coursetransfer
+
+*   Maximum course size to restore
+    * local_coursetransfer | destiny_restore_course_max_size
+    * Limit on the size of the course backup (MBZ file) to be restored in MB. If the file to be restored is larger, there will be an error during the download step, reflected in the corresponding restoration table.
+
+*  Destination sites
+   * local_coursetransfer | destiny_sites
+   * List of destination sites to which backups or deletions of courses can be responded to. Click to manage destination sites.
+
+*  Origin sites
+    * local_coursetransfer | origin_sites
+    * List of origin sites from which backups or deletions of courses can be requested. Click to manage destination sites.
+
+* Origin user field
+    * local_coursetransfer | origin_field_search_user
+    * Field to use for searching a user on the origin site relative to the destination site: username, email, userid, idnumber.
+    
+     *This will be the way to authenticate a user on the origin and destination platforms. Example: If you select username, a user will be able to view, restore, and delete, according to their permissions, the courses associated with the same username on the other platform.*
+
+## Configure Automatic Service
+After installation, the following processes will be automated in the file:
+
+    {your/moodle/dirroot}/local/coursetransfer/postinstall.php
+
+1. Creation of the local_coursetransfer_ws role from the coursecreator archetype
+2. Assignment of capabilities for the plugin to function
+3. Creation of a user with the above role and username: local_coursetransfer_ws
+4. Activation of web services on the platform, the REST protocol, and web services documentation.
+5. Creation of the token for the web service of the local_coursetransfer component with the above user.
+
+Additionally, if something is misconfigured or a role or user is deleted at any time, the 'Refresh' button can be executed (runs the postinstall.php file and redirects to the same site) to review and fix any configuration changes on the platform:
+
+    {your/moodle/dirroot}//local/coursetransfer/index.php
+
+On this same page, we can see the service token and a link to the plugin configuration.
+
+## Configure Web Service Manually
+
+We can also configure it manually as follows:
+1. It is recommended to create a specific role for this type of users.
+2. Create a user with web service authentication, or use an existing one.
+3. Assign the newly created role globally with the necessary permissions (webservice/rest:use).
+
+    ``{your/moodle/dirroot}/admin/roles/assign.php?contextid=1``
+
+4. Go to Server/External Services
+
+    ``{your/moodle/dirroot}/admin/settings.php?section=externalservices``
+
+5. Enable web services
+
+    ``{your/moodle/dirroot}/admin/search.php?query=enablewebservices``
+
+6. Enable the REST protocol
+
+    ``{your/moodle/dirroot}/admin/settings.php?section=webserviceprotocols``
+
+7. In the 'local_coursetransfer' external service, add it as an authorized user.
+8. Finally, manage tokens
+
+    ``{your/moodle/dirroot}/admin/webservice/tokens.php``
+
+9. Create a token assigning the local_coursetransfer service to the previously created user.
+10. This token is what needs to be used in other Moodle instances to connect.
+
+## Summary
+
+On this same page, we can see the service token and a link to the plugin configuration.
+
+    /local/coursetransfer/index.php 
+
+Additionally, if something is misconfigured or a role or user is deleted at any time, the 'Refresh' button can be executed (runs the postinstall.php file and redirects to the same site) to review and fix any configuration changes on the platform.
+
+## Shortcuts from the Administration Panel
+
+The administrator will have the following links available in the 'Extensions/Restore remote courses' section of the administration panel:
+
+* Configuration: link to the plugin configuration
+* Summary: link to the page with the token and the refresh configuration button
+* Restore remote courses or categories: Link where the administrator can execute the restoration of courses or categories.
+* Delete courses from the remote platform: Link where the administrator can delete remote courses or categories.
+* Execution log: Table to review the execution of remote course restoration and deletion.
+
+## CLI Executions
+
+The following console scripts have been created:
+* restore_course.php
+    - CLI for course restoration
+* restore_category.php 
+    - CLI for category restoration
+* view_log_destiny_course.php 
+    - CLI to view the logs of restorations in a destination course
+* view_log_destiny_category.php
+    - CLI to view the logs of restorations in a destination category
+* view_log_origin_course.php
+    - CLI to view the logs of restorations in an origin course. Requests received from another Moodle.
+* view_log_origin_category.php
+    - CLI to view the logs of restorations in an origin category. Requests received from another Moodle.
+* view_log_request.php
+    - CLI to view the logs of a request.
+* view_log_request_activities_detail.php
+    - CLI to view the details of the sections and activities selected in a request.
+* view_logs.php
+    - CLI to view requests filtered by type, direction, status, user, or date.
+
+### CLI Help
+All scripts have help available using the help argument:
+
+    php local/coursetransfer/cli/restore_course.php -h
+
+## Features
+
+* RCEP1 - Function to restore a group of courses between platforms
+* RCEP2 - Function to restore a category of courses between platforms developed as a local plugin
+* RCEP3 - Moodle CLI Script
+* RCEP4 - Administration plugin to restore courses between platforms
+* RCEP5 - Teacher plugin
+* RCEP6 - Moodle plugin for the administrator to delete courses optimizing performance. Course deletion in environments
+* RCEP7 - Log of restoration and deletion status
+* RCEP8 - Scheduled or ad-hoc task
+
+## Deferred Tasks
+The administrator can select, both from the console and the graphical interface, whether the task will be executed as soon as possible or on a specific date.
+For this, in the following features:
+
+* Course restoration
+* Category restoration
+* Remote course deletion
+* Remote category deletion
+
+A configuration will appear to select whether the task will be executed in a deferred manner.
+
+At the time of clicking on that configuration, the user can select the date when the execution will start on the origin platform.
+
+Thus, the cron will only execute that task when the execution date has passed.
+
+## Notifications
+When a functionality is executed, asynchronous ad-hoc tasks are used that are executed by Moodle's cron.
+For this reason, notification functionality has been added in the following executions:
+* Course restoration
+* Category restoration
+* Remote course deletion
+* Remote category deletion
+
+The plugin comes with a default configuration, but this configuration can be modified by the administrator or the user:
+
+   ``/message/notificationpreferences.php``
+
+If web is selected, the notification will be via the web application.
+
+And if Email is selected, the user will receive an email when the functionality is completed.
+
+The administrator can disable these notifications for all users in any case: ```/admin/message.php```
+
+## Database Tables
+
+* local_coursetransfer_request
+  
+  Contains information about requests between platforms.
+
+* local_coursetransfer_origin
+  
+  Contains information about configured origin sites.
+
+* local_coursetransfer_destiny 
+  
+    Contains information about configured destination sites.
+
+## Unit Tests
+To run unit tests in Moodle, follow these steps using the official documentation https://moodledev.io/general/development/tools/phpunit:
+
+1. Install PHP Unit with Composer
+2. Configure the config.php file according to the documentation
+3. Initialize the test environment with:
+
+   ``php admin\tool\phpunit\cli\init.php``
+
+4. Run the Course Transfer test group:
+
+    ``vendor\bin\phpunit --filter local_coursetransfer``
+
+
+![Logo Plugin Course Transfer](https://docs.moodle.org/all/es/images_es/thumb/9/9b/coursetransfer_logo.png/300px-coursetransfer_logo.png)
+
 # Plugin Local Course Transfer
 
 Plugin local para la transferencia de cursos entre plataformas
