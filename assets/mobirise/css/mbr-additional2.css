@@ -1086,7 +1086,7 @@ section.lazy-placeholder:after {
   color: #d9a321 !important;
 }
 .cid-rOtVgn2C4D {
-  padding-top: 60px;
+  padding-top: 105px;
   padding-bottom: 0px;
   background-image: url("../../../assets/images/enlarge-logo-course-transfer-600x113-1-2000x753.png");
 }
@@ -1218,6 +1218,11 @@ section.lazy-placeholder:after {
 @media (min-width: 992px) {
   .cid-rOtWAAC6dY .mbr-figure {
     padding-right: 4rem;
+    padding-right: 0;
+    padding-left: 4rem;
+  }
+  .cid-rOtWAAC6dY .media-container-row {
+    -webkit-flex-direction: row-reverse;
   }
 }
 @media (max-width: 991px) {
@@ -1225,6 +1230,13 @@ section.lazy-placeholder:after {
     padding-right: 0;
     padding-bottom: 1rem;
     margin-bottom: 2rem;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    padding-top: 1rem;
+    margin-top: 2rem;
+  }
+  .cid-rOtWAAC6dY .media-container-row {
+    -webkit-flex-direction: column-reverse;
   }
 }
 @media (max-width: 300px) {
