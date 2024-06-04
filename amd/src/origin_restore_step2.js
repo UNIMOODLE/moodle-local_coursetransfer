@@ -98,11 +98,33 @@ define([
             sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
         };
 
+        originRestoreStep2.prototype.generateForm = function() {
+            let currentUrl = $(location).attr('href');
+            let url = new URL(currentUrl);
+            url.searchParams.set('step', '3');
+            let coursesForm = document.createElement("form");
+            coursesForm.action = url.href;
+            coursesForm.method = "POST";
+            let input = [];
+            this.data.courses.forEach(function(course, index) {
+                input[index] = document.createElement("INPUT");
+                input[index].name = 'courseids[]';
+                input[index].value = course.courseid;
+                input[index].type = 'hidden';
+                coursesForm.appendChild(input[index]);
+            });
+
+            document.body.appendChild(coursesForm);
+            return coursesForm;
+        };
+
         originRestoreStep2.prototype.clickNext = function(e) {
             let currentUrl = $(location).attr('href');
             let url = new URL(currentUrl);
             url.searchParams.set('step', '3');
             window.location.href = url.href;
+            let form = this.generateForm();
+            form.submit();
         };
 
         originRestoreStep2.prototype.node = null;

@@ -36,8 +36,9 @@ define([
         'jquery',
         'core/str',
         'core/ajax',
-        'core/templates'
-    ], function($, Str, Ajax, Templates) {
+        'core/templates',
+        'local_coursetransfer/JSONutil'
+    ], function($, Str, Ajax, Templates, JSONutil) {
         "use strict";
         let SERVICES = {
             ORIGIN_RESTORE_STEP1: 'local_coursetransfer_origin_restore_step1'
@@ -55,6 +56,7 @@ define([
         function originRestore(region) {
             this.node = $(region);
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
+            sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(null, JSONutil.replacer));
         }
 
         originRestore.prototype.clickNext = function(e) {

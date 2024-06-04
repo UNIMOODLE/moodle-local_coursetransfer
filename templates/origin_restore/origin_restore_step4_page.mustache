@@ -66,7 +66,7 @@
             </thead>
             <tbody>
             {{# courses }}
-                <tr data-action="course" data-courseid="{{ id }}" class="hidden">
+                <tr data-action="course" data-courseid="{{ id }}">
                     <td id="courseid">{{ id }}</td>
                     <td>{{ fullname }}</td>
                     <td>{{ shortname }}</td>
@@ -74,7 +74,7 @@
                     <td>{{ categoryid }}</td>
                     <td>{{ categoryname }}</td>
                     <td>
-                        {{> local_coursetransfer/components/select_course }}
+                        {{ targetname }} ({{ cattargetname }})
                     </td>
                 </tr>
             {{/ courses }}
@@ -97,7 +97,6 @@
 
     <div class="button-container">
         <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
-        <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
         <button type="button" class="btn btn-primary" data-action="execute-restore">{{#str}} execute_restore, local_coursetransfer {{/str}}</button>
     </div>
 

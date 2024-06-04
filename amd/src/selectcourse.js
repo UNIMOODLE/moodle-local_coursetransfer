@@ -100,27 +100,26 @@ define([
         /**
          */
         selectcourse.prototype.targetcat = function() {
+            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'), JSONutil.reviver);
             let name = this.node.find(ACTIONS.TARGETCAT).children("option:selected").text();
-            let id = this.node.find(ACTIONS.TARGETCAT).val();
+            let catid = this.node.find(ACTIONS.TARGETCAT).val();
             this.node.find(REGIONS.CATTARGETNAME).text(name);
-            this.node.find(REGIONS.CHANGEBUTTON).data('categorytarget', id);
+            this.node.find(REGIONS.CHANGEBUTTON).data('categorytarget', catid);
             let that = this;
             let newcourses = [];
             this.data.courses.forEach(function(course) {
                 if (parseInt(course.courseid) == that.courseid) {
-                    course.categorytarget = id;
-                    this.data.courses.set(courseid.toString(), course);
-
-                    newcourses.push(course);
-                } else {
-                    newcourses.push(course);
+                    course.categorytarget = catid;
+                    course.targetid = 0;
                 }
+                newcourses.push(course);
             });
             this.data.courses = newcourses;
             sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
         };
 
         selectcourse.prototype.selectcourse = function(e) {
+            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'), JSONutil.reviver);
             let buttontarget = $(e.currentTarget);
             let courseid = buttontarget.data('courseid');
             let courseregion = this.node.find(REGIONS.COURSES_CONTAINER).find('[data-region="course-item-' + courseid + '"]');
@@ -132,10 +131,9 @@ define([
             this.data.courses.forEach(function(course) {
                 if (parseInt(course.courseid) == that.courseid) {
                     course.targetid = courseid;
-                    newcourses.push(course);
-                } else {
-                    newcourses.push(course);
+                    course.categorytarget = 0;
                 }
+                newcourses.push(course);
             });
             this.data.courses = newcourses;
             sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));

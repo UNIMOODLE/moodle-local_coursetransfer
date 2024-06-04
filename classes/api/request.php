@@ -151,6 +151,19 @@ class request {
     }
 
     /**
+     * Origen Get courses.
+     *
+     * @param array $courseids
+     * @param stdClass|null $user
+     * @return response
+     * @throws dml_exception
+     */
+    public function origin_get_courses_by_ids(array $courseids, stdClass $user = null): response {
+        $params = $this->get_request_params($user, $courseids);
+        return $this->req('local_coursetransfer_origin_get_courses_by_ids', $params);
+    }
+
+    /**
      * Origen Get course detail.
      *
      * @param int $courseid
