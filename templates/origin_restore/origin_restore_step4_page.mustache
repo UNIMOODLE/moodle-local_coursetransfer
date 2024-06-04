@@ -61,12 +61,12 @@
                 <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
                 <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
                 <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_target, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_target, local_coursetransfer {{/str}} ({{#str}} step2_course_categoryname, local_coursetransfer {{/str}})</th>
             </tr>
             </thead>
             <tbody>
             {{# courses }}
-                <tr data-action="course" data-courseid="{{ id }}" class="hidden">
+                <tr data-action="course" data-courseid="{{ id }}">
                     <td id="courseid">{{ id }}</td>
                     <td>{{ fullname }}</td>
                     <td>{{ shortname }}</td>
@@ -74,17 +74,7 @@
                     <td>{{ categoryid }}</td>
                     <td>{{ categoryname }}</td>
                     <td>
-                        <select name="targetid" data-action="target" data-courseid="{{ id }}" disabled>
-                            <option value="0" selected>{{#str}} newcourse {{/str}}</option>
-                            {{# destinies }}
-                                <option value="{{ id }}">{{ name }} ({{ shortname }})</option>
-                            {{/ destinies }}
-                        </select>
-                        <select class="hidden" name="targetcategoryid" data-action="target-category" data-courseid="{{ id }}">
-                            {{# categories }}
-                                <option value="{{ id }}">{{{ name }}}</option>
-                            {{/ categories }}
-                        </select>
+                        {{ targetname }} ({{ cattargetname }})
                     </td>
                 </tr>
             {{/ courses }}
@@ -107,7 +97,6 @@
 
     <div class="button-container">
         <a type="button" class="btn btn-dark" href="{{ table_url }}">{{#str}} steps_buttons_cancel, local_coursetransfer {{/str}}</a>
-        <a type="button" class="btn btn-light" href="{{ back_url }}">{{#str}} steps_buttons_back, local_coursetransfer {{/str}}</a>
         <button type="button" class="btn btn-primary" data-action="execute-restore">{{#str}} execute_restore, local_coursetransfer {{/str}}</button>
     </div>
 

@@ -1,0 +1,103 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/components/select_course
+
+  Example context (json):
+
+}}
+<div data-region="select_course_component-{{id}}" class="select_course_component">
+    <button data-region="change-button" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalDestiny-{{ id }}" data-targetid="0" data-categorytarget="{{ categoryiddefault }}">
+        <span id="in-new-course">{{#str}} in_new_course, local_coursetransfer {{/str}}</span>
+        <span id="course-selected" style="display: none">{{#str}} in_new_course, local_coursetransfer {{/str}}</span>
+    </button>
+    <span class="badge badge-secondary ml-2" data-region="cattargetname">{{ categorynamedefault }}</span>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalDestiny-{{ id }}" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">{{#str}} select_destination, local_coursetransfer {{/str}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <select style="width: 100%" class="form-control" id="neworexist" data-action="new-or-exist">
+                        <option value="0">{{#str}} in_new_course, local_coursetransfer {{/str}}</option>
+                        <option value="1">{{#str}} in_exists_course, local_coursetransfer {{/str}}</option>
+                    </select>
+                    <div data-region="category-for-new">
+                        <label class="mt-4" for="targetcategoryid">{{#str}} select_category_target, local_coursetransfer {{/str}}</label>
+                        <select style="width: 100%; max-width: 100%" class="form-control" name="targetcategoryid" data-action="target-category" data-courseid="{{ id }}">
+                            {{# categories }}
+                                <option value="{{ id }}">{{{ name }}}</option>
+                            {{/ categories }}
+                        </select>
+                    </div>
+                    <div data-region="course-for-exist">
+                        <input class="form-control mt-4" type="search" placeholder="{{#str}} search_course_destination, local_coursetransfer {{/str}}" data-acton="search-course">
+                        <div class="courses-item empty" data-region="courses-empty">
+                            {{#str}} not_course_found, local_coursetransfer {{/str}}
+                        </div>
+                        <div class="courses-founded" style="padding: 15px" data-region="courses-found-container">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<style>
+    .select_course_component .courses-item {
+        font-size: 11px;
+        border: 1px solid #bdbdbd;
+        height: 36px;
+        justify-content: space-between;
+        padding: 6px;
+        align-items: center;
+        display: flex;
+        margin-bottom: 3px;
+    }
+    .select_course_component .courses-item.empty {
+        border: 1px dashed #bdbdbd;
+        margin-top: 12px;
+    }
+    .select_course_component button.btn.btn-primary.btn-sm {
+        font-size: 11px;
+        padding: 2px 7px;
+    }
+
+</style>
+
+{{#js}}
+    require(['local_coursetransfer/selectcourse'], function(selectcourse) {
+        selectcourse.initSelectcourse('[data-region="select_course_component-{{id}}"]', '{{ id }}');
+    });
+{{/js}}
+

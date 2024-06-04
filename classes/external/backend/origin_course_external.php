@@ -72,6 +72,7 @@ class origin_course_external extends external_api {
                 'value' => new external_value(PARAM_TEXT, 'Value'),
                 'page' => new external_value(PARAM_INT, 'Page number been requested (starts with page 0)', VALUE_DEFAULT, 0),
                 'perpage' => new external_value(PARAM_INT, 'Items per page to  (starts with page 0)', VALUE_DEFAULT, 0),
+                'search' => new external_value(PARAM_TEXT, 'Search text in coursename', VALUE_DEFAULT, ''),
             ]
         );
     }
@@ -83,24 +84,26 @@ class origin_course_external extends external_api {
      * @param string $value
      * @param int $page
      * @param int $perpage
-     *
+     * @param string $search
      * @return array
      * @throws invalid_parameter_exception
-     * @throws moodle_exception
      */
-    public static function origin_get_courses(string $field, string $value, int $page = 0, int $perpage = 0): array {
+    public static function origin_get_courses(string $field, string $value,
+            int $page = 0, int $perpage = 0, string $search = ''): array {
         $params = self::validate_parameters(
             self::origin_get_courses_parameters(), [
                 'field' => $field,
                 'value' => $value,
                 'page' => $page,
                 'perpage' => $perpage,
+                'search' => $search,
             ]
         );
         $field = $params['field'];
         $value = $params['value'];
         $perpage = $params['perpage'] ?? 0;
         $page = $perpage == 0 ? 0 : $params['page'] ?? 0;
+        $search = $params['search'];
 
         $success = true;
         $errors = [];
@@ -111,7 +114,7 @@ class origin_course_external extends external_api {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $user = $authres['data'];
-                $courses = coursetransfer::get_courses_user($user, $page, $perpage);
+                $courses = coursetransfer::get_courses_user($user, $page, $perpage, $search);
                 $totalcourses = $courses['total'];
                 foreach ($courses['courses'] as $course) {
                     $url = new moodle_url('/course/view.php', ['id' => $course->id]);

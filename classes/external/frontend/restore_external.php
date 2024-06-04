@@ -268,6 +268,7 @@ class restore_external extends external_api {
                                 $configuration['origin_remove_course'],
                                 $date->getTimestamp()
                         );
+
                         $res = coursetransfer::restore_course($USER, $site, $targetcourseid, $course['courseid'], $config, []);
                         if (!$res['success']) {
                             $errors = $res['errors'];

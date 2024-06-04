@@ -126,7 +126,7 @@ class coursetransfer {
      * Origin Get Courses?.
      *
      * @return response
-     * @throws dml_exception|coding_exception
+     * @throws dml_exception
      */
     public function origin_get_courses(): response {
         global $USER;
@@ -919,28 +919,57 @@ class coursetransfer {
     }
 
     /**
-     * Get Courses User.
+     * Get Courses by User.
      *
      * @param stdClass $user
      * @param int $page
      * @param int $perpage
+     * @param string $search
      * @return array
      * @throws coding_exception
      */
-    public static function get_courses_user(stdClass $user, int $page = 0, int $perpage = 0): array {
+    public static function get_courses_user(stdClass $user, int $page = 0, int $perpage = 0, string $search = ''): array {
         $courses = [];
         $cs = get_courses();
         $item = null;
         foreach ($cs as $course) {
-            if (self::filter_course($course, $user)) {
+            if (self::filter_course($course, $user, $search)) {
                 $courses[] = $course;
             }
         }
         $total = count($courses);
-        $currentpage = max(0, $page);
-        $startIndex = $currentpage * $perpage;
-        $courses = array_slice($courses, $startIndex, $perpage);
+        if ($perpage > 0) {
+            $currentpage = max(0, $page);
+            $startIndex = $currentpage * $perpage;
+            $courses = array_slice($courses, $startIndex, $perpage);
+        }
         return ['total' => $total, 'courses' => $courses];
+    }
+
+    /**
+     * Get Courses.
+     *
+     * @param string $search
+     * @param int $page
+     * @param int $perpage
+     * @return array
+     */
+    public static function get_courses(string $search = '', int $page = 0, int $perpage = 0): array {
+        // Prepare the search API options.
+        // Empty search criteria returns all.
+        $searchcriteria = ['search' => $search];
+
+        $options = [];
+        if ($perpage != 0) {
+            $offset = $page * $perpage;
+            $options = ['offset' => $offset, 'limit' => $perpage];
+        }
+        $requiredcapabilities = ['moodle/backup:backupcourse'];
+
+        // Search the courses.
+        return core_course_category::search_courses($searchcriteria, $options, $requiredcapabilities);
+
+
     }
 
     /**
@@ -971,6 +1000,15 @@ class coursetransfer {
         }
 
         return $categories;
+    }
+
+    /**
+     * Get Categories.
+     *
+     * @return array
+     */
+    public static function get_categories(): array {
+        return \core_course_category::get_all();
     }
 
     /**
@@ -1148,16 +1186,22 @@ class coursetransfer {
      *
      * @param stdClass $course
      * @param stdClass $user
+     * @param string $search
      * @return bool
      * @throws coding_exception
      */
-    protected static function filter_course(stdClass $course, stdClass $user): bool {
+    protected static function filter_course(stdClass $course, stdClass $user, string $search): bool {
         $context = \context_course::instance($course->id);
         if (!has_capability('moodle/backup:backupcourse', $context, $user->id)) {
             return false;
         }
         if ((int)$course->id === 1) {
             return false;
+        }
+        if (!empty($search)) {
+            if (strpos(strtolower($course->fullname), strtolower($search)) === false) {
+                return false;
+            }
         }
         return true;
     }

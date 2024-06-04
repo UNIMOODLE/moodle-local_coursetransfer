@@ -1,0 +1,56 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/components/search_by_name
+
+  Example context (json):
+
+}}
+<div class="search-form-container" data-region="search_by_name_component">
+    <div class="search-form-div">
+        <input data-input="value" type="search" class="form-control" id="inputSearch" placeholder="{{#str}} search_with_name, local_coursetransfer {{/str}}" value="{{ search }}">
+        <button disabled type="submit" class="btn btn-primary" data-action="search">{{#str}} search, core {{/str}}</button>
+        <button type="reset" class="btn btn-secondary ml-2" data-action="reset">{{#str}} reset, core {{/str}}</button>
+    </div>
+</div>
+<style>
+    .search-form-container {
+        width: 100%;
+        padding: 8px 30px;
+    }
+    .search-form-div {
+        display: flex;
+    }
+    .search-form-div .form-control {
+        width: 100%;
+        margin-right: 10px
+    }
+</style>
+
+{{#js}}
+    require(['local_coursetransfer/searchbyname'], function(searchbyname) {
+        searchbyname.initSearchbyname('[data-region="search_by_name_component"]');
+    });
+{{/js}}
+

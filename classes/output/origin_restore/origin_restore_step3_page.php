@@ -35,6 +35,7 @@
 namespace local_coursetransfer\output\origin_restore;
 
 use context_system;
+use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
 use moodle_url;
@@ -61,6 +62,8 @@ class origin_restore_step3_page extends origin_restore_step_page {
      */
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
+        $categorynamedefault = '';
+        $categoryiddefault = 0;
         $data = new stdClass();
         $data->button = true;
         $data->steps = self::get_steps(3);
@@ -89,6 +92,71 @@ class origin_restore_step3_page extends origin_restore_step_page {
                 $data->can_target_restore_groups_remove || $data->can_target_restore_enrol_remove;
         $data->has_scheduled_time = true;
         $data->origin_course_configuration = $data->has_origin_user_data || $data->has_scheduled_time;
+
+        $siteposition = required_param('site', PARAM_RAW);
+        $data->siteposition = $siteposition;
+        $site = coursetransfer::get_site_by_position($siteposition);
+
+        $courseids = required_param_array('courseids', PARAM_INT);
+        $courseids = array_flip($courseids);
+
+        $context = \context_system::instance();
+        if (has_capability('local/coursetransfer:origin_view_courses', $context)) {
+            try {
+                $request = new request($site);
+                // TODO. recuperar solo los elegidos.
+                $res = $request->origin_get_courses($USER);
+                if ($res->success) {
+                    $courses = $res->data;
+                    $datacourses = [];
+                    $coursesdest = coursetransfer::get_courses();
+                    $destinies = [];
+                    if (coursetransfer::can_restore_in_not_new_course($USER)) {
+                        foreach ($coursesdest as $cd) {
+                            $destinies[] = [
+                                    'id' => $cd->id,
+                                    'name' => $cd->fullname,
+                                    'shortname' => $cd->shortname,
+                            ];
+                        }
+                    }
+                    $cats = [];
+                    $categories = coursetransfer::get_categories();
+                    $default = reset($categories);
+                    $categorynamedefault = isset($default) ? $default->name : '';
+                    $categoryiddefault = isset($default) ? $default->id : 0;
+                    foreach ($categories as $cat) {
+                        $ct = new stdClass();
+                        $ct->id = $cat->id;
+                        $ct->name = $cat->get_nested_name();
+                        $cats[] = $ct;
+                    }
+                    foreach ($courses as $c) {
+                        if ( ! isset($courseids[$c->id])) {
+                            continue;
+                        }
+                        $c->destinies = $destinies;
+                        $datacourses[] = $c;
+                    }
+                    $data->categories = $cats;
+                    $data->courses = $datacourses;
+                    $data->haserrors = false;
+                } else {
+                    $data->errors = $res->errors;
+                    $data->haserrors = true;
+                }
+            } catch (moodle_exception $e) {
+                $data->errors = ['code' => '20004', 'msg' => $e->getMessage()];
+                $data->haserrors = true;
+            }
+        } else {
+            $data->errors = [
+                    'code' => '20003',
+                    'msg' => get_string('you_have_not_permission', 'local_coursetransfer')];
+            $data->haserrors = true;
+        }
+        $data->categorynamedefault = $categorynamedefault;
+        $data->categoryiddefault = $categoryiddefault;
         return $data;
     }
 }
