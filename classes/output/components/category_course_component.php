@@ -118,7 +118,7 @@ class category_course_component implements renderable, templatable {
             $request = coursetransfer_request::get($reqid);
             $c = new stdClass();
             $c->origin_id = $request->origin_course_id;
-            $c->destiny_course_id = $request->destiny_course_id;
+            $c->target_course_id = $request->target_course_id;
             $c->fullname = $request->origin_course_fullname;
             $c->shortname = $request->origin_course_shortname;
             $c->idnumber = $request->origin_course_idnumber;
@@ -136,11 +136,11 @@ class category_course_component implements renderable, templatable {
             $c->checked = true;
             $c->disabled = true;
             $logurl = new moodle_url('/local/coursetransfer/origin_restore_course.php',
-                    ['id' => $request->destiny_course_id]);
+                    ['id' => $request->target_course_id]);
             $urldes = new moodle_url('/course/view.php',
-                    ['id' => $request->destiny_course_id]);
+                    ['id' => $request->target_course_id]);
             $c->log_url = $logurl->out(false);
-            $c->destiny_url = $urldes->out(false);
+            $c->target_url = $urldes->out(false);
             $cs[] = $c;
         }
         return $cs;

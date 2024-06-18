@@ -75,6 +75,9 @@ class origin_remove_page_base implements renderable, templatable {
      */
     protected $perpage;
 
+    /** @var string Search */
+    protected $search;
+
     /**
      *  constructor.
      *
@@ -85,6 +88,7 @@ class origin_remove_page_base implements renderable, templatable {
         $this->site = required_param('site', PARAM_INT);
         $this->page = optional_param('page', 0, PARAM_INT);
         $this->perpage = optional_param('perpage', $CFG->coursesperpage, PARAM_INT);
+        $this->search = optional_param('search', '', PARAM_TEXT);
     }
 
 

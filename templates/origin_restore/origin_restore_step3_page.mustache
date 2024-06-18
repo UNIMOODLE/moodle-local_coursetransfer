@@ -37,6 +37,49 @@
     {{/ haserrors }}
 
     {{^ haserrors }}
+
+        <h4 class="h4">{{#str}} step5_restore_origin_site, local_coursetransfer {{/str}}</h4>
+
+        <div class="origin-site">{{ host }}</div>
+
+        <hr>
+
+        <h4 class="h4">{{#str}} step4_courses_title_desc, local_coursetransfer {{/str}}</h4>
+
+        <table style="width: 100%">
+            <thead>
+            <tr>
+                <th>{{#str}} step2_course_id, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_name, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_shortname, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_target, local_coursetransfer {{/str}} ({{#str}} step2_course_categoryname, local_coursetransfer {{/str}})</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{# courses }}
+                <tr data-action="course" data-courseid="{{ id }}">
+                    <td id="courseid">{{ id }}</td>
+                    <td>{{ fullname }}</td>
+                    <td>{{ shortname }}</td>
+                    <td>{{ idnumber }}</td>
+                    <td>{{ categoryid }}</td>
+                    <td>{{ categoryname }}</td>
+                    <td>
+                        {{> local_coursetransfer/components/select_course }}
+                    </td>
+                </tr>
+            {{/ courses }}
+            </tbody>
+        </table>
+        {{^ courses }}
+            <div class="alert alert-primary mt-4" role="alert" style="width: 100%; text-align: center">
+                {{#str}} not_courses, local_coursetransfer {{/str}}
+            </div>
+        {{/ courses }}
+
         <h4 class="h4">{{#str}} step4_config_title, local_coursetransfer {{/str}}</h4>
 
         <p>{{#str}} step4_restore_desc, local_coursetransfer {{/str}}</p>
@@ -125,7 +168,7 @@
         box-shadow: none;
     }
 
-    div[data-region='origin_restore_step3_page'] select[data-action="destiny"] {
+    div[data-region='origin_restore_step3_page'] select[data-action="target"] {
         max-width: 200px;
     }
 </style>

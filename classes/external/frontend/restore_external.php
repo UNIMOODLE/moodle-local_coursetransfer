@@ -181,16 +181,16 @@ class restore_external extends external_api {
                 'courses' => new external_multiple_structure(new external_single_structure(
                     [
                         'courseid' => new external_value(PARAM_INT, 'Origin Course ID'),
-                        'destinyid' => new external_value(PARAM_INT, 'Destiny Course ID'),
-                        'categorydestiny' => new external_value(PARAM_INT, 'Destiny Category ID'),
+                        'targetid' => new external_value(PARAM_INT, 'Target Course ID'),
+                        'categorytarget' => new external_value(PARAM_INT, 'Target Category ID'),
                     ]
                 )),
                 'configuration' => new external_single_structure(
                     [
-                        'destiny_merge_activities' => new external_value(PARAM_BOOL, 'Destiny Merge Activities'),
-                        'destiny_remove_enrols' => new external_value(PARAM_BOOL, 'Destiny Remove Enrols'),
-                        'destiny_remove_groups' => new external_value(PARAM_BOOL, 'Destiny Remove Groups'),
-                        'destiny_remove_activities' => new external_value(PARAM_BOOL, 'Destiny Remove Activities'),
+                        'target_merge_activities' => new external_value(PARAM_BOOL, 'Target Merge Activities'),
+                        'target_remove_enrols' => new external_value(PARAM_BOOL, 'Target Remove Enrols'),
+                        'target_remove_groups' => new external_value(PARAM_BOOL, 'Target Remove Groups'),
+                        'target_remove_activities' => new external_value(PARAM_BOOL, 'Target Remove Activities'),
                         'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Restore User Data'),
                         'origin_remove_course' => new external_value(PARAM_BOOL, 'Origin Remove Course'),
                         'origin_schedule_datetime' => new external_value(PARAM_INT, 'Origin Schedule Datetime'),
@@ -243,32 +243,33 @@ class restore_external extends external_api {
                 $num = 1;
                 foreach ($courses as $course) {
                     try {
-                        if ((int)$course['destinyid'] === 0) {
+                        if ((int)$course['targetid'] === 0) {
                             $target = \backup::TARGET_NEW_COURSE;
-                            if ((int)$course['categorydestiny'] === 0) {
+                            if ((int)$course['categorytarget'] === 0) {
                                 $category = core_course_category::get_default();
                             } else {
-                                $category = core_course_category::get((int)$course['categorydestiny']);
+                                $category = core_course_category::get((int)$course['categorytarget']);
                             }
-                            $destinycourseid = \local_coursetransfer\factory\course::create(
+                            $targetcourseid = \local_coursetransfer\factory\course::create(
                                     $category, 'Remote Restoring in process...', 'IN-PROGRESS-' . time() . '-' . $num);
                         } else {
-                            $target = $configuration['destiny_merge_activities'] ?
+                            $target = $configuration['target_merge_activities'] ?
                                     \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
-                            $destinycourseid = $course['destinyid'];
+                            $targetcourseid = $course['targetid'];
                         }
                         $nextruntime = $configuration['origin_schedule_datetime'] / 1000;
                         $date = new DateTime();
                         $date->setTimestamp(intval($nextruntime));
                         $config = new configuration_course(
                                 $target,
-                                $configuration['destiny_remove_enrols'],
-                                $configuration['destiny_remove_groups'],
+                                $configuration['target_remove_enrols'],
+                                $configuration['target_remove_groups'],
                                 $configuration['origin_enrol_users'],
                                 $configuration['origin_remove_course'],
                                 $date->getTimestamp()
                         );
-                        $res = coursetransfer::restore_course($USER, $site, $destinycourseid, $course['courseid'], $config, []);
+
+                        $res = coursetransfer::restore_course($USER, $site, $targetcourseid, $course['courseid'], $config, []);
                         if (!$res['success']) {
                             $errors = $res['errors'];
                         } else {
@@ -335,7 +336,7 @@ class restore_external extends external_api {
             [
                 'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                 'catid' => new external_value(PARAM_INT, 'Origin Category Id'),
-                'destinyid' => new external_value(PARAM_INT, 'Destiny Category Id'),
+                'targetid' => new external_value(PARAM_INT, 'Target Category Id'),
                 'configuration' => new external_single_structure(
                     [
                         'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Enrol Users'),
@@ -352,27 +353,27 @@ class restore_external extends external_api {
      *
      * @param int $siteurl
      * @param int $catid
-     * @param int $destinyid
+     * @param int $targetid
      * @param array $configuration
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
     public static function origin_restore_cat_step4(
-            int $siteurl, int $catid, int $destinyid, array $configuration): array {
+            int $siteurl, int $catid, int $targetid, array $configuration): array {
         global $USER;
         $params = self::validate_parameters(
             self::origin_restore_cat_step4_parameters(), [
                 'siteurl' => $siteurl,
                 'catid' => $catid,
-                'destinyid' => $destinyid,
+                'targetid' => $targetid,
                 'configuration' => $configuration,
             ]
         );
 
         $siteurl = $params['siteurl'];
         $catid = $params['catid'];
-        $destinyid = $params['destinyid'];
+        $targetid = $params['targetid'];
         $configuration = $params['configuration'];
 
         $success = false;
@@ -390,7 +391,7 @@ class restore_external extends external_api {
                     0, 0, $configuration['origin_enrol_users'],
                     $configuration['origin_remove_category'], $date->getTimestamp());
 
-            $res = coursetransfer::restore_category($USER, $site, $destinyid, $catid, $configuration);
+            $res = coursetransfer::restore_category($USER, $site, $targetid, $catid, $configuration);
 
             if (!$res['success']) {
                 $errors = $res['errors'];

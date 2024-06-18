@@ -56,7 +56,7 @@ define([
         function restoreCategoryStep4(region, site) {
             this.node = $(region);
             this.restoreid = $("[data-restoreid]").attr("data-restoreid");
-            this.destinyid = $("[data-destinyid]").attr("data-destinyid");
+            this.targetid = $("[data-targetid]").attr("data-targetid");
             this.site = site;
             this.node.find(ACTIONS.RESTORE).on('click', this.clickNext.bind(this));
             let storageid = this.node.find('[data-region="session-storage"]');
@@ -113,13 +113,13 @@ define([
             }
             let siteurl = this.site;
             let categoryid = this.restoreid;
-            let destinyid = this.destinyid;
+            let targetid = this.targetid;
             const request = {
                 methodname: SERVICES.RESTORE_CATEGORY_STEP4,
                 args: {
                     siteurl: siteurl,
                     categoryid: categoryid,
-                    destinyid: destinyid,
+                    targetid: targetid,
                     courses: this.sessiondata.category.courses,
                     nextruntime: nextruntime
                 }

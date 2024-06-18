@@ -95,13 +95,13 @@ class coursetransfer_restore {
      */
     public static function restore_course(stdClass $request, stored_file $file): bool {
         try {
-            $courseid = (int)$request->destiny_course_id;
+            $courseid = (int)$request->target_course_id;
             $userid = (int)$request->userid;
             $fullname = $request->origin_course_fullname;
             $shortname = $request->origin_course_shortname;
-            $removeenrols = (int)$request->destiny_remove_enrols;
-            $removegroups = (int)$request->destiny_remove_groups;
-            $target = (int)$request->destiny_target;
+            $removeenrols = (int)$request->target_remove_enrols;
+            $removegroups = (int)$request->target_remove_groups;
+            $target = (int)$request->target_target;
 
             $backuptmpdir = 'local_coursetransfer';
 
@@ -156,12 +156,21 @@ class coursetransfer_restore {
 
                 // Execute precheck.
                 $resexecute = $rc->execute_precheck();
+                $results = $rc->get_precheck_results();
                 if ($resexecute) {
                     // Execute restore.
                     $rc->execute_plan();
                     $rc->destroy();
                     return true;
                 } else {
+                    if (!array_key_exists('errors', $results)) {
+                        $request->error_code = '104003';
+                        $request->error_message = 'Warnings en precheck: ' . json_encode($rc->get_precheck_results());
+                        coursetransfer_request::insert_or_update($request, $request->id);
+                        $rc->execute_plan();
+                        $rc->destroy();
+                        return true;
+                    }
                     // Error in precheck.
                     $request->status = coursetransfer_request::STATUS_ERROR;
                     $request->error_code = '104002';

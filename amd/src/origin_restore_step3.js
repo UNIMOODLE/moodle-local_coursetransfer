@@ -46,7 +46,7 @@ define([
             COURSE_SELECT: '[data-action="select"]',
             COURSE: '[data-action="course"]',
             NEXT: '[data-action="next"]',
-            DESTINY: '[data-action="destiny"]',
+            TARGET: '[data-action="target"]',
             CHECK: '[data-action="check"]',
             CHECK_ACT: '[data-action="act-check"]'
         };
@@ -59,13 +59,23 @@ define([
         function originRestoreStep3(region) {
             this.node = $(region);
             this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'), JSONutil.reviver);
+            let newcourses = [];
+            this.data.courses.forEach(function(course) {
+                course.targetid = 0;
+                course.categorytarget = 0;
+                newcourses.push(course);
+            });
+            this.data.courses = newcourses;
+            sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
+            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'), JSONutil.reviver);
+            console.log('Step 3 data: ', this.data);
             if (this.data !== null) {
                 this.data.courses.forEach(function(course) {
                     let courseid = parseInt(course.courseid);
-                    let destinyid = parseInt(course.destinyid);
+                    let targetid = parseInt(course.targetid);
                     $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop("checked", true);
-                    let seldestiny = '[data-action="destiny"][data-courseid="' + courseid + '"] option[value="' + destinyid + '"]';
-                    $(seldestiny).prop('selected', true);
+                    let seltarget = '[data-action="target"][data-courseid="' + courseid + '"] option[value="' + targetid + '"]';
+                    $(seltarget).prop('selected', true);
                 });
                 this.data.configuration.forEach(function(config) {
                     $('#' + config.name).prop('checked', config.selected);
@@ -76,6 +86,7 @@ define([
         }
 
         originRestoreStep3.prototype.clickNext = function(e) {
+            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'), JSONutil.reviver);
             let checkboxes = $('.configuration-checkbox');
             let configuration = [];
             checkboxes.each(function() {
@@ -94,6 +105,7 @@ define([
         };
 
         originRestoreStep3.prototype.generateForm = function() {
+            this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_page'), JSONutil.reviver);
             let currentUrl = $(location).attr('href');
             let url = new URL(currentUrl);
             url.searchParams.set('step', '4');
@@ -107,6 +119,22 @@ define([
                 input[index].value = course.courseid;
                 input[index].type = 'hidden';
                 coursesForm.appendChild(input[index]);
+            });
+            let input2 = [];
+            this.data.courses.forEach(function(course, index) {
+                input2[index] = document.createElement("INPUT");
+                input2[index].name = 'targetids[]';
+                input2[index].value = course.targetid;
+                input2[index].type = 'hidden';
+                coursesForm.appendChild(input2[index]);
+            });
+            let input3 = [];
+            this.data.courses.forEach(function(course, index) {
+                input3[index] = document.createElement("INPUT");
+                input3[index].name = 'categorytargets[]';
+                input3[index].value = course.categorytarget;
+                input3[index].type = 'hidden';
+                coursesForm.appendChild(input3[index]);
             });
 
             document.body.appendChild(coursesForm);

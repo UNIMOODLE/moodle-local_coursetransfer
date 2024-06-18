@@ -46,7 +46,6 @@ define([
             COURSE_SELECT: '[data-action="select"]',
             COURSE: '[data-action="course"]',
             NEXT: '[data-action="next"]',
-            DESTINY: '[data-action="destiny"]',
             CHECK: '[data-action="check"]',
             CHECK_ACT: '[data-action="act-check"]'
         };
@@ -64,10 +63,7 @@ define([
             if (this.data !== null) {
                 this.data.courses.forEach(function(course) {
                     let courseid = parseInt(course.courseid);
-                    let destinyid = parseInt(course.destinyid);
                     $(ACTIONS.COURSE_SELECT + '[data-courseid="' + courseid + '"]').prop("checked", true);
-                    let seldestiny = '[data-action="destiny"][data-courseid="' + courseid + '"] option[value="' + destinyid + '"]';
-                    $(seldestiny).prop('selected', true);
                 });
             } else {
                 this.data = {
@@ -81,7 +77,6 @@ define([
                 this.node.find(ACTIONS.NEXT).prop("disabled", true);
             }
             this.node.find(ACTIONS.COURSE_SELECT).on('click', this.selectCourse.bind(this));
-            this.node.find(ACTIONS.DESTINY).on('change', this.selectDestiny.bind(this));
             this.node.find(ACTIONS.NEXT).on('click', this.clickNext.bind(this));
         }
 
@@ -89,9 +84,8 @@ define([
             let item = e.target;
             let courseid = item.dataset.courseid;
             if (item.checked) {
-                let destiny = this.DOMregion.querySelector('[data-action="destiny"][data-courseid="' + courseid + '"]').value;
                 let course = {
-                    courseid: courseid, destinyid: destiny, categorydestiny: 0
+                    courseid: courseid, targetid: 0, categorytarget: 0
                 };
                 this.data.courses.set(courseid.toString(), course);
                 this.node.find(ACTIONS.NEXT).removeAttr('disabled');
@@ -104,19 +98,24 @@ define([
             sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
         };
 
-        originRestoreStep2.prototype.selectDestiny = function(e) {
-            let item = e.target;
-            let courseid = item.dataset.courseid;
-            let origin = this.DOMregion.querySelector('[data-action="select"][data-courseid="' + courseid + '"]');
+        originRestoreStep2.prototype.generateForm = function() {
+            let currentUrl = $(location).attr('href');
+            let url = new URL(currentUrl);
+            url.searchParams.set('step', '3');
+            let coursesForm = document.createElement("form");
+            coursesForm.action = url.href;
+            coursesForm.method = "POST";
+            let input = [];
+            this.data.courses.forEach(function(course, index) {
+                input[index] = document.createElement("INPUT");
+                input[index].name = 'courseids[]';
+                input[index].value = course.courseid;
+                input[index].type = 'hidden';
+                coursesForm.appendChild(input[index]);
+            });
 
-            if (origin.checked) {
-                let destiny = item.value;
-                let course = {
-                    courseid: courseid, destinyid: destiny, categorydestiny: 0
-                };
-                this.data.courses.set(courseid, course);
-                sessionStorage.setItem('local_coursetransfer_restore_page', JSON.stringify(this.data, JSONutil.replacer));
-            }
+            document.body.appendChild(coursesForm);
+            return coursesForm;
         };
 
         originRestoreStep2.prototype.clickNext = function(e) {
@@ -124,8 +123,9 @@ define([
             let url = new URL(currentUrl);
             url.searchParams.set('step', '3');
             window.location.href = url.href;
+            let form = this.generateForm();
+            form.submit();
         };
-
 
         originRestoreStep2.prototype.node = null;
         originRestoreStep2.prototype.DOMregion = null;

@@ -101,29 +101,29 @@ class coursetransfer_request {
     }
 
     /**
-     * Get by Destiny Course Id.
+     * Get by Target Course Id.
      *
      * @param int $courseid
      * @return false|mixed|stdClass
      * @throws dml_exception
      */
-    public static function get_by_destiny_course_id(int $courseid) {
+    public static function get_by_target_course_id(int $courseid) {
         global $DB;
         return $DB->get_records(self::TABLE,
-                ['destiny_course_id' => $courseid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_REQUEST]);
+                ['target_course_id' => $courseid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_REQUEST]);
     }
 
     /**
-     * Get by Destiny Category Id.
+     * Get by Target Category Id.
      *
      * @param int $catid
      * @return false|mixed|stdClass
      * @throws dml_exception
      */
-    public static function get_by_destiny_category_id(int $catid) {
+    public static function get_by_target_category_id(int $catid) {
         global $DB;
         return $DB->get_records(self::TABLE,
-                ['destiny_category_id' => $catid, 'type' => self::TYPE_CATEGORY, 'direction' => self::DIRECTION_REQUEST]);
+                ['target_category_id' => $catid, 'type' => self::TYPE_CATEGORY, 'direction' => self::DIRECTION_REQUEST]);
     }
 
     /**
@@ -275,7 +275,7 @@ class coursetransfer_request {
      *
      * @param stdClass $user
      * @param stdClass $site
-     * @param int $destinycourseid
+     * @param int $targetcourseid
      * @param int $origincourseid
      * @param configuration_course $configuration $configuration
      * @param array $sections
@@ -285,7 +285,7 @@ class coursetransfer_request {
      * @throws moodle_exception
      */
     public static function set_request_restore_course(stdClass $user,
-            stdClass $site, int $destinycourseid, int $origincourseid, configuration_course $configuration,
+            stdClass $site, int $targetcourseid, int $origincourseid, configuration_course $configuration,
             array $sections, int $requestcatid = null): stdClass {
         global $USER;
         $userid = is_null($user) ? $USER->id : $user->id;
@@ -293,18 +293,18 @@ class coursetransfer_request {
         $object->type = self::TYPE_COURSE;
         $object->siteurl = $site->host;
         $object->direction = self::DIRECTION_REQUEST;
-        $object->destiny_course_id = $destinycourseid;
+        $object->target_course_id = $targetcourseid;
         $object->origin_course_id = $origincourseid;
         $object->origin_enrolusers = $configuration->originenrolusers;
         $object->request_category_id = $requestcatid;
         $object->origin_activities = json_encode($sections);
-        $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
-        $object->destiny_remove_groups = $configuration->destinyremovegroups;
+        $object->target_remove_enrols = $configuration->targetremoveenrols;
+        $object->target_remove_groups = $configuration->targetremovegroups;
         $object->origin_remove_course = $configuration->originremovecourse;
-        $object->destiny_notremove_activities = $configuration->destinynotremoveactivities;
+        $object->target_notremove_activities = $configuration->targetnotremoveactivities;
         $object->origin_backup_size_estimated = 0;
         $object->origin_schedule_datetime = $configuration->nextruntime;
-        $object->destiny_target = $configuration->destinytarget;
+        $object->target_target = $configuration->targettarget;
         $object->status = self::STATUS_NOT_STARTED;
         $object->userid = $userid;
         $object->id = self::insert_or_update($object);
@@ -315,9 +315,9 @@ class coursetransfer_request {
      * Set Request Restore Course.
      *
      * @param stdClass $user
-     * @param int $destinyrequestid
-     * @param stdClass $destinysite
-     * @param int $destinycourseid
+     * @param int $targetrequestid
+     * @param stdClass $targetsite
+     * @param int $targetcourseid
      * @param stdClass $origincourse
      * @param configuration_course $configuration $configuration
      * @param array $sections
@@ -326,8 +326,8 @@ class coursetransfer_request {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function set_request_restore_course_response(stdClass $user, int $destinyrequestid,
-            stdClass $destinysite, int $destinycourseid, stdClass $origincourse, configuration_course $configuration,
+    public static function set_request_restore_course_response(stdClass $user, int $targetrequestid,
+            stdClass $targetsite, int $targetcourseid, stdClass $origincourse, configuration_course $configuration,
             array $sections, int $requestcatid = null): stdClass {
         global $USER;
         $user = is_null($user) ? $USER : $user;
@@ -335,9 +335,9 @@ class coursetransfer_request {
 
         $object = new stdClass();
         $object->type = self::TYPE_COURSE;
-        $object->siteurl = $destinysite->host;
+        $object->siteurl = $targetsite->host;
         $object->direction = self::DIRECTION_RESPONSE;
-        $object->destiny_request_id = $destinyrequestid;
+        $object->target_request_id = $targetrequestid;
         $object->request_category_id = $requestcatid;
         $object->origin_course_id = $origincourse->id;
         $object->origin_course_fullname = $origincourse->fullname;
@@ -355,11 +355,11 @@ class coursetransfer_request {
         $object->origin_backup_size = null;
         $object->origin_backup_size_estimated = null;
         $object->origin_backup_url = null;
-        $object->destiny_course_id = $destinycourseid;
-        $object->destiny_category_id = null;
-        $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
-        $object->destiny_remove_groups = $configuration->destinyremovegroups;
-        $object->destiny_target = $configuration->destinytarget;
+        $object->target_course_id = $targetcourseid;
+        $object->target_category_id = null;
+        $object->target_remove_enrols = $configuration->targetremoveenrols;
+        $object->target_remove_groups = $configuration->targetremovegroups;
+        $object->target_target = $configuration->targettarget;
         $object->error_code = null;
         $object->error_message = null;
         $object->userid = $user->id;
@@ -372,7 +372,7 @@ class coursetransfer_request {
      * Set Request Object Restore Category.
      *
      * @param stdClass $site
-     * @param int $destinycategoryid
+     * @param int $targetcategoryid
      * @param int $origincategoryid
      * @param string $origincategoryname
      * @param configuration_category $configuration $configuration
@@ -382,7 +382,7 @@ class coursetransfer_request {
      * @throws moodle_exception
      */
     public static function set_request_restore_category(
-            stdClass $site, int $destinycategoryid, int $origincategoryid, string $origincategoryname,
+            stdClass $site, int $targetcategoryid, int $origincategoryid, string $origincategoryname,
             configuration_category $configuration, stdClass $user): stdClass {
         global $USER;
         $userid = is_null($user) ? $USER->id : $user->id;
@@ -390,17 +390,17 @@ class coursetransfer_request {
         $object->type = self::TYPE_CATEGORY;;
         $object->siteurl = $site->host;
         $object->direction = self::DIRECTION_REQUEST;
-        $object->destiny_category_id = $destinycategoryid;
+        $object->target_category_id = $targetcategoryid;
         $object->origin_category_id = $origincategoryid;
         $object->origin_category_name = $origincategoryname;
         $object->origin_category_requests = json_encode([]);
         $object->origin_activities = json_encode([]);
         $object->origin_enrolusers = $configuration->originenrolusers;
-        $object->destiny_remove_enrols = $configuration->destinyremoveenrols;
-        $object->destiny_remove_groups = $configuration->destinyremovegroups;
+        $object->target_remove_enrols = $configuration->targetremoveenrols;
+        $object->target_remove_groups = $configuration->targetremovegroups;
         $object->origin_remove_category = $configuration->originremovecategory;
         $object->origin_schedule_datetime = $configuration->nextruntime;
-        $object->destiny_target = $configuration->destinytarget;
+        $object->target_target = $configuration->targettarget;
         $object->status = self::STATUS_NOT_STARTED;
         $object->userid = $userid;
         $object->id = self::insert_or_update($object);

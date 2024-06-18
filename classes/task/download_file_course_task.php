@@ -75,7 +75,7 @@ class download_file_course_task extends \core\task\adhoc_task {
             if (!empty($filecontent)) {
                 $this->log('Backup File Dowload Success!');
 
-                $context = context_course::instance($request->destiny_course_id);
+                $context = context_course::instance($request->target_course_id);
                 $filename = 'local_coursetransfer_' . $request->origin_course_id . '_' . time() . '.mbz';
 
                 $fileinfo = [

@@ -49,19 +49,19 @@ Usage:
     # php restore_category.php
         --site_url=<site_url>
         --origin_category_id=<courseid>
-        --destiny_category_id=<categoryid>
+        --target_category_id=<categoryid>
         --origin_enrolusers=<enrolusers>
-        --destiny_remove_enrols=<destiny_remove_enrols>
-        --destiny_remove_groups=<destiny_remove_groups>
+        --target_remove_enrols=<target_remove_enrols>
+        --target_remove_groups=<target_remove_groups>
         --origin_remove_category=<origin_remove_category>
         --origin_schedule_datetime=<origin_schedule_datetime>
 
     --site_url=<site_url> Origin Site URL (string)
-    --origin_category_id=<courseid> Origin Course ID (int).
-    --destiny_category_id=<courseid> Destination Course ID (int). (Optional - New Category)
+    --origin_category_id=<courseid> Origin Category ID (int).
+    --target_category_id=<courseid> Target Category ID (int). (Optional - New Category)
     --origin_enrolusers=<enrolusers> Origin Enrol users (Boolean).
-    --destiny_remove_enrols=<destiny_remove_enrols> Destination Remove Enrols (Boolean).
-    --destiny_remove_groups=<destiny_remove_groups> Destination Remove Groups (Boolean).
+    --target_remove_enrols=<target_remove_enrols> Target Remove Enrols (Boolean).
+    --target_remove_groups=<target_remove_groups> Target Remove Groups (Boolean).
     --origin_remove_category=<origin_remove_category> Origin Remove Category (Boolean).
     --origin_schedule_datetime=<origin_schedule_datetime>
             Date in UNIX timestamp (int). Max deferral 30 days, 0 (default) to execute ASAP.
@@ -76,7 +76,7 @@ Examples:
     # php local/coursetransfer/restore_category.php
         --site_url=https://origen.dominio
         --origin_category_id=12
-        --destiny_category_id=12
+        --target_category_id=12
         --origin_enrolusers=true
         --origin_remove_category=false
         --origin_schedule_datetime=1679404952
@@ -86,7 +86,7 @@ list($options, $unrecognised) = cli_get_params([
         'help' => false,
         'site_url' => null,
         'origin_category_id' => null,
-        'destiny_category_id' => null,
+        'target_category_id' => null,
         'origin_enrolusers' => false,
         'origin_remove_category' => false,
         'origin_schedule_datetime' => 0,
@@ -106,7 +106,7 @@ if ($options['help']) {
 
 $siteurl = $options['site_url'];
 $origincategoryid = !is_null($options['origin_category_id']) ? (int) $options['origin_category_id'] : null;
-$destinycategoryid = !is_null($options['destiny_category_id']) ? (int) $options['destiny_category_id'] : null;
+$targetcategoryid = !is_null($options['target_category_id']) ? (int) $options['target_category_id'] : null;
 $originenrolusers = $options['origin_enrolusers'] === 'true' ? 1 : 0;
 $originremovecategory = $options['origin_remove_category'] === 'true' ? 1 : 0;
 $originscheduledatetime = intval($options['origin_schedule_datetime']);
@@ -124,16 +124,16 @@ if ( $origincategoryid === null ) {
     exit(128);
 }
 
-if ($destinycategoryid !== null) {
+if ($targetcategoryid !== null) {
     try {
-        $category = core_course_category::get($destinycategoryid);
-        $destinycategoryid = $category->id;
+        $category = core_course_category::get($targetcategoryid);
+        $targetcategoryid = $category->id;
     } catch (moodle_exception $e) {
         cli_writeln('40011: ' . $e->getMessage());
         exit(1);
     }
 } else {
-    $destinycategoryid = 0;
+    $targetcategoryid = 0;
 }
 
 
@@ -166,10 +166,10 @@ try {
     $user = core_user::get_user_by_username(user::USERNAME_WS);
 
     // 3. Restore Category.
-    $destiny = core_course_category::get($destinycategoryid);
+    $target = core_course_category::get($targetcategoryid);
     $site = coursetransfer::get_site_by_url($siteurl);
 
-    $res = coursetransfer::restore_category($user, $site, $destiny->id, $origincategoryid, $configuration);
+    $res = coursetransfer::restore_category($user, $site, $target->id, $origincategoryid, $configuration);
 
     // 4. Success or Errors.
     $errors = array_merge($errors, $res['errors']);

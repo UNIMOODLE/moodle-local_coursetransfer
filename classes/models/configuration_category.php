@@ -51,17 +51,17 @@ class configuration_category extends configuration {
     /**
      * constructor.
      *
-     * @param int $destinytarget
-     * @param bool $destinyremoveenrols
-     * @param bool $destinyremovegroups
+     * @param int $targettarget
+     * @param bool $targetremoveenrols
+     * @param bool $targetremovegroups
      * @param bool $originenrolusers
      * @param bool $originremovecategory
      * @param int|null $nextruntime
      */
     public function __construct(
-            int $destinytarget, bool $destinyremoveenrols, bool $destinyremovegroups,
+            int $targettarget, bool $targetremoveenrols, bool $targetremovegroups,
             bool $originenrolusers = false, bool $originremovecategory = false, int $nextruntime = null) {
-        parent::__construct($destinytarget, $destinyremoveenrols, $destinyremovegroups, $originenrolusers, $nextruntime);
+        parent::__construct($targettarget, $targetremoveenrols, $targetremovegroups, $originenrolusers, $nextruntime);
         $this->set_origin_remove_category($originremovecategory);
     }
 

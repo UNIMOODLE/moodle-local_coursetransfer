@@ -80,12 +80,12 @@ class configuration_component implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();
         $data->id = $this->id;
-        $data->destiny_remove_activities = $this->configuration->destinytarget === backup::TARGET_EXISTING_DELETING;
-        $data->destiny_merge_activities = $this->configuration->destinytarget === backup::TARGET_EXISTING_ADDING;
-        $data->destiny_remove_enrols = $this->configuration->destinyremoveenrols;
-        $data->destiny_remove_groups = $this->configuration->destinyremovegroups;
+        $data->target_remove_activities = $this->configuration->targettarget === backup::TARGET_EXISTING_DELETING;
+        $data->target_merge_activities = $this->configuration->targettarget === backup::TARGET_EXISTING_ADDING;
+        $data->target_remove_enrols = $this->configuration->targetremoveenrols;
+        $data->target_remove_groups = $this->configuration->targetremovegroups;
         $data->origin_remove_course = $this->configuration->originremovecourse;
-        $data->course_new = $this->configuration->destinytarget === backup::TARGET_NEW_COURSE;
+        $data->course_new = $this->configuration->targettarget === backup::TARGET_NEW_COURSE;
         $data->has_scheduled_time = empty($this->configuration->nextruntime) ? false : true;
         $data->origin_schedule = empty($this->configuration->nextruntime) ? false : true;
         $unixtime = $this->configuration->nextruntime;

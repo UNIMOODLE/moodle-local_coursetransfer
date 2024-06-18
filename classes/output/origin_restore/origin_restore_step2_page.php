@@ -58,7 +58,7 @@ class origin_restore_step2_page extends origin_restore_step_page {
      * @return string
      */
     public function get_paging_url() : string {
-        return parent::URL . '?step=2&type=courses&site=' . $this->site;
+        return parent::URL . '?step=2&type=courses&site=' . $this->site . '&search=' . $this->search;
     }
 
     /**
@@ -82,36 +82,27 @@ class origin_restore_step2_page extends origin_restore_step_page {
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $data->next_url_disabled = true;
+        $data->search = $this->search;
+        $data->categories = [];
         $site = coursetransfer::get_site_by_position($this->site);
         $context = \context_system::instance();
         if (has_capability('local/coursetransfer:origin_view_courses', $context)) {
             try {
                 $request = new request($site);
-                $res = $request->origin_get_courses($USER, $this->page, $this->perpage);
+                $res = $request->origin_get_courses($USER, $this->page, $this->perpage, $this->search);
                 if ($res->success) {
                     $courses = $res->data;
-                    $datacourses = [];
-                    $coursesdest = coursetransfer::get_courses_user($USER);
-                    $destinies = [];
-                    if (coursetransfer::can_restore_in_not_new_course($USER)) {
-                        foreach ($coursesdest as $cd) {
-                            $destinies[] = [
-                                    'id' => $cd->id,
-                                    'name' => $cd->fullname,
-                                    'shortname' => $cd->shortname,
-                            ];
-                        }
-                    }
-                    foreach ($courses as $c) {
-                        $c->destinies = $destinies;
-                        $datacourses[] = $c;
-                    }
-                    $data->courses = $datacourses;
+                    $data->courses = $courses;
                     $data->haserrors = false;
                     $data->paging = $res->paging;
                 } else {
                     $data->errors = $res->errors;
                     $data->haserrors = true;
+                    $paging = new stdClass();
+                    $paging->totalcount = 0;
+                    $paging->page = 0;
+                    $paging->perpage = 0;
+                    $data->paging = $paging;
                 }
             } catch (moodle_exception $e) {
                 $data->errors = ['code' => '20002', 'msg' => $e->getMessage()];

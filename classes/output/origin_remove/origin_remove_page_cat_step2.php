@@ -92,6 +92,11 @@ class origin_remove_page_cat_step2  extends origin_remove_page_base {
             } else {
                 $data->errors = $res->errors;
                 $data->haserrors = true;
+                $paging = new stdClass();
+                $paging->totalcount = 0;
+                $paging->page = 0;
+                $paging->perpage = 0;
+                $data->paging = $paging;
             }
         } catch (moodle_exception $e) {
             $data->errors = ['code' => '31001', 'msg' => $e->getMessage()];

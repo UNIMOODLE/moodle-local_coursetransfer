@@ -46,13 +46,13 @@ namespace local_coursetransfer\models;
 abstract class configuration {
 
     /** @var int Destinity Target: 2: New Course, 3: Remove Content , 4: Merge the backup course into this course */
-    public $destinytarget;
+    public $targettarget;
 
     /** @var bool Destinity Remove Enrols */
-    public $destinyremoveenrols;
+    public $targetremoveenrols;
 
     /** @var bool Destinity Remove Groups */
-    public $destinyremovegroups;
+    public $targetremovegroups;
 
     /** @var bool Origin Enrol Users */
     public $originenrolusers;
@@ -63,51 +63,51 @@ abstract class configuration {
     /**
      * constructor.
      *
-     * @param int $destinytarget
-     * @param bool $destinyremoveenrols
-     * @param bool $destinyremovegroups
+     * @param int $targettarget
+     * @param bool $targetremoveenrols
+     * @param bool $targetremovegroups
      * @param bool $originenrolusers
      * @param int|null $nextruntime
      */
     public function __construct(
-            int $destinytarget,
-            bool $destinyremoveenrols,
-            bool $destinyremovegroups,
+            int $targettarget,
+            bool $targetremoveenrols,
+            bool $targetremovegroups,
             bool $originenrolusers,
             int $nextruntime = null
     ) {
-        $this->set_destiny_target($destinytarget);
-        $this->set_destiny_remove_enrols($destinyremoveenrols);
-        $this->set_destiny_remove_groups($destinyremovegroups);
+        $this->set_target_target($targettarget);
+        $this->set_target_remove_enrols($targetremoveenrols);
+        $this->set_target_remove_groups($targetremovegroups);
         $this->set_origin_enrol_users($originenrolusers);
         $this->set_nextruntime($nextruntime);
     }
 
     /**
-     * Set Destiny Remove Enrols.
+     * Set Target Remove Enrols.
      *
      * @param int $config
      */
-    protected function set_destiny_target(int $config) {
-        $this->destinytarget = $config;
+    protected function set_target_target(int $config) {
+        $this->targettarget = $config;
     }
 
     /**
-     * Set Destiny Remove Enrols.
+     * Set Target Remove Enrols.
      *
      * @param bool $config
      */
-    protected function set_destiny_remove_enrols(bool $config) {
-        $this->destinyremoveenrols = $config;
+    protected function set_target_remove_enrols(bool $config) {
+        $this->targetremoveenrols = $config;
     }
 
     /**
-     * Set Destiny Remove Groups.
+     * Set Target Remove Groups.
      *
      * @param bool $config
      */
-    protected function set_destiny_remove_groups(bool $config) {
-        $this->destinyremovegroups = $config;
+    protected function set_target_remove_groups(bool $config) {
+        $this->targetremovegroups = $config;
     }
 
     /**

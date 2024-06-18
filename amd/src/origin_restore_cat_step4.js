@@ -49,7 +49,7 @@ define([
             CAT_SELECT: '[data-action="select"]',
             COURSE: '[data-action="course"]',
             NEXT: '[data-action="next"]',
-            DESTINY: '[data-action="destiny"]',
+            TARGET: '[data-action="target"]',
             CHECK: '[data-action="check"]',
             CHECK_ACT: '[data-action="act-check"]',
             RESTORE: '[data-action="execute-restore"]'
@@ -66,10 +66,10 @@ define([
             this.site = site;
             this.data = JSON.parse(sessionStorage.getItem('local_coursetransfer_restore_cat_page'));
             if (this.data) {
-                if (this.data.destinyid) {
-                    let destinyid = parseInt(this.data.destinyid);
-                    this.node.find(ACTIONS.DESTINY).val(destinyid);
-                    this.node.find(ACTIONS.DESTINY).prop('disabled', true);
+                if (this.data.targetid) {
+                    let targetid = parseInt(this.data.targetid);
+                    this.node.find(ACTIONS.TARGET).val(targetid);
+                    this.node.find(ACTIONS.TARGET).prop('disabled', true);
                 }
                 if (this.data.configuration) {
                     this.data.configuration.forEach(function(config) {
@@ -131,7 +131,7 @@ define([
                 args: {
                     siteurl: this.site,
                     catid: this.data.catid,
-                    destinyid: this.data.destinyid,
+                    targetid: this.data.targetid,
                     configuration: config,
                 }
             };

@@ -177,7 +177,7 @@ class restore_category_external extends external_api {
                 [
                     'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                     'categoryid' => new external_value(PARAM_INT, 'Category ID'),
-                    'destinyid' => new external_value(PARAM_INT, 'Category Destiny ID'),
+                    'targetid' => new external_value(PARAM_INT, 'Category Target ID'),
                     'courses' => new external_multiple_structure(new external_single_structure(
                             [
                                 'id' => new external_value(PARAM_INT, 'Course ID'),
@@ -193,7 +193,7 @@ class restore_category_external extends external_api {
      *
      * @param int $siteurl
      * @param int $categoryid
-     * @param int $destinyid
+     * @param int $targetid
      * @param array $courses
      * @param int $nextruntime
      * @return array
@@ -201,7 +201,7 @@ class restore_category_external extends external_api {
      * @throws moodle_exception
      */
     public static function new_origin_restore_category_step4(
-            int $siteurl, int $categoryid, int $destinyid, array $courses, int $nextruntime): array {
+            int $siteurl, int $categoryid, int $targetid, array $courses, int $nextruntime): array {
 
         global $USER;
 
@@ -209,7 +209,7 @@ class restore_category_external extends external_api {
             self::new_origin_restore_category_step4_parameters(), [
                 'siteurl' => $siteurl,
                 'categoryid' => $categoryid,
-                'destinyid' => $destinyid,
+                'targetid' => $targetid,
                 'courses' => $courses,
                 'nextruntime' => $nextruntime,
             ]
@@ -217,14 +217,14 @@ class restore_category_external extends external_api {
 
         $siteurl = $params['siteurl'];
         $categoryid = $params['categoryid'];
-        $destinyid = $params['destinyid'];
+        $targetid = $params['targetid'];
         $courses = $params['courses'];
         $nextruntime = $params['nextruntime'];
 
         $success = false;
         $errors = [];
         $data = new stdClass();
-        $nexturl = new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $destinyid]);
+        $nexturl = new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $targetid]);
         $data->nexturl = $nexturl->out(false);
 
         try {
@@ -235,7 +235,7 @@ class restore_category_external extends external_api {
             $configuration = new configuration_category(
                     \backup::TARGET_NEW_COURSE,
                     false, false, 0, 0, $nextruntime);
-            $res = coursetransfer::restore_category($USER, $site, $destinyid, $categoryid, $configuration, $courses);
+            $res = coursetransfer::restore_category($USER, $site, $targetid, $categoryid, $configuration, $courses);
             $errors = array_merge($errors, $res['errors']);
             $success = $res['success'];
         } catch (moodle_exception $e) {

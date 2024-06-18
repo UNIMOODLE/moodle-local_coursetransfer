@@ -42,6 +42,8 @@
     {{^ haserrors }}
         <h3 class="h2">{{#str}} origin_restore_courses_list, local_coursetransfer {{/str}}{{ categoryname }}</h3>
 
+        {{> local_coursetransfer/components/search_by_name }}
+
         <table style="width: 100%">
             <thead>
             <tr>
@@ -52,7 +54,6 @@
                 <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
                 <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
                 <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
-                <th>{{#str}} step2_course_destiny, local_coursetransfer {{/str}}</th>
             </tr>
             </thead>
             <tbody>
@@ -69,14 +70,6 @@
                     <td>{{ idnumber }}</td>
                     <td>{{ categoryid }}</td>
                     <td>{{ categoryname }}</td>
-                    <td>
-                        <select name="destinyid" data-action="destiny" data-courseid="{{ id }}">
-                            <option value="0" selected>{{#str}} newcourse {{/str}}</option>
-                            {{# destinies }}
-                            <option value="{{ id }}">{{ name }} {{# shortname }}({{ shortname }}){{/ shortname }}</option>
-                            {{/ destinies }}
-                        </select>
-                    </td>
                 </tr>
             {{/ courses }}
             </tbody>
@@ -171,7 +164,7 @@
     div[data-region='origin_restore_step2_page'] input[type="radio"]:checked, input[type="radio"]:active {
         box-shadow: none;
     }
-    div[data-region='origin_restore_step2_page'] select[data-action="destiny"] {
+    div[data-region='origin_restore_step2_page'] select[data-action="target"] {
         max-width: 200px;
     }
 </style>

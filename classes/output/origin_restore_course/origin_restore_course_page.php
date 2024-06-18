@@ -102,7 +102,7 @@ class origin_restore_course_page implements renderable, templatable {
         $table->pageable(false);
         $select = 'csr.*';
         $from = '{local_coursetransfer_request} csr';
-        $where = 'destiny_course_id = :courseid AND direction = :direction AND type = :type';
+        $where = 'target_course_id = :courseid AND direction = :direction AND type = :type';
         $params = [
                 'courseid' => $this->course->id,
                 'direction' => coursetransfer_request::DIRECTION_REQUEST,

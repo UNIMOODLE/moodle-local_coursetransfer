@@ -85,7 +85,7 @@ class logs_category_response_table extends table_sql {
 
         $this->define_headers([
                 get_string('request_id', 'local_coursetransfer'),
-                get_string('destiny_site', 'local_coursetransfer'),
+                get_string('target_site', 'local_coursetransfer'),
                 get_string('origin_category_id', 'local_coursetransfer'),
                 get_string('status', 'local_coursetransfer'),
                 get_string('origin_category_courses', 'local_coursetransfer'),

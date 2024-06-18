@@ -75,7 +75,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
             $istest = $this->get_custom_data()->istest;
             $backupid = $this->get_custom_data()->backupid;
             $requestid = $this->get_custom_data()->requestid;
-            $siteid = $this->get_custom_data()->destinysite;
+            $siteid = $this->get_custom_data()->targetsite;
             $requestoriginid = $this->get_custom_data()->requestoriginid;
 
             if (!$backupid) {
@@ -126,7 +126,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
             $result = $bc->get_results();
             $userid = $bc->get_userid();
             $user = \core_user::get_user($userid);
-            $site = coursetransfer_sites::get('destiny', $siteid);
+            $site = coursetransfer_sites::get('target', $siteid);
             $request = new request($site);
 
             $requestorigin = coursetransfer_request::get($requestoriginid);
@@ -143,20 +143,20 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
                         coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
                     }
                     if (!$istest) {
-                        $res = $request->destiny_backup_course_completed(
+                        $res = $request->target_backup_course_completed(
                                 $resfileurl->fileurl, $requestid, $resfileurl->filesize, $user);
                     }
                     $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
                 } else {
                     mtrace('Course Transfer Backup - Creating File ERROR');
                     if (!$istest) {
-                        $res = $request->destiny_backup_course_error(
+                        $res = $request->target_backup_course_error(
                                 $user, $requestid, $resfileurl->error, [], $resfileurl->filesize);
                     }
                 }
             } else {
                 if (!$istest) {
-                    $res = $request->destiny_backup_course_error($user, $requestid, '', $result);
+                    $res = $request->target_backup_course_error($user, $requestid, '', $result);
                 }
             }
             if (!$istest) {
