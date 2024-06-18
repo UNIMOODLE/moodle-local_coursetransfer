@@ -111,7 +111,7 @@ class origin_course_external extends external_api {
         $paging = [];
 
         try {
-            $authres = coursetransfer::auth_user($field . 'dfd', $value);
+            $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $user = $authres['data'];
                 $courses = coursetransfer::get_courses_user($user, $page, $perpage, $search);
