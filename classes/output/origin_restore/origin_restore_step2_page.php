@@ -98,6 +98,11 @@ class origin_restore_step2_page extends origin_restore_step_page {
                 } else {
                     $data->errors = $res->errors;
                     $data->haserrors = true;
+                    $paging = new stdClass();
+                    $paging->totalcount = 0;
+                    $paging->page = 0;
+                    $paging->perpage = 0;
+                    $data->paging = $paging;
                 }
             } catch (moodle_exception $e) {
                 $data->errors = ['code' => '20002', 'msg' => $e->getMessage()];

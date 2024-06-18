@@ -107,6 +107,11 @@ class new_origin_restore_category_step2_page  extends new_origin_restore_categor
             } else {
                 $data->errors = $res->errors;
                 $data->haserrors = true;
+                $paging = new stdClass();
+                $paging->totalcount = 0;
+                $paging->page = 0;
+                $paging->perpage = 0;
+                $data->paging = $paging;
             }
         } catch (moodle_exception $e) {
             $data->errors = ['code' => '21201', 'msg' => $e->getMessage()];
