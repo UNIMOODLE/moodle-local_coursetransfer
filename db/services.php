@@ -319,6 +319,15 @@ $functions = [
             'loginrequired' => true,
     ],
 
+    'local_coursetransfer_origin_get_courses_by_ids' => [
+            'classname' => origin_course_external::class,
+            'methodname' => 'origin_get_courses_by_ids',
+            'description' => 'Get courses by ids from user',
+            'type' => 'read',
+            'ajax' => true,
+            'loginrequired' => true,
+    ],
+
 ];
 
 $services = [
@@ -353,6 +362,7 @@ $services = [
             'local_coursetransfer_site_origin_test',
             'local_coursetransfer_site_target_test',
             'local_coursetransfer_dest_search_course_name',
+            'local_coursetransfer_origin_get_courses_by_ids',
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,

@@ -940,8 +940,28 @@ class coursetransfer {
         $total = count($courses);
         if ($perpage > 0) {
             $currentpage = max(0, $page);
-            $startIndex = $currentpage * $perpage;
-            $courses = array_slice($courses, $startIndex, $perpage);
+            $startindex = $currentpage * $perpage;
+            $courses = array_slice($courses, $startindex, $perpage);
+        }
+        return ['total' => $total, 'courses' => $courses];
+    }
+
+    /**
+     * Get Courses by User by ids.
+     *
+     * @param stdClass $user
+     * @param array $courseids
+     * @return array
+     * @throws dml_exception|coding_exception
+     */
+    public static function get_courses_user_by_ids(stdClass $user, array $courseids): array {
+        $total = 0;
+        $courses = [];
+        foreach ($courseids as $courseid) {
+            $course = get_course($courseid);
+            if (self::filter_course($course, $user, '')) {
+                $courses[] = $course;
+            }
         }
         return ['total' => $total, 'courses' => $courses];
     }
@@ -968,8 +988,6 @@ class coursetransfer {
 
         // Search the courses.
         return core_course_category::search_courses($searchcriteria, $options, $requiredcapabilities);
-
-
     }
 
     /**

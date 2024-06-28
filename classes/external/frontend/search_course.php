@@ -81,7 +81,7 @@ class search_course extends external_api {
     public static function search_by_name(string $text): array {
         $params = self::validate_parameters(
             self::search_by_name_parameters(), [
-                'text' => $text
+                'text' => $text,
             ]
         );
 
@@ -133,7 +133,7 @@ class search_course extends external_api {
                 'data' => new external_multiple_structure(new external_single_structure(
                     [
                         'id' => new external_value(PARAM_INT, 'Coursename ID'),
-                        'fullname' => new external_value(PARAM_TEXT, 'Fullname')
+                        'fullname' => new external_value(PARAM_TEXT, 'Fullname'),
                     ]),
                 ),
             ]

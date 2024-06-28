@@ -104,8 +104,7 @@ class origin_restore_step3_page extends origin_restore_step_page {
         if (has_capability('local/coursetransfer:origin_view_courses', $context)) {
             try {
                 $request = new request($site);
-                // TODO. recuperar solo los elegidos.
-                $res = $request->origin_get_courses($USER);
+                $res = $request->origin_get_courses_by_ids(array_keys($courseids), $USER);
                 if ($res->success) {
                     $courses = $res->data;
                     $datacourses = [];

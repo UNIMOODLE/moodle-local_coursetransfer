@@ -159,7 +159,8 @@ class request {
      * @throws dml_exception
      */
     public function origin_get_courses_by_ids(array $courseids, stdClass $user = null): response {
-        $params = $this->get_request_params($user, $courseids);
+        $params = $this->get_request_params($user);
+        $params['courseids'] = json_encode($courseids);
         return $this->req('local_coursetransfer_origin_get_courses_by_ids', $params);
     }
 

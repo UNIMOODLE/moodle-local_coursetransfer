@@ -322,4 +322,126 @@ class origin_course_external extends external_api {
         );
     }
 
+    /**
+     * Origin get courses parameters.
+     *
+     * @return external_function_parameters
+     */
+    public static function origin_get_courses_by_ids_parameters(): external_function_parameters {
+        return new external_function_parameters(
+                [
+                        'field' => new external_value(PARAM_TEXT, 'Field'),
+                        'value' => new external_value(PARAM_TEXT, 'Value'),
+                        'courseids' => new external_value(PARAM_TEXT, 'Courseids in json encode'),
+                ]
+        );
+    }
+
+    /**
+     * Origin get courses by ids.
+     *
+     * @param string $field
+     * @param string $value
+     * @param string $courseids
+     * @return array
+     * @throws invalid_parameter_exception
+     */
+    public static function origin_get_courses_by_ids(string $field, string $value, string $courseids): array {
+        $params = self::validate_parameters(
+                self::origin_get_courses_by_ids_parameters(), [
+                        'field' => $field,
+                        'value' => $value,
+                        'courseids' => $courseids
+                ]
+        );
+        $field = $params['field'];
+        $value = $params['value'];
+        $courseids = $params['courseids'];
+
+        $success = true;
+        $errors = [];
+        $data = [];
+        $paging = [];
+
+        try {
+            $authres = coursetransfer::auth_user($field, $value);
+            if ($authres['success']) {
+                $user = $authres['data'];
+                $courseids = json_decode($courseids);
+                $courses = coursetransfer::get_courses_user_by_ids($user, $courseids);
+                $totalcourses = $courses['total'];
+                foreach ($courses['courses'] as $course) {
+                    $url = new moodle_url('/course/view.php', ['id' => $course->id]);
+                    $item = new stdClass();
+                    $item->id = $course->id;
+                    $item->url = $url->out(false);
+                    $item->fullname = $course->fullname;
+                    $item->shortname = $course->shortname;
+                    $item->idnumber = $course->idnumber;
+                    $item->categoryid = $course->category;
+                    $item->backupsizeestimated = coursetransfer::get_backup_size_estimated($course->id);
+                    $category = core_course_category::get($item->categoryid);
+                    $item->categoryname = $category->name;
+                    $data[] = $item;
+                }
+                $paging['totalcount'] = $totalcourses;
+                $paging['page'] = $page;
+                $paging['perpage'] = ($perpage !== 0 && $perpage < $totalcourses) ? $perpage : $totalcourses;
+            } else {
+                $success = false;
+                $errors[] = $authres['error'];
+            }
+        } catch (moodle_exception $e) {
+            $success = false;
+            $errors[] =
+                    [
+                            'code' => '22011',
+                            'msg' => $e->getMessage(),
+                    ];
+        }
+
+        return [
+                'success' => $success,
+                'errors' => $errors,
+                'paging' => $paging,
+                'data' => $data,
+        ];
+    }
+
+    /**
+     * Origin get courses returns.
+     *
+     * @return external_single_structure
+     */
+    public static function origin_get_courses_by_ids_returns(): external_single_structure {
+        return new external_single_structure(
+                [
+                        'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                        'errors' => new external_multiple_structure(new external_single_structure(
+                                [
+                                        'code' => new external_value(PARAM_TEXT, 'Code'),
+                                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                                ], 'Errors'
+                        )),
+                        'paging' => new external_single_structure([
+                                'totalcount' => new external_value(PARAM_INT, 'Total number of courses', VALUE_OPTIONAL),
+                                'page' => new external_value(PARAM_INT, 'Current page', VALUE_OPTIONAL),
+                                'perpage' => new external_value(PARAM_INT, 'Items per page', VALUE_OPTIONAL),
+                        ], 'Paging data'),
+                        'data' => new external_multiple_structure(new external_single_structure(
+                                [
+                                        'id' => new external_value(PARAM_INT, 'Course ID'),
+                                        'url' => new external_value(PARAM_RAW, 'URL', VALUE_OPTIONAL),
+                                        'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
+                                        'shortname' => new external_value(PARAM_TEXT, 'Shortname', VALUE_OPTIONAL),
+                                        'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
+                                        'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                                        'backupsizeestimated' => new external_value(PARAM_TEXT, 'Backup Size Estimated', VALUE_OPTIONAL),
+                                        'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
+                                ], 'Course info'
+                        ), 'Courses info'),
+                ]
+        );
+    }
+
 };
