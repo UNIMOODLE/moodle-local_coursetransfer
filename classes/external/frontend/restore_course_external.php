@@ -183,6 +183,8 @@ class restore_course_external extends external_api {
                         'target_remove_enrols' => new external_value(PARAM_BOOL, 'Target Remove Enrols'),
                         'target_remove_groups' => new external_value(PARAM_BOOL, 'Target Remove Groups'),
                         'target_remove_activities' => new external_value(PARAM_BOOL, 'Target Remove Activities'),
+                        'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Restore User Data'),
+                        'origin_remove_course' => new external_value(PARAM_BOOL, 'Origin Remove Course'),
                     ]
                 ),
                 'sections' => new external_multiple_structure(new external_single_structure(
@@ -249,11 +251,15 @@ class restore_course_external extends external_api {
             $site = coursetransfer::get_site_by_position($siteurl);
             $target = $configuration['target_merge_activities'] ?
                     \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
+
             $configuration = new configuration_course(
                     $target,
                     $configuration['target_remove_enrols'],
-                    $configuration['target_remove_groups']
+                    $configuration['target_remove_groups'],
+                    $configuration['origin_enrol_users'],
+                    $configuration['origin_remove_course']
             );
+
             $res = coursetransfer::restore_course($USER, $site, $targetid, $courseid, $configuration, $sections);
             $success = $res['success'];
             if (!$success) {

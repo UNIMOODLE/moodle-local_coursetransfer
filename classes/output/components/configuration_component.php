@@ -85,6 +85,7 @@ class configuration_component implements renderable, templatable {
         $data->target_remove_enrols = $this->configuration->targetremoveenrols;
         $data->target_remove_groups = $this->configuration->targetremovegroups;
         $data->origin_remove_course = $this->configuration->originremovecourse;
+        $data->origin_enrol_users = $this->configuration->originenrolusers;
         $data->course_new = $this->configuration->targettarget === backup::TARGET_NEW_COURSE;
         $data->has_scheduled_time = empty($this->configuration->nextruntime) ? false : true;
         $data->origin_schedule = empty($this->configuration->nextruntime) ? false : true;

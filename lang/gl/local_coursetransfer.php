@@ -331,3 +331,4 @@ $string['select_category_target'] = 'Seleccione a categoría onde se restaurará
 $string['select_destination'] = 'Seleccione o destino';
 $string['search_course_destination'] = 'Busca o curso de destino';
 $string['not_course_found'] = "Non se atopou ningún curso...";
+$string['coursetransfer:view_logs'] = 'View requests logs';

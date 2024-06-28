@@ -331,3 +331,4 @@ $string['select_category_target'] = 'Seleccioneu la categoria on es restaurarà 
 $string['select_destination'] = 'Seleccioneu la destinació';
 $string['search_course_destination'] = 'Cerca el curs de destinació';
 $string['not_course_found'] = "No s'ha trobat cap curs...";
+$string['coursetransfer:view_logs'] = 'View requests logs';

@@ -97,14 +97,14 @@ class new_origin_restore_course_step4_page extends new_origin_restore_course_ste
             if ($res->success) {
                 $data->course = $res->data;
                 $data->course->sessionStorage_id = "local_coursetransfer_".$this->course->id."_".$data->course->id;
-                $data->has_origin_user_data = false;
-                $data->can_remove_origin_course = false;
+                $data->has_origin_user_data = coursetransfer::has_origin_user_data($USER);
+                $data->can_remove_origin_course = coursetransfer::can_remove_origin_course($USER);
                 $data->can_target_restore_merge =
                         coursetransfer::can_target_restore_merge($USER, context_course::instance($this->course->id));
                 $data->can_target_restore_content_remove =
                         coursetransfer::can_target_restore_content_remove($USER, context_course::instance($this->course->id));
-                $data->can_target_restore_groups_remove = false;
-                $data->can_target_restore_enrol_remove = false;
+                $data->can_target_restore_groups_remove = coursetransfer::can_target_restore_groups_remove($USER);
+                $data->can_target_restore_enrol_remove = coursetransfer::can_target_restore_enrol_remove($USER);
                 $data->has_scheduled_time = false;
                 $data->restore_this_course = $data->can_target_restore_merge || $data->can_target_restore_content_remove;
                 $data->remove_in_target = $data->can_target_restore_groups_remove || $data->can_target_restore_enrol_remove;

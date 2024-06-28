@@ -331,3 +331,4 @@ $string['select_category_target'] = 'Hautatu ikastaro berria berreskuratuko den 
 $string['select_destination'] = 'Hautatu helmuga';
 $string['search_course_destination'] = 'Aurkitu helmuga ikastaroa';
 $string['not_course_found'] = 'Ez da ikastarorik aurkitu...';
+$string['coursetransfer:view_logs'] = 'View requests logs';

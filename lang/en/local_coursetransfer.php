@@ -331,3 +331,4 @@ $string['select_category_target'] = 'Select the category where the new course wi
 $string['select_destination'] = 'Select the destination';
 $string['search_course_destination'] = 'Search the destination course';
 $string['not_course_found'] = 'No course found...';
+$string['coursetransfer:view_logs'] = 'View requests logs';

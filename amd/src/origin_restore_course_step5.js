@@ -119,6 +119,12 @@ define([
             if (configuration['target_remove_enrols']) {
                 config.target_remove_enrols = configuration['target_remove_enrols'];
             }
+            if (configuration['origin_enrol_users']) {
+                config.origin_enrol_users = configuration['origin_enrol_users'];
+            }
+            if (configuration['origin_remove_course']) {
+                config.origin_remove_course = configuration['origin_remove_course'];
+            }
             const request = {
                 methodname: SERVICES.RESTORE_COURSE_STEP5,
                 args: {
