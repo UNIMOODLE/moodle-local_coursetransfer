@@ -64,7 +64,7 @@ class category {
      * @return int
      * @throws moodle_exception
      */
-    public static function create(string $name, string $idnumber, string $description = ''): int {
+    public static function create(string $name, ?string $idnumber, string $description = ''): int {
         $record = new stdClass();
         $record->name = $name;
         $record->description = $description;
