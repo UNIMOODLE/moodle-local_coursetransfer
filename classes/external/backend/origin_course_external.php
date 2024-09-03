@@ -111,6 +111,7 @@ class origin_course_external extends external_api {
         $paging = [];
 
         try {
+            var_dump("Auth user...");
             $authres = coursetransfer::auth_user($field, $value);
             var_dump($authres);
             if ($authres['success']) {
