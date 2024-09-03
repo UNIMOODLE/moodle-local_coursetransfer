@@ -147,7 +147,6 @@ class request {
     public function origin_get_courses(stdClass $user = null, int $page = null,
             int $perpage = null, string $search = ''): response {
         $params = $this->get_request_params($user, $page, $perpage, $search);
-        var_dump($params);
         return $this->req('local_coursetransfer_origin_get_courses', $params);
     }
 
