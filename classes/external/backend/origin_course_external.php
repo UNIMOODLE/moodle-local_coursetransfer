@@ -112,9 +112,12 @@ class origin_course_external extends external_api {
 
         try {
             $authres = coursetransfer::auth_user($field, $value);
+            var_dump($authres);
             if ($authres['success']) {
                 $user = $authres['data'];
+                var_dump('Obteniendo cursos...');
                 $courses = coursetransfer::get_courses_user($user, $page, $perpage, $search);
+                var_dump('Cursos obtenidos');
                 $totalcourses = $courses['total'];
                 foreach ($courses['courses'] as $course) {
                     $url = new moodle_url('/course/view.php', ['id' => $course->id]);
