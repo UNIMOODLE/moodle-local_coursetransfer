@@ -125,11 +125,10 @@ class origin_course_external extends external_api {
                     $item->shortname = $course->shortname;
                     $item->idnumber = $course->idnumber;
                     $item->categoryid = $course->category;
+                    var_dump($item->categoryid);
                     try {
-                        echo '<pre>';
-                        var_dump($item->categoryid);
                         $item->backupsizeestimated = coursetransfer::get_backup_size_estimated($course->id);
-                        $category = core_course_category::get($item->categoryid, IGNORE_MISSING);
+                        $category = core_course_category::get($item->categoryid);
                         $item->categoryname = $category->name;
                     } catch (moodle_exception $e) {
                         $item->backupsizeestimated = 0;
