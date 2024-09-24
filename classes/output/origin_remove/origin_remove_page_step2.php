@@ -80,6 +80,11 @@ class origin_remove_page_step2 extends origin_remove_page_base {
         $data->back_url = $backurl->out(false);
         $data->next_url = $nexturl->out(false);
         $data->search = $this->search;
+        $paging = new stdClass();
+        $paging->totalcount = 0;
+        $paging->page = 0;
+        $paging->perpage = 0;
+        $data->paging = $paging;
         $site = coursetransfer::get_site_by_position($this->site);
         try {
             $request = new request($site);
@@ -106,11 +111,6 @@ class origin_remove_page_step2 extends origin_remove_page_base {
             } else {
                 $data->errors = $res->errors;
                 $data->haserrors = true;
-                $paging = new stdClass();
-                $paging->totalcount = 0;
-                $paging->page = 0;
-                $paging->perpage = 0;
-                $data->paging = $paging;
             }
         } catch (moodle_exception $e) {
             $data->errors = ['code' => '30001', 'msg' => $e->getMessage()];

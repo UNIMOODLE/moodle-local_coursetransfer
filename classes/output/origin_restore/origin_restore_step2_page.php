@@ -84,6 +84,11 @@ class origin_restore_step2_page extends origin_restore_step_page {
         $data->next_url_disabled = true;
         $data->search = $this->search;
         $data->categories = [];
+        $paging = new stdClass();
+        $paging->totalcount = 0;
+        $paging->page = 0;
+        $paging->perpage = 0;
+        $data->paging = $paging;
         $site = coursetransfer::get_site_by_position($this->site);
         $context = \context_system::instance();
         if (has_capability('local/coursetransfer:origin_view_courses', $context)) {
@@ -98,11 +103,6 @@ class origin_restore_step2_page extends origin_restore_step_page {
                 } else {
                     $data->errors = $res->errors;
                     $data->haserrors = true;
-                    $paging = new stdClass();
-                    $paging->totalcount = 0;
-                    $paging->page = 0;
-                    $paging->perpage = 0;
-                    $data->paging = $paging;
                 }
             } catch (moodle_exception $e) {
                 $data->errors = ['code' => '20002', 'msg' => $e->getMessage()];

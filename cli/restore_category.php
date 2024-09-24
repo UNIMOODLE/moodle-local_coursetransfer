@@ -166,10 +166,16 @@ try {
     $user = core_user::get_user_by_username(user::USERNAME_WS);
 
     // 3. Restore Category.
-    $target = core_course_category::get($targetcategoryid);
+    // 3. Restore Category.
+    if ($targetcategoryid === 0) {
+        $targetid = $targetcategoryid;
+    } else {
+        $target = core_course_category::get($targetcategoryid);
+        $targetid = $target->id;
+    }
     $site = coursetransfer::get_site_by_url($siteurl);
 
-    $res = coursetransfer::restore_category($user, $site, $target->id, $origincategoryid, $configuration);
+    $res = coursetransfer::restore_category($user, $site, $targetid, $origincategoryid, $configuration);
 
     // 4. Success or Errors.
     $errors = array_merge($errors, $res['errors']);

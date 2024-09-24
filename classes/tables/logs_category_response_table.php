@@ -166,7 +166,7 @@ class logs_category_response_table extends table_sql {
         global $PAGE;
         $output = $PAGE->get_renderer('local_coursetransfer');
         $origincategoryrequests = !empty($row->origin_category_requests) ? $row->origin_category_requests : '';
-        $component = new category_course_component($origincategoryrequests, $row->siteurl, $row->id);
+        $component = new category_course_component($origincategoryrequests, $row->siteurl, $row->id, true);
         return $output->render($component);
     }
 

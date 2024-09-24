@@ -628,21 +628,19 @@ class coursetransfer {
 
             $request = new request($site);
             $origincategoryname = '';
-            $origincategoryidnumber = '';
+            $origincategoryidnumber = 'Default_' . uniqid();
             $origincategordesc = '';
-            if (count($courses) === 0) {
-                // 1a. Call CURL Origin Get Category Detail for courses list.
-                $res = $request->origin_get_category_detail($origincategoryid, $user);
-                if ($res->success) {
+            $res = $request->origin_get_category_detail($origincategoryid, $user);
+            if ($res->success) {
+                if (count($courses) === 0) {
                     $courses = $res->data->courses;
-                    $origincategoryname = $res->data->name;
-                    $origincategoryidnumber = $res->data->idnumber;
                 } else {
-                    throw new moodle_exception(json_encode($res->errors));
+                    $courses = self::get_courses_detail($user, $site, $courses);
                 }
+                $origincategoryname = $res->data->name;
+                $origincategoryidnumber = $res->data->idnumber;
             } else {
-                // 1b. Call CURL Origin Get Course Detail from courses list.
-                $courses = self::get_courses_detail($user, $site, $courses);
+                throw new moodle_exception(json_encode($res->errors));
             }
 
             // 2. If targetcategoryid is new (0)
@@ -673,7 +671,7 @@ class coursetransfer {
                 // 2. Create new course in this category.
                 $targetcourseid = course::create(
                         core_course_category::get($targetcategoryid),
-                        $course->fullname, $course->shortname . uniqid());
+                        $course->fullname, $course->shortname . '_' . uniqid());
                 $origincourseid = $course->id;
 
                 // 3. Request Restore Course.

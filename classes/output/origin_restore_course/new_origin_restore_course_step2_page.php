@@ -102,6 +102,11 @@ class new_origin_restore_course_step2_page  extends new_origin_restore_course_st
         $data->table_url = $url->out(false);
         $data->next_url_disabled = true;
         $data->search = $this->search;
+        $paging = new stdClass();
+        $paging->totalcount = 0;
+        $paging->page = 0;
+        $paging->perpage = 0;
+        $data->paging = $paging;
         $site = coursetransfer::get_site_by_position($this->site);
         try {
             $request = new request($site);
@@ -113,11 +118,6 @@ class new_origin_restore_course_step2_page  extends new_origin_restore_course_st
             } else {
                 $data->errors = $res->errors;
                 $data->haserrors = true;
-                $paging = new stdClass();
-                $paging->totalcount = 0;
-                $paging->page = 0;
-                $paging->perpage = 0;
-                $data->paging = $paging;
             }
         } catch (moodle_exception $e) {
             $data->errors = ['code' => '20021', 'msg' => $e->getMessage()];
