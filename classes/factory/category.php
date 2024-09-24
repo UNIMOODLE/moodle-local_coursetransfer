@@ -65,9 +65,14 @@ class category {
      * @throws moodle_exception
      */
     public static function create(string $name, string $idnumber, string $description = ''): int {
+        global $DB;
         $record = new stdClass();
         $record->name = $name;
         $record->description = $description;
+        $exist = $DB->record_exists('course_categories', ['idnumber' => $idnumber]);
+        if ($exist) {
+            $idnumber = $idnumber . '_' . uniqid();
+        }
         $record->idnumber = $idnumber;
         $res = core_course_category::create($record);
         return $res->id;
@@ -78,15 +83,13 @@ class category {
      *
      * @param int $id
      * @param string $name
-     * @param string $idnumber
      * @param string $description
      * @throws moodle_exception
      */
-    public static function update(int $id, string $name, string $idnumber, string $description = '') {
+    public static function update(int $id, string $name, string $description = '') {
         $record = new stdClass();
         $record->id = $id;
         $record->name = $name;
-        $record->idnumber = $idnumber;
         $record->description = $description;
         $cat = core_course_category::get($id);
         $cat->update($record);
