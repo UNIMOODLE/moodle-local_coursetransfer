@@ -105,7 +105,9 @@ define([
                 target_merge_activities: false,
                 target_remove_activities: false,
                 target_remove_groups: false,
-                target_remove_enrols: false
+                target_remove_enrols: false,
+                origin_enrol_users: false,
+                origin_remove_course: false
             };
             if (configuration['target_merge_activities']) {
                 config.target_merge_activities = configuration['target_merge_activities'];
