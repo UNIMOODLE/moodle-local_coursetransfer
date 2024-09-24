@@ -649,7 +649,7 @@ class coursetransfer {
             if ($targetcategoryid === 0) {
                 $targetcategoryid = category::create($origincategoryname, $origincategoryidnumber, $origincategordesc);
             } else {
-                category::update($targetcategoryid, $origincategoryname, $origincategoryidnumber, $origincategordesc);
+                category::update($targetcategoryid, $origincategoryname, $origincategordesc);
             }
 
             $requestobject->origin_category_name = $origincategoryname;
