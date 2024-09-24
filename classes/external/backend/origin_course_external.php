@@ -125,9 +125,14 @@ class origin_course_external extends external_api {
                     $item->shortname = $course->shortname;
                     $item->idnumber = $course->idnumber;
                     $item->categoryid = $course->category;
-                    $item->backupsizeestimated = coursetransfer::get_backup_size_estimated($course->id);
-                    $category = core_course_category::get($item->categoryid);
-                    $item->categoryname = $category->name;
+                    try {
+                        $item->backupsizeestimated = coursetransfer::get_backup_size_estimated($course->id);
+                        $category = core_course_category::get($item->categoryid);
+                        $item->categoryname = $category->name;
+                    } catch (moodle_exception $e) {
+                        $item->backupsizeestimated = 0;
+                        $item->categoryname = 'ID: ' . $item->categoryid . ' | ' .  $e->getMessage();
+                    }
                     $data[] = $item;
                 }
                 $paging['totalcount'] = $totalcourses;
@@ -290,7 +295,7 @@ class origin_course_external extends external_api {
                     [
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ],'Errors'
                 )),
                 'data' => new external_single_structure(
                     [
@@ -316,7 +321,7 @@ class origin_course_external extends external_api {
                                 )),
                             ]
                         )),
-                    ], PARAM_TEXT
+                    ], 'Data'
                 ),
             ]
         );

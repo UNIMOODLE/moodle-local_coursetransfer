@@ -165,7 +165,7 @@ class origin_category_external extends external_api {
                     [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ], 'Errors'
                 )),
                 'paging' => new external_single_structure([
                     'totalcount' => new external_value(PARAM_INT, 'Total number of courses', VALUE_OPTIONAL),
@@ -182,7 +182,7 @@ class origin_category_external extends external_api {
                         'totalcourses' => new external_value(PARAM_INT, 'Total courses', VALUE_OPTIONAL),
                         'totalsubcategories' => new external_value(PARAM_INT, 'Total subcategories', VALUE_OPTIONAL),
                         'totalcourseschild' => new external_value(PARAM_INT, 'Total courses all subcategory', VALUE_OPTIONAL),
-                    ], PARAM_TEXT, 'Data'
+                    ],'Data'
                 )),
             ]
         );
@@ -301,7 +301,7 @@ class origin_category_external extends external_api {
                     [
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ], 'Errors'
                 )),
                 'data' => new external_single_structure(
                     [
