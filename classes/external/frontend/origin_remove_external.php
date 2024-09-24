@@ -146,25 +146,25 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_step1_returns(): external_single_structure {
         return new external_single_structure(
-                [
-                    'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
-                    'errors' => new external_multiple_structure(new external_single_structure(
-                        [
-                            'code' => new external_value(PARAM_TEXT, 'Code'),
-                            'msg' => new external_value(PARAM_RAW, 'Message'),
-                        ]
-                    )),
-                    'data' => new external_single_structure(
-                        [
-                            'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
-                            'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
-                            'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
-                            'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
-                            'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
-                            'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL),
-                        ]
-                    ),
-                ]
+            [
+                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'errors' => new external_multiple_structure(new external_single_structure(
+                    [
+                        'code' => new external_value(PARAM_TEXT, 'Code'),
+                        'msg' => new external_value(PARAM_RAW, 'Message'),
+                    ]
+                )),
+                'data' => new external_single_structure(
+                    [
+                        'userid' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
+                        'username' => new external_value(PARAM_TEXT, 'Username', VALUE_OPTIONAL),
+                        'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
+                        'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
+                        'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
+                        'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL),
+                    ]
+                ),
+            ]
         );
     }
 
@@ -176,14 +176,14 @@ class origin_remove_external extends external_api {
     public static function origin_remove_step3_parameters(): external_function_parameters {
         return new external_function_parameters(
                 [
-                        'siteurl' => new external_value(PARAM_INT, 'Site Url'),
-                        'courses' => new external_multiple_structure(new external_single_structure(
-                                [
-                                        'id' => new external_value(PARAM_INT, 'Origin Course ID'),
-                                ]
-                        )),
-                        'nextruntime' => new external_value(PARAM_INT,
-                                'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0),
+                    'siteurl' => new external_value(PARAM_INT, 'Site Url'),
+                    'courses' => new external_multiple_structure(new external_single_structure(
+                        [
+                            'id' => new external_value(PARAM_INT, 'Origin Course ID'),
+                        ]
+                    )),
+                    'nextruntime' => new external_value(PARAM_INT,
+                            'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0),
                 ]
         );
     }
@@ -286,15 +286,15 @@ class origin_remove_external extends external_api {
                 [
                     'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                     'data' => new external_single_structure(
-                            [
-                                'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#'),
-                            ]
+                        [
+                            'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#'),
+                        ]
                     ),
                     'errors' => new external_multiple_structure(new external_single_structure(
-                            [
-                                'code' => new external_value(PARAM_TEXT, 'Code'),
-                                'msg' => new external_value(PARAM_RAW, 'Message'),
-                            ]
+                        [
+                            'code' => new external_value(PARAM_TEXT, 'Code'),
+                            'msg' => new external_value(PARAM_RAW, 'Message'),
+                        ]
                     )),
                 ]
         );
@@ -411,15 +411,15 @@ class origin_remove_external extends external_api {
                 [
                     'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                     'data' => new external_single_structure(
-                            [
-                                'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#'),
-                            ]
+                        [
+                            'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#'),
+                        ]
                     ),
                     'errors' => new external_multiple_structure(new external_single_structure(
-                            [
-                                'code' => new external_value(PARAM_TEXT, 'Code'),
-                                'msg' => new external_value(PARAM_RAW, 'Message'),
-                            ]
+                        [
+                            'code' => new external_value(PARAM_TEXT, 'Code'),
+                            'msg' => new external_value(PARAM_RAW, 'Message'),
+                        ]
                     )),
                 ]
         );

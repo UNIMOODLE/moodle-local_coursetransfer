@@ -389,6 +389,8 @@ class origin_course_external extends external_api {
                     $item->categoryname = $category->name;
                     $data[] = $item;
                 }
+                $perpage = 0;
+                $page = 0;
                 $paging['totalcount'] = $totalcourses;
                 $paging['page'] = $page;
                 $paging['perpage'] = ($perpage !== 0 && $perpage < $totalcourses) ? $perpage : $totalcourses;

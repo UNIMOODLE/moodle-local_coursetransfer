@@ -138,9 +138,7 @@ class origin_user_external extends external_api {
                     [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ],
-                    PARAM_TEXT,
-                    'Errors'
+                    ], 'Errors'
                 )),
                 'data' => new external_single_structure(
                     [
@@ -149,9 +147,7 @@ class origin_user_external extends external_api {
                         'firstname' => new external_value(PARAM_TEXT, 'Firstname', VALUE_OPTIONAL),
                         'lastname' => new external_value(PARAM_TEXT, 'Lastname', VALUE_OPTIONAL),
                         'email' => new external_value(PARAM_TEXT, 'Email', VALUE_OPTIONAL),
-                    ],
-                    PARAM_TEXT,
-                    'Data'
+                    ], 'Data'
                 ),
             ]
         );

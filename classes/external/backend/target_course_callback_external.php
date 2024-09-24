@@ -169,9 +169,9 @@ class target_course_callback_external extends external_api {
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'data' => new external_single_structure(
-                        [
-                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
-                        ]
+                    [
+                        'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                    ]
                 ),
                 'errors' => new external_multiple_structure(new external_single_structure(
                     [
@@ -277,9 +277,9 @@ class target_course_callback_external extends external_api {
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'data' => new external_single_structure(
-                        [
-                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
-                        ]
+                    [
+                        'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                    ]
                 ),
                 'errors' => new external_multiple_structure(new external_single_structure(
                     [
@@ -396,9 +396,9 @@ class target_course_callback_external extends external_api {
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'data' => new external_single_structure(
-                        [
-                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
-                        ]
+                    [
+                        'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                    ]
                 ),
                 'errors' => new external_multiple_structure(new external_single_structure(
                     [
@@ -510,9 +510,9 @@ class target_course_callback_external extends external_api {
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'data' => new external_single_structure(
-                        [
-                                'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
-                        ]
+                    [
+                        'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
+                    ]
                 ),
                 'errors' => new external_multiple_structure(new external_single_structure(
                     [

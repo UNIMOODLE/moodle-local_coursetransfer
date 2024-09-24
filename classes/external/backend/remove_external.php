@@ -229,7 +229,7 @@ class remove_external extends external_api {
                         [
                                 'code' => new external_value(PARAM_TEXT, 'Code'),
                                 'msg' => new external_value(PARAM_TEXT, 'Message'),
-                        ], 'PARAM_TEXT', 'Errors'
+                        ], 'Errors'
                 )),
                 'data' => new external_single_structure(
                     [
