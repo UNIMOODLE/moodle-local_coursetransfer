@@ -37,6 +37,8 @@ namespace local_coursetransfer\task;
 use context_system;
 use dml_exception;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_category;
+use local_coursetransfer\coursetransfer_course;
 use local_coursetransfer\coursetransfer_notification;
 use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\coursetransfer_restore;
@@ -101,7 +103,7 @@ class restore_course_task extends \core\task\adhoc_task {
                             if (has_capability('local/coursetransfer:origin_remove_category',
                                     context_system::instance())) {
                                 try {
-                                    coursetransfer::remove_category($site, $request->origin_category_id);
+                                    coursetransfer_category::remove($site, $request->origin_category_id);
                                 } catch (moodle_exception $e) {
                                     $remcaterrormsg = 'Origin Category Removed not working. Error: ' . $e->getMessage();
                                     $this->log($remcaterrormsg);
@@ -122,7 +124,7 @@ class restore_course_task extends \core\task\adhoc_task {
                     $remcouerrormsg = null;
                     if (has_capability('local/coursetransfer:origin_remove_course', context_system::instance())) {
                         try {
-                            coursetransfer::remove_course($site, $request->origin_course_id);
+                            coursetransfer_course::remove($site, $request->origin_course_id);
                         } catch (moodle_exception $e) {
                             $remcouerrormsg = 'Origin Course Removed not working. Error: ' . $e->getMessage();
                             $this->log($remcouerrormsg);

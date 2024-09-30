@@ -41,7 +41,16 @@
 
     {{^ haserrors }}
 
+        <hr>
+
+        <h4 class="h4">{{#str}} step5_restore_origin_site, local_coursetransfer {{/str}}</h4>
+
+        <div class="origin-site">{{ siteurl }}</div>
+
         {{> local_coursetransfer/components/category_details }}
+        <hr>
+
+        {{> local_coursetransfer/components/courses_categories_tree }}
 
         <hr>
         <h4 class="h4">{{#str}} step4_target_title, local_coursetransfer {{/str}}</h4>

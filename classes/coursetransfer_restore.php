@@ -40,7 +40,9 @@ use base_plan_exception;
 use base_setting;
 use base_setting_exception;
 use cm_info;
+use core_user;
 use dml_exception;
+use local_coursetransfer\factory\user;
 use local_coursetransfer\task\create_backup_course_task;
 use local_coursetransfer\task\restore_course_task;
 use moodle_exception;
@@ -139,8 +141,15 @@ class coursetransfer_restore {
                 $target = backup::TARGET_EXISTING_DELETING;
             }
 
+            $user = core_user::get_user($userid);
+            if ($user->username === user::USERNAME_WS) {
+                $admin = get_admin();
+                $restoreuserid = $admin->id;
+            } else {
+                $restoreuserid = $userid;
+            }
             $rc = new restore_controller($filepath, $courseid,
-                    backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, $target);
+                    backup::INTERACTIVE_NO, backup::MODE_GENERAL, $restoreuserid, $target);
 
             $plan = $rc->get_plan();
 

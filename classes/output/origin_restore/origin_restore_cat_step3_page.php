@@ -109,9 +109,11 @@ class origin_restore_cat_step3_page extends origin_restore_step_page {
             $data->haserrors = false;
             try {
                 $request = new request($site);
-                $res = $request->origin_get_category_detail($restoreid, $USER);
+                $res = $request->origin_get_category_detail_tree($restoreid, $USER);
                 if ($res->success) {
-                    $data->category = $res->data;
+                    $data = json_decode($res->data);
+                    $data->category = $data;
+                    $data->courses = coursetransfer::courses_main_html($data, false);
                 } else {
                     $data->errors = $res->errors;
                     $data->haserrors = true;

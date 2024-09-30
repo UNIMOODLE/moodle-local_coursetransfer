@@ -46,6 +46,8 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_category;
+use local_coursetransfer\coursetransfer_course;
 use local_coursetransfer\coursetransfer_request;
 use moodle_exception;
 use moodle_url;
@@ -229,7 +231,7 @@ class origin_remove_external extends external_api {
                     $nextruntime = $nextruntime / 1000;
                     $date = new DateTime();
                     $date->setTimestamp(intval($nextruntime));
-                    $res = coursetransfer::remove_course($site, $course['id'], $USER, $date->getTimestamp());
+                    $res = coursetransfer_course::remove($site, $course['id'], $USER, $date->getTimestamp());
                     if (isset($res['data']['requestid'])) {
                         $requestid = $res['data']['requestid'];
                         if (!$res['success']) {
@@ -355,7 +357,7 @@ class origin_remove_external extends external_api {
                 $nextruntime = $nextruntime / 1000;
                 $date = new DateTime();
                 $date->setTimestamp(intval($nextruntime));
-                $res = coursetransfer::remove_category($site, $catid, $USER, $date->getTimestamp());
+                $res = coursetransfer_category::remove($site, $catid, $USER, $date->getTimestamp());
                 if (isset($res['data']['requestid'])) {
                     $requestid = $res['data']['requestid'];
                     if (!$res['success']) {

@@ -33,6 +33,7 @@
  */
 
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_course;
 use local_coursetransfer\factory\user;
 
 define('CLI_SCRIPT', 1);
@@ -123,7 +124,7 @@ try {
     $user = core_user::get_user_by_username(user::USERNAME_WS);
 
     $site = coursetransfer::get_site_by_url($siteurl);
-    $res = coursetransfer::remove_course($site, $origincourseid, $user, $originscheduledatetime);
+    $res = coursetransfer_course::remove($site, $origincourseid, $user, $originscheduledatetime);
 
     // 4. Success or Errors.
     $errors = array_merge($errors, $res['errors']);

@@ -33,6 +33,7 @@
  */
 
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_category;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\models\configuration_category;
 
@@ -175,7 +176,7 @@ try {
     }
     $site = coursetransfer::get_site_by_url($siteurl);
 
-    $res = coursetransfer::restore_category($user, $site, $targetid, $origincategoryid, $configuration);
+    $res = coursetransfer_category::restore_tree($user, $site, $targetid, $origincategoryid, $configuration);
 
     // 4. Success or Errors.
     $errors = array_merge($errors, $res['errors']);

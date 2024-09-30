@@ -207,6 +207,20 @@ class request {
     }
 
     /**
+     * Origen Get category detail.
+     *
+     * @param int $categoryid
+     * @param stdClass|null $user
+     * @return response
+     * @throws dml_exception
+     */
+    public function origin_get_category_detail_tree(int $categoryid, stdClass $user = null): response {
+        $params = $this->get_request_params($user);
+        $params['categoryid'] = $categoryid;
+        return $this->req('local_coursetransfer_origin_get_category_detail_tree', $params);
+    }
+
+    /**
      * Origin back up course remote.
      *
      * @param stdClass $user

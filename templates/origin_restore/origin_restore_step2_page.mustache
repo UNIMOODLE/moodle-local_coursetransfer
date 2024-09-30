@@ -54,6 +54,7 @@
                 <th>{{#str}} step2_course_idnumber, local_coursetransfer {{/str}}</th>
                 <th>{{#str}} step2_course_categoryid, local_coursetransfer {{/str}}</th>
                 <th>{{#str}} step2_course_categoryname, local_coursetransfer {{/str}}</th>
+                <th>{{#str}} step2_course_visible, local_coursetransfer {{/str}}</th>
             </tr>
             </thead>
             <tbody>
@@ -70,6 +71,13 @@
                     <td>{{ idnumber }}</td>
                     <td>{{ categoryid }}</td>
                     <td>{{ categoryname }}</td>
+                    <td>{{# visible }}
+                            {{#str}} visible, local_coursetransfer {{/str}}
+                        {{/ visible }}
+                        {{^ visible }}
+                            {{#str}} hidden, local_coursetransfer {{/str}}
+                        {{/ visible }}
+                    </td>
                 </tr>
             {{/ courses }}
             </tbody>

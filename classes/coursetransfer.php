@@ -253,7 +253,7 @@ class coursetransfer {
      * Get Backup Size Estimated
      *
      * @param int $courseid
-     * @return string
+     * @return int
      * @throws dml_exception
      * @throws moodle_exception
      */
@@ -471,312 +471,12 @@ class coursetransfer {
     }
 
     /**
-     * Restore Course.
-     *
-     * @param stdClass $user
-     * @param stdClass $site
-     * @param int $targetcourseid
-     * @param int $origincourseid
-     * @param configuration_course $configuration
-     * @param array|null $sections
-     * @return array
-     */
-    public static function restore_course(stdClass $user,
-            stdClass $site, int $targetcourseid, int $origincourseid,
-            configuration_course $configuration, array $sections = []): array {
-
-        try {
-            return self::restore_course_unity($user, $site, $targetcourseid, $origincourseid, $configuration, $sections);
-        } catch (moodle_exception $e) {
-            $error = [
-                    'code' => '10010',
-                    'msg' => $e->getMessage(),
-            ];
-            $errors[] = $error;
-            return [
-                    'success' => false,
-                    'errors' => $errors,
-            ];
-        }
-    }
-
-    /**
-     * Remove Course.
-     *
-     * @param stdClass $site
-     * @param int $origincourseid
-     * @param stdClass|null $user
-     * @param int|null $nextruntime
-     * @return array
-     * @throws dml_exception
-     * @throws moodle_exception
-     */
-    public static function remove_course(
-            stdClass $site, int $origincourseid, stdClass $user = null, int $nextruntime = null): array {
-
-        $errors = [];
-
-        // 1. Request DB.
-        $requestobject = coursetransfer_request::set_request_remove_course($site, $origincourseid, $user, $nextruntime);
-
-        // 2. Call CURL Origin Backup Course.
-        $request = new request($site);
-        $res = $request->origin_remove_course($requestobject->id, $origincourseid, $nextruntime, $user);
-        // 3. Success or Errors.
-        if ($res->success) {
-            // 4a. Update Request DB Completed.
-            $requestobject->status = coursetransfer_request::STATUS_IN_PROGRESS;
-            $requestobject->origin_course_fullname = $res->data->course_fullname;
-            $requestobject->origin_course_shortname = $res->data->course_shortname;
-            $requestobject->origin_course_idnumber = $res->data->course_idnumber;
-            $requestobject->origin_category_id = $res->data->course_category_id;
-            $requestobject->origin_category_name = $res->data->course_category_name;
-            $requestobject->origin_category_idnumber = $res->data->course_category_idnumber;
-            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
-            $success = true;
-        } else {
-            // 4b. Update Request DB Errors.
-            $err = $res->errors;
-            $errors = $res->errors;
-            $requestobject->status = coursetransfer_request::STATUS_ERROR;
-            $requestobject->error_code = $err[0]->code;
-            $requestobject->error_message = $err[0]->msg;
-            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
-            $success = false;
-        }
-        return [
-                'success' => $success,
-                'errors' => $errors,
-                'data' => [
-                        'requestid' => $requestobject->id,
-                ],
-        ];
-    }
-
-    /**
-     * Remove Category.
-     *
-     * @param stdClass $site
-     * @param int $origincatid
-     * @param stdClass|null $user
-     * @param int|null $nextruntime
-     * @return array
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws moodle_exception
-     */
-    public static function remove_category(stdClass $site, int $origincatid,
-            stdClass $user = null, int $nextruntime = null): array {
-
-        $errors = [];
-
-        // 1. Request DB.
-        $requestobject = coursetransfer_request::set_request_remove_category($site, $origincatid, $user, $nextruntime);
-
-        // 2. Call CURL Origin Backup Course.
-        $request = new request($site);
-        $res = $request->origin_remove_category($requestobject->id, $origincatid, $nextruntime, $user);
-        // 3. Success or Errors.
-        if ($res->success) {
-            // 4a. Update Request DB Completed.
-            $requestobject->status = coursetransfer_request::STATUS_IN_PROGRESS;
-            $requestobject->origin_category_id = $origincatid;
-            $requestobject->origin_category_name = $res->data->course_category_name;
-            $requestobject->origin_category_idnumber = $res->data->course_category_idnumber;
-            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
-            $success = true;
-        } else {
-            // 4b. Update Request DB Errors.
-            $err = $res->errors;
-            $errors = $res->errors;
-            $requestobject->status = coursetransfer_request::STATUS_ERROR;
-            $requestobject->error_code = $err[0]->code;
-            $requestobject->error_message = $err[0]->msg;
-            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
-            $success = false;
-        }
-        return [
-                'success' => $success,
-                'errors' => $errors,
-                'data' => [
-                        'requestid' => $requestobject->id,
-                ],
-        ];
-    }
-
-    /**
-     * Restore Category.
-     *
-     * @param stdClass $user
-     * @param stdClass $site
-     * @param int $targetcategoryid
-     * @param int $origincategoryid
-     * @param configuration_category $configuration $configuration
-     * @param array $courses
-     * @return array
-     */
-    public static function restore_category(
-            stdClass $user, stdClass $site, int $targetcategoryid, int $origincategoryid,
-            configuration_category $configuration, array $courses = []): array {
-
-        try {
-
-            // 2. Category Request DB.
-            $requestobject = coursetransfer_request::set_request_restore_category(
-                    $site, $targetcategoryid, $origincategoryid, '', $configuration, $user
-            );
-
-            $request = new request($site);
-            $origincategoryname = '';
-            $origincategoryidnumber = 'Default_' . uniqid();
-            $origincategordesc = '';
-            $res = $request->origin_get_category_detail($origincategoryid, $user);
-            if ($res->success) {
-                if (count($courses) === 0) {
-                    $courses = $res->data->courses;
-                } else {
-                    $courses = self::get_courses_detail($user, $site, $courses);
-                }
-                $origincategoryname = $res->data->name;
-                $origincategoryidnumber = $res->data->idnumber;
-            } else {
-                throw new moodle_exception(json_encode($res->errors));
-            }
-
-            // 2. If targetcategoryid is new (0)
-            if ($targetcategoryid === 0) {
-                $targetcategoryid = category::create($origincategoryname, $origincategoryidnumber, $origincategordesc);
-            } else {
-                category::update($targetcategoryid, $origincategoryname, $origincategordesc);
-            }
-
-            $requestobject->origin_category_name = $origincategoryname;
-            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
-
-            $success = true;
-            $errors = [];
-            $catcourserequests = [];
-
-            foreach ($courses as $course) {
-
-                // 1. Configuration Course.
-                $configurationcourse = new configuration_course(
-                        $configuration->targettarget,
-                        $configuration->targetremoveenrols,
-                        $configuration->targetremovegroups,
-                        $configuration->originenrolusers,
-                        false,
-                        $configuration->nextruntime);
-
-                // 2. Create new course in this category.
-                $targetcourseid = course::create(
-                        core_course_category::get($targetcategoryid),
-                        $course->fullname, $course->shortname . '_' . uniqid());
-                $origincourseid = $course->id;
-
-                // 3. Request Restore Course.
-                $courseres = self::restore_course_unity(
-                        $user, $site, $targetcourseid, $origincourseid, $configurationcourse, [], $requestobject->id);
-
-                if (!$courseres['success']) {
-                    $success = false;
-                    $errors = array_merge($errors, $courseres['errors']);
-                }
-
-                // Update category course requests.
-                if (isset($courseres['data']['requestid'])) {
-                    $catcourserequests[] = $courseres['data']['requestid'];
-                    $requestobject->origin_category_requests = json_encode($catcourserequests);
-                    coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
-                }
-            }
-
-            return [
-                    'success' => $success,
-                    'errors' => $errors,
-                    'data' => [
-                        'requestid' => $requestobject->id,
-                    ],
-            ];
-        } catch (moodle_exception $e) {
-            $error = [
-                    'code' => '11001',
-                    'msg' => $e->getMessage(),
-            ];
-            $errors[] = $error;
-            return [
-                    'success' => false,
-                    'errors' => $errors,
-            ];
-        }
-    }
-
-    /**
-     * Restore Course Unity.
-     *
-     * @param stdClass $user
-     * @param stdClass $site
-     * @param int $targetcourseid
-     * @param int $origincourseid
-     * @param configuration_course $configuration
-     * @param array $sections
-     * @param int|null $requestcatid
-     * @return array
-     * @throws dml_exception
-     * @throws moodle_exception
-     */
-    protected static function restore_course_unity(stdClass $user, stdClass $site, int $targetcourseid, int $origincourseid,
-            configuration_course $configuration, array $sections = [], int $requestcatid = null): array {
-
-        $errors = [];
-        // 1. Request DB.
-        $requestobject = coursetransfer_request::set_request_restore_course($user,
-                $site, $targetcourseid, $origincourseid, $configuration, $sections, $requestcatid);
-
-        // 2. Call CURL Origin Backup Course.
-        $request = new request($site);
-        $res = $request->origin_backup_course(
-                $user, $requestobject->id, $origincourseid, $targetcourseid, $configuration, $sections);
-        // 3. Success or Errors.
-        if ($res->success) {
-            // 4a. Update Request DB Completed.
-            $requestobject->status = coursetransfer_request::STATUS_IN_PROGRESS;
-            $requestobject->origin_course_fullname = $res->data->course_fullname;
-            $requestobject->origin_course_shortname = $res->data->course_shortname;
-            $requestobject->origin_course_idnumber = $res->data->course_idnumber;
-            $requestobject->origin_category_id = $res->data->course_category_id;
-            $requestobject->origin_category_name = $res->data->course_category_name;
-            $requestobject->origin_category_idnumber = $res->data->course_category_idnumber;
-            $requestobject->origin_backup_size_estimated = $res->data->origin_backup_size_estimated;
-            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
-            $success = true;
-        } else {
-            // 4b. Update Request DB Errors.
-            $err = $res->errors;
-            $errors = $res->errors;
-            $requestobject->status = coursetransfer_request::STATUS_ERROR;
-            $requestobject->error_code = $err[0]->code;
-            $requestobject->error_message = $err[0]->msg;
-            coursetransfer_request::insert_or_update($requestobject, $requestobject->id);
-            $success = false;
-        }
-        return [
-                'success' => $success,
-                'errors' => $errors,
-                'data' => [
-                        'requestid' => $requestobject->id,
-                ],
-        ];
-    }
-
-    /**
      * Get Courses Detail.
      *
      * @param stdClass $user
      * @param stdClass $site
-     * @param array $courses
+     * @param stdClass[] $courses
      * @return array
-     * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
@@ -878,6 +578,7 @@ class coursetransfer {
         role::add_capability($roleid, 'moodle/category:manage');
         role::add_capability($roleid, 'local/coursetransfer:origin_remove_course');
         role::add_capability($roleid, 'local/coursetransfer:origin_remove_category');
+        role::add_capability($roleid, 'moodle/course:viewhiddencourses');
 
         // 3. Create User.
         $userid = user::create_user($roleid);
@@ -925,10 +626,12 @@ class coursetransfer {
      * @param string $search
      * @return array
      * @throws coding_exception
+     * @throws dml_exception
      */
     public static function get_courses_user(stdClass $user, int $page = 0, int $perpage = 0, string $search = ''): array {
+        global $DB;
         $courses = [];
-        $cs = get_courses();
+        $cs = $DB->get_records('course', null, 'id desc');
         $item = null;
         foreach ($cs as $course) {
             if (self::filter_course($course, $user, $search)) {
@@ -971,8 +674,11 @@ class coursetransfer {
      * @param int $page
      * @param int $perpage
      * @return array
+     * @throws dml_exception
+     * @throws coding_exception
      */
     public static function get_courses(string $search = '', int $page = 0, int $perpage = 0): array {
+        global $USER;
         // Prepare the search API options.
         // Empty search criteria returns all.
         $searchcriteria = ['search' => $search];
@@ -983,6 +689,15 @@ class coursetransfer {
             $options = ['offset' => $offset, 'limit' => $perpage];
         }
         $requiredcapabilities = ['moodle/backup:backupcourse'];
+
+        $cs = core_course_category::search_courses($searchcriteria, $options, $requiredcapabilities);
+
+        foreach ($cs as $c) {
+            $course = get_course($c->id);
+            if (self::filter_course($course, $USER, '')) {
+                $courses[] = $course;
+            }
+        }
 
         // Search the courses.
         return core_course_category::search_courses($searchcriteria, $options, $requiredcapabilities);
@@ -1205,6 +920,7 @@ class coursetransfer {
      * @param string $search
      * @return bool
      * @throws coding_exception
+     * @throws dml_exception
      */
     protected static function filter_course(stdClass $course, stdClass $user, string $search): bool {
         $context = \context_course::instance($course->id);
@@ -1214,12 +930,116 @@ class coursetransfer {
         if ((int)$course->id === 1) {
             return false;
         }
+        if ((int)$course->visible < 1) {
+            if ((int)get_config('local_coursetransfer', 'restore_courses_hidden') < 1) {
+                return false;
+            }
+        }
         if (!empty($search)) {
             if (strpos(strtolower($course->fullname), strtolower($search)) === false) {
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * Courses Main HTML.
+     *
+     * @param stdClass $data
+     * @param bool $selected
+     * @return string
+     * @throws coding_exception
+     */
+    public static function courses_main_html(stdClass $data, bool $selected = false): string {
+        $html = '<div class="courses-tree">';
+        $html .= '<div class="table-header">
+                    <div></div>
+                    <div>' . get_string('id', 'local_coursetransfer') . '</div>
+                    <div>' . get_string('name') . '</div>
+                    <div>' . get_string('shortname') . ' | ' . get_string('idnumber') . '</div>
+                </div>';
+        $html .= '<div class="table-body">';
+        foreach ($data->courses as $c) {
+            $item = '<div class="table-row course">';
+            $item .= '<div>
+                      <i class="fa fa-file-o" aria-hidden="true"></i>' . get_string('course') . '</div>
+                      <div>';
+            if ($selected) {
+                $item .= '<input type="checkbox"
+                              name="radiogroup"
+                              data-action="select"
+                              data-courseid="' . $c->id . '">';
+            }
+            $item .= $c->id . '</div>
+                      <div>' . $c->fullname . '</div>
+                      <div>' . $c->shortname . '</div>';
+            $item .= '</div>';
+            $html .= $item;
+        }
+        $html .= '</div>';
+
+        $html .= '<div class="table-row category">';
+        foreach ($data->categories as $cc) {
+            $html .= self::courses_html($cc, $selected);
+        }
+
+        $html .= '</div>';
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Courses HTML.
+     *
+     * @param stdClass $category
+     * @param bool $selected
+     * @return string
+     * @throws coding_exception
+     */
+    protected static function courses_html(stdClass $category, bool $selected): string {
+        $html = '<div class="table-category">';
+
+        $html .= '<div class="data-category">';
+        $html .= '<div><i class="fa fa-list" aria-hidden="true"></i>' . get_string('category') . '</div>
+                      <div>' . $category->id . '</div>
+                      <div>' . $category->name . '</div>
+                      <div>' . $category->idnumber . '</div>';
+        $html .= '</div>';
+
+        $html .= '<div class="table-body">';
+        if (count($category->courses) > 0) {
+            foreach ($category->courses as $course) {
+                $item = '<div class="table-row course">';
+                $item .= '<div><i class="fa fa-file-o" aria-hidden="true"></i>' . get_string('course') . '</div>
+                             <div>';
+                if ($selected) {
+                    $item .= '<input type="checkbox"
+                              name="radiogroup"
+                              data-action="select"
+                              data-courseid="' . $course->id . '">';
+                }
+                $item .= $course->id . '</div>';
+                $item .= '<div>' . $course->fullname . '</div>
+                             <div>' . $course->shortname . '</div>';
+                $item .= '</div>';
+                $html .= $item;
+            }
+        } else {
+            $html .= '<div class="table-row course not" style="font-style: italic">';
+            $html .= get_string('isempty', 'filters');
+            $html .= '</div>';
+        }
+        $html .= '</div>';
+        if (count($category->categories) > 0) {
+            $html .= '<div class="table-row category">';
+            foreach ($category->categories as $cc) {
+                $html .= self::courses_html($cc, $selected);
+            }
+            $html .= '</div>';
+        }
+        $html .= '</div>';
+        return $html;
     }
 
 }

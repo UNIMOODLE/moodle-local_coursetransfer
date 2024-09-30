@@ -45,6 +45,8 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_category;
+use local_coursetransfer\coursetransfer_course;
 use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\models\configuration_category;
 use local_coursetransfer\models\configuration_course;
@@ -242,48 +244,62 @@ class restore_external extends external_api {
                 $site = coursetransfer::get_site_by_position($siteurl);
                 $num = 1;
                 foreach ($courses as $course) {
-                    try {
-                        if ((int)$course['targetid'] === 0) {
-                            $target = \backup::TARGET_NEW_COURSE;
+                    if ((int)$course['targetid'] === 0) {
+                        $target = \backup::TARGET_NEW_COURSE;
+                        try {
                             if ((int)$course['categorytarget'] === 0) {
                                 $category = core_course_category::get_default();
                             } else {
                                 $category = core_course_category::get((int)$course['categorytarget']);
                             }
+                        } catch (moodle_exception $e) {
+                            $success = false;
+                            $errors[] =
+                                    [
+                                        'code' => '10502',
+                                        'msg' => 'Get category: Course ID: ' .
+                                                $course['courseid'] . ' - ' . $e->getMessage(),
+                                    ];
+                            break;
+                        }
+                        try {
                             $targetcourseid = \local_coursetransfer\factory\course::create(
-                                    $category, 'Remote Restoring in process...', 'IN-PROGRESS-' . time() . '-' . $num);
-                        } else {
-                            $target = $configuration['target_merge_activities'] ?
-                                    \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
-                            $targetcourseid = $course['targetid'];
+                                    $category, 'Remote Restoring in process...',
+                                    'IN-PROGRESS-' . time() . '-' . $num);
+                        } catch (moodle_exception $e) {
+                            $success = false;
+                            $errors[] =
+                                    [
+                                        'code' => '10501',
+                                        'msg' => 'Created Target ID: Course ID: ' .
+                                                $course['courseid'] . ' - ' . $e->getMessage(),
+                                    ];
+                            break;
                         }
-                        $nextruntime = $configuration['origin_schedule_datetime'] / 1000;
-                        $date = new DateTime();
-                        $date->setTimestamp(intval($nextruntime));
-                        $config = new configuration_course(
-                                $target,
-                                $configuration['target_remove_enrols'],
-                                $configuration['target_remove_groups'],
-                                $configuration['origin_enrol_users'],
-                                $configuration['origin_remove_course'],
-                                $date->getTimestamp()
-                        );
-
-                        $res = coursetransfer::restore_course($USER, $site, $targetcourseid, $course['courseid'], $config, []);
-                        if (!$res['success']) {
-                            $errors = $res['errors'];
-                        } else {
-                            $success = true;
-                        }
-                        $num ++;
-                    } catch (moodle_exception $e) {
-                        $success = false;
-                        $errors[] =
-                                [
-                                    'code' => '10501',
-                                    'msg' => 'Course ID: ' . $course['courseid'] . ' - ' . $e->getMessage(),
-                                ];
+                    } else {
+                        $target = $configuration['target_merge_activities'] ?
+                                \backup::TARGET_EXISTING_ADDING : \backup::TARGET_EXISTING_DELETING;
+                        $targetcourseid = $course['targetid'];
                     }
+                    $nextruntime = $configuration['origin_schedule_datetime'] / 1000;
+                    $date = new DateTime();
+                    $date->setTimestamp(intval($nextruntime));
+                    $config = new configuration_course(
+                            $target,
+                            $configuration['target_remove_enrols'],
+                            $configuration['target_remove_groups'],
+                            $configuration['origin_enrol_users'],
+                            $configuration['origin_remove_course'],
+                            $date->getTimestamp()
+                    );
+                    $res = coursetransfer_course::restore(
+                            $USER, $site, $targetcourseid, $course['courseid'], $config, []);
+                    if (!$res['success']) {
+                        $errors = $res['errors'];
+                    } else {
+                        $success = true;
+                    }
+                    $num ++;
                 }
             } catch (moodle_exception $e) {
                 $success = false;
@@ -391,7 +407,7 @@ class restore_external extends external_api {
                     0, 0, $configuration['origin_enrol_users'],
                     $configuration['origin_remove_category'], $date->getTimestamp());
 
-            $res = coursetransfer::restore_category($USER, $site, $targetid, $catid, $configuration);
+            $res = coursetransfer_category::restore_tree($USER, $site, $targetid, $catid, $configuration);
 
             if (!$res['success']) {
                 $errors = $res['errors'];

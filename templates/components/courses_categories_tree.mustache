@@ -1,0 +1,155 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/components/action_buttons
+
+  Example context (json):
+
+}}
+<div data-region="course_categories_tree">
+    <h4 class="title h4">{{#str}} courses_categories, local_coursetransfer {{/str}}</h4>
+
+    {{{ courses }}}
+
+</div>
+
+<style>
+    div[data-region='course_categories_tree'] {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    div[data-region='course_categories_tree'] input[type="checkbox"] {
+        position: relative;
+        left: -5px;
+        top: 3px;
+    }
+    div[data-region='course_categories_tree'] .title.h4 {
+        text-align: center;
+    }
+    div[data-region='course_categories_tree'] .table-header {
+        display: grid;
+        grid-template-columns: 15% 15% 50% 20%;
+        align-items: center;
+        justify-content: space-around;
+        width: 100%;
+        padding: 6px 2px;
+        border-bottom: 2px solid black;
+        font-size: 11px;
+        font-weight: bold;
+    }
+    div[data-region='course_categories_tree'] .table-row {
+        display: grid;
+        grid-template-columns: 15% 15% 50% 20%;
+        align-items: center;
+        justify-content: space-around;
+        width: 100%;
+        padding: 6px 2px;
+        border-bottom: 1px solid #e0e0e0;
+        height: 50px;
+        font-size: 11px;
+    }
+    div[data-region='course_categories_tree'] .table-row i.fa {
+        margin-right: 7px;
+        margin-left: 3px;
+    }
+    div[data-region='course_categories_tree'] .table-row.course.not {
+        grid-template-columns: 100%;
+        text-align: center;
+        border-bottom: 1px solid #ffffff8a;
+    }
+    div[data-region='course_categories_tree'] .table-row.category {
+        background-color: #eaeaea4f;
+        height: inherit;
+        font-size: 11px;
+        grid-template-columns: inherit;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    div[data-region='course_categories_tree'] .table-row.category .table-category {
+        width: 95%;
+        padding: 0 11px 7px;
+    }
+    div[data-region='course_categories_tree'] .table-row.category .data-category {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 15% 15% 50% 20%;
+        padding: 10px 0;
+        border-bottom: 2px solid #c4c4c4;
+        font-weight: bold;
+    }
+    div[data-region='course_categories_tree'] .table-body {
+        width: 100%;
+    }
+    div[data-region='course_categories_tree'] .courses-tree ul.list-courses {
+        list-style: none;
+        margin-bottom: 2px;
+        padding-left: 0;
+        width: 100%;
+    }
+    div[data-region='course_categories_tree'] .courses-tree ul.list-categories {
+        list-style: none;
+        width: 100%;
+        padding-left: 0;
+    }
+    div[data-region='course_categories_tree'] .courses-tree {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        max-width: 1024px;
+        width: 100%;
+    }
+    div[data-region='course_categories_tree'] .courses-tree li.item-course {
+        margin: 5px 5px 10px;
+        padding: 2px 10px;
+        border-radius: 4px;
+        font-weight: normal;
+        font-style: normal;
+    }
+    div[data-region='course_categories_tree'] .courses-tree li.item-course span.c-fullname {
+        font-size: 16px;
+        font-weight: bold;
+        margin-right: 20px;
+    }
+    div[data-region='course_categories_tree'] .courses-tree .cc-name {
+        font-size: 16px;
+        font-weight: bold;
+        margin-right: 20px;
+    }
+    div[data-region='course_categories_tree'] .courses-tree span.label {
+        opacity: 0.3;
+        font-size: 11px;
+    }
+    div[data-region='course_categories_tree'] .courses-tree li.item-category {
+        margin: 0 5px 0;
+        padding: 4px 10px 8px;
+        border-radius: 2px;
+        font-weight: bold;
+        font-style: italic;
+    }
+</style>
+

@@ -94,6 +94,15 @@ $functions = [
         'loginrequired' => true,
     ],
 
+    'local_coursetransfer_origin_get_category_detail_tree' => [
+        'classname' => origin_category_external::class,
+        'methodname' => 'origin_get_category_detail_tree',
+        'description' => 'Get specific category details in tree format',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
     'local_coursetransfer_origin_backup_course' => [
         'classname' => origin_course_backup_external::class,
         'methodname' => 'origin_backup_course',
@@ -338,6 +347,7 @@ $services = [
             'local_coursetransfer_origin_get_categories',
             'local_coursetransfer_origin_get_course_detail',
             'local_coursetransfer_origin_get_category_detail',
+            'local_coursetransfer_origin_get_category_detail_tree',
             'local_coursetransfer_origin_backup_course',
             'local_coursetransfer_target_backup_course_completed',
             'local_coursetransfer_target_backup_course_error',

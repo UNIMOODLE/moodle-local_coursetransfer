@@ -61,11 +61,15 @@ class category {
      * @param string $name
      * @param string $idnumber
      * @param string $description
+     * @param int|null $parent
      * @return int
+     * @throws \dml_exception
      * @throws moodle_exception
      */
-    public static function create(string $name, string $idnumber, string $description = ''): int {
+    public static function create(string $name = '', string $idnumber = '', string $description = '', int $parent = null): int {
         global $DB;
+        $name = empty($name) ? 'Default_' . uniqid() : $name;
+        $idnumber = empty($idnumber) ? 'Default_' . uniqid() : $idnumber;
         $record = new stdClass();
         $record->name = $name;
         $record->description = $description;
@@ -73,6 +77,10 @@ class category {
         if ($exist) {
             $idnumber = $idnumber . '_' . uniqid();
         }
+        if (!is_null($parent)) {
+            $record->parent = $parent;
+        }
+        $record->idnumber = $idnumber;
         $record->idnumber = $idnumber;
         $res = core_course_category::create($record);
         return $res->id;
@@ -86,10 +94,12 @@ class category {
      * @param string $description
      * @throws moodle_exception
      */
-    public static function update(int $id, string $name, string $description = '') {
+    public static function update(int $id, string $name = '', string $description = '') {
         $record = new stdClass();
         $record->id = $id;
-        $record->name = $name;
+        if ($name !== '') {
+            $record->name = $name;
+        }
         $record->description = $description;
         $cat = core_course_category::get($id);
         $cat->update($record);

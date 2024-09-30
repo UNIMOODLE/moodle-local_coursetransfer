@@ -100,15 +100,27 @@ function local_coursetransfer_extend_navigation_category_settings(navigation_nod
  * @param array $options additional options affecting the file serving
  * @return bool false if the file not found, just send the file otherwise and do not return anything
  * @throws coding_exception
+ * @throws moodle_exception
  */
 function local_coursetransfer_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=[]): bool {
+    global $USER;
     // Check that the filearea is sane.
     if ($filearea !== 'backup') {
         return false;
     }
 
     // Require authentication.
-    require_login($course, true);
+    try {
+        require_login($course, true);
+    } catch (moodle_exception $e) {
+        if (!has_capability('moodle/course:viewhiddencourses', $context)) {
+            $error = 'User WS has not capability: moodle/course:viewhiddencourses';
+            $error = $e->getMessage() . ' ' . $error;
+        } else {
+            $error = $e->getMessage();
+        }
+        throw new moodle_exception($error);
+    }
 
     // Capability check.
     if (!has_capability('moodle/backup:backupcourse', $context)) {

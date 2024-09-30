@@ -100,6 +100,11 @@ if ($hassiteconfig) {
             get_string('remove_cat_cleanup_desc', 'local_coursetransfer'),
             false));
 
+    $settings->add(new admin_setting_configcheckbox('local_coursetransfer/restore_courses_hidden',
+            get_string('restore_courses_hidden', 'local_coursetransfer'),
+            get_string('restore_courses_hidden_desc', 'local_coursetransfer'),
+            false));
+
     $choices = coursetransfer::FIELDS_USER;
     $options = [];
     foreach ($choices as $choice) {

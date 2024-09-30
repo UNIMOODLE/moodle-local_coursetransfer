@@ -33,6 +33,7 @@
  */
 
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_course;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\models\configuration_course;
 
@@ -240,7 +241,7 @@ try {
     // 3. Restore Course.
     $target = get_course($targetcourseid);
     $site = coursetransfer::get_site_by_url($siteurl);
-    $res = coursetransfer::restore_course($user, $site, $target->id, $origincourseid, $configuration);
+    $res = coursetransfer_course::restore($user, $site, $target->id, $origincourseid, $configuration);
 
     // 4. Success or Errors.
     $errors = array_merge($errors, $res['errors']);

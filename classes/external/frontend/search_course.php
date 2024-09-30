@@ -94,9 +94,12 @@ class search_course extends external_api {
         try {
             $courses = coursetransfer::get_courses($text, 0, 7);
             foreach ($courses as $course) {
+                error_log($course->id);
+                error_log($course->visible);
                 $c = new stdClass();
                 $c->id = $course->id;
                 $c->fullname = $course->fullname;
+                $c->visible = (int)$course->visible;
                 $data[] = $c;
             }
             $success = true;
@@ -134,6 +137,7 @@ class search_course extends external_api {
                     [
                         'id' => new external_value(PARAM_INT, 'Coursename ID'),
                         'fullname' => new external_value(PARAM_TEXT, 'Fullname'),
+                        'visible' => new external_value(PARAM_BOOL, 'Is visible?'),
                     ]),
                 ),
             ]

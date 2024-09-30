@@ -472,7 +472,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
     /**
      * Tests backup.
      *
-     * @covers coursetransfer::restore_course
+     * @covers coursetransfer_course::restore
      * @param configuration_course $configuration
      * @param stdClass $coursetarget
      * @param stdClass $courseorigin

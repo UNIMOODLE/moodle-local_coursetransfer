@@ -71,8 +71,22 @@ class download_file_course_task extends \core\task\adhoc_task {
         try {
             $fs = get_file_storage();
             $filecontent = @file_get_contents($fileurle);
+            $responsejs = json_decode($filecontent);
 
-            if (!empty($filecontent)) {
+            $validatecontent = true;
+            if (empty($filecontent)) {
+                $validatecontent = false;
+                $msg = 'Backup Content empty!';
+                $errorcode = '13004';
+            } else {
+                if (isset($responsejs->error)) {
+                    $validatecontent = false;
+                    $msg = 'Backup Content Error in Moodle: ' . json_encode($responsejs);
+                    $errorcode = '13003';
+                }
+            }
+
+            if ($validatecontent) {
                 $this->log('Backup File Dowload Success!');
 
                 $context = context_course::instance($request->target_course_id);
@@ -93,10 +107,13 @@ class download_file_course_task extends \core\task\adhoc_task {
                 coursetransfer_restore::create_task_restore_course($request, $file);
             } else {
                 $errorlast = error_get_last();
-                $error = isset($errorlast['message']) ? $errorlast['message'] : 'HTTP request failed in file download';
+                $error = empty($msg) ? 'HTTP request failed in file download' : $msg;
+                $error = isset($errorlast['message']) ? $errorlast['message'] : $error;
+                $errorcode = isset($errorcode) ? $errorcode : '13002';
+                $errorcode = isset($errorlast['message']) ? '13001' : $errorcode;
                 $this->log($error);
                 $request->status = coursetransfer_request::STATUS_ERROR;
-                $request->error_code = '13001';
+                $request->error_code = $errorcode;
                 $request->error_message = $error;
                 coursetransfer_request::insert_or_update($request, $request->id);
             }

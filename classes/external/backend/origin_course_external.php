@@ -125,6 +125,7 @@ class origin_course_external extends external_api {
                     $item->shortname = $course->shortname;
                     $item->idnumber = $course->idnumber;
                     $item->categoryid = $course->category;
+                    $item->visible = (int)$course->visible === 1;
                     try {
                         $item->backupsizeestimated = coursetransfer::get_backup_size_estimated($course->id);
                         $category = core_course_category::get($item->categoryid);
@@ -187,6 +188,7 @@ class origin_course_external extends external_api {
                         'shortname' => new external_value(PARAM_TEXT, 'Shortname', VALUE_OPTIONAL),
                         'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
                         'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                        'visible' => new external_value(PARAM_BOOL, 'Is visible', VALUE_OPTIONAL),
                         'backupsizeestimated' => new external_value(PARAM_TEXT, 'Backup Size Estimated', VALUE_OPTIONAL),
                         'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
                     ], 'Course info'

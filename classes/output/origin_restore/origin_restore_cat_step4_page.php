@@ -112,9 +112,11 @@ class origin_restore_cat_step4_page extends origin_restore_step_page {
             $data->haserrors = false;
             try {
                 $request = new request($site);
-                $res = $request->origin_get_category_detail($restoreid, $USER);
+                $res = $request->origin_get_category_detail_tree($restoreid, $USER);
                 if ($res->success) {
-                    $data->category = $res->data;
+                    $datares = json_decode($res->data);
+                    $data->category = $datares;
+                    $data->courses = coursetransfer::courses_main_html($datares, false);
                 } else {
                     $data->errors = $res->errors;
                     $data->haserrors = true;
@@ -146,6 +148,7 @@ class origin_restore_cat_step4_page extends origin_restore_step_page {
         $data->remove_in_target =
                 $data->can_target_restore_groups_remove || $data->can_target_restore_enrol_remove;
         $data->origin_course_configuration = $data->has_origin_user_data || $data->has_scheduled_time;
+
         return $data;
     }
 }

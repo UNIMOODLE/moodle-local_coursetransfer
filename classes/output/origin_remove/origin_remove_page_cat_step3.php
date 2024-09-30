@@ -82,7 +82,7 @@ class origin_remove_page_cat_step3 extends origin_remove_page_base {
                 $request = new request($site);
                 $res = $request->origin_get_category_detail($removeid, $USER);
                 if ($res->success) {
-                    $courses = $res->data->courses;
+                    $courses = json_decode($res->data->courses);
                     $data->category = $res->data;
                     $data->courses = $courses;
                 } else {

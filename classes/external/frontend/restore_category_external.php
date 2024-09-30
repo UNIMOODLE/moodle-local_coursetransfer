@@ -43,6 +43,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_category;
 use local_coursetransfer\models\configuration_category;
 use moodle_exception;
 use moodle_url;
@@ -221,6 +222,9 @@ class restore_category_external extends external_api {
         $courses = $params['courses'];
         $nextruntime = $params['nextruntime'];
 
+        // TODO.
+        $originenrolusers = 0;
+
         $success = false;
         $errors = [];
         $data = new stdClass();
@@ -234,8 +238,8 @@ class restore_category_external extends external_api {
             $date->setTimestamp(intval($nextruntime));
             $configuration = new configuration_category(
                     \backup::TARGET_NEW_COURSE,
-                    false, false, 0, 0, $nextruntime);
-            $res = coursetransfer::restore_category($USER, $site, $targetid, $categoryid, $configuration, $courses);
+                    false, false, $originenrolusers, 0, $nextruntime);
+            $res = coursetransfer_category::restore($USER, $site, $targetid, $categoryid, $configuration, $courses);
             $errors = array_merge($errors, $res['errors']);
             $success = $res['success'];
         } catch (moodle_exception $e) {

@@ -42,6 +42,7 @@ use external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_course;
 use local_coursetransfer\models\configuration_course;
 use moodle_exception;
 use moodle_url;
@@ -260,7 +261,7 @@ class restore_course_external extends external_api {
                     $configuration['origin_remove_course']
             );
 
-            $res = coursetransfer::restore_course($USER, $site, $targetid, $courseid, $configuration, $sections);
+            $res = coursetransfer_course::restore($USER, $site, $targetid, $courseid, $configuration, $sections);
             $success = $res['success'];
             if (!$success) {
                 $errors = $res['errors'];
