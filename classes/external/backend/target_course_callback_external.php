@@ -177,7 +177,7 @@ class target_course_callback_external extends external_api {
                     [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ],'Errors'
+                    ], 'Errors'
                 )),
             ]
         );
@@ -285,7 +285,7 @@ class target_course_callback_external extends external_api {
                     [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ],'Errors'
+                    ], 'Errors'
                 )),
             ]
         );
@@ -404,7 +404,7 @@ class target_course_callback_external extends external_api {
                     [
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ],'Errors'
+                    ], 'Errors'
                 )),
             ]
         );
@@ -518,7 +518,7 @@ class target_course_callback_external extends external_api {
                     [
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ],'Errors'
+                    ], 'Errors'
                 )),
             ]
         );

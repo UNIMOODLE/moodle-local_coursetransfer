@@ -182,7 +182,7 @@ class origin_category_external extends external_api {
                         'totalcourses' => new external_value(PARAM_INT, 'Total courses', VALUE_OPTIONAL),
                         'totalsubcategories' => new external_value(PARAM_INT, 'Total subcategories', VALUE_OPTIONAL),
                         'totalcourseschild' => new external_value(PARAM_INT, 'Total courses all subcategory', VALUE_OPTIONAL),
-                    ],'Data'
+                    ], 'Data'
                 )),
             ]
         );
@@ -304,27 +304,27 @@ class origin_category_external extends external_api {
                                 ], PARAM_TEXT, 'Errors'
                         )),
                         'data' => new external_single_structure(
-                                [
-                                        'id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
-                                        'name' => new external_value(PARAM_TEXT, 'Name', VALUE_OPTIONAL),
-                                        'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
-                                        'parentid' => new external_value(PARAM_INT, 'Category Parent ID', VALUE_OPTIONAL),
-                                        'parentname' => new external_value(PARAM_TEXT, 'Category ParentName', VALUE_OPTIONAL),
-                                        'courses' => new external_multiple_structure(
-                                                new external_single_structure(
-                                                        [
-                                                                'id' => new external_value(PARAM_INT, 'Course ID', VALUE_OPTIONAL),
-                                                                'url' => new external_value(PARAM_RAW, 'Course URL', VALUE_OPTIONAL),
-                                                                'fullname' => new external_value(PARAM_TEXT, 'Course fullname', VALUE_OPTIONAL),
-                                                                'shortname' => new external_value(PARAM_TEXT, 'Course ShortName', VALUE_OPTIONAL),
-                                                                'idnumber' => new external_value(PARAM_TEXT, 'Course Idnumber', VALUE_OPTIONAL),
-                                                                'categoryid' => new external_value(PARAM_INT, 'Category Id', VALUE_OPTIONAL),
-                                                                'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
-                                                                'categoryidnumber' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
-                                                        ]
-                                                )
-                                        ),
-                                ]
+                            [
+                                'id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                                'name' => new external_value(PARAM_TEXT, 'Name', VALUE_OPTIONAL),
+                                'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
+                                'parentid' => new external_value(PARAM_INT, 'Category Parent ID', VALUE_OPTIONAL),
+                                'parentname' => new external_value(PARAM_TEXT, 'Category ParentName', VALUE_OPTIONAL),
+                                'courses' => new external_multiple_structure(
+                                    new external_single_structure(
+                                        [
+                                            'id' => new external_value(PARAM_INT, 'Course ID', VALUE_OPTIONAL),
+                                            'url' => new external_value(PARAM_RAW, 'Course URL', VALUE_OPTIONAL),
+                                            'fullname' => new external_value(PARAM_TEXT, 'Course fullname', VALUE_OPTIONAL),
+                                            'shortname' => new external_value(PARAM_TEXT, 'Course ShortName', VALUE_OPTIONAL),
+                                            'idnumber' => new external_value(PARAM_TEXT, 'Course Idnumber', VALUE_OPTIONAL),
+                                            'categoryid' => new external_value(PARAM_INT, 'Category Id', VALUE_OPTIONAL),
+                                            'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
+                                            'categoryidnumber' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
+                                        ]
+                                )
+                            ),
+                            ]
                         ),
                 ]
         );
@@ -460,7 +460,7 @@ class origin_category_external extends external_api {
                 'description' => $category->description,
                 'parentname' => $parentname,
                 'courses' => $courses,
-                'categories' => []
+                'categories' => [],
         ];
         $childrens = $category->get_children();
 

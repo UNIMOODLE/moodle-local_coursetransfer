@@ -360,7 +360,6 @@ class coursetransfer_category {
             ];
         }
 
-
         return [
                 'success' => $success,
                 'errors' => $errors,

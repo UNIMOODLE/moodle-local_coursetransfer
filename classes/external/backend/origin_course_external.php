@@ -297,7 +297,7 @@ class origin_course_external extends external_api {
                     [
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ],'Errors'
+                    ], 'Errors'
                 )),
                 'data' => new external_single_structure(
                     [
@@ -358,7 +358,7 @@ class origin_course_external extends external_api {
                 self::origin_get_courses_by_ids_parameters(), [
                         'field' => $field,
                         'value' => $value,
-                        'courseids' => $courseids
+                        'courseids' => $courseids,
                 ]
         );
         $field = $params['field'];
@@ -438,16 +438,16 @@ class origin_course_external extends external_api {
                                 'perpage' => new external_value(PARAM_INT, 'Items per page', VALUE_OPTIONAL),
                         ], 'Paging data'),
                         'data' => new external_multiple_structure(new external_single_structure(
-                                [
-                                        'id' => new external_value(PARAM_INT, 'Course ID'),
-                                        'url' => new external_value(PARAM_RAW, 'URL', VALUE_OPTIONAL),
-                                        'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
-                                        'shortname' => new external_value(PARAM_TEXT, 'Shortname', VALUE_OPTIONAL),
-                                        'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
-                                        'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
-                                        'backupsizeestimated' => new external_value(PARAM_TEXT, 'Backup Size Estimated', VALUE_OPTIONAL),
-                                        'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
-                                ], 'Course info'
+                            [
+                                'id' => new external_value(PARAM_INT, 'Course ID'),
+                                'url' => new external_value(PARAM_RAW, 'URL', VALUE_OPTIONAL),
+                                'fullname' => new external_value(PARAM_TEXT, 'Fullname', VALUE_OPTIONAL),
+                                'shortname' => new external_value(PARAM_TEXT, 'Shortname', VALUE_OPTIONAL),
+                                'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
+                                'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                                'backupsizeestimated' => new external_value(PARAM_TEXT, 'Backup Size Estimated', VALUE_OPTIONAL),
+                                'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
+                            ], 'Course info'
                         ), 'Courses info'),
                 ]
         );
