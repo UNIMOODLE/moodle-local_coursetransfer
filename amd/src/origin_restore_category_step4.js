@@ -114,6 +114,18 @@ define([
             let siteurl = this.site;
             let categoryid = this.restoreid;
             let targetid = this.targetid;
+            let configuration = [];
+            this.sessiondata.configuration.forEach(function(config) {
+                if (config.name === 'origin_enrolusers') {
+                    configuration[config.name] = config.selected;
+                }
+            });
+            let config = {
+                origin_enrol_users: false
+            };
+            if (configuration['origin_enrolusers']) {
+                config.origin_enrol_users = configuration['origin_enrolusers'];
+            }
             const request = {
                 methodname: SERVICES.RESTORE_CATEGORY_STEP4,
                 args: {
@@ -121,7 +133,8 @@ define([
                     categoryid: categoryid,
                     targetid: targetid,
                     courses: this.sessiondata.category.courses,
-                    nextruntime: nextruntime
+                    nextruntime: nextruntime,
+                    configuration: config,
                 }
             };
             Ajax.call([request])[0].done(function(response) {

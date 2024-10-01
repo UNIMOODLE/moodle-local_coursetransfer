@@ -180,10 +180,15 @@ class restore_category_external extends external_api {
                     'categoryid' => new external_value(PARAM_INT, 'Category ID'),
                     'targetid' => new external_value(PARAM_INT, 'Category Target ID'),
                     'courses' => new external_multiple_structure(new external_single_structure(
-                            [
-                                'id' => new external_value(PARAM_INT, 'Course ID'),
-                            ]
+                        [
+                            'id' => new external_value(PARAM_INT, 'Course ID'),
+                        ]
                     )),
+                    'configuration' => new external_single_structure(
+                        [
+                            'origin_enrol_users' => new external_value(PARAM_BOOL, 'Origin Enrol Users'),
+                        ]
+                    ),
                     'nextruntime' => new external_value(PARAM_INT, 'Next Time Run Timestamp'),
                 ]
         );
@@ -196,13 +201,14 @@ class restore_category_external extends external_api {
      * @param int $categoryid
      * @param int $targetid
      * @param array $courses
+     * @param array $configuration
      * @param int $nextruntime
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
     public static function new_origin_restore_category_step4(
-            int $siteurl, int $categoryid, int $targetid, array $courses, int $nextruntime): array {
+            int $siteurl, int $categoryid, int $targetid, array $courses, array $configuration, int $nextruntime): array {
 
         global $USER;
 
@@ -212,6 +218,7 @@ class restore_category_external extends external_api {
                 'categoryid' => $categoryid,
                 'targetid' => $targetid,
                 'courses' => $courses,
+                'configuration' => $configuration,
                 'nextruntime' => $nextruntime,
             ]
         );
@@ -220,10 +227,10 @@ class restore_category_external extends external_api {
         $categoryid = $params['categoryid'];
         $targetid = $params['targetid'];
         $courses = $params['courses'];
+        $configuration = $params['configuration'];
         $nextruntime = $params['nextruntime'];
 
-        // TODO.
-        $originenrolusers = 0;
+        $originenrolusers = $configuration['origin_enrol_users'];
 
         $success = false;
         $errors = [];
