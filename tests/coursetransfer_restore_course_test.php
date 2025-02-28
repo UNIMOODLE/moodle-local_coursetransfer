@@ -61,6 +61,7 @@ use phpunit_util;
 use stdClass;
 use stored_file;
 use testing_data_generator;
+use \core\cron;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -68,7 +69,6 @@ global $CFG;
 require_once($CFG->dirroot . '/webservice/tests/helpers.php');
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->libdir . '/setuplib.php');
-require_once($CFG->libdir . '/cronlib.php');
 
 /**
  * coursetransfer_restore_course_test
@@ -79,6 +79,7 @@ require_once($CFG->libdir . '/cronlib.php');
  * @author     3IPUNT <contacte@tresipunt.com>
  * @group      local_coursetransfer
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @runTestsInSeparateProcesses
  */
 class coursetransfer_restore_course_test extends advanced_testcase {
 
@@ -679,7 +680,8 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 $this->assertEquals('SuperHeroes Summary', $section->summary);
                 $mods = 0;
                 foreach ($cms as $cm) {
-                    if ($cm->section === $section->id) {
+                    echo $cm->sectionnum . ' - ' . $section->section . '<br>';
+                    if ($cm->sectionnum === $section->section) {
                         $mods ++;
                     }
                 }
