@@ -289,7 +289,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
         $this->group3 = $this->getDataGenerator()->create_group(['courseid' => $this->targetcourse3->id]);
         groups_add_member($this->group3, $student4);
 
-        $this->group4 = $this->getDataGenerator()->create_group(['courseid' => $this->targetcourse2->id]);
+        $this->group4 = $this->getDataGenerator()->create_group(['courseid' => $this->targetcourse3->id]);
         groups_add_member($this->group4, $student5);
         groups_add_member($this->group4, $student6);
 
@@ -680,8 +680,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 $this->assertEquals('SuperHeroes Summary', $section->summary);
                 $mods = 0;
                 foreach ($cms as $cm) {
-                    echo $cm->sectionnum . ' - ' . $section->section . '<br>';
-                    if ($cm->sectionnum === $section->section) {
+                    if ($cm->section == $section->id) {
                         $mods ++;
                     }
                 }
@@ -692,7 +691,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 $this->assertEquals('Cars Summary', $section->summary);
                 $mods = 0;
                 foreach ($cms as $cm) {
-                    if ($cm->section === $section->id) {
+                    if ($cm->section == $section->id) {
                         $mods ++;
                     }
                 }
