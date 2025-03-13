@@ -229,7 +229,7 @@ class remove_external extends external_api {
                         [
                                 'code' => new external_value(PARAM_TEXT, 'Code'),
                                 'msg' => new external_value(PARAM_TEXT, 'Message'),
-                        ], PARAM_TEXT, 'Errors'
+                        ], PARAM_TEXT, VALUE_REQUIRED, 'Errors',
                 )),
                 'data' => new external_single_structure(
                     [
@@ -241,7 +241,7 @@ class remove_external extends external_api {
                         'course_category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                         'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
                         'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
-                    ], PARAM_TEXT, 'Data'
+                    ], PARAM_TEXT, VALUE_REQUIRED, 'Data',
                 ),
                 ]
         );
@@ -404,7 +404,7 @@ class remove_external extends external_api {
                                 [
                                         'code' => new external_value(PARAM_TEXT, 'Code'),
                                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                                ], PARAM_TEXT, 'Errors'
+                                ], PARAM_TEXT, VALUE_REQUIRED, 'Errors'
                         )),
                         'data' => new external_single_structure(
                             [
@@ -413,7 +413,7 @@ class remove_external extends external_api {
                                 'course_category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                                 'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
                                 'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
-                            ], PARAM_TEXT, 'Data'
+                            ], PARAM_TEXT, VALUE_REQUIRED, 'Data'
                         ),
                 ]
         );
