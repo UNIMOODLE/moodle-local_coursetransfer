@@ -110,7 +110,6 @@ class coursetransfer_backup {
         $bc->set_execution(backup::EXECUTION_DELAYED);
         $bc->save_controller();
         $asynctask = new create_backup_course_task();
-        $asynctask->set_blocking(false);
         if (!is_null($nextruntime)) {
             $asynctask->set_next_run_time($nextruntime);
         }

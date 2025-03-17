@@ -34,6 +34,12 @@
 
 $string['pluginname'] = 'Course Transfer';
 $string['pluginname_header_general'] = 'General';
+$string['privacy:metadata:local_coursetransfer_request:userid'] = 'Creator User ID';
+$string['privacy:metadata:local_coursetransfer_request'] = 'Table that contains the information of the requests made';
+$string['privacy:metadata:local_coursetransfer_origin:userid'] = 'User ID last modified';
+$string['privacy:metadata:local_coursetransfer_origin'] = 'Table of Origin Sites available';
+$string['privacy:metadata:local_coursetransfer_target:userid'] = 'User ID last modified';
+$string['privacy:metadata:local_coursetransfer_target'] = 'Table of Target Sites availables';
 $string['setting_target_restore_course_max_size'] = 'Maximum course size to be restored (MB)';
 $string['setting_target_restore_course_max_size_desc'] = 'Limit of the size of the backup copy (MBZ file)of the origin course to be restored in MB.';
 $string['setting_target_sites'] = 'Target sites';
