@@ -53,6 +53,32 @@ function local_coursetransfer_extend_navigation_course(navigation_node $navigati
 }
 
 /**
+ * Add shortcut to the course-reuse menu.
+ * @param navigation_node $navigation
+ * @param context $context
+ * @return void
+ */
+function local_coursetransfer_extend_settings_navigation(navigation_node $navigation, context $context) {
+    global $CFG, $PAGE;
+
+    if ($context->contextlevel !== CONTEXT_COURSE) {
+        return;
+    }
+    if (has_capability('local/coursetransfer:origin_restore_course', $context)) {
+        $course = $PAGE->course;
+        $coursereusenode = $navigation->find('coursereuse', \navigation_node::TYPE_CONTAINER);
+        // Add the node to the settingsnav
+        if ($coursereusenode) {
+            $url = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $course->id]);
+            $coursereusenode->add(get_string('origin_restore_course', 'local_coursetransfer'), 
+                                $url,
+                                \navigation_node::TYPE_SETTING, null, null,
+                                new pix_icon('t/restore', get_string('origin_restore_course', 'local_coursetransfer')));
+        }
+
+    }
+}
+/**
  * Adds to the course admin menu.
  *
  * @param navigation_node $navigation The navigation node to extend
