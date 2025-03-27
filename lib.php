@@ -61,21 +61,50 @@ function local_coursetransfer_extend_navigation_course(navigation_node $navigati
 function local_coursetransfer_extend_settings_navigation(navigation_node $navigation, context $context) {
     global $CFG, $PAGE;
 
-    if ($context->contextlevel !== CONTEXT_COURSE) {
-        return;
-    }
-    if (has_capability('local/coursetransfer:origin_restore_course', $context)) {
-        $course = $PAGE->course;
-        $coursereusenode = $navigation->find('coursereuse', \navigation_node::TYPE_CONTAINER);
-        // Add the node to the settingsnav
-        if ($coursereusenode) {
-            $url = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $course->id]);
-            $coursereusenode->add(get_string('origin_restore_course', 'local_coursetransfer'), 
-                                $url,
-                                \navigation_node::TYPE_SETTING, null, null,
-                                new pix_icon('t/restore', get_string('origin_restore_course', 'local_coursetransfer')));
+    if ($context->contextlevel == CONTEXT_COURSE) {
+        if (has_capability('local/coursetransfer:origin_restore_course', $context)) {
+            $course = $PAGE->course;
+            $coursereusenode = $navigation->find('coursereuse', \navigation_node::TYPE_CONTAINER);
+            // Add the node to the settingsnav
+            if ($coursereusenode) {
+                $url = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $course->id]);
+                $coursereusenode->add(get_string('origin_restore_course', 'local_coursetransfer'), 
+                                    $url,
+                                    \navigation_node::TYPE_SETTING, null, null,
+                                    new pix_icon('t/restore', get_string('origin_restore_course', 'local_coursetransfer')));
+            }
         }
+    }
+    // Place shortcuts if course maintenance section.
+    if ($context->contextlevel == CONTEXT_SYSTEM) {
+        $categorynode = $navigation->find('courses', \navigation_node::TYPE_SETTING);
+        if ($categorynode) {
+            $coursetransfercategorynode = \navigation_node::create(
+                get_string('pluginname', 'local_coursetransfer'),
+                null,
+                \navigation_node::TYPE_CONTAINER,
+                null,
+                'coursetransfer_shortcuts',
+                new pix_icon('t/restore', get_string('pluginname', 'local_coursetransfer'))
+            );
 
+            $coursetransfercategory = $categorynode->add_node($coursetransfercategorynode, 'restorecourse');
+            $coursetransfercategory->add(get_string('configuration', 'local_coursetransfer'),
+                         new moodle_url('/admin/settings.php', ['section'=>'local_coursetransfer']),
+                         \navigation_node::TYPE_SETTING);
+            $coursetransfercategory->add(get_string('summary', 'local_coursetransfer'),
+                    new moodle_url('/local/coursetransfer/index.php'),
+                    \navigation_node::TYPE_SETTING);
+            $coursetransfercategory->add(get_string('restore_page', 'local_coursetransfer'),
+                    new moodle_url('/local/coursetransfer/origin_restore.php'),
+                    \navigation_node::TYPE_SETTING);
+            $coursetransfercategory->add(get_string('remove_page', 'local_coursetransfer'),
+                    new moodle_url('/local/coursetransfer/origin_remove.php'),
+                    \navigation_node::TYPE_SETTING);
+            $coursetransfercategory->add(get_string('logs_page', 'local_coursetransfer'),
+                    new moodle_url('/local/coursetransfer/logs.php'),
+                    \navigation_node::TYPE_SETTING);
+        }
     }
 }
 /**
