@@ -63,6 +63,18 @@ class provider implements
      * @return collection the updated collection of metadata items.
      */
     public static function get_metadata(collection $collection) : collection {
+        $collection->add_database_table('local_coursetransfer_request', [
+            'userid' => 'privacy:metadata:local_coursetransfer_request:userid',
+        ], 'privacy:metadata:local_coursetransfer_request');
+
+        $collection->add_database_table('local_coursetransfer_origin', [
+            'userid' => 'privacy:metadata:local_coursetransfer_origin:userid',
+        ], 'privacy:metadata:local_coursetransfer_origin');
+
+        $collection->add_database_table('local_coursetransfer_target', [
+            'userid' => 'privacy:metadata:local_coursetransfer_target:userid',
+        ], 'privacy:metadata:local_coursetransfer_target');
+
         return $collection;
     }
 

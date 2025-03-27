@@ -77,7 +77,6 @@ class coursetransfer_download {
      */
     public static function create_task_download_course(stdClass $request, string $fileurl): bool {
         $asynctask = new download_file_course_task();
-        $asynctask->set_blocking(false);
         $asynctask->set_custom_data(
                 ['requestid' => $request->id, 'fileurl' => $fileurl]
         );
