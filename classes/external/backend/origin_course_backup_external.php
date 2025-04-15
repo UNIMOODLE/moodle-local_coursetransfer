@@ -267,7 +267,7 @@ class origin_course_backup_external extends external_api {
                     [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ], PARAM_TEXT, VALUE_REQUIRED, 'Errors', 
                 )),
                 'data' => new external_single_structure(
                     [
@@ -281,7 +281,7 @@ class origin_course_backup_external extends external_api {
                         'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
                         'origin_backup_size_estimated' => new external_value(PARAM_INT,
                             'Backup Size Estimated (MB)', VALUE_OPTIONAL ),
-                    ], PARAM_TEXT, 'Data'
+                    ], PARAM_TEXT, VALUE_REQUIRED, 'Data',
                 ),
             ]
         );
