@@ -77,7 +77,6 @@ class coursetransfer_restore {
      */
     public static function create_task_restore_course(stdClass $request, stored_file $file): bool {
         $resasynctask = new restore_course_task();
-        $resasynctask->set_blocking(false);
         $resasynctask->set_custom_data(
                 ['requestid' => $request->id, 'fileid' => $file->get_id()]
         );
