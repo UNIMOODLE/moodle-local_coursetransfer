@@ -601,7 +601,7 @@ class sites_external extends external_api {
                         [
                             'code' => new external_value(PARAM_TEXT, 'Code'),
                             'msg' => new external_value(PARAM_TEXT, 'Message'),
-                        ], PARAM_TEXT, 'Errors'
+                        ], PARAM_TEXT, VALUE_REQUIRED, 'Errors',
                 )),
             ]
         );
@@ -682,7 +682,7 @@ class sites_external extends external_api {
                     [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ], PARAM_TEXT, VALUE_REQUIRED, 'Errors',
                 )),
             ]
         );

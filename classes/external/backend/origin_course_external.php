@@ -167,7 +167,7 @@ class origin_course_external extends external_api {
                     [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], 'Errors'
+                    ], PARAM_TEXT, VALUE_REQUIRED, 'Errors',
                 )),
                 'paging' => new external_single_structure([
                     'totalcount' => new external_value(PARAM_INT, 'Total number of courses', VALUE_OPTIONAL),
@@ -184,7 +184,7 @@ class origin_course_external extends external_api {
                         'categoryid' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                         'backupsizeestimated' => new external_value(PARAM_TEXT, 'Backup Size Estimated', VALUE_OPTIONAL),
                         'categoryname' => new external_value(PARAM_TEXT, 'Category Name', VALUE_OPTIONAL),
-                    ], 'Course info'
+                    ], PARAM_TEXT, VALUE_REQUIRED, 'Course info',
                 ), 'Courses info'),
             ]
         );
@@ -290,7 +290,7 @@ class origin_course_external extends external_api {
                     [
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ], PARAM_TEXT, VALUE_REQUIRED, 'Errors',
                 )),
                 'data' => new external_single_structure(
                     [
