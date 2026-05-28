@@ -69,7 +69,6 @@ class coursetransfer_remove {
             int $requestoriginid, int $requestdestid, int $courseid,
             stdClass $destsite, int $userid, int $nextruntime = null): bool {
         $resasynctask = new remove_course_task();
-        $resasynctask->set_blocking(false);
         $payload = [
                 'targetsiteid' => $destsite->id,
                 'courseid' => $courseid,
@@ -98,7 +97,6 @@ class coursetransfer_remove {
     public static function create_task_remove_category(
             int $requestoriginid, int $requestdestid, int $catid, stdClass $destsite, int $userid, int $nextruntime = null): bool {
         $resasynctask = new remove_category_task();
-        $resasynctask->set_blocking(false);
         $payload = [
                 'targetsiteid' => $destsite->id,
                 'catid' => $catid,
@@ -121,7 +119,6 @@ class coursetransfer_remove {
      */
     public static function create_cleanup_course_bin_task(stdClass $course): bool {
         $resasynctask = new cleanup_course_bin_task();
-        $resasynctask->set_blocking(false);
         $payload = [
                 'courseid' => $course->id,
                 'shortname' => $course->shortname,
@@ -139,7 +136,6 @@ class coursetransfer_remove {
      */
     public static function create_cleanup_category_bin_task(int $catid): bool {
         $resasynctask = new cleanup_category_bin_task();
-        $resasynctask->set_blocking(false);
         $payload = [
                 'categoryid' => $catid,
         ];
