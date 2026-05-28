@@ -32,6 +32,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_coursetransfer\external\backend\get_category_idnumber_external;
 use local_coursetransfer\external\backend\target_course_callback_external;
 use local_coursetransfer\external\backend\origin_category_external;
 use local_coursetransfer\external\backend\origin_course_backup_external;
@@ -89,6 +90,15 @@ $functions = [
         'classname' => origin_category_external::class,
         'methodname' => 'origin_get_category_detail',
         'description' => 'Get specific category details',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_origin_get_category_detail_tree' => [
+        'classname' => origin_category_external::class,
+        'methodname' => 'origin_get_category_detail_tree',
+        'description' => 'Get specific category details in tree format',
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => true,
@@ -319,6 +329,25 @@ $functions = [
             'loginrequired' => true,
     ],
 
+    'local_coursetransfer_origin_get_courses_by_ids' => [
+            'classname' => origin_course_external::class,
+            'methodname' => 'origin_get_courses_by_ids',
+            'description' => 'Get courses by ids from user',
+            'type' => 'read',
+            'ajax' => true,
+            'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_get_category_idnumber' => [
+        'classname' => get_category_idnumber_external::class,
+        'methodname' => 'get_category_idnumber',
+        'description' => 'Resolve a category by idnumber regex pattern',
+        'type' => 'read',
+        'ajax' => false,
+        'loginrequired' => true,
+    ],
+
+
 ];
 
 $services = [
@@ -329,6 +358,7 @@ $services = [
             'local_coursetransfer_origin_get_categories',
             'local_coursetransfer_origin_get_course_detail',
             'local_coursetransfer_origin_get_category_detail',
+            'local_coursetransfer_origin_get_category_detail_tree',
             'local_coursetransfer_origin_backup_course',
             'local_coursetransfer_target_backup_course_completed',
             'local_coursetransfer_target_backup_course_error',
@@ -353,6 +383,8 @@ $services = [
             'local_coursetransfer_site_origin_test',
             'local_coursetransfer_site_target_test',
             'local_coursetransfer_dest_search_course_name',
+            'local_coursetransfer_origin_get_courses_by_ids',
+            'local_coursetransfer_get_category_idnumber',
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,
