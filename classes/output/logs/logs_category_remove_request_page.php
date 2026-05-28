@@ -59,7 +59,10 @@ class logs_category_remove_request_page extends logs_page {
         parent::__construct();
         $uniqid = uniqid('', true);
         $this->table = new logs_category_remove_request_table($uniqid);
-        $this->url = new moodle_url(self::PAGE);
+        $this->url = new moodle_url(self::PAGE, [
+            'type' => $this->type,
+            'direction' => $this->direction,
+        ]);
         $this->selects = [
                 'type' => [
                         [
