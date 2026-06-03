@@ -38,7 +38,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">{{#str}} delete_site, local_coursetransfer {{/str}} {{ id }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -47,7 +47,7 @@
                     <p>{{ host }}</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{#str}} cancel {{/str}}</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">{{#str}} cancel {{/str}}</button>
                     <button type="button" data-action="remove" data-id="{{ id }}" class="btn btn-danger">{{#str}} delete {{/str}}</button>
                 </div>
             </div>
@@ -64,7 +64,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">{{#str}} edit_site, local_coursetransfer {{/str}} {{ id }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -84,7 +84,7 @@
                     <div class="alert alert-danger" role="alert" data-region="error-msg" style="display: none"></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{#str}} cancel {{/str}}</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">{{#str}} cancel {{/str}}</button>
                     <button type="button" data-action="edit" data-id="{{ id }}" class="btn btn-primary">{{#str}} save {{/str}}</button>
                 </div>
             </div>
@@ -97,7 +97,8 @@
         {{#str}} test, local_coursetransfer {{/str}}
     </button>
 
-    <button type="button" data-target="#error-{{ id }}" class="btn btn-danger hidden btn-sm" data-container="body" data-toggle="popover" data-placement="top" data-content="">
+    <button type="button" data-target="#error-{{ id }}" class="btn btn-danger hidden btn-sm" data-container="body" data-bs-container="body" data-toggle="popover"
+            data-bs- toggle="popover" data-placement="top" data-bs-placement="top" data-content="" data-bs-content="">
         {{#str}} view_error, local_coursetransfer {{/str}}
     </button>
 </div>

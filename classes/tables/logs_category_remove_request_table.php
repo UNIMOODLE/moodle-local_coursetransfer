@@ -139,8 +139,9 @@ class logs_category_remove_request_table extends table_sql {
      */
     public function col_status(stdClass $row): string {
         if ( (int)$row->status === coursetransfer_request::STATUS_ERROR ) {
-            return '<button type="button" class="btn btn-danger label-status" data-container="body" data-toggle="popover"
-             data-placement="bottom" data-content="'. $row->error_code . ': ' . $row->error_message .'">'
+            return '<button type="button" class="btn btn-danger label-status" data-container="body" data-bs-container="body" 
+             data-toggle="popover" data-placement="bottom" data-bs-toggle="popover" data-bs-placement="bottom" 
+             data-content="'. $row->error_code . ': ' . $row->error_message .'" data-bs-content="'. $row->error_code . ': ' . $row->error_message .'">'
                 . get_string('status_'.coursetransfer::STATUS[$row->status]['shortname'],
                     'local_coursetransfer') .'
             </button>';
