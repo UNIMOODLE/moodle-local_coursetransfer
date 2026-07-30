@@ -2,10 +2,10 @@
 
 All notable changes to this plugin are documented here.
 
-## 2.0.0
+## 2.0.0 — 2026-07-30
 
 Major release: GUI redesign (Tresipunt design system), Moodle 4.5 compatibility
-and stabilisation.
+and stabilisation. Requires Moodle 4.5+ (supported: 4.5 – 5.1).
 
 ### ⚠️ Breaking changes — CLI (`cli/*.php`)
 
