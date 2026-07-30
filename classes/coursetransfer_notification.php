@@ -36,6 +36,8 @@ namespace local_coursetransfer;
 
 use coding_exception;
 use core\message\message;
+use core_course_category;
+use core_user;
 use dml_exception;
 use moodle_exception;
 use moodle_url;
@@ -60,8 +62,8 @@ class coursetransfer_notification {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function send_restore_course_completed(int $userid, int $courseid) {
-        $user = \core_user::get_user($userid);
+    public static function send_restore_course_completed(int $userid, int $courseid): mixed {
+        $user = core_user::get_user($userid);
         $course = get_course($courseid);
         $courseurl = new moodle_url('/course/view.php', ['id' => $courseid]);
         $detailurl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $courseid]);
@@ -99,9 +101,9 @@ class coursetransfer_notification {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function send_restore_category_completed(int $userid, int $catid) {
-        $user = \core_user::get_user($userid);
-        $cat = \core_course_category::get($catid);
+    public static function send_restore_category_completed(int $userid, int $catid): mixed {
+        $user = core_user::get_user($userid);
+        $cat = core_course_category::get($catid);
         $courseurl = new moodle_url('/course/index.php', ['categoryid' => $catid]);
         $detailurl = new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $catid]);
         $message = new message();
@@ -138,7 +140,7 @@ class coursetransfer_notification {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function send_remove_course_completed(int $userid, int $origincourseid) {
+    public static function send_remove_course_completed(int $userid, int $origincourseid): mixed {
         $user = \core_user::get_user($userid);
         $detailurl = new moodle_url('/local/coursetransfer/logs.php', ['type' => 2, 'direction' => 0]);
         $message = new message();
@@ -174,8 +176,8 @@ class coursetransfer_notification {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function send_remove_category_completed(int $userid, int $origincatid) {
-        $user = \core_user::get_user($userid);
+    public static function send_remove_category_completed(int $userid, int $origincatid): mixed {
+        $user = core_user::get_user($userid);
         $detailurl = new moodle_url('/local/coursetransfer/logs.php', ['type' => 3, 'direction' => 0]);
         $message = new message();
         $message->component = 'local_coursetransfer';
@@ -199,5 +201,4 @@ class coursetransfer_notification {
         $message->notification = 1;
         return message_send($message);
     }
-
 }

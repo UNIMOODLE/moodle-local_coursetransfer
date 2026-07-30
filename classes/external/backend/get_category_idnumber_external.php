@@ -30,16 +30,17 @@
 
 namespace local_coursetransfer\external\backend;
 
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
+use coding_exception;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
+use dml_exception;
 use invalid_parameter_exception;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * Class get_category_idnumber_external.
@@ -69,6 +70,8 @@ class get_category_idnumber_external extends external_api {
      * @param string $pattern Regular expression to apply against category idnumbers.
      * @return array {success, category{id,name,idnumber}, matchcount, error}
      * @throws invalid_parameter_exception
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function get_category_idnumber(string $pattern): array {
         global $DB;

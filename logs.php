@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Logs.
+ * Executions log: active migrations and unified filtered history.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -32,78 +32,78 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once(__DIR__ . '/../../config.php');
+
+global $PAGE, $OUTPUT;
+
 use local_coursetransfer\coursetransfer_request;
-use local_coursetransfer\output\logs\logs_category_remove_request_page;
-use local_coursetransfer\output\logs\logs_category_remove_response_page;
-use local_coursetransfer\output\logs\logs_category_request_page;
-use local_coursetransfer\output\logs\logs_category_response_page;
-use local_coursetransfer\output\logs\logs_course_remove_request_page;
-use local_coursetransfer\output\logs\logs_course_remove_response_page;
-use local_coursetransfer\output\logs\logs_course_request_page;
-use local_coursetransfer\output\logs\logs_course_response_page;
-
-require_once('../../config.php');
-
-global $PAGE, $OUTPUT, $USER;
-
-$title = get_string('logs_page', 'local_coursetransfer');
-
-$type = optional_param('type', coursetransfer_request::TYPE_COURSE, PARAM_INT);
-$direction = optional_param('direction', coursetransfer_request::DIRECTION_REQUEST, PARAM_INT);
+use local_coursetransfer\output\executions_page;
 
 require_login();
+require_capability('local/coursetransfer:view_logs', context_system::instance());
+
+$tab = optional_param('tab', 'encurso', PARAM_ALPHA);
+$pagenum = optional_param('page', 0, PARAM_INT);
+$q = trim(optional_param('q', '', PARAM_TEXT));
+$festado = optional_param('festado', '', PARAM_ALPHA);
+$ftipo = optional_param('ftipo', -1, PARAM_INT);
+$fdir = optional_param('fdir', '', PARAM_ALPHA);
+$fsite = trim(optional_param('fsite', '', PARAM_URL));
+$ffrom = optional_param('ffrom', '', PARAM_RAW_TRIMMED);
+$fto = optional_param('fto', '', PARAM_RAW_TRIMMED);
+
+$perpage = 10;
+
+// Date inputs arrive as YYYY-MM-DD strings.
+$fromts = null;
+$tots = null;
+if ($ffrom !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ffrom)) {
+    $fromts = strtotime($ffrom . ' 00:00:00');
+} else {
+    $ffrom = '';
+}
+if ($fto !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fto)) {
+    $tots = strtotime($fto . ' 23:59:59');
+} else {
+    $fto = '';
+}
+
+$filters = [
+    'q' => $q,
+    'statusgroup' => in_array($festado, ['prog', 'wait', 'done', 'err'], true) ? $festado : '',
+    'type' => ($ftipo >= 0 && $ftipo <= 3) ? $ftipo : -1,
+    'dir' => in_array($fdir, ['in', 'out'], true) ? $fdir : '',
+    'site' => $fsite,
+    'from' => $fromts,
+    'to' => $tots,
+    'fromraw' => $ffrom,
+    'toraw' => $fto,
+];
+
+$title = get_string('logs_page', 'local_coursetransfer');
 
 $PAGE->set_pagelayout('standard');
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title($title);
-$PAGE->set_heading($title);
-$PAGE->set_url('/local/coursetransfer/logs.php');
+// Heading cleared: the page hero (component) renders the title with the icon.
+$PAGE->set_heading('');
+$PAGE->set_url('/local/coursetransfer/logs.php', ['tab' => $tab]);
+
+$active = coursetransfer_request::get_active_executions();
+if ($tab !== 'registro' && empty($active)) {
+    $tab = 'registro';
+} else if ($tab !== 'registro') {
+    $tab = 'encurso';
+}
+
+$total = coursetransfer_request::count_executions($filters);
+$rows = $tab === 'registro'
+    ? coursetransfer_request::get_executions($filters, $pagenum, $perpage) : [];
+$sites = coursetransfer_request::get_execution_sites();
 
 $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
-
-if (has_capability('local/coursetransfer:view_logs', context_system::instance())) {
-    switch ($type) {
-        case coursetransfer_request::TYPE_COURSE:
-            if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
-                $page = new logs_course_request_page();
-            } else {
-                $page = new logs_course_response_page();
-            }
-            break;
-        case coursetransfer_request::TYPE_CATEGORY:
-            if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
-                $page = new logs_category_request_page();
-            } else {
-                $page = new logs_category_response_page();
-            }
-            break;
-        case coursetransfer_request::TYPE_REMOVE_COURSE:
-            if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
-                $page = new logs_course_remove_request_page();
-            } else {
-                $page = new logs_course_remove_response_page();
-            }
-            break;
-        case coursetransfer_request::TYPE_REMOVE_CATEGORY:
-            if ($direction === coursetransfer_request::DIRECTION_REQUEST) {
-                $page = new logs_category_remove_request_page();
-            } else {
-                $page = new logs_category_remove_response_page();
-            }
-            break;
-        default:
-            throw new moodle_exception('TYPE NOT VALID');
-    }
-} else {
-    $page = new \local_coursetransfer\output\error_page(
-            get_string('forbidden', 'local_coursetransfer'),
-            get_string('you_have_not_permission', 'local_coursetransfer'),
-            'danger',
-            get_string('error')
-    );
-}
-
-echo $output->render($page);
+echo $output->render(new executions_page($active, $rows, $total, $filters,
+        $sites, $tab, $pagenum, $perpage));
 echo $OUTPUT->footer();

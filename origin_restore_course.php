@@ -23,7 +23,12 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Origin Restore Course.
+ * Teacher course restore assistant (Tresipunt redesign).
+ *
+ * Single-page assistant that brings a remote course — or only some of its
+ * sections/activities — into the current course. Replaces the legacy 5-step
+ * new_origin_restore_course_* pages while keeping the same URL so the course
+ * navigation links (lib.php) do not change.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -32,62 +37,37 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step1_page;
-use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step2_page;
-use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step3_page;
-use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step4_page;
-use local_coursetransfer\output\origin_restore_course\new_origin_restore_course_step5_page;
-use local_coursetransfer\output\origin_restore_course\origin_restore_course_page;
+use local_coursetransfer\output\error_page;
+use local_coursetransfer\output\restore_course_page;
 
 require_once('../../config.php');
 
-global $PAGE, $OUTPUT, $USER;
+global $PAGE, $OUTPUT;
 
 $courseid = required_param('id', PARAM_INT);
-$isnew = optional_param('new', false, PARAM_INT);
-$isnew = $isnew === 1;
 
-$title = get_string('origin_restore_course', 'local_coursetransfer');
+$title = get_string('rct_title', 'local_coursetransfer');
 
 $course = get_course($courseid);
 require_login($course);
 $context = context_course::instance($courseid);
-$PAGE->set_pagelayout('incourse');
+// Use the same full-width layout as the other plugin screens (logs, admin
+// restore, platforms) so the wizard has the same size everywhere.
+$PAGE->set_pagelayout('standard');
 $PAGE->set_context($context);
 $PAGE->set_title($title);
-$PAGE->set_heading($title);
-$PAGE->set_url('/local/coursetransfer/origin_restore_course.php');
+// The page renders its own hero <h1>; clear the theme heading to avoid a
+// duplicate title.
+$PAGE->set_heading('');
+$PAGE->set_url(new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $courseid]));
 
 $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
 if (has_capability('local/coursetransfer:origin_restore_course', $context)) {
-    if ($isnew) {
-        $step = required_param('step', PARAM_INT);
-        switch ($step) {
-            case 1:
-                $page = new new_origin_restore_course_step1_page($course);
-                break;
-            case 2:
-                $page = new new_origin_restore_course_step2_page($course);
-                break;
-            case 3:
-                $page = new new_origin_restore_course_step3_page($course);
-                break;
-            case 4:
-                $page = new new_origin_restore_course_step4_page($course);
-                break;
-            case 5:
-                $page = new new_origin_restore_course_step5_page($course);
-                break;
-            default:
-                throw new moodle_exception('STEP NOT VALID');
-        }
-    } else {
-        $page = new origin_restore_course_page($course);
-    }
+    $page = new restore_course_page($course);
 } else {
-    $page = new \local_coursetransfer\output\error_page(
+    $page = new error_page(
             get_string('forbidden', 'local_coursetransfer'),
             get_string('you_have_not_permission', 'local_coursetransfer'),
             'danger',

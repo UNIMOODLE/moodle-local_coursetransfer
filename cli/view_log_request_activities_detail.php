@@ -70,17 +70,15 @@ if ($unrecognised) {
 
 if ($options['help']) {
     cli_writeln($usage);
-    exit(2);
+    exit(0);
 }
 
 $requestid = (int) $options['requestid'];
 
 if ( $requestid === null ) {
-    cli_writeln( get_string('requestid_require', 'local_coursetransfer') );
-    exit(128);
+    cli_error(get_string('requestid_require', 'local_coursetransfer'), 2);
 } else if ( $requestid <= 0 ) {
-    cli_writeln( get_string('requestid_integer', 'local_coursetransfer') );
-    exit(128);
+    cli_error(get_string('requestid_integer', 'local_coursetransfer'), 2);
 }
 
 try {
@@ -99,7 +97,6 @@ try {
     exit(0);
 
 } catch (moodle_exception $e) {
-    cli_writeln('40010: ' . $e->getMessage());
-    exit(1);
+    cli_error('40010: ' . $e->getMessage(), 1);
 }
 

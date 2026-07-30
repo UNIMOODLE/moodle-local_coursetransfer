@@ -93,7 +93,7 @@ if ($unrecognised) {
 
 if ($options['help']) {
     cli_writeln($usage);
-    exit(2);
+    exit(0);
 }
 
 $type = isset($options['type']) ? (int) $options['type'] : null;
@@ -126,22 +126,24 @@ try {
 
     foreach ($items as $item) {
         $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
+        $statuslabel = isset(coursetransfer::STATUS[$item->status])
+                ? get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer')
+                : (string) $item->status;
         printf($mask,
                 $item->id, $item->type, $item->direction, $item->siteurl, $item->target_course_id, $item->origin_course_id,
                 $item->target_category_id, $item->origin_category_id,
-                get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
+                $statuslabel,
                 $item->userid, $item->timemodified, $item->timecreated, $error);
     }
 
     if (count($items) > 200) {
         cli_writeln('****************************');
-        cli_writeln('EXISTEN MÁS DE 200 RESULTADOS');
+        cli_writeln(get_string('cli_logs_truncated', 'local_coursetransfer'));
         cli_writeln('****************************');
     }
     exit(0);
 
 } catch (moodle_exception $e) {
-    cli_writeln('40004: ' . $e->getMessage());
-    exit(1);
+    cli_error('40004: ' . $e->getMessage(), 1);
 }
 

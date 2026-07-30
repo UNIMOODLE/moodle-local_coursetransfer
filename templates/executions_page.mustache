@@ -1,0 +1,283 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/executions_page
+
+  Unified executions log: active migrations + full filtered log.
+
+  Example context (json):
+  {
+    "baseurl": "#", "back": "#", "summary": "#", "healthurl": "#",
+    "health": [{"label": "Cron", "value": "Al día", "ok": true}],
+    "hasactive": true, "activecount": 1,
+    "tabencurso": true, "tabregistro": false,
+    "active": [], "rows": [], "norows": false, "total": 12,
+    "resultlabel": "12 ejecuciones",
+    "filters": {"q": "", "statusoptions": [], "typeoptions": [], "diroptions": [], "siteoptions": [], "any": false},
+    "pagination": {"haspages": false}
+  }
+}}
+<div class="local-coursetransfer ct-wide" data-region="executions_page" {{#hasactive}}data-hasactive="1"{{/hasactive}}>
+
+    <div class="ct-hero">
+        {{> local_coursetransfer/components/page_header }}
+        <button type="button" class="ct-btn ct-btn--secondary ct-btn--sm" data-action="refresh">
+            <i class="fa fa-refresh" aria-hidden="true"></i>
+            {{#str}} exec_refresh, local_coursetransfer {{/str}}
+        </button>
+    </div>
+
+    {{! Health strip deferred: it ships with the health panel screen. }}
+    <div class="ct-tabs">
+        {{#hasactive}}
+        <a href="{{ baseurl }}?tab=encurso" class="ct-tab {{#tabencurso}}ct-tab--active{{/tabencurso}}">
+            {{#str}} exec_tab_active, local_coursetransfer {{/str}}
+            <span class="ct-tab-count ct-tab-count--hot">{{ activecount }}</span>
+        </a>
+        {{/hasactive}}
+        <a href="{{ baseurl }}?tab=registro" class="ct-tab {{#tabregistro}}ct-tab--active{{/tabregistro}}">
+            {{#str}} exec_tab_log, local_coursetransfer {{/str}}
+            <span class="ct-tab-count">{{ total }}</span>
+        </a>
+    </div>
+
+    {{#tabencurso}}
+    <div class="ct-active-list">
+        {{#active}}
+        <div class="ct-card ct-active-card">
+            <div class="ct-active-head">
+                <span class="ct-badge {{ badgeclass }}">{{ statuslabel }}</span>
+                {{#originurl}}
+                <a class="ct-active-title" href="{{ originurl }}" target="_blank" rel="noopener">{{ originname }}
+                    <i class="fa fa-external-link" aria-hidden="true"></i></a>
+                {{/originurl}}
+                {{^originurl}}<span class="ct-active-title">{{ originname }}</span>{{/originurl}}
+                <span class="ct-active-spacer"></span>
+                <span class="ct-active-id">#{{ id }}</span>
+            </div>
+            {{! Request type + direction so the user knows what is happening. }}
+            <div class="ct-active-meta">
+                <span class="ct-active-type">{{ typelabel }}</span>
+                {{#isrestore}}
+                <span class="ct-dirtag {{#dirin}}ct-dirtag--origin{{/dirin}}{{^dirin}}ct-dirtag--target{{/dirin}}">{{#dirin}}{{#str}} exec_tag_from, local_coursetransfer {{/str}}{{/dirin}}{{^dirin}}{{#str}} exec_tag_to, local_coursetransfer {{/str}}{{/dirin}}</span>
+                {{/isrestore}}
+                {{#isremove}}
+                <span class="ct-dirtag ct-dirtag--danger">{{#str}} exec_tag_remove, local_coursetransfer {{/str}}</span>
+                {{/isremove}}
+                {{! URLs are never uppercased (layout norm): keep the site outside the tag. }}
+                <span class="ct-active-site">{{ site }}</span>
+            </div>
+            {{#scheduled}}
+            <div class="ct-active-sched">
+                <i class="fa fa-calendar-o" aria-hidden="true"></i>
+                <span>{{ scheduledtooltip }}</span>
+            </div>
+            {{/scheduled}}
+            <div class="ct-segments">
+                {{#segments}}
+                <div class="ct-segment ct-segment--{{ idx }}{{#active}} ct-segment--active{{/active}}">
+                    <div class="ct-segment-fill" style="width: {{ width }}%"></div>
+                </div>
+                {{/segments}}
+            </div>
+            <div class="ct-active-foot">
+                <span class="ct-active-caption {{#stuck}}ct-active-caption--stuck{{/stuck}}">{{ caption }}</span>
+                <span class="ct-active-spacer"></span>
+                <a href="{{ detailurl }}" target="_blank" rel="noopener">{{#str}} exec_detail, local_coursetransfer {{/str}}</a>
+            </div>
+            {{#stuck}}
+            <div class="ct-alert ct-alert--warning ct-mt">
+                <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
+                <p>{{#str}} exec_stuck, local_coursetransfer, {{ since }} {{/str}}</p>
+            </div>
+            {{/stuck}}
+        </div>
+        {{/active}}
+    </div>
+    {{/tabencurso}}
+
+    {{#tabregistro}}
+    <form class="ct-card ct-filters" method="get" action="{{ baseurl }}" data-region="filters">
+        <input type="hidden" name="tab" value="registro">
+        <input type="hidden" name="page" value="0" data-input="page">
+        <div class="ct-filters-toprow">
+            <div class="ct-search ct-filters-search">
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <input type="text" name="q" value="{{ filters.q }}" placeholder="{{#str}} exec_search_ph, local_coursetransfer {{/str}}">
+            </div>
+        </div>
+        <div class="ct-filters-row">
+            <label class="ct-filter">
+                <span class="ct-filter-label">{{#str}} exec_filter_status, local_coursetransfer {{/str}}</span>
+                <select name="festado" data-autosubmit="1">
+                    {{#filters.statusoptions}}<option value="{{ value }}" {{#selected}}selected{{/selected}}>{{ label }}</option>{{/filters.statusoptions}}
+                </select>
+            </label>
+            <label class="ct-filter">
+                <span class="ct-filter-label">{{#str}} exec_filter_type, local_coursetransfer {{/str}}</span>
+                <select name="ftipo" data-autosubmit="1">
+                    {{#filters.typeoptions}}<option value="{{ value }}" {{#selected}}selected{{/selected}}>{{ label }}</option>{{/filters.typeoptions}}
+                </select>
+            </label>
+            <label class="ct-filter">
+                <span class="ct-filter-label">{{#str}} exec_filter_dir, local_coursetransfer {{/str}}</span>
+                <select name="fdir" data-autosubmit="1">
+                    {{#filters.diroptions}}<option value="{{ value }}" {{#selected}}selected{{/selected}}>{{ label }}</option>{{/filters.diroptions}}
+                </select>
+            </label>
+            <label class="ct-filter">
+                <span class="ct-filter-label">{{#str}} exec_filter_site, local_coursetransfer {{/str}}</span>
+                <select name="fsite" data-autosubmit="1">
+                    {{#filters.siteoptions}}<option value="{{ value }}" {{#selected}}selected{{/selected}}>{{ label }}</option>{{/filters.siteoptions}}
+                </select>
+            </label>
+            <label class="ct-filter">
+                <span class="ct-filter-label">{{#str}} exec_filter_dates, local_coursetransfer {{/str}}</span>
+                <span class="ct-filter-dates">
+                    <input type="date" name="ffrom" value="{{ filters.from }}" data-autosubmit="1">
+                    <span aria-hidden="true">→</span>
+                    <input type="date" name="fto" value="{{ filters.to }}" data-autosubmit="1">
+                </span>
+            </label>
+            <span class="ct-active-spacer"></span>
+            {{#filters.any}}
+            <a class="ct-btn ct-btn--secondary ct-btn--sm ct-filters-clear" href="{{ baseurl }}?tab=registro">{{#str}} exec_filter_clear, local_coursetransfer {{/str}}</a>
+            {{/filters.any}}
+            <button type="submit" class="ct-btn ct-btn--secondary ct-btn--sm" formaction="{{ exporturl }}" name="dataformat" value="csv">
+                <i class="fa fa-download" aria-hidden="true"></i>
+                {{#str}} exec_export, local_coursetransfer {{/str}}
+            </button>
+        </div>
+    </form>
+
+    <div class="ct-resultlabel ct-text-muted">{{ resultlabel }}</div>
+
+    <div class="ct-card ct-log">
+        <div class="ct-log-head">
+            <span></span>
+            <span>{{#str}} exec_col_status, local_coursetransfer {{/str}}</span>
+            <span>{{#str}} exec_col_fromto, local_coursetransfer {{/str}}</span>
+            <span>{{#str}} exec_col_site, local_coursetransfer {{/str}}</span>
+            <span>{{#str}} exec_col_size, local_coursetransfer {{/str}}</span>
+            <span>{{#str}} exec_col_date, local_coursetransfer {{/str}}</span>
+            <span></span>
+        </div>
+        {{#rows}}
+        <div class="ct-log-row-wrap">
+            <div class="ct-log-row">
+                <span class="ct-log-dir {{#isrequest}}ct-log-dir--request{{/isrequest}}{{^isrequest}}ct-log-dir--response{{/isrequest}}" title="{{ dirtip }}" aria-label="{{ dirtip }}">
+                    {{#isrequest}}<i class="fa fa-paper-plane-o" aria-hidden="true"></i>{{/isrequest}}
+                    {{^isrequest}}<i class="fa fa-inbox" aria-hidden="true"></i>{{/isrequest}}
+                </span>
+                <span>
+                    <span class="ct-badge {{ badgeclass }}">{{ statuslabel }}</span>
+                    {{#scheduled}}<i class="fa fa-calendar-o ct-sched-ic" title="{{ scheduledtooltip }}" aria-label="{{ scheduledtooltip }}"></i>{{/scheduled}}
+                </span>
+                <span class="ct-log-fromto">
+                    {{#isrestore}}
+                    <span class="ct-log-line">
+                        <span class="ct-dirtag {{#dirin}}ct-dirtag--origin{{/dirin}}{{^dirin}}ct-dirtag--self{{/dirin}}">{{#dirin}}{{#str}} exec_tag_from, local_coursetransfer {{/str}}{{/dirin}}{{^dirin}}{{#str}} exec_tag_self, local_coursetransfer {{/str}}{{/dirin}}</span>
+                        {{#originurl}}<a href="{{ originurl }}" target="_blank" rel="noopener" class="ct-log-course">{{ originname }} <i class="fa fa-external-link" aria-hidden="true"></i></a>{{/originurl}}
+                        {{^originurl}}<span class="ct-log-course">{{ originname }}</span>{{/originurl}}
+                    </span>
+                    <span class="ct-log-line">
+                        <span class="ct-dirtag {{#dirin}}ct-dirtag--self{{/dirin}}{{^dirin}}ct-dirtag--target{{/dirin}}">{{#dirin}}{{#str}} exec_tag_self, local_coursetransfer {{/str}}{{/dirin}}{{^dirin}}{{#str}} exec_tag_to, local_coursetransfer {{/str}}{{/dirin}}</span>
+                        {{#desturl}}<a href="{{ desturl }}" target="_blank" rel="noopener" class="ct-log-course">{{ destname }} <i class="fa fa-external-link" aria-hidden="true"></i></a>{{/desturl}}
+                        {{^desturl}}<span class="ct-log-course">{{ destname }}</span>{{/desturl}}
+                    </span>
+                    {{/isrestore}}
+                    {{#isremove}}
+                    <span class="ct-log-line">
+                        <span class="ct-dirtag ct-dirtag--danger">{{#str}} exec_tag_remove, local_coursetransfer {{/str}}</span>
+                        {{#originurl}}<a href="{{ originurl }}" target="_blank" rel="noopener" class="ct-log-course">{{ originname }} <i class="fa fa-external-link" aria-hidden="true"></i></a>{{/originurl}}
+                        {{^originurl}}<span class="ct-log-course">{{ originname }}</span>{{/originurl}}
+                    </span>
+                    <span class="ct-log-note">{{#str}} exec_remove_note, local_coursetransfer {{/str}}</span>
+                    {{/isremove}}
+                    <span class="ct-log-typedir">{{ typedir }}
+                        {{#iscatchild}}<a class="ct-log-catlink" href="{{ catrequesturl }}" target="_blank" rel="noopener" title="{{#str}} exec_part_of_cat, local_coursetransfer {{/str}} #{{ catrequestid }}"><i class="fa fa-sitemap" aria-hidden="true"></i> #{{ catrequestid }}</a>{{/iscatchild}}
+                    </span>
+                </span>
+                <span class="ct-log-site">{{ site }}</span>
+                <span class="ct-log-size">{{ size }}</span>
+                <span class="ct-log-date ct-text-muted">{{ date }}</span>
+                <span class="ct-log-actions">
+                    <a class="ct-iconbtn ct-iconbtn--xs" href="{{ detailurl }}" target="_blank" rel="noopener" title="{{#str}} exec_detail, local_coursetransfer {{/str}}" aria-label="{{#str}} exec_detail, local_coursetransfer {{/str}}">
+                        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <button type="button" class="ct-iconbtn ct-iconbtn--xs ct-iconbtn--danger" data-action="delete-log" data-id="{{ id }}" title="{{#str}} exec_delete, local_coursetransfer {{/str}}" aria-label="{{#str}} exec_delete, local_coursetransfer {{/str}}">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </button>
+                </span>
+            </div>
+            {{#iserror}}
+            <div class="ct-log-error">
+                <button type="button" class="ct-log-error-toggle" data-action="toggle-error" aria-expanded="false">
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                    <span>{{#str}} exec_error_reason, local_coursetransfer {{/str}}</span>
+                    <i class="fa fa-chevron-down" aria-hidden="true" data-region="chevron"></i>
+                </button>
+                <div class="ct-log-error-body" data-region="error-body" hidden>
+                    <p class="ct-error-title">{{ errcause }}</p>
+                    <p class="ct-error-body">{{ erraction }}</p>
+                    {{#canretry}}
+                    <a class="ct-error-action" href="{{ retryurl }}">
+                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                        {{#str}} exec_retry, local_coursetransfer {{/str}}
+                    </a>
+                    {{/canretry}}
+                </div>
+            </div>
+            {{/iserror}}
+        </div>
+        {{/rows}}
+        {{#norows}}
+        <div class="ct-log-empty ct-text-muted">{{#str}} exec_empty, local_coursetransfer {{/str}}</div>
+        {{/norows}}
+    </div>
+
+    {{#pagination.haspages}}
+    <div class="ct-pager">
+        <button type="button" class="ct-btn ct-btn--secondary ct-btn--sm" data-action="page" data-page="{{ pagination.prevpage }}" {{^pagination.hasprev}}disabled{{/pagination.hasprev}}>
+            <i class="fa fa-chevron-left" aria-hidden="true"></i>
+            {{#str}} exec_prev, local_coursetransfer {{/str}}
+        </button>
+        <span class="ct-text-muted">{{#str}} exec_page_of, local_coursetransfer {{/str}} {{ pagination.page }} / {{ pagination.pages }}</span>
+        <button type="button" class="ct-btn ct-btn--secondary ct-btn--sm" data-action="page" data-page="{{ pagination.nextpage }}" {{^pagination.hasnext}}disabled{{/pagination.hasnext}}>
+            {{#str}} exec_next, local_coursetransfer {{/str}}
+            <i class="fa fa-chevron-right" aria-hidden="true"></i>
+        </button>
+    </div>
+    {{/pagination.haspages}}
+    {{/tabregistro}}
+
+    {{> local_coursetransfer/components/page_nav }}
+
+</div>
+
+{{#js}}
+require(['local_coursetransfer/executions_page'], function(ExecutionsPage) {
+    ExecutionsPage.init('[data-region="executions_page"]');
+});
+{{/js}}

@@ -1,0 +1,312 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/remove_page
+
+  Remote DELETE assistant (SPA-lite, danger-themed): landing + 3-step wizard +
+  done, driven by local_coursetransfer/remove_wizard. Deletes courses or whole
+  categories on a remote origin platform. The .ct-remove scope recolours the
+  shared wizard components red (destructive).
+}}
+<div class="local-coursetransfer ct-wide ct-remove" data-region="remove"
+        data-logurl="{{ logurl }}" data-pagesize="{{ pagesize }}"
+        data-canremovecourse="{{#canremovecourse}}1{{/canremovecourse}}{{^canremovecourse}}0{{/canremovecourse}}"
+        data-canremovecategory="{{#canremovecategory}}1{{/canremovecategory}}{{^canremovecategory}}0{{/canremovecategory}}">
+
+    <div class="ct-hero">
+        {{> local_coursetransfer/components/page_header }}
+        <a href="{{ logurl }}" class="ct-btn ct-btn--secondary ct-btn--sm">
+            <i class="fa fa-list-alt" aria-hidden="true"></i>
+            {{#str}} rw_done_gotolog, local_coursetransfer {{/str}}
+        </a>
+    </div>
+
+    {{! ===================== LANDING ===================== }}
+    <div data-region="landing">
+        <div class="ct-startcard ct-startcard--danger">
+            <span class="ct-startcard-icon"><i class="fa fa-trash" aria-hidden="true"></i></span>
+            <div class="ct-startcard-body">
+                <h2 class="ct-startcard-title">{{#str}} rmv_start, local_coursetransfer {{/str}}</h2>
+                <p class="ct-startcard-desc">{{#str}} rmv_start_desc, local_coursetransfer {{/str}}</p>
+            </div>
+            <button type="button" class="ct-btn ct-btn--primary" data-action="start">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+                {{#str}} rmv_start_btn, local_coursetransfer {{/str}}
+            </button>
+        </div>
+
+        <div class="ct-recent">
+            <div class="ct-recent-head">
+                <h2>{{#str}} rmv_recent, local_coursetransfer {{/str}}</h2>
+                <span class="ct-recent-spacer" style="flex:1"></span>
+                <a href="{{ logurl }}">{{#str}} rw_done_gotolog, local_coursetransfer {{/str}}</a>
+            </div>
+            {{#hasrecent}}
+            <div class="ct-recent-list">
+                {{#recent}}
+                <div class="ct-recent-card">
+                    <div class="ct-recent-row">
+                        <span class="ct-badge {{ badgeclass }}">{{ statuslabel }}</span>
+                        <span class="ct-recent-summary">{{ summary }}</span>
+                        <span class="ct-text-muted">{{ date }}</span>
+                    </div>
+                    <div class="ct-recent-row" style="margin-top:8px">
+                        <span class="ct-text-muted">{{#str}} rmv_in_site, local_coursetransfer {{/str}} <strong>{{ site }}</strong></span>
+                        <span class="ct-recent-spacer" style="flex:1"></span>
+                        <a class="ct-link-sm" href="{{ detailurl }}">{{#str}} exec_detail, local_coursetransfer {{/str}}</a>
+                    </div>
+                    {{#iserror}}
+                    <div class="ct-alert ct-alert--danger ct-mt">
+                        <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
+                        <p><strong>{{ errcause }}</strong><br>{{ erraction }}</p>
+                    </div>
+                    {{/iserror}}
+                </div>
+                {{/recent}}
+            </div>
+            {{/hasrecent}}
+            {{^hasrecent}}
+            <div class="ct-recent-card ct-text-muted">{{#str}} rmv_empty_recent, local_coursetransfer {{/str}}</div>
+            {{/hasrecent}}
+        </div>
+    </div>
+
+    {{! ===================== WIZARD ===================== }}
+    <div class="ct-card ct-wizard ct-wizard--danger" data-region="wizard" hidden>
+
+        <div class="ct-steps" data-region="steps">
+            <div class="ct-step" data-step-index="0" data-state="current">
+                <div class="ct-step-cell">
+                    <span class="ct-step-marker">1</span>
+                    <span class="ct-step-label">{{#str}} rmv_step_site, local_coursetransfer {{/str}}</span>
+                </div>
+                <span class="ct-step-connector"></span>
+            </div>
+            <div class="ct-step" data-step-index="1" data-state="pending">
+                <div class="ct-step-cell">
+                    <span class="ct-step-marker">2</span>
+                    <span class="ct-step-label">{{#str}} rmv_step_select, local_coursetransfer {{/str}}</span>
+                </div>
+                <span class="ct-step-connector"></span>
+            </div>
+            <div class="ct-step" data-step-index="2" data-state="pending">
+                <div class="ct-step-cell">
+                    <span class="ct-step-marker">3</span>
+                    <span class="ct-step-label">{{#str}} rmv_step_confirm, local_coursetransfer {{/str}}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ct-wizard-body">
+
+            {{! Persistent origin-site header (danger). }}
+            <div class="ct-sitebar ct-sitebar--danger" data-region="sitebar" hidden>
+                <span class="ct-sitebar-icon"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                <span class="ct-sitebar-label">{{#str}} rmv_in_site, local_coursetransfer {{/str}}</span>
+                <span class="ct-sitebar-name" data-region="sitebar-name"></span>
+            </div>
+
+            {{! ---- STEP 0 · Platform + kind ---- }}
+            <div data-step="0">
+                <div class="ct-alert ct-alert--danger">
+                    <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
+                    <p>{{#str}} rmv_warning, local_coursetransfer {{/str}}</p>
+                </div>
+
+                <h2 class="ct-section-title ct-mt">{{#str}} rmv_q_site, local_coursetransfer {{/str}}</h2>
+                <p class="ct-step-lead">{{#str}} rmv_q_site_desc, local_coursetransfer {{/str}}</p>
+                <div class="ct-rolecards ct-mt" data-region="sites">
+                    <div class="ct-selempty" data-region="sites-loading">{{#str}} rw_loading, local_coursetransfer {{/str}}</div>
+                </div>
+
+                <h2 class="ct-section-title ct-mt">{{#str}} rmv_q_kind, local_coursetransfer {{/str}}</h2>
+                <p class="ct-step-lead">{{#str}} rmv_q_kind_desc, local_coursetransfer {{/str}}</p>
+                <div class="ct-rolecards ct-mt" style="grid-template-columns:1fr 1fr" data-region="kinds">
+                    {{#canremovecourse}}
+                    <button type="button" class="ct-radiocard" data-action="toggle-kind" data-kind="course" aria-pressed="false">
+                        <span class="ct-radiocard-radio" aria-hidden="true"></span>
+                        <span>
+                            <span class="ct-radiocard-title">{{#str}} rmv_kind_course, local_coursetransfer {{/str}}</span>
+                            <span class="ct-radiocard-desc">{{#str}} rmv_kind_course_desc, local_coursetransfer {{/str}}</span>
+                        </span>
+                    </button>
+                    {{/canremovecourse}}
+                    {{#canremovecategory}}
+                    <button type="button" class="ct-radiocard" data-action="toggle-kind" data-kind="category" aria-pressed="false">
+                        <span class="ct-radiocard-radio" aria-hidden="true"></span>
+                        <span>
+                            <span class="ct-radiocard-title">{{#str}} rmv_kind_category, local_coursetransfer {{/str}}</span>
+                            <span class="ct-radiocard-desc">{{#str}} rmv_kind_category_desc, local_coursetransfer {{/str}}</span>
+                        </span>
+                    </button>
+                    {{/canremovecategory}}
+                </div>
+            </div>
+
+            {{! ---- STEP 1 · Selection ---- }}
+            <div data-step="1" hidden>
+                <h2 class="ct-section-title" data-region="sel-title"></h2>
+                <p class="ct-step-lead" data-region="sel-desc"></p>
+                <div class="ct-search ct-mb">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    <input type="text" data-action="search" data-region="search-input" placeholder="">
+                </div>
+
+                <div class="ct-selcounter ct-selcounter--danger" data-region="selcounter">
+                    <span class="ct-selcounter-num" data-region="selcount">0</span>
+                    <span class="ct-selcounter-label" data-region="sellabel">{{#str}} rmv_selected_none, local_coursetransfer {{/str}}</span>
+                    <button type="button" class="ct-selcounter-clear" data-action="clear" hidden>{{#str}} rw_clear, local_coursetransfer {{/str}}</button>
+                </div>
+
+                <p class="ct-result-info">
+                    <span data-region="resultinfo"></span>
+                    <i class="fa fa-info-circle" aria-hidden="true" data-region="resultnote"
+                            title="{{#str}} rw_results_note, local_coursetransfer {{/str}}"></i>
+                </p>
+
+                <div class="ct-seltable">
+                    <div class="ct-seltable-head">
+                        <button type="button" class="ct-checkbox" data-action="toggle-page" aria-label="{{#str}} rw_selectall, local_coursetransfer {{/str}}">
+                            <i class="fa fa-check" aria-hidden="true"></i>
+                        </button>
+                        <span class="ct-col-name" data-region="col-name"></span>
+                        <span class="ct-col-meta" data-region="col-meta"></span>
+                    </div>
+                    <div data-region="rows">
+                        <div class="ct-selempty" data-region="rows-loading">{{#str}} rw_loading, local_coursetransfer {{/str}}</div>
+                    </div>
+                </div>
+
+                <div class="ct-selpager" data-region="pager" hidden>
+                    <button type="button" class="ct-iconbtn ct-iconbtn--xs" data-action="prev"
+                            aria-label="{{#str}} rw_pageprev, local_coursetransfer {{/str}}" title="{{#str}} rw_pageprev, local_coursetransfer {{/str}}">
+                        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <span class="ct-selpager-info" data-region="pageinfo"></span>
+                    <button type="button" class="ct-iconbtn ct-iconbtn--xs" data-action="next-page"
+                            aria-label="{{#str}} rw_pagenext, local_coursetransfer {{/str}}" title="{{#str}} rw_pagenext, local_coursetransfer {{/str}}">
+                        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <div class="ct-alert ct-alert--danger ct-mt" data-region="cat-cascade" hidden>
+                    <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
+                    <p>{{#str}} rmv_cat_cascade, local_coursetransfer {{/str}}</p>
+                </div>
+            </div>
+
+            {{! ---- STEP 2 · Confirm ---- }}
+            <div data-step="2" hidden>
+                <h2 class="ct-section-title">{{#str}} rmv_confirm_title, local_coursetransfer {{/str}}</h2>
+                <p class="ct-step-lead">{{#str}} rmv_confirm_desc, local_coursetransfer {{/str}}</p>
+
+                <div class="ct-removecard" data-region="confirm-card"></div>
+
+                {{! Category subtree preview (only for a single selected category): what will be deleted. }}
+                <div class="ct-tree-wrap ct-mt" data-region="tree" hidden>
+                    <h3 class="ct-tree-title">{{#str}} rcc_tree_title, local_coursetransfer {{/str}}</h3>
+                    <div class="ct-tree-body" data-region="tree-body"></div>
+                </div>
+
+                <div class="ct-alert ct-alert--neutral ct-mt">
+                    <i class="fa fa-info-circle ct-alert-icon" aria-hidden="true"></i>
+                    <p>{{#str}} rmv_reversibility_desc, local_coursetransfer {{/str}}</p>
+                </div>
+
+                {{! Deferred execution. }}
+                <div class="ct-switchrow ct-mt">
+                    <div class="ct-switchrow-body">
+                        <span class="ct-rolecard-title">{{#str}} rw_schedule, local_coursetransfer {{/str}}</span>
+                        <span class="ct-rolecard-desc">{{#str}} rw_schedule_desc, local_coursetransfer {{/str}}</span>
+                        <input type="datetime-local" class="ct-input ct-schedule-input ct-mt" data-action="schedule-date" data-region="schedule-date" hidden>
+                    </div>
+                    <button type="button" class="ct-switch" data-action="toggle-schedule" role="switch" aria-checked="false"></button>
+                </div>
+
+                {{! Mandatory destructive confirmation. }}
+                <div class="ct-removeorigin-confirm ct-mt">
+                    <button type="button" class="ct-modeopt-confirm-btn" data-action="toggle-confirm" role="checkbox" aria-checked="false">
+                        <span class="ct-modeopt-confirm-box"><i class="fa fa-check" aria-hidden="true"></i></span>
+                        <span data-region="confirm-text"></span>
+                    </button>
+                </div>
+
+                <div class="ct-alert ct-alert--danger ct-mt" data-region="submit-error" hidden>
+                    <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
+                    <p data-region="submit-error-text"></p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="ct-wizard-footer">
+            <button type="button" class="ct-btn ct-btn--ghost" data-action="cancel">{{#str}} rw_cancel, local_coursetransfer {{/str}}</button>
+            <button type="button" class="ct-btn ct-btn--secondary" data-action="back">
+                <i class="fa fa-chevron-left" aria-hidden="true"></i>{{#str}} rw_back, local_coursetransfer {{/str}}
+            </button>
+            <span class="ct-wizard-stepnum" data-region="stepinfo">{{#str}} rw_step_of, local_coursetransfer, {"n": 1, "total": 3} {{/str}}</span>
+            <button type="button" class="ct-btn ct-btn--primary" data-action="primary" data-region="primary">
+                {{#str}} rw_next, local_coursetransfer {{/str}}<i class="fa fa-chevron-right" aria-hidden="true"></i>
+            </button>
+        </div>
+
+    </div>
+
+    {{! ===================== DONE ===================== }}
+    <div class="ct-card" data-region="done" hidden>
+        <div class="ct-done">
+            <div class="ct-done-icon ct-done-icon--danger"><i class="fa fa-clock-o" aria-hidden="true"></i></div>
+            <h2 class="ct-section-title">{{#str}} rmv_done_title, local_coursetransfer {{/str}}</h2>
+            <p class="ct-text-muted" data-region="done-desc">{{#str}} rmv_done_desc, local_coursetransfer {{/str}}</p>
+            <div class="ct-done-progress">
+                <div class="ct-done-progress-step">
+                    <span class="ct-done-progress-dot"><span></span></span>
+                    <span class="ct-done-progress-label">{{#str}} rmv_done_step1, local_coursetransfer {{/str}}</span>
+                </div>
+                <div class="ct-done-progress-step">
+                    <span class="ct-done-progress-dot"><span></span></span>
+                    <span class="ct-done-progress-label">{{#str}} rmv_done_step2, local_coursetransfer {{/str}}</span>
+                </div>
+                <div class="ct-done-progress-step">
+                    <span class="ct-done-progress-dot"><span></span></span>
+                    <span class="ct-done-progress-label">{{#str}} rmv_done_step3, local_coursetransfer {{/str}}</span>
+                </div>
+            </div>
+            <p class="ct-done-note">{{#str}} rw_done_async, local_coursetransfer {{/str}}</p>
+            <div class="ct-done-actions">
+                <a href="{{ logurl }}" class="ct-btn ct-btn--primary" data-region="done-log">
+                    <i class="fa fa-list-alt" aria-hidden="true"></i>{{#str}} rw_done_gotolog, local_coursetransfer {{/str}}
+                </a>
+                <button type="button" class="ct-btn ct-btn--secondary" data-action="go-landing">{{#str}} rw_done_back, local_coursetransfer {{/str}}</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{{#js}}
+require(['local_coursetransfer/remove_wizard'], function(W) {
+    W.init('[data-region="remove"]');
+});
+{{/js}}

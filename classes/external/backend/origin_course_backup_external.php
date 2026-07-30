@@ -36,11 +36,11 @@ namespace local_coursetransfer\external\backend;
 
 use context_course;
 use core_course_category;
-use external_api;
-use external_function_parameters;
-use external_multiple_structure;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_multiple_structure;
+use core_external\external_single_structure;
+use core_external\external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_backup;
@@ -52,7 +52,6 @@ use stdClass;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
@@ -198,7 +197,9 @@ class origin_course_backup_external extends external_api {
                                     coursetransfer::get_backup_size_estimated_int($course->id);
                             coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
 
-                            $cat = core_course_category::get($course->category, MUST_EXIST);
+                            // Defensive: a category not visible to the WS user must not abort
+                            // the backup (it only feeds metadata). See LLAOMW-107 / 22011.
+                            $cat = core_course_category::get($course->category, IGNORE_MISSING);
 
                             $data->origin_backup_size_estimated = $requestorigin->origin_backup_size_estimated;
                             $data->request_origin_id = $requestorigin->id;
@@ -206,8 +207,8 @@ class origin_course_backup_external extends external_api {
                             $data->course_shortname = $course->shortname;
                             $data->course_idnumber = $course->idnumber;
                             $data->course_category_id = $course->category;
-                            $data->course_category_name = $cat->name;
-                            $data->course_category_idnumber = $cat->idnumber;
+                            $data->course_category_name = $cat ? $cat->name : '';
+                            $data->course_category_idnumber = $cat ? $cat->idnumber : '';
                             $success = true;
                         } else {
                             $requestorigin->error_code = '10103';

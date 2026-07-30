@@ -32,8 +32,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_coursetransfer\cli_helper;
 use local_coursetransfer\coursetransfer;
-use local_coursetransfer\factory\user;
 
 define('CLI_SCRIPT', 1);
 
@@ -42,30 +42,31 @@ global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
-$usage = 'CLI for remove origin course.
+$usage = 'Delete a course on a remote (origin) platform.
+
+DESTRUCTIVE: the course is removed on the origin site. The origin must be
+registered as a paired "origin" site (with its token) beforehand. Runs
+asynchronously (cron); follow it with view_log_request.php --requestid=N.
 
 Usage:
-    # php remove_course.php
-        --site_url=<site_url>
-        --origin_course_id=<origin_course_id>
-        --origin_schedule_datetime=<origin_schedule_datetime>
+    php remove_course.php --site_url=<url> --origin_course_id=<id> [options]
 
-    --site_url=<site_url> Origin Site URL (string)
-    --origin_course_id=<origin_course_id>  Origin Course ID (int).
-    --origin_schedule_datetime=<origin_schedule_datetime>
-            Date in UNIX timestamp (int). Max deferral 30 days, 0 (default) to execute ASAP.
+Required:
+    --site_url=<url>              Origin site URL, e.g. https://origin.example
+    --origin_course_id=<id>       Course ID ON THE ORIGIN site (int > 0).
 
 Options:
-    -h --help                   Print this help.
+    --origin_schedule_datetime=<ts>
+                                  UNIX timestamp to defer execution (max 30 days
+                                  ahead). 0 (default) = run ASAP.
+    -h, --help                    Print this help.
 
-Description.
+Exit codes: 0 = started OK · 1 = runtime error · 2 = invalid arguments.
+Errors are written to STDERR; the success line goes to STDOUT.
 
-Examples:
-
-    # php local/coursetransfer/cli/remove_course.php
-        --site_url=https://origen.dominio
-        --origin_course_id=12
-        --origin_schedule_datetime=1679404952
+Example:
+    php local/coursetransfer/cli/remove_course.php \\
+        --site_url=https://origin.example --origin_course_id=12
 ';
 
 list($options, $unrecognised) = cli_get_params([
@@ -84,7 +85,7 @@ if ($unrecognised) {
 
 if ($options['help']) {
     cli_writeln($usage);
-    exit(2);
+    exit(0);
 }
 
 $siteurl = $options['site_url'];
@@ -92,35 +93,22 @@ $origincourseid = !is_null($options['origin_course_id']) ? (int) $options['origi
 $originscheduledatetime = intval($options['origin_schedule_datetime']);
 
 if (empty($siteurl)) {
-    cli_writeln( get_string('site_url_required', 'local_coursetransfer') );
-    exit(128);
+    cli_error(get_string('site_url_required', 'local_coursetransfer'), 2);
 }
 
 if ( $origincourseid === null ) {
-    cli_writeln( get_string('origin_course_id_require', 'local_coursetransfer') );
-    exit(128);
+    cli_error(get_string('origin_course_id_require', 'local_coursetransfer'), 2);
 } else if ( $origincourseid <= 0 ) {
-    cli_writeln( get_string('origin_course_id_integer', 'local_coursetransfer') );
-    exit(128);
+    cli_error(get_string('origin_course_id_integer', 'local_coursetransfer'), 2);
 }
-$now = time();
-// 30 days of maximun deferred execution.
-$maxtimerange = $now + (60 * 60 * 24 * 30);
-if ($originscheduledatetime != 0  && ($originscheduledatetime < $now || $originscheduledatetime > $maxtimerange )) {
-    cli_writeln( 'origin_schedule_datetime is not valid format');
-    exit(128);
-} else {
-    $date = new DateTime();
-    $date->setTimestamp(intval($originscheduledatetime));
-    cli_writeln( 'Scheduler Time: ' . userdate($date->getTimestamp()));
-}
+cli_helper::check_schedule($originscheduledatetime);
 
 $errors = [];
 
 try {
 
     // 2. User Login.
-    $user = core_user::get_user_by_username(user::USERNAME_WS);
+    $user = cli_helper::require_ws_user();
 
     $site = coursetransfer::get_site_by_url($siteurl);
     $res = coursetransfer::remove_course($site, $origincourseid, $user, $originscheduledatetime);
@@ -134,11 +122,9 @@ try {
                 $res['data']['requestid']);
         exit(0);
     } else {
-        cli_writeln(json_encode($errors));
-        exit(1);
+        cli_error(json_encode($errors), 1);
     }
 
 } catch (moodle_exception $e) {
-    cli_writeln('40002: ' . $e->getMessage());
-    exit(1);
+    cli_error('40002: ' . $e->getMessage(), 1);
 }

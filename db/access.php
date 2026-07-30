@@ -72,6 +72,21 @@ $capabilities = [
         ],
     ],
 
+    // Restore a remote category into a category context (LCT-028): lets a
+    // category manager use the contextual restore wizard, mirroring
+    // origin_restore_course for the course context.
+    'local/coursetransfer:origin_restore_category' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSECAT,
+        'archetypes' => [
+            'guest' => CAP_PROHIBIT,
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_PROHIBIT,
+            'teacher' => CAP_PROHIBIT,
+            'student' => CAP_PROHIBIT,
+        ],
+    ],
+
     'local/coursetransfer:origin_remove_course' => [
             'captype' => 'write',
             'contextlevel' => CONTEXT_COURSE,

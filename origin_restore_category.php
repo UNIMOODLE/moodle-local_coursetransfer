@@ -23,7 +23,12 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Origin Restore Category.
+ * Teacher/manager category restore assistant (Tresipunt redesign).
+ *
+ * Single-page assistant that brings a remote category (all its courses,
+ * including subcategories) into the current category. Replaces the legacy
+ * 4-step new_origin_restore_category_* pages while keeping the same URL so the
+ * category settings navigation link (lib.php) does not change.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -32,56 +37,45 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_coursetransfer\output\origin_restore_category\new_origin_restore_category_step1_page;
-use local_coursetransfer\output\origin_restore_category\new_origin_restore_category_step2_page;
-use local_coursetransfer\output\origin_restore_category\new_origin_restore_category_step3_page;
-use local_coursetransfer\output\origin_restore_category\new_origin_restore_category_step4_page;
-use local_coursetransfer\output\origin_restore_category\origin_restore_category_page;
+use local_coursetransfer\output\error_page;
+use local_coursetransfer\output\restore_category_page;
 
 require_once('../../config.php');
 
-global $PAGE, $OUTPUT, $USER;
+global $PAGE, $OUTPUT;
 
 $categoryid = required_param('id', PARAM_INT);
-$isnew = optional_param('new', false, PARAM_INT);
-$isnew = $isnew === 1;
 
-$title = get_string('origin_restore_category', 'local_coursetransfer');
+$title = get_string('rcc_title', 'local_coursetransfer');
 
 $category = core_course_category::get($categoryid, MUST_EXIST);
+$context = context_coursecat::instance($categoryid);
 
 require_login();
 
-$PAGE->set_pagelayout('coursecategory');
-$PAGE->set_context(context_coursecat::instance($categoryid));
+$PAGE->set_pagelayout('standard');
+$PAGE->set_context($context);
 $PAGE->set_title($title);
-$PAGE->set_heading($title);
-$PAGE->set_url('/local/coursetransfer/origin_restore_category.php');
-
+// The page renders its own hero <h1>; clear the theme heading to avoid a
+// duplicate title.
+$PAGE->set_heading('');
+$PAGE->set_url(new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $categoryid]));
 
 $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
-if ($isnew) {
-    $step = required_param('step', PARAM_INT);
-    switch ($step) {
-        case 1:
-            $page = new new_origin_restore_category_step1_page($category);
-            break;
-        case 2:
-            $page = new new_origin_restore_category_step2_page($category);
-            break;
-        case 3:
-            $page = new new_origin_restore_category_step3_page($category);
-            break;
-        case 4:
-            $page = new new_origin_restore_category_step4_page($category);
-            break;
-        default:
-            throw new moodle_exception('STEP NOT VALID');
-    }
+// Security fix: the legacy page only ran require_login(); a category restore
+// must require the category-context capability (LCT-028).
+if (has_capability('local/coursetransfer:origin_restore_category', $context)) {
+    $page = new restore_category_page($category);
 } else {
-    $page = new origin_restore_category_page($category);
+    $page = new error_page(
+            get_string('forbidden', 'local_coursetransfer'),
+            get_string('you_have_not_permission', 'local_coursetransfer'),
+            'danger',
+            get_string('error')
+    );
 }
+
 echo $output->render($page);
 echo $OUTPUT->footer();

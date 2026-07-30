@@ -40,9 +40,9 @@ use local_coursetransfer\external\backend\origin_course_external;
 use local_coursetransfer\external\backend\origin_user_external;
 use local_coursetransfer\external\backend\remove_external;
 use local_coursetransfer\external\frontend\origin_remove_external;
-use local_coursetransfer\external\frontend\restore_category_external;
-use local_coursetransfer\external\frontend\restore_course_external;
-use local_coursetransfer\external\frontend\restore_external;
+use local_coursetransfer\external\frontend\restore_wizard_external;
+use local_coursetransfer\external\frontend\token_external;
+use local_coursetransfer\external\frontend\search_category;
 use local_coursetransfer\external\frontend\search_course;
 use local_coursetransfer\external\frontend\sites_external;
 
@@ -95,6 +95,8 @@ $functions = [
         'loginrequired' => true,
     ],
 
+    // Returns the full category subtree (nested categories + courses); used by the restore
+    // wizard to render the category hierarchy and import preserving the tree structure.
     'local_coursetransfer_origin_get_category_detail_tree' => [
         'classname' => origin_category_external::class,
         'methodname' => 'origin_get_category_detail_tree',
@@ -156,69 +158,6 @@ $functions = [
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true,
-    ],
-
-    'local_coursetransfer_new_origin_restore_course_step1' => [
-        'classname' => restore_course_external::class,
-        'methodname' => 'new_origin_restore_course_step1',
-        'description' => 'Verify that user exists in origin and check if it has courses as a teacher',
-        'type' => 'read',
-        'ajax' => true,
-        'loginrequired' => true,
-    ],
-
-    'local_coursetransfer_new_origin_restore_course_step5' => [
-        'classname' => restore_course_external::class,
-        'methodname' => 'new_origin_restore_course_step5',
-        'description' => 'Execute course restauration from moodle remote in step5',
-        'type' => 'write',
-        'ajax' => true,
-        'loginrequired' => true,
-    ],
-
-    'local_coursetransfer_new_origin_restore_category_step1' => [
-            'classname' => restore_category_external::class,
-            'methodname' => 'new_origin_restore_category_step1',
-            'description' => 'Verify that user exists in origin and check if it has courses as a teacher',
-            'type' => 'read',
-            'ajax' => true,
-            'loginrequired' => true,
-    ],
-
-    'local_coursetransfer_new_origin_restore_category_step4' => [
-            'classname' => restore_category_external::class,
-            'methodname' => 'new_origin_restore_category_step4',
-            'description' => 'Execute category restauration from moodle remote in step4',
-            'type' => 'write',
-            'ajax' => true,
-            'loginrequired' => true,
-    ],
-
-    'local_coursetransfer_origin_restore_step1' => [
-            'classname' => restore_external::class,
-            'methodname' => 'origin_restore_step1',
-            'description' => 'Execute restauration from moodle remote in step1',
-            'type' => 'write',
-            'ajax' => true,
-            'loginrequired' => true,
-    ],
-
-    'local_coursetransfer_origin_restore_step4' => [
-            'classname' => restore_external::class,
-            'methodname' => 'origin_restore_step4',
-            'description' => 'Execute courses restauration from moodle remote in step4',
-            'type' => 'write',
-            'ajax' => true,
-            'loginrequired' => true,
-    ],
-
-    'local_coursetransfer_origin_restore_cat_step4' => [
-            'classname' => restore_external::class,
-            'methodname' => 'origin_restore_cat_step4',
-            'description' => 'Execute category restauration from moodle remote in step4',
-            'type' => 'write',
-            'ajax' => true,
-            'loginrequired' => true,
     ],
 
     'local_coursetransfer_origin_remove_step1' => [
@@ -293,6 +232,15 @@ $functions = [
             'loginrequired' => true,
     ],
 
+    'local_coursetransfer_site_check' => [
+            'classname' => sites_external::class,
+            'methodname' => 'site_check',
+            'description' => 'Site Check (test connection before saving)',
+            'type' => 'read',
+            'ajax' => true,
+            'loginrequired' => true,
+    ],
+
     'local_coursetransfer_site_test' => [
             'classname' => sites_external::class,
             'methodname' => 'site_test',
@@ -329,6 +277,18 @@ $functions = [
             'loginrequired' => true,
     ],
 
+    'local_coursetransfer_dest_search_category_name' => [
+            'classname' => search_category::class,
+            'methodname' => 'search_by_name',
+            'description' => 'Search destination category by name (autocomplete)',
+            'type' => 'read',
+            'ajax' => true,
+            'loginrequired' => true,
+    ],
+
+    // DEPRECATED since 2.0.0 (kept for backward compatibility with UNIMOODLE peers).
+    // Superseded by the restore wizard flow (origin_get_courses + origin_get_course_detail).
+    // Deprecation is signalled via origin_course_external::origin_get_courses_by_ids_is_deprecated().
     'local_coursetransfer_origin_get_courses_by_ids' => [
         'classname' => origin_course_external::class,
         'methodname' => 'origin_get_courses_by_ids',
@@ -344,6 +304,114 @@ $functions = [
         'description' => 'Resolve a category by idnumber regex pattern',
         'type' => 'read',
         'ajax' => false,
+        'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_restore_wizard_get_sites' => [
+        'classname' => restore_wizard_external::class,
+        'methodname' => 'get_sites',
+        'description' => 'Restore wizard: list origin sites',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_restore_wizard_list_origin' => [
+        'classname' => restore_wizard_external::class,
+        'methodname' => 'list_origin',
+        'description' => 'Restore wizard: list origin courses or categories',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_restore_wizard_get_sections' => [
+        'classname' => restore_wizard_external::class,
+        'methodname' => 'get_sections',
+        'description' => 'Restore wizard: get sections/activities of an origin course (teacher flow)',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_restore_wizard_get_category_tree' => [
+        'classname' => restore_wizard_external::class,
+        'methodname' => 'get_category_tree',
+        'description' => 'Restore wizard: get the subtree (nested subcategories + courses) of an origin category',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_restore_wizard_delete_request' => [
+        'classname' => restore_wizard_external::class,
+        'methodname' => 'delete_request',
+        'description' => 'Delete a request (execution log) record',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_restore_wizard_submit' => [
+        'classname' => restore_wizard_external::class,
+        'methodname' => 'submit',
+        'description' => 'Restore wizard: submit restore request',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_restore_wizard_submit_course' => [
+        'classname' => restore_wizard_external::class,
+        'methodname' => 'submit_course',
+        'description' => 'Restore wizard: submit a teacher course restore over the current course',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_restore_wizard_submit_category' => [
+        'classname' => restore_wizard_external::class,
+        'methodname' => 'submit_category',
+        'description' => 'Restore wizard: submit a teacher/manager category restore into the current category',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_restore_wizard_remove_submit' => [
+        'classname' => restore_wizard_external::class,
+        'methodname' => 'remove_submit',
+        'description' => 'Remove wizard: delete selected courses or categories on a remote platform',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_token_create' => [
+        'classname' => token_external::class,
+        'methodname' => 'create',
+        'description' => 'Summary: create this site service-user token',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_token_revoke' => [
+        'classname' => token_external::class,
+        'methodname' => 'revoke',
+        'description' => 'Summary: revoke this site service-user token',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+
+    'local_coursetransfer_token_regenerate' => [
+        'classname' => token_external::class,
+        'methodname' => 'regenerate',
+        'description' => 'Summary: regenerate this site service-user token',
+        'type' => 'write',
+        'ajax' => true,
         'loginrequired' => true,
     ],
 
@@ -363,13 +431,6 @@ $services = [
             'local_coursetransfer_target_backup_course_error',
             'local_coursetransfer_target_remove_course_completed',
             'local_coursetransfer_target_remove_course_error',
-            'local_coursetransfer_new_origin_restore_course_step1',
-            'local_coursetransfer_new_origin_restore_course_step5',
-            'local_coursetransfer_new_origin_restore_category_step1',
-            'local_coursetransfer_new_origin_restore_category_step4',
-            'local_coursetransfer_origin_restore_step1',
-            'local_coursetransfer_origin_restore_step4',
-            'local_coursetransfer_origin_restore_cat_step4',
             'local_coursetransfer_origin_remove_step1',
             'local_coursetransfer_origin_remove_step3',
             'local_coursetransfer_origin_remove_cat_step3',
@@ -378,12 +439,20 @@ $services = [
             'local_coursetransfer_site_add',
             'local_coursetransfer_site_edit',
             'local_coursetransfer_site_remove',
+            'local_coursetransfer_site_check',
             'local_coursetransfer_site_test',
             'local_coursetransfer_site_origin_test',
             'local_coursetransfer_site_target_test',
             'local_coursetransfer_dest_search_course_name',
             'local_coursetransfer_origin_get_courses_by_ids',
             'local_coursetransfer_get_category_idnumber',
+            'local_coursetransfer_restore_wizard_get_sites',
+            'local_coursetransfer_restore_wizard_list_origin',
+            'local_coursetransfer_restore_wizard_get_sections',
+            'local_coursetransfer_restore_wizard_submit',
+            'local_coursetransfer_restore_wizard_submit_course',
+            'local_coursetransfer_restore_wizard_submit_category',
+            'local_coursetransfer_restore_wizard_remove_submit',
         ],
         'downloadfiles' => 1,
         'restrictedusers' => 1,

@@ -47,31 +47,32 @@ use stdClass;
  */
 class response {
 
-    /** @var bool Success */
-    public $success;
+    /** @var bool Whether the operation succeeded. */
+    public bool $success;
 
-    /** @var array Errors  */
-    public $errors;
+    /** @var array|null List of errors (each [code, msg]) or null. */
+    public ?array $errors;
 
-    /** @var stdClass|array Data */
-    public $data;
+    /** @var stdClass|array|string|null Response payload (string when the WS returns raw JSON, e.g. the category tree). */
+    public stdClass|array|string|null $data;
 
-    /**
-     * Info about response paging.
-     *
-     * @var array
-     */
-    public $paging;
+    /** @var stdClass|array|null Paging info or null. */
+    public stdClass|array|null $paging;
 
     /**
      * response constructor.
      *
      * @param bool $success
-     * @param null $data
+     * @param stdClass|array|string|null $data
      * @param array|null $errors
-     * @param null $paging
+     * @param stdClass|array|null $paging
      */
-    public function __construct(bool $success,  $data = null, array $errors = null, $paging =  null) {
+    public function __construct(
+            bool $success,
+            stdClass|array|string|null $data = null,
+            ?array $errors = null,
+            stdClass|array|null $paging = null
+    ) {
         $this->success = $success;
         $this->data = $data;
         $this->errors = $errors;

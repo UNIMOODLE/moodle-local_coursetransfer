@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * logs_course_response_table
+ * create_backup_course_task
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -35,6 +35,8 @@
 namespace local_coursetransfer\task;
 
 use async_helper;
+use backup_controller;
+use core_user;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
@@ -43,7 +45,7 @@ use moodle_exception;
 use stdClass;
 
 /**
- * logs_course_response_table
+ * create_backup_course_task
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -63,7 +65,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
      * Execute the task.
      *
      */
-    public function execute() {
+    public function execute(): void {
         global $DB;
 
         $started = time();
@@ -85,7 +87,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
                 throw new moodle_exception('REQUEST ORIGIN ID NOT FOUND');
             }
 
-            $bc = \backup_controller::load_controller($backupid);
+            $bc = backup_controller::load_controller($backupid);
 
             $backuprecord = $DB->get_record(
                     'backup_controllers', ['backupid' => $backupid], 'id, controller', MUST_EXIST);
@@ -125,7 +127,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
 
             $result = $bc->get_results();
             $userid = $bc->get_userid();
-            $user = \core_user::get_user($userid);
+            $user = core_user::get_user($userid);
             $site = coursetransfer_sites::get('target', $siteid);
             $request = new request($site);
 

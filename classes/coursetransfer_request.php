@@ -34,7 +34,9 @@
 
 namespace local_coursetransfer;
 
+use coding_exception;
 use core_course_category;
+use core_shutdown_manager;
 use dml_exception;
 use local_coursetransfer\models\configuration_category;
 use local_coursetransfer\models\configuration_course;
@@ -57,34 +59,46 @@ class coursetransfer_request {
 
     /** @var int Type Course */
     const TYPE_COURSE = 0;
+
     /** @var int Type Category */
     const TYPE_CATEGORY = 1;
+
     /** @var int Type Remove Course */
     const TYPE_REMOVE_COURSE = 2;
+
     /** @var int Type Remove Category */
     const TYPE_REMOVE_CATEGORY = 3;
 
     /** @var int Direction Request */
     const DIRECTION_REQUEST = 0;
+
     /** @var int Direction Response */
     const DIRECTION_RESPONSE = 1;
 
     /** @var int Status Error */
     const STATUS_ERROR = 0;
+
     /** @var int Status not started */
     const STATUS_NOT_STARTED = 1;
+
     /** @var int Status in progress */
     const STATUS_IN_PROGRESS = 10;
+
     /** @var int Status Backup */
     const STATUS_BACKUP = 30;
+
     /** @var int Status Download */
     const STATUS_DOWNLOAD = 50;
+
     /** @var int Status Downloaded */
     const STATUS_DOWNLOADED = 70;
+
     /** @var int Status Restore */
     const STATUS_RESTORE = 80;
+
     /** @var int Status Incompleted */
     const STATUS_INCOMPLETED = 90;
+
     /** @var int Status Completed */
     const STATUS_COMPLETED = 100;
 
@@ -95,7 +109,7 @@ class coursetransfer_request {
      * @return false|mixed|stdClass
      * @throws dml_exception
      */
-    public static function get(int $requestid) {
+    public static function get(int $requestid): mixed {
         global $DB;
         return $DB->get_record(self::TABLE, ['id' => $requestid]);
     }
@@ -104,10 +118,10 @@ class coursetransfer_request {
      * Get by Target Course Id.
      *
      * @param int $courseid
-     * @return false|mixed|stdClass
+     * @return array
      * @throws dml_exception
      */
-    public static function get_by_target_course_id(int $courseid) {
+    public static function get_by_target_course_id(int $courseid): array {
         global $DB;
         return $DB->get_records(self::TABLE,
                 ['target_course_id' => $courseid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_REQUEST]);
@@ -117,10 +131,10 @@ class coursetransfer_request {
      * Get by Target Category Id.
      *
      * @param int $catid
-     * @return false|mixed|stdClass
+     * @return array
      * @throws dml_exception
      */
-    public static function get_by_target_category_id(int $catid) {
+    public static function get_by_target_category_id(int $catid): array {
         global $DB;
         return $DB->get_records(self::TABLE,
                 ['target_category_id' => $catid, 'type' => self::TYPE_CATEGORY, 'direction' => self::DIRECTION_REQUEST]);
@@ -130,10 +144,10 @@ class coursetransfer_request {
      * Get by Origin Course Id.
      *
      * @param int $courseid
-     * @return false|mixed|stdClass
+     * @return array
      * @throws dml_exception
      */
-    public static function get_by_origin_course_id(int $courseid) {
+    public static function get_by_origin_course_id(int $courseid): array {
         global $DB;
         return $DB->get_records(self::TABLE,
                 ['origin_course_id' => $courseid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_RESPONSE]);
@@ -143,10 +157,10 @@ class coursetransfer_request {
      * Get by Origin Category Id.
      *
      * @param int $catid
-     * @return false|mixed|stdClass
+     * @return array
      * @throws dml_exception
      */
-    public static function get_by_origin_category_id(int $catid) {
+    public static function get_by_origin_category_id(int $catid): array {
         global $DB;
         return $DB->get_records(self::TABLE,
                 ['origin_category_id' => $catid, 'type' => self::TYPE_CATEGORY, 'direction' => self::DIRECTION_RESPONSE]);
@@ -156,10 +170,10 @@ class coursetransfer_request {
      * Filters
      *
      * @param array $filters
-     * @return false|mixed|stdClass
+     * @return array
      * @throws dml_exception
      */
-    public static function filters(array $filters) {
+    public static function filters(array $filters): array {
         global $DB;
         $where = '';
         if (isset($filters['type'])) {
@@ -214,10 +228,271 @@ class coursetransfer_request {
     }
 
     /**
+     * Get the plugin's adhoc tasks (this site) whose customdata references the given request.
+     *
+     * Single source of truth used both by the tracking page and by the retry
+     * anti-duplicate check. Filters with LIKE and then confirms the exact
+     * requestid via json_decode (so 12 does not match 123).
+     *
+     * @param int $requestid
+     * @return array task_adhoc records keyed by id.
+     * @throws dml_exception
+     */
+    public static function get_related_adhoc_tasks(int $requestid): array {
+        global $DB;
+        $candidates = $DB->get_records_select('task_adhoc',
+                'component = :component AND ' . $DB->sql_like('customdata', ':needle'),
+                ['component' => 'local_coursetransfer', 'needle' => '%"requestid":' . $requestid . '%'],
+                'nextruntime ASC');
+        $tasks = [];
+        foreach ($candidates as $task) {
+            $data = json_decode($task->customdata);
+            if (isset($data->requestid) && (int)$data->requestid === $requestid) {
+                $tasks[$task->id] = $task;
+            }
+        }
+        return $tasks;
+    }
+
+    /**
+     * Build the WHERE clause + params for the logs listing/export, with optional filters.
+     *
+     * Single source of truth for the logs table and the export endpoint. Uses
+     * placeholders (no concatenation). Bare column names (single table).
+     *
+     * @param int $type Request type.
+     * @param int $direction Request direction.
+     * @param int|string|null $status Status code, or null/'' for all.
+     * @param int|null $datefrom Lower bound for timemodified (timestamp).
+     * @param int|null $dateto Upper bound for timemodified (timestamp).
+     * @param int|null $sizeminbytes Lower bound for origin_backup_size (bytes).
+     * @param int|null $sizemaxbytes Upper bound for origin_backup_size (bytes).
+     * @return array [string $where, array $params]
+     */
+    public static function get_logs_filter_sql(int $type, int $direction, int|string $status = null, int $datefrom = null,
+                                               int $dateto = null, int $sizeminbytes = null,
+                                               int $sizemaxbytes = null, $origincourseid = null,
+                                               $targetcourseid = null): array {
+        $where = 'direction = :direction AND type = :type';
+        $params = ['direction' => $direction, 'type' => $type];
+        if (is_numeric($status)) {
+            $where .= ' AND status = :status';
+            $params['status'] = (int)$status;
+        }
+        if (!empty($origincourseid)) {
+            $where .= ' AND origin_course_id = :origincourseid';
+            $params['origincourseid'] = (int)$origincourseid;
+        }
+        if (!empty($targetcourseid)) {
+            $where .= ' AND target_course_id = :targetcourseid';
+            $params['targetcourseid'] = (int)$targetcourseid;
+        }
+        if (!empty($datefrom)) {
+            $where .= ' AND timemodified >= :datefrom';
+            $params['datefrom'] = (int)$datefrom;
+        }
+        if (!empty($dateto)) {
+            $where .= ' AND timemodified <= :dateto';
+            $params['dateto'] = (int)$dateto;
+        }
+        if (!empty($sizeminbytes)) {
+            $where .= ' AND origin_backup_size >= :sizemin';
+            $params['sizemin'] = (int)$sizeminbytes;
+        }
+        if (!empty($sizemaxbytes)) {
+            $where .= ' AND origin_backup_size <= :sizemax';
+            $params['sizemax'] = (int)$sizemaxbytes;
+        }
+        return [$where, $params];
+    }
+
+    /**
+     * WHERE + params for the unified executions log (all types and
+     * directions in one query). Placeholders only. Columns are prefixed
+     * with "r." so the caller can join {course} for the local target name.
+     *
+     * Accepted filters: statusgroup ('prog'|'wait'|'done'|'err'),
+     * type (0..3), dir ('in'|'out'), site (siteurl), q (course search),
+     * from / to (timestamps on timemodified).
+     *
+     * @param array $filters
+     * @return array [string $where, array $params]
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function get_executions_filter_sql(array $filters): array {
+        global $DB;
+        $where = ['1 = 1'];
+        $params = [];
+
+        $groups = [
+            'prog' => [self::STATUS_IN_PROGRESS, self::STATUS_BACKUP, self::STATUS_DOWNLOAD,
+                    self::STATUS_DOWNLOADED, self::STATUS_RESTORE],
+            'wait' => [self::STATUS_NOT_STARTED],
+            'done' => [self::STATUS_COMPLETED],
+            'err' => [self::STATUS_ERROR, self::STATUS_INCOMPLETED],
+        ];
+        if (!empty($filters['statusgroup']) && isset($groups[$filters['statusgroup']])) {
+            [$insql, $inparams] = $DB->get_in_or_equal($groups[$filters['statusgroup']], SQL_PARAMS_NAMED, 'st');
+            $where[] = "r.status $insql";
+            $params += $inparams;
+        }
+        if (isset($filters['type']) && is_numeric($filters['type']) && (int)$filters['type'] >= 0) {
+            $where[] = 'r.type = :ftype';
+            $params['ftype'] = (int)$filters['type'];
+        }
+        // Direction of the exchange from this site's point of view:
+        // "in" (I pull) = restores initiated here or removes requested by a peer;
+        // "out" (I serve/act outwards) = the inverse combinations.
+        if (!empty($filters['dir']) && in_array($filters['dir'], ['in', 'out'], true)) {
+            $restores = '(r.type = ' . self::TYPE_COURSE . ' OR r.type = ' . self::TYPE_CATEGORY . ')';
+            if ($filters['dir'] === 'in') {
+                $where[] = "(($restores AND r.direction = " . self::DIRECTION_REQUEST . ')'
+                        . ' OR (NOT ' . $restores . ' AND r.direction = ' . self::DIRECTION_RESPONSE . '))';
+            } else {
+                $where[] = "(($restores AND r.direction = " . self::DIRECTION_RESPONSE . ')'
+                        . ' OR (NOT ' . $restores . ' AND r.direction = ' . self::DIRECTION_REQUEST . '))';
+            }
+        }
+        if (!empty($filters['site'])) {
+            $compare = $DB->sql_compare_text('r.siteurl', 255);
+            $where[] = "$compare = " . $DB->sql_compare_text(':fsite', 255);
+            $params['fsite'] = $filters['site'];
+        }
+        if (!empty($filters['q'])) {
+            $like1 = $DB->sql_like('r.origin_course_fullname', ':fq1', false, false);
+            $like2 = $DB->sql_like('r.origin_category_name', ':fq2', false, false);
+            $like3 = $DB->sql_like('c.fullname', ':fq3', false, false);
+            $where[] = "($like1 OR $like2 OR $like3)";
+            $needle = '%' . $DB->sql_like_escape($filters['q']) . '%';
+            $params['fq1'] = $needle;
+            $params['fq2'] = $needle;
+            $params['fq3'] = $needle;
+        }
+        if (!empty($filters['from'])) {
+            $where[] = 'r.timemodified >= :ffrom';
+            $params['ffrom'] = (int)$filters['from'];
+        }
+        if (!empty($filters['to'])) {
+            $where[] = 'r.timemodified <= :fto';
+            $params['fto'] = (int)$filters['to'];
+        }
+        return [implode(' AND ', $where), $params];
+    }
+
+    /**
+     * Unified executions page: one slice of the request log across all
+     * types and directions, newest first. Includes the LOCAL target
+     * course fullname when it exists (targetcoursename).
+     *
+     * @param array $filters see get_executions_filter_sql()
+     * @param int $page zero-based page
+     * @param int $perpage
+     * @return stdClass[]
+     * @throws dml_exception|coding_exception
+     */
+    public static function get_executions(array $filters, int $page, int $perpage): array {
+        global $DB;
+        [$where, $params] = self::get_executions_filter_sql($filters);
+        $sql = 'SELECT r.*, c.fullname AS targetcoursename
+                  FROM {' . self::TABLE . '} r
+             LEFT JOIN {course} c ON c.id = r.target_course_id
+                 WHERE ' . $where . '
+              ORDER BY r.timemodified DESC, r.id DESC';
+        return $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
+    }
+
+    /**
+     * Total rows for the unified executions page.
+     *
+     * @param array $filters see get_executions_filter_sql()
+     * @return int
+     * @throws dml_exception|coding_exception
+     */
+    public static function count_executions(array $filters): int {
+        global $DB;
+        [$where, $params] = self::get_executions_filter_sql($filters);
+        $sql = 'SELECT COUNT(1)
+                  FROM {' . self::TABLE . '} r
+             LEFT JOIN {course} c ON c.id = r.target_course_id
+                 WHERE ' . $where;
+        return (int)$DB->count_records_sql($sql, $params);
+    }
+
+    /**
+     * Requests currently moving (or waiting for cron), newest first.
+     *
+     * @param int $limit
+     * @return stdClass[]
+     * @throws dml_exception|coding_exception
+     */
+    public static function get_active_executions(int $limit = 20): array {
+        global $DB;
+        $active = [self::STATUS_NOT_STARTED, self::STATUS_IN_PROGRESS, self::STATUS_BACKUP,
+                self::STATUS_DOWNLOAD, self::STATUS_DOWNLOADED, self::STATUS_RESTORE];
+        [$insql, $params] = $DB->get_in_or_equal($active, SQL_PARAMS_NAMED, 'ac');
+        $sql = 'SELECT r.*, c.fullname AS targetcoursename
+                  FROM {' . self::TABLE . '} r
+             LEFT JOIN {course} c ON c.id = r.target_course_id
+                 WHERE r.status ' . $insql . '
+              ORDER BY r.timemodified DESC, r.id DESC';
+        return $DB->get_records_sql($sql, $params, 0, $limit);
+    }
+
+    /**
+     * Distinct site URLs present in the request log (for the site filter).
+     *
+     * @return string[]
+     * @throws dml_exception
+     */
+    public static function get_execution_sites(): array {
+        global $DB;
+        $compare = $DB->sql_compare_text('siteurl', 255);
+        $records = $DB->get_records_sql(
+                "SELECT DISTINCT $compare AS siteurl FROM {" . self::TABLE . '}');
+        $sites = [];
+        foreach ($records as $record) {
+            if (!empty($record->siteurl)) {
+                $sites[] = $record->siteurl;
+            }
+        }
+        sort($sites);
+        return $sites;
+    }
+
+    /**
+     * Register a shutdown handler that records an uncatchable fatal error
+     * (e.g. execution timeout or out-of-memory) into the request log, so large
+     * downloads/restores that die do not leave the request stuck and silent.
+     *
+     * @param int $requestid
+     * @param string $errorcode Error code to store if a fatal happens.
+     */
+    public static function register_fatal_shutdown(int $requestid, string $errorcode): void {
+        core_shutdown_manager::register_function(function() use ($requestid, $errorcode) {
+            global $DB;
+            $err = error_get_last();
+            $fatalmask = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR;
+            if (!$err || !((int)$err['type'] & $fatalmask)) {
+                return;
+            }
+            $request = $DB->get_record(self::TABLE, ['id' => $requestid]);
+            if (!$request || in_array((int)$request->status, [self::STATUS_COMPLETED, self::STATUS_ERROR], true)) {
+                return;
+            }
+            $request->status = self::STATUS_ERROR;
+            $request->error_code = $errorcode;
+            $request->error_message = 'Fatal: ' . $err['message'];
+            $request->timemodified = time();
+            $DB->update_record(self::TABLE, $request);
+        });
+    }
+
+    /**
      * Update status request category.
      *
      * @param int $requestid
-     * @return false|mixed|stdClass
+     * @return stdClass
      * @throws dml_exception
      * @throws moodle_exception
      */
@@ -241,6 +516,27 @@ class coursetransfer_request {
     }
 
     /**
+     * Fire the request_completed event for a request row.
+     *
+     * Decouples the plugin from any notification policy: observers (e.g.
+     * local_coursetransfermanager) decide whether to notify. The plugin itself
+     * no longer sends messages/emails.
+     *
+     * @param stdClass $request A local_coursetransfer_request row.
+     */
+    public static function trigger_request_completed(stdClass $request): void {
+        \local_coursetransfer\event\request_completed::create([
+            'context' => \context_system::instance(),
+            'objectid' => (int)$request->id,
+            'userid' => (int)$request->userid,
+            'other' => [
+                'type' => (int)$request->type,
+                'direction' => (int)$request->direction,
+            ],
+        ])->trigger();
+    }
+
+    /**
      * Insert or update row in table.
      *
      * @param stdClass $object
@@ -249,7 +545,8 @@ class coursetransfer_request {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function insert_or_update(stdClass $object, int $id = null) {
+    public static function insert_or_update(stdClass $object, int $id = null): bool|int
+    {
         global $DB;
         if (!array_key_exists($object->status, coursetransfer::STATUS)) {
             throw new moodle_exception('STATUS IS NOT VALID');

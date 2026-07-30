@@ -35,11 +35,11 @@
 namespace local_coursetransfer\external\backend;
 
 use core_course_category;
-use external_api;
-use external_function_parameters;
-use external_multiple_structure;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_multiple_structure;
+use core_external\external_single_structure;
+use core_external\external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -49,7 +49,6 @@ use stdClass;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
@@ -328,5 +327,165 @@ class origin_category_external extends external_api {
                 ),
             ]
         );
+    }
+
+    /**
+     * Origin get category detail tree parameters.
+     *
+     * @return external_function_parameters
+     */
+    public static function origin_get_category_detail_tree_parameters(): external_function_parameters {
+        return new external_function_parameters(
+            [
+                'field' => new external_value(PARAM_TEXT, 'Field'),
+                'value' => new external_value(PARAM_TEXT, 'Value'),
+                'categoryid' => new external_value(PARAM_INT, 'Category ID'),
+            ]
+        );
+    }
+
+    /**
+     * Origin get category detail tree.
+     *
+     * Returns the full category subtree (nested categories + their courses), used by the
+     * restore wizard to render the category hierarchy and import preserving the tree.
+     *
+     * @param string $field
+     * @param string $value
+     * @param int $categoryid
+     * @return array
+     * @throws invalid_parameter_exception
+     */
+    public static function origin_get_category_detail_tree(string $field, string $value, int $categoryid): array {
+        $params = self::validate_parameters(
+            self::origin_get_category_detail_tree_parameters(), [
+                'field' => $field,
+                'value' => $value,
+                'categoryid' => $categoryid,
+            ]
+        );
+        $field = $params['field'];
+        $value = $params['value'];
+        $categoryid = $params['categoryid'] ?? 0;
+
+        $errors = [];
+        $data = [
+            'id' => 0,
+            'name' => '',
+            'idnumber' => 0,
+            'parentid' => 0,
+            'parentname' => '',
+            'courses' => [],
+        ];
+
+        try {
+            $authres = coursetransfer::auth_user($field, $value);
+            if ($authres['success']) {
+                $category = core_course_category::get($categoryid);
+                $data = json_encode(self::get_courses_and_categories($category));
+                $success = true;
+            } else {
+                $success = false;
+                $errors[] = $authres['error'];
+            }
+        } catch (moodle_exception $e) {
+            $success = false;
+            $errors[] =
+                [
+                    'code' => '24001',
+                    'msg' => $e->getMessage(),
+                ];
+        }
+
+        return [
+            'success' => $success,
+            'errors' => $errors,
+            'data' => $data,
+        ];
+    }
+
+    /**
+     * Origin get category detail tree returns.
+     *
+     * @return external_single_structure
+     */
+    public static function origin_get_category_detail_tree_returns(): external_single_structure {
+        return new external_single_structure(
+            [
+                'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
+                'errors' => new external_multiple_structure(new external_single_structure(
+                    [
+                        'code' => new external_value(PARAM_INT, 'Code'),
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ], 'Errors'
+                )),
+                'data' => new external_value(PARAM_RAW, 'Courses JSON', VALUE_OPTIONAL),
+            ]
+        );
+    }
+
+    /**
+     * Builds the recursive category + courses tree.
+     *
+     * @param core_course_category $category
+     * @param array $visited Category ids already walked, to break any cycle (corrupted tree).
+     * @return array
+     */
+    protected static function get_courses_and_categories(core_course_category $category, array $visited = [],
+            int $depth = 0): array {
+        // Defensive guard: a well-formed Moodle category tree has no cycles, but a corrupted
+        // parent chain (or an excessively deep tree) must not cause infinite recursion.
+        if ($depth > coursetransfer::MAX_TREE_DEPTH || isset($visited[$category->id])) {
+            return [
+                'id' => $category->id,
+                'name' => $category->name,
+                'idnumber' => $category->idnumber,
+                'parentid' => $category->parent,
+                'description' => $category->description,
+                'parentname' => '',
+                'courses' => [],
+                'categories' => [],
+            ];
+        }
+        $visited[$category->id] = true;
+        $maincourses = $category->get_courses();
+        $courses = [];
+        foreach ($maincourses as $mc) {
+            if ($mc->category === $category->id) {
+                $courseurl = new moodle_url('/course/view.php', ['id' => $mc->id]);
+                $course = new stdClass();
+                $course->id = $mc->id;
+                $course->url = $courseurl->out(false);
+                $course->fullname = $mc->fullname;
+                $course->shortname = $mc->shortname;
+                $course->idnumber = $mc->idnumber;
+                $course->categoryid = $mc->category;
+                $ccategory = core_course_category::get($mc->category);
+                $course->categoryname = $ccategory->name;
+                $course->categoryidnumber = $ccategory->idnumber;
+                $courses[] = $course;
+            }
+        }
+        $categoryparent = core_course_category::get($category->parent);
+        $parentname = !empty($categoryparent->name) ? $categoryparent->name : get_string('top');
+        $data = [
+            'id' => $category->id,
+            'name' => $category->name,
+            'idnumber' => $category->idnumber,
+            'parentid' => $category->parent,
+            'description' => $category->description,
+            'parentname' => $parentname,
+            'courses' => $courses,
+            'categories' => [],
+        ];
+        $childrens = $category->get_children();
+
+        if (count($childrens) > 0) {
+            foreach ($childrens as $child) {
+                $data['categories'][] = self::get_courses_and_categories($child, $visited, $depth + 1);
+            }
+        }
+
+        return $data;
     }
 };

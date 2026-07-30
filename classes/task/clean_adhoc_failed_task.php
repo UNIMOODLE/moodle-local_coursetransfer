@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * logs_course_response_table
+ * clean_adhoc_failed_task
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -37,10 +37,12 @@ namespace local_coursetransfer\task;
 
 use coding_exception;
 use dml_exception;
+use local_coursetransfer\coursetransfer_request;
 use moodle_exception;
+use stdClass;
 
 /**
- * logs_course_response_table
+ * clean_adhoc_failed_task
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -71,15 +73,27 @@ class clean_adhoc_failed_task extends \core\task\scheduled_task {
      *
      * @throws dml_exception
      */
-    public function execute() {
+    public function execute(): void {
         global $DB;
         $this->log_start("Clean Adhoc Failed Task - Starting...");
+
+        // Configurable threshold in seconds; 0 (or negative) disables the cleanup.
+        $faildelay = get_config('local_coursetransfer', 'clean_adhoc_faildelay');
+        $faildelay = ($faildelay === false || $faildelay === '') ? self::MAX_FAILDELAY : (int)$faildelay;
+        if ($faildelay <= 0) {
+            $this->log("Cleanup disabled (clean_adhoc_faildelay <= 0)");
+            $this->log_finish("Clean Adhoc Failed Task - Finishing...");
+            return;
+        }
+
         $tasksdb = $DB->get_records_select('task_adhoc',
                 'component = ? AND faildelay > ?',
-                ['local_coursetransfer', self::MAX_FAILDELAY]);
+                ['local_coursetransfer', $faildelay]);
         if (count($tasksdb) > 0) {
             foreach ($tasksdb as $taskdb) {
                 try {
+                    // Mark the linked request as errored so it is not left orphaned (LCT-015).
+                    $this->fail_request($taskdb);
                     $DB->delete_records('task_adhoc', ['id' => $taskdb->id]);
                     $this->log("Adhoc tasks remove" . json_encode($taskdb, JSON_PRETTY_PRINT));
                 } catch (moodle_exception $e) {
@@ -91,5 +105,34 @@ class clean_adhoc_failed_task extends \core\task\scheduled_task {
             $this->log("Adhoc tasks with faildelay not found");
         }
         $this->log_finish("Clean Adhoc Failed Task - Finishing...");
+    }
+
+    /**
+     * Mark the request linked to a failed adhoc task as errored, so it is not left
+     * stuck in an intermediate state ("caducada") when the task is removed.
+     *
+     * @param stdClass $taskdb task_adhoc record.
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    private function fail_request(stdClass $taskdb): void {
+        global $DB;
+        if (empty($taskdb->customdata)) {
+            return;
+        }
+        $data = json_decode($taskdb->customdata);
+        $requestid = isset($data->requestid) ? (int)$data->requestid : 0;
+        if ($requestid <= 0) {
+            return;
+        }
+        $request = $DB->get_record('local_coursetransfer_request', ['id' => $requestid]);
+        if (!$request || (int)$request->status === coursetransfer_request::STATUS_COMPLETED) {
+            return;
+        }
+        $request->status = coursetransfer_request::STATUS_ERROR;
+        $request->error_message = 'Adhoc task removed after repeated failures (clean_adhoc_failed_task); '
+                . 'check cron execution and CLI memory/time limits.';
+        coursetransfer_request::insert_or_update($request, $request->id);
+        $this->log("Request {$requestid} marked as ERROR (orphaned adhoc task removed)");
     }
 }

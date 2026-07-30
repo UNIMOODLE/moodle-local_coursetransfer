@@ -40,8 +40,13 @@ if ($hassiteconfig) {
 
     global $ADMIN, $CFG;
 
-    $ADMIN->add('modules', new admin_category('local_coursetransfer_category',
-            new lang_string('pluginname', 'local_coursetransfer')));
+    // The category may already exist: local_coursetransfermanager creates it too
+    // when its settings load first (plugin settings load in displayname order,
+    // which is locale-dependent).
+    if (!$ADMIN->locate('local_coursetransfer_category')) {
+        $ADMIN->add('modules', new admin_category('local_coursetransfer_category',
+                new lang_string('pluginname', 'local_coursetransfer')));
+    }
 
     $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_config',
             get_string('configuration', 'local_coursetransfer'),
@@ -58,6 +63,10 @@ if ($hassiteconfig) {
     $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_remove',
             get_string('remove_page', 'local_coursetransfer'),
             $CFG->wwwroot . '/local/coursetransfer/origin_remove.php'));
+
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_sites',
+            get_string('platforms_title', 'local_coursetransfer'),
+            $CFG->wwwroot . '/local/coursetransfer/sites.php'));
 
     $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_logs',
             get_string('logs_page', 'local_coursetransfer'),
@@ -80,15 +89,25 @@ if ($hassiteconfig) {
         get_string('request_timeout_desc', 'local_coursetransfer'),
             20, PARAM_INT));
 
-    $settings->add(new admin_setting_configempty('local_coursetransfer/target_sites',
-            new lang_string('setting_target_sites', 'local_coursetransfer'),
-            html_writer::link(new moodle_url('/local/coursetransfer/targetsites.php'),
-                    new lang_string('setting_target_sites_link', 'local_coursetransfer'))));
+    $settings->add(new admin_setting_configcheckbox('local_coursetransfer/ignorecurlsecurity',
+        get_string('setting_ignorecurlsecurity', 'local_coursetransfer'),
+        get_string('setting_ignorecurlsecurity_desc', 'local_coursetransfer'),
+            1));
 
-    $settings->add(new admin_setting_configempty('local_coursetransfer/origin_sites',
-            new lang_string('setting_origin_sites', 'local_coursetransfer'),
-            html_writer::link(new moodle_url('/local/coursetransfer/originsites.php'),
-                    new lang_string('setting_origin_sites_link', 'local_coursetransfer'))));
+    $settings->add(new admin_setting_configtext('local_coursetransfer/pagesize',
+        get_string('setting_pagesize', 'local_coursetransfer'),
+        get_string('setting_pagesize_desc', 'local_coursetransfer'),
+            5, PARAM_INT));
+
+    $settings->add(new admin_setting_configduration('local_coursetransfer/clean_adhoc_faildelay',
+        get_string('clean_adhoc_faildelay', 'local_coursetransfer'),
+        get_string('clean_adhoc_faildelay_desc', 'local_coursetransfer'),
+            86400, DAYSECS));
+
+    $settings->add(new admin_setting_configempty('local_coursetransfer/platforms',
+            new lang_string('platforms_title', 'local_coursetransfer'),
+            html_writer::link(new moodle_url('/local/coursetransfer/sites.php'),
+                    new lang_string('platforms_link', 'local_coursetransfer'))));
 
     $settings->add(new admin_setting_configcheckbox('local_coursetransfer/remove_course_cleanup',
             get_string('remove_course_cleanup', 'local_coursetransfer'),

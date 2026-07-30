@@ -46,19 +46,19 @@ namespace local_coursetransfer\models;
 abstract class configuration {
 
     /** @var int Destinity Target: 2: New Course, 3: Remove Content , 4: Merge the backup course into this course */
-    public $targettarget;
+    public int $targettarget;
 
     /** @var bool Destinity Remove Enrols */
-    public $targetremoveenrols;
+    public bool $targetremoveenrols;
 
     /** @var bool Destinity Remove Groups */
-    public $targetremovegroups;
+    public bool $targetremovegroups;
 
     /** @var bool Origin Enrol Users */
-    public $originenrolusers;
+    public bool $originenrolusers;
 
-    /** @var int Next Run Time TimeStamp */
-    public $nextruntime;
+    /** @var int|null Next Run Time TimeStamp (null = run as soon as possible). */
+    public ?int $nextruntime = null;
 
     /**
      * constructor.
@@ -88,7 +88,7 @@ abstract class configuration {
      *
      * @param int $config
      */
-    protected function set_target_target(int $config) {
+    protected function set_target_target(int $config): void {
         $this->targettarget = $config;
     }
 
@@ -97,7 +97,7 @@ abstract class configuration {
      *
      * @param bool $config
      */
-    protected function set_target_remove_enrols(bool $config) {
+    protected function set_target_remove_enrols(bool $config): void {
         $this->targetremoveenrols = $config;
     }
 
@@ -106,7 +106,7 @@ abstract class configuration {
      *
      * @param bool $config
      */
-    protected function set_target_remove_groups(bool $config) {
+    protected function set_target_remove_groups(bool $config): void {
         $this->targetremovegroups = $config;
     }
 
@@ -115,7 +115,7 @@ abstract class configuration {
      *
      * @param bool $config
      */
-    protected function set_origin_enrol_users(bool $config) {
+    protected function set_origin_enrol_users(bool $config): void {
         $this->originenrolusers = $config;
     }
 
@@ -124,10 +124,8 @@ abstract class configuration {
      *
      * @param int|null $config
      */
-    protected function set_nextruntime(int $config = null) {
-        if (!is_null($config)) {
-            $this->nextruntime = $config;
-        }
+    protected function set_nextruntime(int $config = null): void {
+        $this->nextruntime = $config;
     }
 
 }

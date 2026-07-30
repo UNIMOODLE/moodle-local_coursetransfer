@@ -34,8 +34,6 @@
 namespace local_coursetransfer\factory;
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
-require_once($CFG->libdir . '/externallib.php');
 
 use coding_exception;
 use context_system;
@@ -95,12 +93,12 @@ class user {
         global $DB;
         $token = null;
         $user = \core_user::get_user($userid);
-        $externalserviceid = $DB->get_field('external_services',
-                'id', ['component' => 'local_coursetransfer']);
+        $service = $DB->get_record('external_services',
+                ['component' => 'local_coursetransfer']);
 
-        if ($externalserviceid) {
+        if ($service) {
             $userauthorized = new stdClass();
-            $userauthorized->externalserviceid = $externalserviceid;
+            $userauthorized->externalserviceid = $service->id;
             $userauthorized->userid = $user->id;
             $userauthorized->iprestriction = '';
             $userauthorized->validuntil = '';
@@ -110,7 +108,7 @@ class user {
             $usertokens = $DB->get_records('external_tokens', [
                     'userid' => $user->id,
                     'tokentype' => EXTERNAL_TOKEN_PERMANENT,
-                    'externalserviceid' => $externalserviceid,
+                    'externalserviceid' => $service->id,
             ]);
 
             if ($usertokens) {
@@ -120,7 +118,9 @@ class user {
             }
             if ($token === null) {
                 try {
-                    $token = external_generate_token(EXTERNAL_TOKEN_PERMANENT, $externalserviceid,
+                    // Moodle 4.5: external_generate_token() (lib/externallib.php) is
+                    // deprecated; use the namespaced util which takes the service object.
+                    $token = \core_external\util::generate_token(EXTERNAL_TOKEN_PERMANENT, $service,
                             $user->id, context_system::instance());
                 } catch (moodle_exception $e) {
                     debugging("Can't generate Token!!", serialize($e));
@@ -128,6 +128,48 @@ class user {
             }
         }
         return $token;
+    }
+
+    /**
+     * Revoke (delete) the permanent token(s) of the service user for this
+     * plugin's web service. After this the site is no longer reachable by other
+     * platforms until a token is created again.
+     *
+     * @param int $userid
+     * @return bool true if at least one token was removed
+     * @throws dml_exception
+     */
+    public static function revoke_token(int $userid): bool {
+        global $DB;
+        $externalserviceid = $DB->get_field('external_services', 'id',
+                ['component' => 'local_coursetransfer']);
+        if (!$externalserviceid) {
+            return false;
+        }
+        $existed = $DB->record_exists('external_tokens', [
+                'userid' => $userid,
+                'tokentype' => EXTERNAL_TOKEN_PERMANENT,
+                'externalserviceid' => $externalserviceid,
+        ]);
+        $DB->delete_records('external_tokens', [
+                'userid' => $userid,
+                'tokentype' => EXTERNAL_TOKEN_PERMANENT,
+                'externalserviceid' => $externalserviceid,
+        ]);
+        return $existed;
+    }
+
+    /**
+     * Regenerate the token: revoke the current one and create a fresh one.
+     *
+     * @param int $userid
+     * @return string|null the new token
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function regenerate_token(int $userid): ?string {
+        self::revoke_token($userid);
+        return self::create_token($userid);
     }
 
 
@@ -151,7 +193,6 @@ class user {
         $user->firstname = $firstname;
         $user->lastname = $lastname;
         $user->email = $email;
-        $user->username = $username;
         $user->description = $desc;
         $user->confirmed = 1;
         $user->mnethostid = 1;

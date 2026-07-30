@@ -72,17 +72,15 @@ if ($unrecognised) {
 
 if ($options['help']) {
     cli_writeln($usage);
-    exit(2);
+    exit(0);
 }
 
 $courseid = (int) $options['courseid'];
 
 if ( $courseid === null ) {
-    cli_writeln( get_string('courseid_require', 'local_coursetransfer') );
-    exit(128);
+    cli_error(get_string('courseid_require', 'local_coursetransfer'), 2);
 } else if ( $courseid <= 0 ) {
-    cli_writeln( get_string('courseid_integer', 'local_coursetransfer') );
-    exit(128);
+    cli_error(get_string('courseid_integer', 'local_coursetransfer'), 2);
 }
 
 try {
@@ -104,7 +102,6 @@ try {
     exit(0);
 
 } catch (moodle_exception $e) {
-    cli_writeln('40005: ' . $e->getMessage());
-    exit(1);
+    cli_error('40005: ' . $e->getMessage(), 1);
 }
 

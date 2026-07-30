@@ -93,7 +93,7 @@ class role {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function add_capability(int $roleid, string $capability) {
+    public static function add_capability(int $roleid, string $capability): void {
         assign_capability($capability, CAP_ALLOW, $roleid, context_system::instance(), $overwrite = true);
     }
 
@@ -105,7 +105,7 @@ class role {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function add_role_to_user(int $roleid, int $userid) {
+    public static function add_role_to_user(int $roleid, int $userid): void {
         role_assign($roleid, $userid, context_system::instance());
     }
 }
