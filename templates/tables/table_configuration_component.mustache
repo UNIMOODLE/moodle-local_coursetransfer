@@ -29,7 +29,7 @@
 }}
 <div data-region="table_configuration_component">
     <button type="button" class="btn btn-light configuration" data-toggle="modal" data-target="#ModalConfiguration-{{ id }}" data-bs-toggle="modal" data-bs-target="#ModalConfiguration-{{ id }}">
-        Detalles
+        {{#str}} configuration_detail, local_coursetransfer {{/str}}
     </button>
     <!-- Modal -->
     <div class="modal fade bd-example-modal-lg" id="ModalConfiguration-{{ id }}" tabindex="-1" role="dialog"
@@ -38,7 +38,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="ModalConfiguration-{{ id }}LongTitle">Configuration</h5>
-                    <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close btn-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -155,7 +155,7 @@
                                 <div class="config-desc">{{#str}} origin_schedule_desc, local_coursetransfer {{/str}}</div>
                             </div>
                         </li>
-                        <li class="configuration-group ml-6">
+                        <li class="configuration-group ml-6 ms-6">
                             <div class="config-info">
                                 <div class="config-title">{{#str}} origin_schedule_datetime, local_coursetransfer {{/str}}</div>
                             </div>
@@ -167,7 +167,7 @@
                     </ul>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

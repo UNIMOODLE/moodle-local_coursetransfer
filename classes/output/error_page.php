@@ -34,10 +34,6 @@
 
 namespace local_coursetransfer\output;
 
-use coding_exception;
-use local_coursetransfer\tables\sites_table;
-use moodle_exception;
-use moodle_url;
 use renderable;
 use renderer_base;
 use stdClass;
@@ -55,16 +51,16 @@ use templatable;
 class error_page implements renderable, templatable {
 
     /** @var string Title */
-    protected $title;
+    protected string $title;
 
     /** @var string Message Error */
-    protected $msg;
+    protected string $msg;
 
     /** @var string Level - danger, warning, info ... */
-    protected $level;
+    protected string $level;
 
     /** @var string Level */
-    protected $levelstr;
+    protected string $levelstr;
 
     /**
      * constructor.

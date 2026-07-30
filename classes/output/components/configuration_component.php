@@ -35,8 +35,6 @@
 namespace local_coursetransfer\output\components;
 
 use backup;
-use context_course;
-use local_coursetransfer\coursetransfer;
 use local_coursetransfer\models\configuration_course;
 use renderable;
 use renderer_base;
@@ -55,10 +53,10 @@ use templatable;
 class configuration_component implements renderable, templatable {
 
     /** @var configuration_course Configuration */
-    protected $configuration;
+    protected configuration_course $configuration;
 
     /** @var int ID */
-    protected $id;
+    protected int $id;
 
     /**
      *  constructor.
@@ -86,8 +84,8 @@ class configuration_component implements renderable, templatable {
         $data->target_remove_groups = $this->configuration->targetremovegroups;
         $data->origin_remove_course = $this->configuration->originremovecourse;
         $data->course_new = $this->configuration->targettarget === backup::TARGET_NEW_COURSE;
-        $data->has_scheduled_time = empty($this->configuration->nextruntime) ? false : true;
-        $data->origin_schedule = empty($this->configuration->nextruntime) ? false : true;
+        $data->has_scheduled_time = !empty($this->configuration->nextruntime);
+        $data->origin_schedule = !empty($this->configuration->nextruntime);
         $unixtime = $this->configuration->nextruntime;
         $data->origin_schedule_datetime = date("Y-m-d H:i:s", $unixtime);
         return $data;

@@ -36,7 +36,6 @@ use local_coursetransfer\output\index_page;
 
 require(__DIR__.'/../../config.php');
 global $CFG, $DB, $PAGE, $OUTPUT;
-require($CFG->libdir . '/externallib.php');
 
 require_login();
 
@@ -46,8 +45,12 @@ $title = get_string('summary', 'local_coursetransfer');
 
 if (is_siteadmin()) {
     $PAGE->set_context(context_system::instance());
+    $PAGE->set_pagelayout('standard');
+    // Scopes the summary-only banner styles (see styles.css .ct-summary-page).
+    $PAGE->add_body_class('ct-summary-page');
     $PAGE->set_title($title);
-    $PAGE->set_heading($title);
+    // The page renders its own hero heading; clear the theme one.
+    $PAGE->set_heading('');
     $PAGE->set_url('/local/coursetransfer/index.php');
     $output = $PAGE->get_renderer('local_coursetransfer');
     echo $OUTPUT->header();

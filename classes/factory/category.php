@@ -42,7 +42,6 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/course/lib.php');
-require_once($CFG->dirroot . '/user/externallib.php');
 
 /**
  * category
@@ -59,16 +58,26 @@ class category {
      * Create
      *
      * @param string $name
-     * @param string $idnumber
+     * @param string|null $idnumber
      * @param string $description
+     * @param int|null $parent Parent category id (null = top level). Used to recreate trees.
      * @return int
      * @throws moodle_exception
      */
-    public static function create(string $name, ?string $idnumber, string $description = ''): int {
+    public static function create(string $name, ?string $idnumber, string $description = '', ?int $parent = null): int {
+        global $DB;
         $record = new stdClass();
         $record->name = $name;
         $record->description = $description;
+        // Avoid duplicate idnumber collisions on the target site: if the idnumber already
+        // exists, append a unique suffix instead of failing the restore.
+        if (!empty($idnumber) && $DB->record_exists('course_categories', ['idnumber' => $idnumber])) {
+            $idnumber = $idnumber . '_' . uniqid();
+        }
         $record->idnumber = $idnumber;
+        if (!is_null($parent)) {
+            $record->parent = $parent;
+        }
         $res = core_course_category::create($record);
         return $res->id;
     }
@@ -82,10 +91,17 @@ class category {
      * @param string $description
      * @throws moodle_exception
      */
-    public static function update(int $id, string $name, string $idnumber, string $description = '') {
+    public static function update(int $id, string $name, string $idnumber, string $description = ''): void {
+        global $DB;
         $record = new stdClass();
         $record->id = $id;
         $record->name = $name;
+        // Avoid duplicate idnumber collisions with OTHER categories on the target site
+        // (excluding this very category, which may already hold this idnumber).
+        if (!empty($idnumber) && $DB->record_exists_select('course_categories',
+                'idnumber = :idnumber AND id <> :id', ['idnumber' => $idnumber, 'id' => $id])) {
+            $idnumber = $idnumber . '_' . uniqid();
+        }
         $record->idnumber = $idnumber;
         $record->description = $description;
         $cat = core_course_category::get($id);

@@ -34,17 +34,10 @@
 
 namespace local_coursetransfer\task;
 
-use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
-use local_coursetransfer\coursetransfer_request;
-use local_coursetransfer\coursetransfer_sites;
 use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-
-require_once($CFG->dirroot . '/course/externallib.php');
 
 /**
  * cleanup course bin task
@@ -64,7 +57,7 @@ class cleanup_course_bin_task extends \core\task\adhoc_task {
      * Execute.
      *
      */
-    public function execute() {
+    public function execute(): void {
         try {
             $this->log_start("Cleanup course bin - Starting...");
             $courseid = $this->get_custom_data()->courseid;

@@ -40,8 +40,6 @@ use base_plan_exception;
 use base_setting_exception;
 use coding_exception;
 use context_course;
-use core\event\course_section_deleted;
-use core\task\adhoc_task;
 use core\task\manager;
 use core_user;
 use dml_exception;
@@ -51,12 +49,7 @@ use local_coursetransfer\external\frontend\sites_external;
 use local_coursetransfer\factory\tools;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\models\configuration_course;
-use local_coursetransfer\task\create_backup_course_task;
-use mod_label_generator;
-use mod_quiz_generator;
-use mod_resource_generator;
 use moodle_exception;
-use moodle_url;
 use phpunit_util;
 use stdClass;
 use stored_file;
@@ -68,7 +61,6 @@ global $CFG;
 require_once($CFG->dirroot . '/webservice/tests/helpers.php');
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->libdir . '/setuplib.php');
-require_once($CFG->libdir . '/cronlib.php');
 
 /**
  * coursetransfer_restore_course_test
@@ -433,9 +425,11 @@ class coursetransfer_restore_course_test extends advanced_testcase {
         $this->review_modules($this->targetnewcourse1);
         $this->review_enrols($this->targetnewcourse1, 0, 0, []);
         // 2. Test in Target Course. With Users and Groups.
+        // targetcourse2 already had 1 group (group4) before the restore, so after
+        // restoring the origin's 2 groups the total is 3.
         $this->validate_course_equals($this->targetcourse2, $this->origincourse);
         $this->review_modules($this->targetcourse2);
-        $this->review_enrols($this->targetcourse2, 5, 2, [
+        $this->review_enrols($this->targetcourse2, 5, 3, [
                 ['group' => $this->group1, 'count' => 2], ['group' => $this->group2, 'count' => 1]]);
         // 3. Test in Target Course. Without Users. Delete Content and Users and Groups.
         $this->validate_course_not_equals($this->targetcourse3, $this->origincourse);
@@ -679,7 +673,8 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 $this->assertEquals('SuperHeroes Summary', $section->summary);
                 $mods = 0;
                 foreach ($cms as $cm) {
-                    if ($cm->section === $section->id) {
+                    // Cast: section_info->id may be a string while cm_info->section is int.
+                    if ((int) $cm->section === (int) $section->id) {
                         $mods ++;
                     }
                 }
@@ -690,7 +685,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 $this->assertEquals('Cars Summary', $section->summary);
                 $mods = 0;
                 foreach ($cms as $cm) {
-                    if ($cm->section === $section->id) {
+                    if ((int) $cm->section === (int) $section->id) {
                         $mods ++;
                     }
                 }

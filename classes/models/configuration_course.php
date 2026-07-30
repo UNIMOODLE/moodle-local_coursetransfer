@@ -46,10 +46,10 @@ namespace local_coursetransfer\models;
 class configuration_course extends configuration {
 
     /** @var bool Origin Remove Course */
-    public $originremovecourse;
+    public bool $originremovecourse;
 
     /** @var string Destinity Not Remove Activities */
-    public $targetnotremoveactivities;
+    public string $targetnotremoveactivities;
 
     /**
      * constructor.
@@ -86,7 +86,7 @@ class configuration_course extends configuration {
      *
      * @param bool $config
      */
-    protected function set_origin_remove_course(bool $config) {
+    protected function set_origin_remove_course(bool $config): void {
         $this->originremovecourse = $config;
     }
 
@@ -95,7 +95,7 @@ class configuration_course extends configuration {
      *
      * @param string $config
      */
-    protected function set_target_notremove_activities(string $config) {
+    protected function set_target_notremove_activities(string $config): void {
         $this->targetnotremoveactivities = $config;
     }
 

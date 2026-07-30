@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * logs_course_response_table
+ * remove_course_task
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -35,7 +35,6 @@
 namespace local_coursetransfer\task;
 
 use local_coursetransfer\api\request;
-use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_remove;
 use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\coursetransfer_sites;
@@ -48,7 +47,7 @@ global $CFG;
 require_once($CFG->dirroot . '/course/externallib.php');
 
 /**
- * logs_course_response_table
+ * remove_course_task
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -65,7 +64,7 @@ class remove_course_task extends \core\task\adhoc_task {
      * Execute.
      *
      */
-    public function execute() {
+    public function execute(): void {
 
         try {
 
@@ -123,6 +122,5 @@ class remove_course_task extends \core\task\adhoc_task {
         }
 
         $this->log_finish("Remove Course Remote Finishing...");
-
     }
 }

@@ -40,6 +40,7 @@ use base_plan_exception;
 use base_setting;
 use base_setting_exception;
 use cm_info;
+use core\task\manager;
 use local_coursetransfer\task\create_backup_course_task;
 use moodle_exception;
 use section_info;
@@ -124,7 +125,7 @@ class coursetransfer_backup {
         ];
         $asynctask->set_custom_data($payload);
         $asynctask->set_userid($userid);
-        return \core\task\manager::queue_adhoc_task($asynctask);
+        return manager::queue_adhoc_task($asynctask);
     }
 
     /**
@@ -139,7 +140,7 @@ class coursetransfer_backup {
      * @throws moodle_exception
      */
     public static function set_value_settings_section_activities(backup_controller $bc, int $courseid, int $rootusers,
-            array $sectionsselected) {
+            array $sectionsselected): void {
         if (!empty($sectionsselected)) {
             $bc->get_plan()->set_excluding_activities();
             $modinfo = get_fast_modinfo($courseid);
@@ -204,6 +205,4 @@ class coursetransfer_backup {
         }
         return 0;
     }
-
-
 }

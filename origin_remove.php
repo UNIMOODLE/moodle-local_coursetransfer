@@ -23,7 +23,12 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Origin remove.
+ * Remote delete assistant (Tresipunt redesign).
+ *
+ * Single-page assistant that deletes courses or whole categories on a remote
+ * origin platform. Replaces the legacy multi-step origin_remove pages while
+ * keeping the same URL so the admin/navigation links (settings.php, lib.php)
+ * do not change.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -32,58 +37,35 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_coursetransfer\output\origin_remove\origin_remove_page;
-use local_coursetransfer\output\origin_remove\origin_remove_page_cat_step2;
-use local_coursetransfer\output\origin_remove\origin_remove_page_cat_step3;
-use local_coursetransfer\output\origin_remove\origin_remove_page_step2;
-use local_coursetransfer\output\origin_remove\origin_remove_page_step3;
+use local_coursetransfer\output\error_page;
+use local_coursetransfer\output\remove_page;
 
 require_once('../../config.php');
 
-global $PAGE, $OUTPUT, $USER;
+global $PAGE, $OUTPUT;
 
-$title = get_string('remove_page', 'local_coursetransfer');
+$title = get_string('rmv_title', 'local_coursetransfer');
 
 require_login();
+$context = context_system::instance();
 
 $PAGE->set_pagelayout('standard');
-$PAGE->set_context(context_system::instance());
+$PAGE->set_context($context);
 $PAGE->set_title($title);
-$PAGE->set_heading($title);
-$PAGE->set_url('/local/coursetransfer/origin_remove.php');
+// The page renders its own hero <h1>; clear the theme heading.
+$PAGE->set_heading('');
+$PAGE->set_url(new moodle_url('/local/coursetransfer/origin_remove.php'));
 
 $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
-
-$step = optional_param('step', 1, PARAM_INT);
-if (has_capability('local/coursetransfer:origin_remove_course', context_system::instance())) {
-
-    switch ($step) {
-        case 1:
-            $page = new origin_remove_page();
-            break;
-        case 2:
-            $type = required_param('type', PARAM_TEXT);
-            if ($type === 'categories') {
-                $page = new origin_remove_page_cat_step2();
-            } else {
-                $page = new origin_remove_page_step2();
-            }
-            break;
-        case 3:
-            $type = required_param('type', PARAM_TEXT);
-            if ($type === 'categories') {
-                $page = new origin_remove_page_cat_step3();
-            } else {
-                $page = new origin_remove_page_step3();
-            }
-            break;
-        default:
-            $page = new origin_remove_page();
-    }
+// Either delete capability (course or category) may enter the assistant; each
+// kind is then gated per capability inside the wizard and the web service.
+if (has_capability('local/coursetransfer:origin_remove_course', $context)
+        || has_capability('local/coursetransfer:origin_remove_category', $context)) {
+    $page = new remove_page();
 } else {
-    $page = new \local_coursetransfer\output\error_page(
+    $page = new error_page(
             get_string('forbidden', 'local_coursetransfer'),
             get_string('you_have_not_permission', 'local_coursetransfer'),
             'danger',

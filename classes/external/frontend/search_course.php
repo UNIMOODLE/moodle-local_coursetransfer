@@ -34,11 +34,11 @@
 
 namespace local_coursetransfer\external\frontend;
 
-use external_api;
-use external_function_parameters;
-use external_multiple_structure;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_multiple_structure;
+use core_external\external_single_structure;
+use core_external\external_value;
 use invalid_parameter_exception;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
@@ -47,7 +47,6 @@ use stdClass;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 require_once($CFG->dirroot . '/group/lib.php');
 
@@ -97,6 +96,9 @@ class search_course extends external_api {
                 $c = new stdClass();
                 $c->id = $course->id;
                 $c->fullname = $course->fullname;
+                // Additive fields for the restore wizard destination search.
+                $c->shortname = isset($course->shortname) ? (string)$course->shortname : '';
+                $c->idnumber = isset($course->idnumber) ? (string)$course->idnumber : '';
                 $data[] = $c;
             }
             $success = true;
@@ -133,7 +135,9 @@ class search_course extends external_api {
                 'data' => new external_multiple_structure(new external_single_structure(
                     [
                         'id' => new external_value(PARAM_INT, 'Coursename ID'),
-                        'fullname' => new external_value(PARAM_TEXT, 'Fullname')
+                        'fullname' => new external_value(PARAM_TEXT, 'Fullname'),
+                        'shortname' => new external_value(PARAM_TEXT, 'Course short name', VALUE_OPTIONAL),
+                        'idnumber' => new external_value(PARAM_RAW, 'Course ID number', VALUE_OPTIONAL),
                     ]),
                 ),
             ]

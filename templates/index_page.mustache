@@ -24,32 +24,256 @@
 {{!
   @template local_coursetransfer/index_page
 
-  Example context (json):
-
+  Summary / integration panel: big logo hero + star TOKEN block (copy /
+  create / regenerate / revoke) + integration status + "how to connect" +
+  admin quick links. Driven by local_coursetransfer/index_page AMD.
 }}
-<div class="local_coursetransfer" data-region="index">
-    <div class="card text-center">
-        <div class="card-header">
-        </div>
-        <div class="card-body text-left">
-            {{# error }}
-            <div class="alert alert-danger" role="alert">
-                {{ message }} . {{# str }} click_refresh, local_coursetransfer {{/ str }}
-            </div>
-            {{/ error }}
-            <h4 class="card-title font-weight-bold">{{# str }} index_title, local_coursetransfer {{/ str }}</h4>
-            <hr>
-            <h6 class="section-title">{{# str }} user_ws, local_coursetransfer {{/ str }}</h6>
-            <p><span class="label">{{# str }} token_user_ws, local_coursetransfer {{/ str }}:</span> <span class="value"> {{# token }}<code>{{ token }}</code>{{/ token }}</span></p>
-            <hr>
-            <a href="{{ url_config }}" class="btn btn-primary" target="_blank">{{# str }} config, local_coursetransfer {{/ str }}</a>
-            <a href="{{ url_postinstall }}" class="btn btn-outline-primary ml-2">{{# str }} refresh, local_coursetransfer {{/ str }}</a>
-        </div>
-        <div class="card-footer text-muted">
+<div class="local-coursetransfer ct-wide" data-region="index" data-token="{{ token }}"
+        data-postinstall="{{ url_postinstall }}">
+
+    {{! ---- HERO with the big logo ---- }}
+    <div class="ct-idx-hero">
+        <span class="ct-idx-logobox">
+            <img class="ct-idx-logo" src="{{ logourl }}" alt="Course Transfer">
+        </span>
+        <div class="ct-idx-hero-text">
+            <div class="ct-hero-eyebrow">Course Transfer</div>
+            <h1 class="ct-hero-title">{{#str}} summary, local_coursetransfer {{/str}}</h1>
+            <p class="ct-hero-desc">{{#str}} idx_lead, local_coursetransfer {{/str}}</p>
         </div>
     </div>
+
+    {{! ---- ⭐ TOKEN ---- }}
+    <section class="ct-token-card">
+        <div class="ct-token-head">
+            <span class="ct-token-head-icon"><i class="fa fa-key" aria-hidden="true"></i></span>
+            <div>
+                <h2 class="ct-token-title">{{#str}} token_user_ws, local_coursetransfer {{/str}}</h2>
+                <p class="ct-token-desc">{{#str}} idx_token_desc, local_coursetransfer {{/str}}</p>
+            </div>
+        </div>
+
+        {{#hastoken}}
+        <div class="ct-token-row">
+            <div class="ct-token-field">
+                <i class="fa fa-lock" aria-hidden="true"></i>
+                <input type="password" readonly value="{{ token }}" data-region="token-input"
+                        autocomplete="off" spellcheck="false"
+                        aria-label="{{#str}} token_user_ws, local_coursetransfer {{/str}}">
+                <button type="button" class="ct-token-reveal" data-action="toggle-token"
+                        aria-pressed="false" title="{{#str}} idx_show, local_coursetransfer {{/str}}"
+                        aria-label="{{#str}} idx_show, local_coursetransfer {{/str}}">
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                </button>
+            </div>
+            <button type="button" class="ct-btn ct-btn--primary ct-token-copy" data-action="copy-token">
+                <i class="fa fa-clone" aria-hidden="true"></i>
+                <span data-region="copy-label">{{#str}} idx_copy, local_coursetransfer {{/str}}</span>
+            </button>
+        </div>
+
+        <div class="ct-token-meta">
+            <span><i class="fa fa-user-o" aria-hidden="true"></i> {{#str}} user_ws, local_coursetransfer {{/str}} · <strong>{{ username_ws }}</strong></span>
+            {{# tokencreated }}<span class="ct-meta-sep">·</span><span>{{#str}} idx_token_created, local_coursetransfer, {{ tokencreated }} {{/str}}</span>{{/ tokencreated }}
+        </div>
+
+        <div class="ct-token-actions">
+            <button type="button" class="ct-btn ct-btn--secondary ct-btn--sm" data-action="ask" data-kind="regenerate">
+                <i class="fa fa-refresh" aria-hidden="true"></i>{{#str}} idx_regenerate, local_coursetransfer {{/str}}
+            </button>
+            <button type="button" class="ct-btn ct-btn--sm ct-btn--danger-outline" data-action="ask" data-kind="revoke">
+                <i class="fa fa-ban" aria-hidden="true"></i>{{#str}} idx_revoke, local_coursetransfer {{/str}}
+            </button>
+            <span style="flex:1"></span>
+            <a href="{{ url_postinstall }}" class="ct-btn ct-btn--ghost ct-btn--sm">
+                <i class="fa fa-wrench" aria-hidden="true"></i>{{#str}} idx_repair, local_coursetransfer {{/str}}
+            </a>
+        </div>
+        {{/hastoken}}
+
+        {{#notoken}}
+        <div class="ct-token-empty">
+            <span class="ct-token-empty-icon"><i class="fa fa-unlock-alt" aria-hidden="true"></i></span>
+            <div class="ct-token-empty-body">
+                <div class="ct-token-empty-title">{{#str}} idx_notoken_title, local_coursetransfer {{/str}}</div>
+                <div class="ct-token-empty-desc">{{#str}} idx_notoken_desc, local_coursetransfer {{/str}} <strong>{{ username_ws }}</strong>.</div>
+            </div>
+            <button type="button" class="ct-btn ct-btn--primary" data-action="create-token">
+                <i class="fa fa-plus" aria-hidden="true"></i>{{#str}} idx_create, local_coursetransfer {{/str}}
+            </button>
+        </div>
+        <div class="ct-token-actions ct-token-actions--end">
+            <a href="{{ url_postinstall }}" class="ct-btn ct-btn--ghost ct-btn--sm">
+                <i class="fa fa-wrench" aria-hidden="true"></i>{{#str}} idx_repair, local_coursetransfer {{/str}}
+            </a>
+        </div>
+        {{/notoken}}
+
+        <div class="ct-alert ct-alert--danger ct-mt" data-region="token-error" hidden>
+            <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
+            <p data-region="token-error-text"></p>
+        </div>
+    </section>
+
+    {{! ---- INTEGRATION STATUS ---- }}
+    <section class="ct-idx-section">
+        <h2 class="ct-idx-h2">{{#str}} idx_status, local_coursetransfer {{/str}}</h2>
+        <div class="ct-checks">
+            {{#checks}}
+            <div class="ct-check ct-check--{{ state }}">
+                <span class="ct-check-icon"><i class="fa {{ faicon }}" aria-hidden="true"></i></span>
+                <div class="ct-check-body">
+                    <div class="ct-check-label">{{ label }}</div>
+                    <div class="ct-check-status"><span class="ct-check-dot"></span>{{ status }}</div>
+                </div>
+                {{#hasaction}}
+                <a class="ct-check-action" href="{{ actionurl }}"
+                        title="{{ actionlabel }}" aria-label="{{ actionlabel }}">
+                    <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                </a>
+                {{/hasaction}}
+            </div>
+            {{/checks}}
+        </div>
+    </section>
+
+    {{! ---- HOW TO CONNECT (collapsible) ---- }}
+    <section class="ct-idx-how" data-region="how">
+        <button type="button" class="ct-idx-how-head" data-action="toggle-how" aria-expanded="false">
+            <span class="ct-idx-how-icon"><i class="fa fa-info-circle" aria-hidden="true"></i></span>
+            <div style="flex:1;min-width:0">
+                <div class="ct-idx-how-title">{{#str}} idx_how_title, local_coursetransfer {{/str}}</div>
+                <div class="ct-idx-how-sub">{{#str}} idx_how_sub, local_coursetransfer {{/str}}</div>
+            </div>
+            <i class="fa fa-chevron-down ct-idx-how-chevron" aria-hidden="true"></i>
+        </button>
+        <div class="ct-idx-how-body" data-region="how-body" hidden>
+
+            {{! Scenario 1: another platform brings FROM this site (this site = origin; this token). }}
+            <div class="ct-idx-pill">
+                <button type="button" class="ct-idx-pill-head" data-action="toggle-pill" aria-expanded="false">
+                    <span class="ct-idx-pill-num">1</span>
+                    <span class="ct-idx-pill-title">{{#str}} idx_sc1_title, local_coursetransfer {{/str}}</span>
+                    <i class="fa fa-chevron-down ct-idx-pill-chevron" aria-hidden="true"></i>
+                </button>
+                <div class="ct-idx-pill-body" hidden>
+                    <div class="ct-idx-how-diagram">
+                        <span class="ct-idx-node ct-idx-node--this"><span class="ct-idx-node-badge ct-idx-node-badge--a">A</span>{{#str}} idx_this_site, local_coursetransfer {{/str}}</span>
+                        <span class="ct-idx-node-arrow"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> {{#str}} platforms_role_origin, local_coursetransfer {{/str}}</span>
+                        <span class="ct-idx-node"><span class="ct-idx-node-badge ct-idx-node-badge--b">B</span>{{#str}} idx_other_platform, local_coursetransfer {{/str}}</span>
+                    </div>
+                    <p class="ct-idx-how-flow">{{#str}} idx_how_flow, local_coursetransfer {{/str}}</p>
+                    <ol class="ct-idx-steps">
+                        <li>{{#str}} idx_step1, local_coursetransfer {{/str}}</li>
+                        <li>{{#str}} idx_step2, local_coursetransfer {{/str}}</li>
+                        <li>{{#str}} idx_step3, local_coursetransfer {{/str}}</li>
+                        <li>{{#str}} idx_step4, local_coursetransfer {{/str}}</li>
+                    </ol>
+                </div>
+            </div>
+
+            {{! Scenario 2: this site brings FROM another platform (this site = target; the other's token). }}
+            <div class="ct-idx-pill">
+                <button type="button" class="ct-idx-pill-head" data-action="toggle-pill" aria-expanded="false">
+                    <span class="ct-idx-pill-num">2</span>
+                    <span class="ct-idx-pill-title">{{#str}} idx_sc2_title, local_coursetransfer {{/str}}</span>
+                    <i class="fa fa-chevron-down ct-idx-pill-chevron" aria-hidden="true"></i>
+                </button>
+                <div class="ct-idx-pill-body" hidden>
+                    <div class="ct-idx-how-diagram">
+                        <span class="ct-idx-node ct-idx-node--this"><span class="ct-idx-node-badge ct-idx-node-badge--a">A</span>{{#str}} idx_this_site, local_coursetransfer {{/str}}</span>
+                        <span class="ct-idx-node-arrow">{{#str}} platforms_role_origin, local_coursetransfer {{/str}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i></span>
+                        <span class="ct-idx-node"><span class="ct-idx-node-badge ct-idx-node-badge--b">B</span>{{#str}} idx_other_platform, local_coursetransfer {{/str}}</span>
+                    </div>
+                    <p class="ct-idx-how-flow">{{#str}} idx_sc2_flow, local_coursetransfer {{/str}}</p>
+                    <ol class="ct-idx-steps">
+                        <li>{{#str}} idx_sc2_step1, local_coursetransfer {{/str}}</li>
+                        <li>{{#str}} idx_sc2_step2, local_coursetransfer {{/str}}</li>
+                        <li>{{#str}} idx_sc2_step3, local_coursetransfer {{/str}}</li>
+                    </ol>
+                </div>
+            </div>
+
+            {{! Scenario 3: same site (loopback, for testing). }}
+            <div class="ct-idx-pill">
+                <button type="button" class="ct-idx-pill-head" data-action="toggle-pill" aria-expanded="false">
+                    <span class="ct-idx-pill-num">3</span>
+                    <span class="ct-idx-pill-title">{{#str}} idx_sc3_title, local_coursetransfer {{/str}}</span>
+                    <i class="fa fa-chevron-down ct-idx-pill-chevron" aria-hidden="true"></i>
+                </button>
+                <div class="ct-idx-pill-body" hidden>
+                    <div class="ct-idx-how-diagram">
+                        <span class="ct-idx-node ct-idx-node--this"><span class="ct-idx-node-badge ct-idx-node-badge--a">A</span>{{#str}} idx_this_site, local_coursetransfer {{/str}}</span>
+                        <span class="ct-idx-node-arrow"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+                        <span class="ct-idx-node ct-idx-node--this"><span class="ct-idx-node-badge ct-idx-node-badge--a">A</span>{{#str}} idx_this_site, local_coursetransfer {{/str}}</span>
+                    </div>
+                    <p class="ct-idx-how-flow">{{#str}} idx_sc3_desc, local_coursetransfer {{/str}}</p>
+                </div>
+            </div>
+
+            <div class="ct-alert ct-alert--info">
+                <i class="fa fa-info-circle ct-alert-icon" aria-hidden="true"></i>
+                <p>{{#str}} idx_pairing_note, local_coursetransfer {{/str}} <a href="{{ url_logs }}">{{#str}} logs_page, local_coursetransfer {{/str}}</a>.</p>
+            </div>
+        </div>
+    </section>
+
+    {{! ---- QUICK LINKS ---- }}
+    <section class="ct-idx-section">
+        <h2 class="ct-idx-h2">{{#str}} idx_quicklinks, local_coursetransfer {{/str}}</h2>
+        <div class="ct-quicklinks">
+            {{#pluginlinks}}
+            <a class="ct-quicklink" href="{{ href }}" target="_blank" rel="noopener">
+                <span class="ct-quicklink-icon"><i class="fa {{ faicon }}" aria-hidden="true"></i></span>
+                <span class="ct-quicklink-body">
+                    <span class="ct-quicklink-title">{{ title }}</span>
+                    <span class="ct-quicklink-sub">{{ sub }}</span>
+                </span>
+                <i class="fa fa-external-link" aria-hidden="true"></i>
+            </a>
+            {{/pluginlinks}}
+        </div>
+        <div class="ct-idx-sublabel">{{#str}} idx_moodle_settings, local_coursetransfer {{/str}}</div>
+        <div class="ct-quicklinks ct-quicklinks--2">
+            {{#moodlelinks}}
+            <a class="ct-quicklink ct-quicklink--muted" href="{{ href }}" target="_blank" rel="noopener">
+                <span class="ct-quicklink-icon ct-quicklink-icon--muted"><i class="fa {{ faicon }}" aria-hidden="true"></i></span>
+                <span class="ct-quicklink-body">
+                    <span class="ct-quicklink-title">{{ title }}</span>
+                    <span class="ct-quicklink-sub">{{ sub }}</span>
+                </span>
+                <i class="fa fa-external-link" aria-hidden="true"></i>
+            </a>
+            {{/moodlelinks}}
+        </div>
+    </section>
+
+    {{! ---- CONFIRM MODAL (regenerate / revoke) ---- }}
+    <div class="ct-idx-modal" data-region="modal" hidden>
+        <div class="ct-idx-modal-overlay" data-action="modal-cancel"></div>
+        <div class="ct-idx-modal-card" role="dialog" aria-modal="true">
+            <div class="ct-idx-modal-head">
+                <span class="ct-idx-modal-icon" data-region="modal-icon"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+                <div>
+                    <h3 class="ct-idx-modal-title" data-region="modal-title"></h3>
+                    <p class="ct-idx-modal-body" data-region="modal-body"></p>
+                </div>
+            </div>
+            <div class="ct-alert ct-alert--warning" data-region="modal-note-wrap">
+                <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
+                <p data-region="modal-note"></p>
+            </div>
+            <div class="ct-idx-modal-foot">
+                <button type="button" class="ct-btn ct-btn--secondary" data-action="modal-cancel">{{#str}} rw_cancel, local_coursetransfer {{/str}}</button>
+                <button type="button" class="ct-btn ct-btn--primary" data-action="modal-confirm" data-region="modal-confirm"></button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-
-
-
+{{#js}}
+require(['local_coursetransfer/index_page'], function(P) {
+    P.init('[data-region="index"]');
+});
+{{/js}}

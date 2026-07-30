@@ -1,0 +1,162 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/platforms_page
+
+  Unified paired-platforms admin page (Tresipunt redesign).
+
+  Example context (json):
+  {
+    "back": "#",
+    "summary": "#",
+    "hasplatforms": true,
+    "platforms": [
+      {
+        "name": "Producción · USJ", "host": "https://pro.usj.es",
+        "originid": 1, "targetid": 2, "roleorigin": true, "roletarget": true,
+        "inuse": true, "connok": true, "connerror": false, "connuntested": false,
+        "connlabel": "Conecta", "lasttestlabel": "Probado el 20/07/26, 10:00",
+        "pairlabel": "Emparejada en ambos sentidos"
+      }
+    ]
+  }
+}}
+<div class="local-coursetransfer" data-region="platforms_page">
+
+    {{! Shared hero (icon + title + description); theme heading cleared with
+        set_heading('') to avoid a duplicate h1. Primary action on the right. }}
+    <div class="ct-hero">
+        {{> local_coursetransfer/components/page_header }}
+        <button type="button" class="ct-btn ct-btn--primary" data-action="add">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            {{#str}} platforms_add, local_coursetransfer {{/str}}
+        </button>
+    </div>
+
+    <div class="ct-banner" data-region="banner" hidden>
+        <span data-region="banner-text"></span>
+        <button type="button" data-action="dismissbanner" aria-label="{{#str}} closebuttontitle, core {{/str}}">
+            <i class="fa fa-times" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <div data-region="list">
+        <div class="ct-alert ct-alert--info ct-mb">
+            <i class="fa fa-info-circle ct-alert-icon" aria-hidden="true"></i>
+            <p>{{#str}} platforms_roles_help, local_coursetransfer {{/str}}</p>
+        </div>
+
+        <div class="ct-platform-list">
+            {{#platforms}}
+            <div class="ct-platform-card" data-region="platform"
+                 data-host="{{ host }}" data-name="{{ name }}"
+                 data-originid="{{ originid }}" data-targetid="{{ targetid }}"
+                 data-token="{{ token }}"
+                 {{#inuse}}data-inuse="1"{{/inuse}}>
+                <div class="ct-platform-main">
+                    <span class="ct-sitecard-icon {{#connerror}}ct-sitecard-icon--error{{/connerror}}{{#connuntested}}ct-sitecard-icon--muted{{/connuntested}}">
+                        <i class="fa fa-globe" aria-hidden="true"></i>
+                    </span>
+                    <div class="ct-platform-body">
+                        <div class="ct-platform-titlerow">
+                            <span class="ct-sitecard-name">{{ name }}</span>
+                            {{#isself}}
+                            <span class="ct-badge ct-badge--self">{{#str}} platforms_this_site, local_coursetransfer {{/str}}</span>
+                            {{/isself}}
+                            <span class="ct-badge {{#connok}}ct-badge--completed{{/connok}}{{#connerror}}ct-badge--error{{/connerror}}{{#connuntested}}ct-badge--not-started{{/connuntested}}" data-region="connbadge">{{ connlabel }}</span>
+                        </div>
+                        <div class="ct-platform-host">{{ host }}</div>
+                        <div class="ct-platform-chips">
+                            <span class="ct-chip {{#roleorigin}}ct-chip--origin{{/roleorigin}}{{^roleorigin}}ct-chip--off{{/roleorigin}}">
+                                {{#roleorigin}}<i class="fa fa-check" aria-hidden="true"></i>{{/roleorigin}}{{^roleorigin}}<i class="fa fa-minus" aria-hidden="true"></i>{{/roleorigin}}
+                                {{#str}} platforms_role_origin, local_coursetransfer {{/str}}
+                            </span>
+                            <span class="ct-chip {{#roletarget}}ct-chip--target{{/roletarget}}{{^roletarget}}ct-chip--off{{/roletarget}}">
+                                {{#roletarget}}<i class="fa fa-check" aria-hidden="true"></i>{{/roletarget}}{{^roletarget}}<i class="fa fa-minus" aria-hidden="true"></i>{{/roletarget}}
+                                {{#str}} platforms_role_target, local_coursetransfer {{/str}}
+                            </span>
+                            <span class="ct-platform-lasttest">{{ lasttestlabel }}</span>
+                        </div>
+                        <div class="ct-platform-pair">{{ pairlabel }}</div>
+                    </div>
+                    <div class="ct-platform-actions">
+                        <button type="button" class="ct-iconbtn" data-action="test" title="{{#str}} platforms_test, local_coursetransfer {{/str}}" aria-label="{{#str}} platforms_test, local_coursetransfer {{/str}}">
+                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="ct-iconbtn" data-action="edit" title="{{#str}} edit, core {{/str}}" aria-label="{{#str}} edit, core {{/str}}">
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="ct-iconbtn ct-iconbtn--danger" data-action="delete" title="{{#str}} delete, core {{/str}}" aria-label="{{#str}} delete, core {{/str}}">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                {{#connerror}}
+                <div class="ct-error-block ct-mt">
+                    <i class="fa fa-exclamation-triangle ct-error-icon" aria-hidden="true"></i>
+                    <div class="ct-error-content">
+                        <p class="ct-error-title">{{ errcause }}</p>
+                        <p class="ct-error-body">{{ erraction }}</p>
+                    </div>
+                </div>
+                {{/connerror}}
+            </div>
+            {{/platforms}}
+            {{^hasplatforms}}
+            <div class="ct-card ct-text-muted">{{#str}} platforms_empty, local_coursetransfer {{/str}}</div>
+            {{/hasplatforms}}
+        </div>
+
+        {{> local_coursetransfer/components/page_nav }}
+    </div>
+
+    {{> local_coursetransfer/components/platform_wizard }}
+
+    <div class="ct-modal-backdrop" data-region="delete-modal" hidden>
+        <div class="ct-modal" role="dialog" aria-modal="true" aria-labelledby="ct-delete-title">
+            <div class="ct-modal-header">
+                <span class="ct-modal-icon">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </span>
+                <h2 id="ct-delete-title" class="ct-section-title">{{#str}} platforms_delete_title, local_coursetransfer {{/str}}</h2>
+            </div>
+            <p class="ct-modal-text">{{#str}} platforms_delete_text, local_coursetransfer {{/str}} <strong data-region="delete-host"></strong></p>
+            <div class="ct-alert ct-alert--danger ct-mt" data-region="delete-inuse" hidden>
+                <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
+                <p>{{#str}} platforms_delete_inuse, local_coursetransfer {{/str}}</p>
+            </div>
+            <div class="ct-modal-footer">
+                <button type="button" class="ct-btn ct-btn--secondary" data-action="canceldelete">{{#str}} cancel, core {{/str}}</button>
+                <button type="button" class="ct-btn ct-btn--danger" data-action="confirmdelete">{{#str}} platforms_delete_confirm, local_coursetransfer {{/str}}</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{{#js}}
+require(['local_coursetransfer/platforms_page'], function(PlatformsPage) {
+    PlatformsPage.init('[data-region="platforms_page"]');
+});
+{{/js}}

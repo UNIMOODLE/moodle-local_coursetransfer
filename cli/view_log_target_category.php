@@ -72,17 +72,15 @@ if ($unrecognised) {
 
 if ($options['help']) {
     cli_writeln($usage);
-    exit(2);
+    exit(0);
 }
 
 $categoryid = (int) $options['categoryid'];
 
 if ( $categoryid === null ) {
-    cli_writeln( get_string('target_category_id_require', 'local_coursetransfer') );
-    exit(128);
+    cli_error(get_string('target_category_id_require', 'local_coursetransfer'), 2);
 } else if ( $categoryid <= 0 ) {
-    cli_writeln( get_string('target_category_id_integer', 'local_coursetransfer') );
-    exit(128);
+    cli_error(get_string('target_category_id_integer', 'local_coursetransfer'), 2);
 }
 
 try {
@@ -112,7 +110,6 @@ try {
     exit(0);
 
 } catch (moodle_exception $e) {
-    cli_writeln('40008: ' . $e->getMessage());
-    exit(1);
+    cli_error('40008: ' . $e->getMessage(), 1);
 }
 

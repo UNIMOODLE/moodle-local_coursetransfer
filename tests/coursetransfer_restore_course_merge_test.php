@@ -40,8 +40,6 @@ use base_plan_exception;
 use base_setting_exception;
 use coding_exception;
 use context_course;
-use core\event\course_section_deleted;
-use core\task\adhoc_task;
 use core\task\manager;
 use core_user;
 use dml_exception;
@@ -51,12 +49,7 @@ use local_coursetransfer\external\frontend\sites_external;
 use local_coursetransfer\factory\tools;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\models\configuration_course;
-use local_coursetransfer\task\create_backup_course_task;
-use mod_label_generator;
-use mod_quiz_generator;
-use mod_resource_generator;
 use moodle_exception;
-use moodle_url;
 use phpunit_util;
 use stdClass;
 use stored_file;
@@ -68,7 +61,6 @@ global $CFG;
 require_once($CFG->dirroot . '/webservice/tests/helpers.php');
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->libdir . '/setuplib.php');
-require_once($CFG->libdir . '/cronlib.php');
 
 /**
  * coursetransfer_restore_course_test

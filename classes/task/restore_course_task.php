@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * logs_course_response_table
+ * restore_course_task
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -43,7 +43,7 @@ use local_coursetransfer\coursetransfer_restore;
 use moodle_exception;
 
 /**
- * logs_course_response_table
+ * restore_course_task
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -62,7 +62,7 @@ class restore_course_task extends \core\task\adhoc_task {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function execute() {
+    public function execute(): void {
 
         $this->log_start("Restore Backup Course Remote Starting...");
 
@@ -73,6 +73,12 @@ class restore_course_task extends \core\task\adhoc_task {
         $request = coursetransfer_request::get($requestid);
         $file = $fs->get_file_by_id($fileid);
 
+        // Large restores need time and memory; remove the limits for this task and
+        // record any uncatchable fatal (timeout/OOM) into the request log.
+        \core_php_time_limit::raise();
+        raise_memory_limit(MEMORY_HUGE);
+        coursetransfer_request::register_fatal_shutdown((int)$requestid, '10499');
+
         if (!$file) {
             $this->log('Restore in Moodle not working beacuse File not found! :' . $fileid);
             $request->status = coursetransfer_request::STATUS_ERROR;
@@ -80,6 +86,9 @@ class restore_course_task extends \core\task\adhoc_task {
             $request->error_message = 'Restore in Moodle not working beacuse File not found! :' . $fileid;
             coursetransfer_request::insert_or_update($request, $requestid);
         } else {
+            // Mark as "restoring" so the request shows progress during the (long) restore.
+            $request->status = coursetransfer_request::STATUS_RESTORE;
+            coursetransfer_request::insert_or_update($request, $request->id);
             $success = coursetransfer_restore::restore_course($request, $file);
             if ($success) {
                 $this->log('Restore in Moodle Success!');
@@ -96,6 +105,7 @@ class restore_course_task extends \core\task\adhoc_task {
                     if ($reqcat->status === coursetransfer_request::STATUS_COMPLETED) {
                         coursetransfer_notification::send_restore_category_completed(
                                 $request->userid, $request->origin_category_id);
+                        coursetransfer_request::trigger_request_completed($reqcat);
                         if ($reqcat->origin_remove_category) {
                             $this->log('Origin Category Removing...');
                             if (has_capability('local/coursetransfer:origin_remove_category',
@@ -114,6 +124,7 @@ class restore_course_task extends \core\task\adhoc_task {
                     }
                 } else {
                     coursetransfer_notification::send_restore_course_completed($request->userid, $request->target_course_id);
+                    coursetransfer_request::trigger_request_completed($request);
                 }
 
                 // Remove origen course logical.

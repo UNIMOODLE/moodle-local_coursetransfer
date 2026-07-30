@@ -57,9 +57,10 @@ function local_coursetransfer_extend_navigation_course(navigation_node $navigati
  * @param navigation_node $navigation
  * @param context $context
  * @return void
+ * @throws moodle_exception
  */
 function local_coursetransfer_extend_settings_navigation(navigation_node $navigation, context $context) {
-    global $CFG, $PAGE;
+    global $PAGE;
 
     if ($context->contextlevel == CONTEXT_COURSE) {
         if (has_capability('local/coursetransfer:origin_restore_course', $context)) {
@@ -155,7 +156,10 @@ function local_coursetransfer_extend_navigation_category_settings(navigation_nod
  * @param array $options additional options affecting the file serving
  * @return bool false if the file not found, just send the file otherwise and do not return anything
  * @throws coding_exception
+ * @throws moodle_exception
+ * @throws require_login_exception
  */
+
 function local_coursetransfer_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=[]): bool {
     // Check that the filearea is sane.
     if ($filearea !== 'backup') {
@@ -187,4 +191,5 @@ function local_coursetransfer_pluginfile($course, $cm, $context, $filearea, $arg
         return false;
     }
     send_stored_file($file, 0, 0, $forcedownload, $options);
+    return true;
 }

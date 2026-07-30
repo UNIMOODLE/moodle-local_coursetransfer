@@ -46,7 +46,7 @@ namespace local_coursetransfer\models;
 class configuration_category extends configuration {
 
     /** @var bool Origin Remove Category */
-    public $originremovecategory;
+    public bool $originremovecategory;
 
     /**
      * constructor.
@@ -70,8 +70,7 @@ class configuration_category extends configuration {
      *
      * @param bool $config
      */
-    protected function set_origin_remove_category(bool $config) {
+    protected function set_origin_remove_category(bool $config): void {
         $this->originremovecategory = $config;
     }
-
 }

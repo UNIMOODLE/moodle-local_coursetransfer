@@ -34,6 +34,7 @@
 
 namespace local_coursetransfer;
 
+use core\task\manager;
 use local_coursetransfer\task\cleanup_category_bin_task;
 use local_coursetransfer\task\cleanup_course_bin_task;
 use local_coursetransfer\task\remove_category_task;
@@ -80,7 +81,7 @@ class coursetransfer_remove {
         if (!is_null($nextruntime)) {
             $resasynctask->set_next_run_time($nextruntime);
         }
-        return \core\task\manager::queue_adhoc_task($resasynctask);
+        return manager::queue_adhoc_task($resasynctask);
     }
 
     /**
@@ -108,7 +109,7 @@ class coursetransfer_remove {
         if (!is_null($nextruntime)) {
             $resasynctask->set_next_run_time($nextruntime);
         }
-        return \core\task\manager::queue_adhoc_task($resasynctask);
+        return manager::queue_adhoc_task($resasynctask);
     }
 
     /**
@@ -125,7 +126,7 @@ class coursetransfer_remove {
         ];
         $resasynctask->set_custom_data($payload);
         $resasynctask->set_next_run_time(time() + self::CLEANUP_BIN_TASK_NEXTRUNTIME_PLUS);
-        return \core\task\manager::queue_adhoc_task($resasynctask);
+        return manager::queue_adhoc_task($resasynctask);
     }
 
     /**
@@ -141,7 +142,6 @@ class coursetransfer_remove {
         ];
         $resasynctask->set_custom_data($payload);
         $resasynctask->set_next_run_time(time() + self::CLEANUP_BIN_TASK_NEXTRUNTIME_PLUS);
-        return \core\task\manager::queue_adhoc_task($resasynctask);
+        return manager::queue_adhoc_task($resasynctask);
     }
-
 }

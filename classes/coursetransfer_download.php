@@ -34,20 +34,9 @@
 
 namespace local_coursetransfer;
 
-use backup;
-use backup_controller;
-use base_plan_exception;
-use base_setting;
-use base_setting_exception;
-use cm_info;
-use dml_exception;
-use local_coursetransfer\task\create_backup_course_task;
+use core\task\manager;
 use local_coursetransfer\task\download_file_course_task;
-use moodle_exception;
-use restore_controller;
-use section_info;
 use stdClass;
-use stored_file;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -80,7 +69,6 @@ class coursetransfer_download {
         $asynctask->set_custom_data(
                 ['requestid' => $request->id, 'fileurl' => $fileurl]
         );
-        return \core\task\manager::queue_adhoc_task($asynctask);
+        return manager::queue_adhoc_task($asynctask);
     }
-
 }
