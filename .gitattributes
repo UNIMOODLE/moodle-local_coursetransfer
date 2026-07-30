@@ -1,0 +1,8 @@
+# Files excluded from the archives GitHub generates for a tag (zipball/tarball).
+# The release workflow (.github/workflows/moodle_release.yml) publishes that
+# zipball to the Moodle Plugins directory, so development-only files must not
+# ship inside the released package. Tests ARE shipped on purpose.
+/.github        export-ignore
+/.gitattributes export-ignore
+/.gitignore     export-ignore
+/phpunit.xml    export-ignore
