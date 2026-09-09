@@ -557,6 +557,11 @@ class coursetransfer_request {
         if (!in_array($object->direction, [0, 1])) {
             throw new moodle_exception('DIRECTION IS NOT VALID');
         }
+        // Every write goes through here, so this is the single place that guarantees siteurl is
+        // stored the same way it is looked up: without its trailing slash.
+        if (isset($object->siteurl)) {
+            $object->siteurl = coursetransfer_sites::clean_host($object->siteurl);
+        }
         $object->timemodified = time();
         if (is_null($id)) {
             $object->timecreated = time();

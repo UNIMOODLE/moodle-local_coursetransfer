@@ -170,5 +170,24 @@ function xmldb_local_coursetransfer_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026072400, 'local', 'coursetransfer');
     }
 
+    if ($oldversion < 2026090900) {
+        // Hosts are stored without their trailing slash, which is how they are looked up. Rows
+        // written before that was enforced keep the slash and never match, so they are cleaned here.
+        $fields = [
+                'local_coursetransfer_origin' => 'host',
+                'local_coursetransfer_target' => 'host',
+                'local_coursetransfer_request' => 'siteurl',
+        ];
+        foreach ($fields as $table => $field) {
+            $select = $DB->sql_like($field, ':slash');
+            $rs = $DB->get_recordset_select($table, $select, ['slash' => '%/'], '', 'id, ' . $field);
+            foreach ($rs as $row) {
+                $DB->set_field($table, $field, rtrim($row->{$field}, '/'), ['id' => $row->id]);
+            }
+            $rs->close();
+        }
+        upgrade_plugin_savepoint(true, 2026090900, 'local', 'coursetransfer');
+    }
+
     return true;
 }

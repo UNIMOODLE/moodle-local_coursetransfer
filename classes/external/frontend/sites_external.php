@@ -384,7 +384,7 @@ class sites_external extends external_api {
                     'code' => '18023',
                     'msg' => get_string('site_not_found', 'local_coursetransfer'),
                 ];
-            } else if ($DB->record_exists('local_coursetransfer_request', ['siteurl' => $record->host])) {
+            } else if (coursetransfer_sites::is_in_use($record->host)) {
                 $errors[] = [
                     'code' => '18024',
                     'msg' => get_string('site_in_use', 'local_coursetransfer'),

@@ -2,6 +2,37 @@
 
 All notable changes to this plugin are documented here.
 
+## 2.0.1 — 2026-09-09
+
+Bug fix release. No schema changes and no new settings; the upgrade step only
+normalises data already stored.
+
+### Fixed
+
+- **Platforms page and site removal failing with `textconditionsnotallowed`:** the
+  "in use" lookup compared the TEXT column `siteurl` with a plain equality condition.
+  It now uses `sql_compare_text()`.
+
+- **Site lookups comparing only the first 32 characters of the URL:**
+  `coursetransfer_sites::get_by_host()` used the default length of
+  `sql_compare_text()`, so on the database engines that cast the column two
+  platforms sharing that prefix (for example the same campus for two academic
+  years) resolved to the same row — returning the wrong site and its token.
+  Both lookups now compare 255 characters.
+
+- **Host stored differently from how it is looked up:** `siteurl` was written
+  verbatim while every lookup normalised it, so a host registered with a
+  trailing slash never matched and its platform showed as unused (and could be
+  deleted while it still had requests). Requests now normalise the host on
+  write, `get_by_host()` normalises its argument, and the upgrade step strips
+  the trailing slash from rows already stored.
+
+- **Concurrent backups from the same user overwriting each other:** course
+  backups shared core's default `backup.mbz` filename, so two overlapping
+  coursetransfer requests by the same user deleted each other's file in the
+  user's private backup area (error 10201). Each backup request now gets a
+  unique filename.
+
 ## 2.0.0 — 2026-07-30
 
 Major release: GUI redesign (Tresipunt design system), Moodle 4.5 compatibility
