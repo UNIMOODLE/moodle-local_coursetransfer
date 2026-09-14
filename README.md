@@ -6,16 +6,17 @@
 <h1 align="center">Course Transfer</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.0-informational" alt="Version">
-  <a href="https://moodle.org"><img src="https://img.shields.io/badge/Moodle-4.5%2B-orange?logo=moodle" alt="Moodle"></a>
+  <img src="https://img.shields.io/badge/version-2.1.0-informational" alt="Version">
+  <a href="https://moodle.org"><img src="https://img.shields.io/badge/Moodle-4.5%20--%205.1-orange?logo=moodle" alt="Moodle"></a>
   <img src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php&logoColor=white" alt="PHP">
   <img src="https://img.shields.io/badge/License-GPL--3.0-green" alt="License">
+  <a href="https://unimoodle.github.io/"><img src="https://img.shields.io/badge/project%20by-UNIMOODLE-194866" alt="Project by UNIMOODLE"></a>
   <a href="https://tresipunt.com"><img src="https://img.shields.io/badge/made%20by-Tresipunt-F84015" alt="Made by Tresipunt"></a>
 </p>
 
 <p align="center"><b>Copy and delete courses and categories between Moodle platforms — no manual export/import.</b></p>
 
-<p align="center"><b>🇬🇧 English</b> · <a href="README.es.md">🇪🇸 Español</a></p>
+<p align="center"><b>🇬🇧 English</b> · <a href="README.es.md">🇪🇸 Español</a> · <a href="README.ca.md">Català</a> · <a href="README.gl.md">Galego</a> · <a href="README.eu.md">Euskara</a></p>
 
 Course Transfer links two Moodle sites (origin and target) over web services and
 lets you **pull** courses or a whole category from another platform, or **delete**
@@ -166,16 +167,26 @@ vendor/bin/phpunit --testsuite local_coursetransfer_testsuite
 vendor/bin/behat --tags @local_coursetransfer
 ```
 
+## 🏛️ Credits
+
+**A community project.** In October 2022, the Universities of Valladolid, Complutense de Madrid, País Vasco/EHU, León, Salamanca, Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga, Córdoba, Extremadura, Vigo, Las Palmas and Burgos created an inter-university group to develop new tools to improve Moodle-based virtual campuses, as part of the European Next Generation funding with the UNIDIGITAL programme.
+
+**Programmed by Tresipunt.** UNIMOODLE held an open competition, and those selected were given the task of creating new, high quality components for the benefit of the entire Moodle community. Course Transfer was developed by Moodle Partner Tresipunt, with 20 years of experience in application development and global business solutions for large national and international companies.
+
+> **This is a UNIMOODLE project** — pushing the Moodle community from the University.
+
+Full credits: [unimoodle.github.io/moodle-local_coursetransfer/credits.html](https://unimoodle.github.io/moodle-local_coursetransfer/credits.html)
+
 ## 📄 License
 
 [GNU GPL v3 or later](https://www.gnu.org/copyleft/gpl.html) — 2023 [Tresipunt](https://tresipunt.com) (contacte@tresipunt.com)
 
-Produced by the UNIMOODLE university group (project funded by the Recovery,
-Transformation and Resilience Plan — European Union, NextGenerationEU) and
-maintained by Tresipunt.
-
 ---
 
 <p align="center">
-  <a href="https://tresipunt.com"><img src="pix/tresipunt_logo.svg" alt="Tresipunt" width="160"></a>
+  <a href="https://unimoodle.github.io/"><img src="pix/unimoodle_logo.png" alt="UNIMOODLE" width="220"></a>
+</p>
+
+<p align="center">
+  <a href="https://tresipunt.com"><img src="pix/tresipunt_logo.svg" alt="Tresipunt" width="150"></a>
 </p>
