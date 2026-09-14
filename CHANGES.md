@@ -19,6 +19,13 @@ combinations: PHP 8.1 – 8.4, Moodle 4.5 and 5.1, PostgreSQL and MariaDB.
 
 ### Fixed
 
+- **Four duplicated string keys.** `target_category_id_integer`, `site_not_found`,
+  `deleteintarget` and `direction` were declared twice, so the second declaration
+  silently won. In the first two cases the surviving text was the wrong one: the
+  CLI error message lost its usage hint, and `site_not_found` diverged from the
+  wording still used by the `eu` and `gl` files. The first declaration is now the
+  one kept, which also realigns the five languages.
+
 - **An upgrade step had no savepoint.** The `2024040500` block —the one renaming the
   `destiny` table and its fields to `target`— never called
   `upgrade_plugin_savepoint()`, so it was re-executed on every subsequent upgrade of
@@ -50,7 +57,8 @@ combinations: PHP 8.1 – 8.4, Moodle 4.5 and 5.1, PostgreSQL and MariaDB.
   (`--max-warnings 0`), Moodle PHPDoc Checker, Validate, Upgrade savepoints,
   Mustache Lint and Grunt (`--max-lint-warnings 0`). This meant a large but purely
   cosmetic reformat, plus splitting three oversized methods in the wizard modules
-  into named helpers.
+  into named helpers. The language files are also sorted alphabetically and
+  stripped of section comments, which the checker does not allow.
 
 ## 2.0.1 — 2026-09-09
 

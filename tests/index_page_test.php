@@ -50,7 +50,7 @@ use local_coursetransfer\output\index_page;
  * @covers     \local_coursetransfer\output\index_page
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class index_page_test extends advanced_testcase {
+final class index_page_test extends advanced_testcase {
     /**
      * Set up.
      */

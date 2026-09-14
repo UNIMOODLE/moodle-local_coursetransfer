@@ -72,7 +72,7 @@ require_once($CFG->libdir . '/setuplib.php');
  * @group      local_coursetransfer
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class coursetransfer_restore_course_merge_test extends advanced_testcase {
+final class coursetransfer_restore_course_merge_test extends advanced_testcase {
     /** @var stdClass Origin Course */
     protected $origincourse;
 
@@ -145,6 +145,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
      * @throws moodle_exception
      */
     public function setUp(): void {
+        parent::setUp();
 
         $this->resetAfterTest(true);
         $this->generator = phpunit_util::get_data_generator();
@@ -350,7 +351,7 @@ class coursetransfer_restore_course_merge_test extends advanced_testcase {
     /**
      * Tests backup.
      *
-     * @covers coursetransfer::restore_course
+     * @covers \local_coursetransfer\coursetransfer::restore_course
      * @param configuration_course $configuration
      * @param stdClass $coursetarget
      * @param stdClass $courseorigin
