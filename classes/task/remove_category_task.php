@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * logs_course_response_table
+ * remove_category_task
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -35,7 +35,6 @@
 namespace local_coursetransfer\task;
 
 use local_coursetransfer\api\request;
-use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_remove;
 use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\coursetransfer_sites;
@@ -48,7 +47,7 @@ global $CFG;
 require_once($CFG->dirroot . '/course/externallib.php');
 
 /**
- * logs_course_response_table
+ * remove_category_task
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -57,7 +56,6 @@ require_once($CFG->dirroot . '/course/externallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class remove_category_task extends \core\task\adhoc_task {
-
     // Use the logging trait to get some nice, juicy, logging.
     use \core\task\logging_trait;
 
@@ -65,10 +63,9 @@ class remove_category_task extends \core\task\adhoc_task {
      * Execute.
      *
      */
-    public function execute() {
+    public function execute(): void {
 
         try {
-
             $this->log_start("Remove Category Remote Starting...");
 
             $targetsiteid = $this->get_custom_data()->targetsiteid;
@@ -111,7 +108,11 @@ class remove_category_task extends \core\task\adhoc_task {
                 $requestorigin->error_message = $e->getMessage();
                 coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
                 $res = $request->target_remove_course_error(
-                        $user, $requestdestid, $requestorigin->error_message, $requestorigin->error_code);
+                    $user,
+                    $requestdestid,
+                    $requestorigin->error_message,
+                    $requestorigin->error_code
+                );
                 if (!$res->success) {
                     mtrace('Remove Course Remote in Error Callback ERROR: ' . $res->errors[0]->msg);
                     $this->log(json_encode($res));
@@ -123,6 +124,5 @@ class remove_category_task extends \core\task\adhoc_task {
         }
 
         $this->log_finish("Remove Category Remote Finishing...");
-
     }
 }

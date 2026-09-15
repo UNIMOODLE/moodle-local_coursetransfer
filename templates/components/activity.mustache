@@ -22,10 +22,15 @@
     Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 }}
 {{!
-  @template local_coursetransfer/components/section
+  @template local_coursetransfer/components/activity
 
   Example context (json):
-
+  {
+      "cmid": 56,
+      "name": "Assignment 1",
+      "modname": "assign",
+      "instance": 78
+  }
 }}
 
 <div id="activity-{{cmid}}" class="activities-row" data-activity-cmid="{{cmid}}" data-activity-name="{{name}}" data-activity-modname="{{modname}}" data-activity-instance="{{instance}}">

@@ -36,6 +36,8 @@ namespace local_coursetransfer;
 
 use coding_exception;
 use core\message\message;
+use core_course_category;
+use core_user;
 use dml_exception;
 use moodle_exception;
 use moodle_url;
@@ -50,7 +52,6 @@ use moodle_url;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_notification {
-
     /**
      * Send Restore Completed
      *
@@ -60,8 +61,8 @@ class coursetransfer_notification {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function send_restore_course_completed(int $userid, int $courseid) {
-        $user = \core_user::get_user($userid);
+    public static function send_restore_course_completed(int $userid, int $courseid): mixed {
+        $user = core_user::get_user($userid);
         $course = get_course($courseid);
         $courseurl = new moodle_url('/course/view.php', ['id' => $courseid]);
         $detailurl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $courseid]);
@@ -71,15 +72,18 @@ class coursetransfer_notification {
         $message->userfrom = \core_user::get_noreply_user();
         $message->userto = $user;
         $sub = get_string('messageprovider:restore_course_completed', 'local_coursetransfer')
-                . ' [' . $courseid .']';
+                . ' [' . $courseid . ']';
         $message->subject = $sub;
-        $msghtml = get_string('notification_restore_course_completed', 'local_coursetransfer',
-        '<strong>' . $course->fullname . '</strong>');
+        $msghtml = get_string(
+            'notification_restore_course_completed',
+            'local_coursetransfer',
+            '<strong>' . $course->fullname . '</strong>'
+        );
         $msghtml .= '<br>';
         $msghtml .= get_string('view_detail', 'local_coursetransfer');
         $msghtml .= '<br>';
-        $msghtml .= '<a class="btn btn-link" target="_blank" href="'. $detailurl->out(false)
-                . '">'. $detailurl->out(false) . '</a>';
+        $msghtml .= '<a class="btn btn-link" target="_blank" href="' . $detailurl->out(false)
+                . '">' . $detailurl->out(false) . '</a>';
         $message->fullmessage = $sub;
         $message->fullmessageformat = FORMAT_HTML;
         $message->fullmessagehtml = $msghtml;
@@ -99,9 +103,9 @@ class coursetransfer_notification {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function send_restore_category_completed(int $userid, int $catid) {
-        $user = \core_user::get_user($userid);
-        $cat = \core_course_category::get($catid);
+    public static function send_restore_category_completed(int $userid, int $catid): mixed {
+        $user = core_user::get_user($userid);
+        $cat = core_course_category::get($catid);
         $courseurl = new moodle_url('/course/index.php', ['categoryid' => $catid]);
         $detailurl = new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $catid]);
         $message = new message();
@@ -110,15 +114,18 @@ class coursetransfer_notification {
         $message->userfrom = \core_user::get_noreply_user();
         $message->userto = $user;
         $sub = get_string('messageprovider:restore_category_completed', 'local_coursetransfer')
-                . ' [' . $catid .']';
+                . ' [' . $catid . ']';
         $message->subject = $sub;
-        $msghtml = get_string('notification_restore_category_completed', 'local_coursetransfer',
-                '<strong>' . $cat->name . '</strong>');
+        $msghtml = get_string(
+            'notification_restore_category_completed',
+            'local_coursetransfer',
+            '<strong>' . $cat->name . '</strong>'
+        );
         $msghtml .= '<br>';
         $msghtml .= get_string('view_detail', 'local_coursetransfer');
         $msghtml .= '<br>';
-        $msghtml .= '<a class="btn btn-link" target="_blank" href="'. $detailurl->out(false)
-                . '">'. $detailurl->out(false) . '</a>';
+        $msghtml .= '<a class="btn btn-link" target="_blank" href="' . $detailurl->out(false)
+                . '">' . $detailurl->out(false) . '</a>';
         $message->fullmessage = $msghtml;
         $message->fullmessageformat = FORMAT_HTML;
         $message->fullmessagehtml = $msghtml;
@@ -138,7 +145,7 @@ class coursetransfer_notification {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function send_remove_course_completed(int $userid, int $origincourseid) {
+    public static function send_remove_course_completed(int $userid, int $origincourseid): mixed {
         $user = \core_user::get_user($userid);
         $detailurl = new moodle_url('/local/coursetransfer/logs.php', ['type' => 2, 'direction' => 0]);
         $message = new message();
@@ -147,14 +154,17 @@ class coursetransfer_notification {
         $message->userfrom = \core_user::get_noreply_user();
         $message->userto = $user;
         $sub = get_string('messageprovider:remove_course_completed', 'local_coursetransfer')
-                . ' [' . $origincourseid .']';
-        $msghtml = get_string('notification_remove_course_completed', 'local_coursetransfer',
-                '<strong>' . $origincourseid . '</strong>');
+                . ' [' . $origincourseid . ']';
+        $msghtml = get_string(
+            'notification_remove_course_completed',
+            'local_coursetransfer',
+            '<strong>' . $origincourseid . '</strong>'
+        );
         $msghtml .= '<br>';
         $msghtml .= get_string('view_detail', 'local_coursetransfer');
         $msghtml .= '<br>';
-        $msghtml .= '<a class="btn btn-link" target="_blank" href="'. $detailurl->out(false)
-                . '">'. $detailurl->out(false) . '</a>';
+        $msghtml .= '<a class="btn btn-link" target="_blank" href="' . $detailurl->out(false)
+                . '">' . $detailurl->out(false) . '</a>';
         $message->subject = $sub;
         $message->fullmessage = $msghtml;
         $message->fullmessageformat = FORMAT_HTML;
@@ -174,8 +184,8 @@ class coursetransfer_notification {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function send_remove_category_completed(int $userid, int $origincatid) {
-        $user = \core_user::get_user($userid);
+    public static function send_remove_category_completed(int $userid, int $origincatid): mixed {
+        $user = core_user::get_user($userid);
         $detailurl = new moodle_url('/local/coursetransfer/logs.php', ['type' => 3, 'direction' => 0]);
         $message = new message();
         $message->component = 'local_coursetransfer';
@@ -183,15 +193,18 @@ class coursetransfer_notification {
         $message->userfrom = \core_user::get_noreply_user();
         $message->userto = $user;
         $sub = get_string('messageprovider:remove_category_completed', 'local_coursetransfer')
-                . ' [' . $origincatid .']';
+                . ' [' . $origincatid . ']';
         $message->subject = $sub;
-        $msghtml = get_string('notification_remove_category_completed', 'local_coursetransfer',
-                '<strong>' . $origincatid . '</strong>');
+        $msghtml = get_string(
+            'notification_remove_category_completed',
+            'local_coursetransfer',
+            '<strong>' . $origincatid . '</strong>'
+        );
         $msghtml .= '<br>';
         $msghtml .= get_string('view_detail', 'local_coursetransfer');
         $msghtml .= '<br>';
-        $msghtml .= '<a class="btn btn-link" target="_blank" href="'. $detailurl->out(false)
-                . '">'. $detailurl->out(false) . '</a>';
+        $msghtml .= '<a class="btn btn-link" target="_blank" href="' . $detailurl->out(false)
+                . '">' . $detailurl->out(false) . '</a>';
         $message->fullmessage = $msghtml;
         $message->fullmessageformat = FORMAT_HTML;
         $message->fullmessagehtml = $msghtml;
@@ -199,5 +212,4 @@ class coursetransfer_notification {
         $message->notification = 1;
         return message_send($message);
     }
-
 }

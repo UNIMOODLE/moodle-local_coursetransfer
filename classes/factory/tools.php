@@ -46,7 +46,6 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/course/lib.php');
-require_once($CFG->dirroot . '/user/externallib.php');
 
 /**
  * tools
@@ -58,7 +57,6 @@ require_once($CFG->dirroot . '/user/externallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tools {
-
     /**
      * Create Mod Assign.
      *
@@ -228,5 +226,4 @@ class tools {
         ];
         return $generator->create_instance($record, $options);
     }
-
 }

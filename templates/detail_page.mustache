@@ -1,0 +1,257 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/detail_page
+
+  Single request detail: progress timeline + grouped fields + content.
+
+  Example context (json):
+  {
+    "id": 48, "back": "#", "badgeclass": "ct-badge--completed",
+    "statuslabel": "Completada", "coursetitle": "Curso demo",
+    "originurl": "#", "desturl": "#",
+    "timeline": [{"label": "Petición creada", "done": true, "hasbar": true, "bardone": true, "time": "Hecho"}],
+    "groups": [{"title": "Datos generales", "fields": [{"label": "Tipo", "value": "Restauración de curso", "muted": false}]}],
+    "haserror": false, "sections": [], "hassections": false
+  }
+}}
+<div class="local-coursetransfer" data-region="detail_page">
+
+    {{! Shared hero (icon + course name + request #); status badge + back link on the
+        right, vertically centred. Theme heading cleared with set_heading(''). }}
+    <div class="ct-hero">
+        {{> local_coursetransfer/components/page_header }}
+        <div class="ct-hero-side">
+            <span class="ct-badge ct-badge--lg {{ badgeclass }}">{{ statuslabel }}</span>
+            <a class="ct-btn ct-btn--secondary ct-btn--sm" href="{{ back }}">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                {{#str}} exec_back_log, local_coursetransfer {{/str}}
+            </a>
+        </div>
+    </div>
+
+    <div class="ct-detail-links">
+        {{#originurl}}
+        <a class="ct-btn ct-btn--sm ct-linkbtn ct-linkbtn--origin" href="{{ originurl }}" target="_blank" rel="noopener">
+            <i class="fa fa-book" aria-hidden="true"></i>
+            {{ openoriginlabel }}
+            <i class="fa fa-external-link" aria-hidden="true"></i>
+        </a>
+        {{/originurl}}
+        {{#desturl}}
+        <a class="ct-btn ct-btn--sm ct-linkbtn ct-linkbtn--target" href="{{ desturl }}" target="_blank" rel="noopener">
+            <i class="fa fa-book" aria-hidden="true"></i>
+            {{#str}} exec_open_dest, local_coursetransfer {{/str}}
+            <i class="fa fa-external-link" aria-hidden="true"></i>
+        </a>
+        {{/desturl}}
+        {{#hascatparent}}
+        <a class="ct-btn ct-btn--sm ct-linkbtn" href="{{ catparenturl }}">
+            <i class="fa fa-sitemap" aria-hidden="true"></i>
+            {{#str}} exec_view_cat_request, local_coursetransfer {{/str}} #{{ catparentid }}
+        </a>
+        {{/hascatparent}}
+    </div>
+
+    {{#scheduled}}
+    <div class="ct-alert ct-alert--warning ct-mt">
+        <i class="fa fa-calendar-o ct-alert-icon" aria-hidden="true"></i>
+        <p>{{ scheduledtext }}</p>
+    </div>
+    {{/scheduled}}
+
+    {{#inprogress}}
+    <div class="ct-alert {{#stalled}}ct-alert--warning{{/stalled}}{{^stalled}}ct-alert--info{{/stalled}} ct-mt">
+        <i class="fa {{#stalled}}fa-exclamation-triangle{{/stalled}}{{^stalled}}fa-hourglass-half{{/stalled}} ct-alert-icon" aria-hidden="true"></i>
+        <p>{{ agetext }}{{#stalled}} · {{#str}} exec_stalled, local_coursetransfer {{/str}}{{/stalled}}</p>
+    </div>
+    {{/inprogress}}
+
+    <div class="ct-detail-grid">
+        <div class="ct-card ct-timeline-card">
+            <div class="ct-card-eyebrow">{{#str}} exec_progress, local_coursetransfer {{/str}}</div>
+            <div class="ct-timeline">
+                {{#timeline}}
+                <div class="ct-tl-step {{#done}}ct-tl--done{{/done}}{{#current}}ct-tl--current{{/current}}{{#pending}}ct-tl--pending{{/pending}} {{#first}}ct-tl--first{{/first}}{{#last}}ct-tl--last{{/last}}">
+                    <div class="ct-tl-rail">
+                        <span class="ct-tl-marker">
+                            {{#first}}<i class="fa fa-flag-o" aria-hidden="true"></i>{{/first}}
+                            {{^first}}
+                                {{#last}}<i class="fa fa-flag-checkered" aria-hidden="true"></i>{{/last}}
+                                {{^last}}
+                                    {{#done}}<i class="fa fa-check" aria-hidden="true"></i>{{/done}}
+                                    {{#current}}<span class="ct-tl-dot"></span>{{/current}}
+                                    {{#pending}}<span class="ct-tl-dot"></span>{{/pending}}
+                                {{/last}}
+                            {{/first}}
+                        </span>
+                        {{#hasbar}}<span class="ct-tl-bar {{#bardone}}ct-tl-bar--done{{/bardone}}"></span>{{/hasbar}}
+                    </div>
+                    <div class="ct-tl-body">
+                        <div class="ct-tl-label">{{ label }}
+                            {{#first}}<span class="ct-tl-tag">{{#str}} exec_step_start, local_coursetransfer {{/str}}</span>{{/first}}
+                            {{#last}}<span class="ct-tl-tag">{{#str}} exec_step_end, local_coursetransfer {{/str}}</span>{{/last}}
+                        </div>
+                        <div class="ct-tl-time">{{ time }}</div>
+                    </div>
+                </div>
+                {{/timeline}}
+            </div>
+        </div>
+
+        <div class="ct-detail-main">
+            {{#groups}}
+            <div class="ct-card ct-fieldgroup">
+                <div class="ct-card-eyebrow">{{ title }}</div>
+                <div class="ct-fields">
+                    {{#fields}}
+                    <div class="ct-field-item">
+                        <div class="ct-field-key">{{ label }}</div>
+                        <div class="ct-field-val {{#muted}}ct-field-val--muted{{/muted}}">{{ value }}</div>
+                    </div>
+                    {{/fields}}
+                </div>
+            </div>
+            {{/groups}}
+
+            {{#haserror}}
+            <div class="ct-card ct-detail-error">
+                <div class="ct-detail-error-head">
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                    <span>{{#str}} exec_whatfailed, local_coursetransfer {{/str}}</span>
+                </div>
+                <p class="ct-error-title">{{ errcause }}</p>
+                <p class="ct-error-body">{{ erraction }}</p>
+                <div class="ct-detail-error-foot">
+                    {{#canretry}}
+                    <a class="ct-btn ct-btn--danger ct-btn--sm" href="{{ retryurl }}">
+                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                        {{#str}} exec_retry, local_coursetransfer {{/str}}
+                    </a>
+                    {{/canretry}}
+                    {{#errcode}}<span class="ct-text-muted">{{#str}} exec_code, local_coursetransfer {{/str}} {{ errcode }}</span>{{/errcode}}
+                </div>
+            </div>
+            {{/haserror}}
+
+            {{#hassections}}
+            <div class="ct-card ct-fieldgroup">
+                <div class="ct-card-eyebrow">{{#str}} exec_content, local_coursetransfer {{/str}}</div>
+                <div class="ct-sectree">
+                    {{#sections}}
+                    <div class="ct-sectree-section">
+                        <div class="ct-sectree-head">
+                            <span class="ct-sectree-check {{#on}}ct-sectree-check--on{{/on}}">{{#on}}<i class="fa fa-check" aria-hidden="true"></i>{{/on}}</span>
+                            <span class="ct-sectree-name {{^on}}ct-text-muted{{/on}}">{{ name }}</span>
+                        </div>
+                        {{#activities}}
+                        <div class="ct-sectree-act">
+                            <span class="ct-sectree-actdot"><i class="fa fa-check" aria-hidden="true"></i></span>
+                            <span class="ct-sectree-actname">{{ name }}</span>
+                            {{#type}}<span class="ct-sectree-acttype">{{ type }}</span>{{/type}}
+                        </div>
+                        {{/activities}}
+                    </div>
+                    {{/sections}}
+                </div>
+            </div>
+            {{/hassections}}
+
+            {{#hastree}}
+            <div class="ct-card ct-fieldgroup">
+                <div class="ct-card-eyebrow">{{#str}} rcc_tree_title, local_coursetransfer {{/str}}</div>
+                <div class="ct-tree-body">
+                    {{#tree}}
+                    {{> local_coursetransfer/category_tree }}
+                    {{/tree}}
+                </div>
+            </div>
+            {{/hastree}}
+
+            {{#hastasks}}
+            {{! Task tracking: audit aid — adhoc tasks queued/running on THIS site for
+                this request (the remote site's tasks run there). }}
+            <div class="ct-card ct-fieldgroup">
+                <div class="ct-card-eyebrow">{{#str}} tracking, local_coursetransfer {{/str}}</div>
+                {{#hastaskfailing}}
+                <div class="ct-alert ct-alert--danger">
+                    <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
+                    <p>{{#str}} tracking_failing_hint, local_coursetransfer {{/str}}</p>
+                </div>
+                {{/hastaskfailing}}
+                {{#hastaskdue}}
+                <div class="ct-alert ct-alert--warning">
+                    <i class="fa fa-clock-o ct-alert-icon" aria-hidden="true"></i>
+                    <p>{{#str}} tracking_due_hint, local_coursetransfer {{/str}}
+                        <a href="{{ tasksurl }}" target="_blank" rel="noopener">{{#str}} tracking_tasks_link, local_coursetransfer {{/str}}</a></p>
+                </div>
+                {{/hastaskdue}}
+                <div class="ct-tasks-wrap">
+                    <table class="ct-tasks">
+                        <thead>
+                            <tr>
+                                <th>{{#str}} tracking_class, local_coursetransfer {{/str}}</th>
+                                <th>{{#str}} tracking_nextrun, local_coursetransfer {{/str}}</th>
+                                <th>{{#str}} tracking_faildelay, local_coursetransfer {{/str}}</th>
+                                <th>{{#str}} timecreated, local_coursetransfer {{/str}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#tasks}}
+                            <tr class="{{#failing}}ct-tasks-row--fail{{/failing}}">
+                                <td class="ct-tasks-name">{{ classname }}</td>
+                                <td>{{ nextrun }}</td>
+                                <td class="{{#failing}}ct-tasks-fail{{/failing}}">{{ faildelay }}</td>
+                                <td>{{ timecreated }}</td>
+                            </tr>
+                            {{/tasks}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{/hastasks}}
+
+            {{! Cross-site correlation: ids to locate the same operation on the peer Moodle. }}
+            <div class="ct-card ct-fieldgroup">
+                <div class="ct-card-eyebrow">{{#str}} exec_corr, local_coursetransfer {{/str}}</div>
+                <div class="ct-corr">
+                    {{#corr}}
+                    <div class="ct-corr-item">
+                        <div class="ct-corr-label">{{ label }}</div>
+                        <div class="ct-corr-value">{{#url}}<a href="{{ url }}" target="_blank" rel="noopener">{{ value }} <i class="fa fa-external-link" aria-hidden="true"></i></a>{{/url}}{{^url}}{{ value }}{{/url}}</div>
+                    </div>
+                    {{/corr}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ct-pagenav">
+        <a class="ct-btn ct-btn--secondary ct-btn--sm" href="{{ back }}">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            {{#str}} exec_back_log, local_coursetransfer {{/str}}
+        </a>
+    </div>
+
+</div>

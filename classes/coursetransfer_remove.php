@@ -34,6 +34,7 @@
 
 namespace local_coursetransfer;
 
+use core\task\manager;
 use local_coursetransfer\task\cleanup_category_bin_task;
 use local_coursetransfer\task\cleanup_course_bin_task;
 use local_coursetransfer\task\remove_category_task;
@@ -50,7 +51,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_remove {
-
     /** @var int Cleanup bin task nextruntim plus */
     const CLEANUP_BIN_TASK_NEXTRUNTIME_PLUS = 240;
 
@@ -66,10 +66,14 @@ class coursetransfer_remove {
      * @return bool
      */
     public static function create_task_remove_course(
-            int $requestoriginid, int $requestdestid, int $courseid,
-            stdClass $destsite, int $userid, int $nextruntime = null): bool {
+        int $requestoriginid,
+        int $requestdestid,
+        int $courseid,
+        stdClass $destsite,
+        int $userid,
+        ?int $nextruntime = null
+    ): bool {
         $resasynctask = new remove_course_task();
-        $resasynctask->set_blocking(false);
         $payload = [
                 'targetsiteid' => $destsite->id,
                 'courseid' => $courseid,
@@ -81,7 +85,7 @@ class coursetransfer_remove {
         if (!is_null($nextruntime)) {
             $resasynctask->set_next_run_time($nextruntime);
         }
-        return \core\task\manager::queue_adhoc_task($resasynctask);
+        return manager::queue_adhoc_task($resasynctask);
     }
 
     /**
@@ -96,9 +100,14 @@ class coursetransfer_remove {
      * @return bool
      */
     public static function create_task_remove_category(
-            int $requestoriginid, int $requestdestid, int $catid, stdClass $destsite, int $userid, int $nextruntime = null): bool {
+        int $requestoriginid,
+        int $requestdestid,
+        int $catid,
+        stdClass $destsite,
+        int $userid,
+        ?int $nextruntime = null
+    ): bool {
         $resasynctask = new remove_category_task();
-        $resasynctask->set_blocking(false);
         $payload = [
                 'targetsiteid' => $destsite->id,
                 'catid' => $catid,
@@ -110,7 +119,7 @@ class coursetransfer_remove {
         if (!is_null($nextruntime)) {
             $resasynctask->set_next_run_time($nextruntime);
         }
-        return \core\task\manager::queue_adhoc_task($resasynctask);
+        return manager::queue_adhoc_task($resasynctask);
     }
 
     /**
@@ -121,14 +130,13 @@ class coursetransfer_remove {
      */
     public static function create_cleanup_course_bin_task(stdClass $course): bool {
         $resasynctask = new cleanup_course_bin_task();
-        $resasynctask->set_blocking(false);
         $payload = [
                 'courseid' => $course->id,
                 'shortname' => $course->shortname,
         ];
         $resasynctask->set_custom_data($payload);
         $resasynctask->set_next_run_time(time() + self::CLEANUP_BIN_TASK_NEXTRUNTIME_PLUS);
-        return \core\task\manager::queue_adhoc_task($resasynctask);
+        return manager::queue_adhoc_task($resasynctask);
     }
 
     /**
@@ -139,13 +147,11 @@ class coursetransfer_remove {
      */
     public static function create_cleanup_category_bin_task(int $catid): bool {
         $resasynctask = new cleanup_category_bin_task();
-        $resasynctask->set_blocking(false);
         $payload = [
                 'categoryid' => $catid,
         ];
         $resasynctask->set_custom_data($payload);
         $resasynctask->set_next_run_time(time() + self::CLEANUP_BIN_TASK_NEXTRUNTIME_PLUS);
-        return \core\task\manager::queue_adhoc_task($resasynctask);
+        return manager::queue_adhoc_task($resasynctask);
     }
-
 }

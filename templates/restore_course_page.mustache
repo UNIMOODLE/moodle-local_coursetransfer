@@ -1,0 +1,310 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/restore_course_page
+
+  Teacher course-restore assistant (SPA-lite): landing + 5-step wizard + done,
+  driven by the local_coursetransfer/restore_course_wizard AMD module. Brings a
+  remote course (or only some sections/activities) into the CURRENT course.
+
+  Example context (json):
+  {
+    "headertitle": "Restaurar curso remoto",
+    "headerdesc": "Trae un curso completo, o solo las secciones que necesites…",
+    "courseid": 12, "coursename": "Mi curso", "canmerge": true, "canreplace": true,
+    "courseurl": "#", "logurl": "#", "recent": [], "hasrecent": false
+  }
+}}
+<div class="local-coursetransfer ct-wide" data-region="restore_course"
+        data-courseid="{{ courseid }}"
+        data-canmerge="{{#canmerge}}1{{/canmerge}}{{^canmerge}}0{{/canmerge}}"
+        data-canreplace="{{#canreplace}}1{{/canreplace}}{{^canreplace}}0{{/canreplace}}"
+        data-courseurl="{{ courseurl }}" data-pagesize="{{ pagesize }}">
+
+    <div class="ct-hero">
+        {{> local_coursetransfer/components/page_header }}
+        <a href="{{ courseurl }}" class="ct-btn ct-btn--secondary ct-btn--sm">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            {{#str}} rct_back_course, local_coursetransfer {{/str}}
+        </a>
+    </div>
+
+    {{! ===================== LANDING ===================== }}
+    <div data-region="landing">
+        <div class="ct-startcard">
+            <span class="ct-startcard-icon"><i class="fa fa-download" aria-hidden="true"></i></span>
+            <div class="ct-startcard-body">
+                <h2 class="ct-startcard-title">{{#str}} rct_start, local_coursetransfer {{/str}}</h2>
+                <p class="ct-startcard-desc">{{#str}} rct_start_desc, local_coursetransfer {{/str}}</p>
+            </div>
+            <button type="button" class="ct-btn ct-btn--primary" data-action="start">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                {{#str}} rct_start_btn, local_coursetransfer {{/str}}
+            </button>
+        </div>
+
+        <div class="ct-recent">
+            <div class="ct-recent-head">
+                <h2>{{#str}} rct_recent, local_coursetransfer {{/str}}</h2>
+                <span class="ct-recent-spacer" style="flex:1"></span>
+            </div>
+            {{#hasrecent}}
+            <div class="ct-recent-list">
+                {{#recent}}
+                <div class="ct-recent-card">
+                    <div class="ct-recent-row">
+                        <span class="ct-badge {{ badgeclass }}">{{ statuslabel }}</span>
+                        <span class="ct-recent-summary">{{ summary }}</span>
+                        <span class="ct-text-muted">{{ date }}</span>
+                    </div>
+                    <div class="ct-recent-row" style="margin-top:8px">
+                        <span class="ct-text-muted">{{#str}} rw_review_from, local_coursetransfer {{/str}} <strong>{{ site }}</strong></span>
+                        <span class="ct-recent-spacer" style="flex:1"></span>
+                        <a class="ct-link-sm" href="{{ detailurl }}">{{#str}} exec_detail, local_coursetransfer {{/str}}</a>
+                    </div>
+                    {{#iserror}}
+                    <div class="ct-alert ct-alert--danger ct-mt">
+                        <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
+                        <p><strong>{{ errcause }}</strong><br>{{ erraction }}</p>
+                    </div>
+                    {{/iserror}}
+                </div>
+                {{/recent}}
+            </div>
+            {{/hasrecent}}
+            {{^hasrecent}}
+            <div class="ct-recent-card ct-text-muted">{{#str}} rct_empty_recent, local_coursetransfer {{/str}}</div>
+            {{/hasrecent}}
+        </div>
+    </div>
+
+    {{! ===================== WIZARD ===================== }}
+    <div class="ct-card ct-wizard" data-region="wizard" hidden>
+
+        <div class="ct-steps" data-region="steps">
+            <div class="ct-step" data-step-index="0" data-state="current">
+                <div class="ct-step-cell">
+                    <span class="ct-step-marker">1</span>
+                    <span class="ct-step-label">{{#str}} rct_step_site, local_coursetransfer {{/str}}</span>
+                </div>
+                <span class="ct-step-connector"></span>
+            </div>
+            <div class="ct-step" data-step-index="1" data-state="pending">
+                <div class="ct-step-cell">
+                    <span class="ct-step-marker">2</span>
+                    <span class="ct-step-label">{{#str}} rct_step_course, local_coursetransfer {{/str}}</span>
+                </div>
+                <span class="ct-step-connector"></span>
+            </div>
+            <div class="ct-step" data-step-index="2" data-state="pending">
+                <div class="ct-step-cell">
+                    <span class="ct-step-marker">3</span>
+                    <span class="ct-step-label">{{#str}} rct_step_review, local_coursetransfer {{/str}}</span>
+                </div>
+                <span class="ct-step-connector"></span>
+            </div>
+            <div class="ct-step" data-step-index="3" data-state="pending">
+                <div class="ct-step-cell">
+                    <span class="ct-step-marker">4</span>
+                    <span class="ct-step-label">{{#str}} rct_step_options, local_coursetransfer {{/str}}</span>
+                </div>
+                <span class="ct-step-connector"></span>
+            </div>
+            <div class="ct-step" data-step-index="4" data-state="pending">
+                <div class="ct-step-cell">
+                    <span class="ct-step-marker">5</span>
+                    <span class="ct-step-label">{{#str}} rct_step_content, local_coursetransfer {{/str}}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ct-wizard-body">
+
+            {{! Persistent origin-site header (shown from step 1 on). }}
+            <div class="ct-sitebar" data-region="sitebar" hidden>
+                <span class="ct-sitebar-icon"><i class="fa fa-download" aria-hidden="true"></i></span>
+                <span class="ct-sitebar-label">{{#str}} rw_sitebar_from, local_coursetransfer {{/str}}</span>
+                <span class="ct-sitebar-name" data-region="sitebar-name"></span>
+            </div>
+
+            {{! ---- STEP 0 · Platform ---- }}
+            <div data-step="0">
+                <h2 class="ct-section-title">{{#str}} rct_q_site, local_coursetransfer {{/str}}</h2>
+                <p class="ct-step-lead">{{#str}} rct_q_site_desc, local_coursetransfer {{/str}}</p>
+                <div class="ct-rolecards ct-mt" data-region="sites">
+                    <div class="ct-selempty" data-region="sites-loading">{{#str}} rw_loading, local_coursetransfer {{/str}}</div>
+                </div>
+            </div>
+
+            {{! ---- STEP 1 · Course (single-select) ---- }}
+            <div data-step="1" hidden>
+                <h2 class="ct-section-title">{{#str}} rct_q_course, local_coursetransfer {{/str}}</h2>
+                <p class="ct-step-lead" data-region="course-desc"></p>
+                <div class="ct-search ct-mb">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    <input type="text" data-action="search"
+                            placeholder="{{#str}} rct_search_ph, local_coursetransfer {{/str}}">
+                </div>
+                <p class="ct-result-info">
+                    <span data-region="resultinfo"></span>
+                    <i class="fa fa-info-circle" aria-hidden="true" data-region="resultnote"
+                            title="{{#str}} rw_results_note, local_coursetransfer {{/str}}"></i>
+                </p>
+                <div class="ct-seltable">
+                    <div data-region="rows">
+                        <div class="ct-selempty" data-region="rows-loading">{{#str}} rw_loading, local_coursetransfer {{/str}}</div>
+                    </div>
+                </div>
+                <div class="ct-selpager" data-region="pager" hidden>
+                    <button type="button" class="ct-iconbtn ct-iconbtn--xs" data-action="prev"
+                            aria-label="{{#str}} rw_pageprev, local_coursetransfer {{/str}}"
+                            title="{{#str}} rw_pageprev, local_coursetransfer {{/str}}">
+                        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <span class="ct-selpager-info" data-region="pageinfo"></span>
+                    <button type="button" class="ct-iconbtn ct-iconbtn--xs" data-action="next-page"
+                            aria-label="{{#str}} rw_pagenext, local_coursetransfer {{/str}}"
+                            title="{{#str}} rw_pagenext, local_coursetransfer {{/str}}">
+                        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            {{! ---- STEP 2 · Review ---- }}
+            <div data-step="2" hidden>
+                <h2 class="ct-section-title">{{#str}} rct_review_title, local_coursetransfer {{/str}}</h2>
+                <p class="ct-step-lead">{{#str}} rct_review_desc, local_coursetransfer {{/str}}</p>
+                <div data-region="review"></div>
+                <p class="ct-step-lead ct-mt">{{#str}} rct_review_note, local_coursetransfer {{/str}}</p>
+            </div>
+
+            {{! ---- STEP 3 · Options ---- }}
+            <div data-step="3" hidden>
+                <h2 class="ct-section-title">{{#str}} rct_opt_title, local_coursetransfer {{/str}}</h2>
+                <p class="ct-step-lead">{{#str}} rct_opt_desc, local_coursetransfer {{/str}}</p>
+
+                {{! Merge/replace options (built by JS according to capabilities). }}
+                <div class="ct-exmodes" data-region="modes"></div>
+
+                <div class="ct-alert ct-alert--warning ct-mt" data-region="nomode" hidden>
+                    <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
+                    <p>{{#str}} rct_nomode, local_coursetransfer {{/str}}</p>
+                </div>
+
+                {{! Include users and groups. }}
+                <div class="ct-switchrow ct-mt">
+                    <div class="ct-switchrow-body">
+                        <span class="ct-rolecard-title">{{#str}} rw_users, local_coursetransfer {{/str}}</span>
+                        <span class="ct-rolecard-desc">{{#str}} rw_users_desc, local_coursetransfer {{/str}}</span>
+                    </div>
+                    <button type="button" class="ct-switch" data-action="toggle-users" role="switch" aria-checked="false"></button>
+                </div>
+
+                <div class="ct-alert ct-alert--success ct-mt" data-region="mode-safe" hidden>
+                    <i class="fa fa-check-circle ct-alert-icon" aria-hidden="true"></i>
+                    <p>{{#str}} rct_safe, local_coursetransfer {{/str}}</p>
+                </div>
+            </div>
+
+            {{! ---- STEP 4 · Content + summary ---- }}
+            <div data-step="4" hidden>
+                <h2 class="ct-section-title">{{#str}} rct_content_title, local_coursetransfer {{/str}}</h2>
+                <p class="ct-step-lead">{{#str}} rct_content_desc, local_coursetransfer {{/str}}</p>
+
+                <button type="button" class="ct-selmaster" data-action="toggle-all">
+                    <span class="ct-selmaster-box" data-region="master-box"><i class="fa fa-check" aria-hidden="true"></i></span>
+                    <span class="ct-selmaster-label">{{#str}} rct_all, local_coursetransfer {{/str}}</span>
+                    <span class="ct-selmaster-count" data-region="master-count"></span>
+                </button>
+
+                <div class="ct-sectree" data-region="sectree"></div>
+
+                <div class="ct-tsummary" data-region="summary"></div>
+
+                <div class="ct-alert ct-alert--danger ct-mt" data-region="content-danger" hidden>
+                    <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
+                    <p>{{#str}} rct_danger, local_coursetransfer {{/str}}</p>
+                </div>
+                <div class="ct-alert ct-alert--neutral ct-mt">
+                    <i class="fa fa-clock-o ct-alert-icon" aria-hidden="true"></i>
+                    <p>{{#str}} rct_async, local_coursetransfer {{/str}}</p>
+                </div>
+                <div class="ct-alert ct-alert--danger ct-mt" data-region="submit-error" hidden>
+                    <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
+                    <p data-region="submit-error-text"></p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="ct-wizard-footer">
+            <button type="button" class="ct-btn ct-btn--ghost" data-action="cancel">{{#str}} rw_cancel, local_coursetransfer {{/str}}</button>
+            <button type="button" class="ct-btn ct-btn--secondary" data-action="back">
+                <i class="fa fa-chevron-left" aria-hidden="true"></i>{{#str}} rw_back, local_coursetransfer {{/str}}
+            </button>
+            <span class="ct-wizard-stepnum" data-region="stepinfo">{{#str}} rw_step_of, local_coursetransfer, {"n": 1, "total": 5} {{/str}}</span>
+            <button type="button" class="ct-btn ct-btn--primary" data-action="primary" data-region="primary">
+                {{#str}} rw_next, local_coursetransfer {{/str}}<i class="fa fa-chevron-right" aria-hidden="true"></i>
+            </button>
+        </div>
+
+    </div>
+
+    {{! ===================== DONE ===================== }}
+    <div class="ct-card" data-region="done" hidden>
+        <div class="ct-done">
+            <div class="ct-done-icon"><i class="fa fa-clock-o" aria-hidden="true"></i></div>
+            <h2 class="ct-section-title">{{#str}} rct_done_title, local_coursetransfer {{/str}}</h2>
+            <p class="ct-text-muted" data-region="done-desc">{{#str}} rct_done_desc, local_coursetransfer {{/str}}</p>
+            <div class="ct-done-progress">
+                <div class="ct-done-progress-step">
+                    <span class="ct-done-progress-dot"><span></span></span>
+                    <span class="ct-done-progress-label">{{#str}} rct_done_step1, local_coursetransfer {{/str}}</span>
+                </div>
+                <div class="ct-done-progress-step">
+                    <span class="ct-done-progress-dot"><span></span></span>
+                    <span class="ct-done-progress-label">{{#str}} rct_done_step2, local_coursetransfer {{/str}}</span>
+                </div>
+                <div class="ct-done-progress-step">
+                    <span class="ct-done-progress-dot"><span></span></span>
+                    <span class="ct-done-progress-label">{{#str}} rct_done_step3, local_coursetransfer {{/str}}</span>
+                </div>
+            </div>
+            <p class="ct-done-note">{{#str}} rw_done_async, local_coursetransfer {{/str}}</p>
+            <div class="ct-done-actions">
+                <a href="{{ courseurl }}" class="ct-btn ct-btn--primary">
+                    <i class="fa fa-arrow-left" aria-hidden="true"></i>{{#str}} rct_back_course, local_coursetransfer {{/str}}
+                </a>
+                <button type="button" class="ct-btn ct-btn--secondary" data-action="go-landing">{{#str}} rct_done_see, local_coursetransfer {{/str}}</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{{#js}}
+require(['local_coursetransfer/restore_course_wizard'], function(W) {
+    W.init('[data-region="restore_course"]');
+});
+{{/js}}

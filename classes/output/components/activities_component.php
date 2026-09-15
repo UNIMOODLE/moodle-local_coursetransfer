@@ -49,7 +49,6 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class activities_component implements renderable, templatable {
-
     /** @var string Activities */
     protected $activities;
 

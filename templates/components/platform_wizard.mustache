@@ -1,0 +1,140 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+  @template local_coursetransfer/components/platform_wizard
+
+  Add/edit platform wizard (3 steps). Hidden by default; fully driven by
+  the local_coursetransfer/platforms_page AMD module. No context vars.
+
+  Example context (json): {}
+}}
+<div class="ct-card ct-wizard" data-region="wizard" hidden>
+
+    <div class="ct-steps ct-wizard-steps" data-region="stepper">
+        <div class="ct-step" data-step="0">
+            <button type="button" class="ct-step-cell" data-action="gostep" data-step="0">
+                <span class="ct-step-marker">1</span>
+                <span class="ct-step-label">{{#str}} platforms_step_relation, local_coursetransfer {{/str}}</span>
+            </button>
+            <span class="ct-step-connector"></span>
+        </div>
+        <div class="ct-step" data-step="1">
+            <button type="button" class="ct-step-cell" data-action="gostep" data-step="1">
+                <span class="ct-step-marker">2</span>
+                <span class="ct-step-label">{{#str}} platforms_step_connection, local_coursetransfer {{/str}}</span>
+            </button>
+            <span class="ct-step-connector"></span>
+        </div>
+        <div class="ct-step" data-step="2">
+            <button type="button" class="ct-step-cell" data-action="gostep" data-step="2">
+                <span class="ct-step-marker">3</span>
+                <span class="ct-step-label">{{#str}} platforms_step_check, local_coursetransfer {{/str}}</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="ct-wizard-body">
+
+        <div data-region="w0">
+            <h2 class="ct-section-title">{{#str}} platforms_w0_title, local_coursetransfer {{/str}}</h2>
+            <p class="ct-text-muted ct-wizard-lead">{{#str}} platforms_w0_lead, local_coursetransfer {{/str}}</p>
+            <div class="ct-rolecards">
+                <button type="button" class="ct-rolecard ct-rolecard--origin" data-action="toggle-origin" aria-pressed="false">
+                    <span class="ct-rolecard-check" aria-hidden="true">
+                        <i class="fa fa-check" aria-hidden="true"></i>
+                    </span>
+                    <span class="ct-rolecard-text">
+                        <span class="ct-rolecard-title">{{#str}} platforms_w0_origin_title, local_coursetransfer {{/str}}</span>
+                        <span class="ct-rolecard-desc">{{#str}} platforms_w0_origin_desc, local_coursetransfer {{/str}}</span>
+                    </span>
+                </button>
+                <button type="button" class="ct-rolecard ct-rolecard--target" data-action="toggle-target" aria-pressed="false">
+                    <span class="ct-rolecard-check" aria-hidden="true">
+                        <i class="fa fa-check" aria-hidden="true"></i>
+                    </span>
+                    <span class="ct-rolecard-text">
+                        <span class="ct-rolecard-title">{{#str}} platforms_w0_target_title, local_coursetransfer {{/str}}</span>
+                        <span class="ct-rolecard-desc">{{#str}} platforms_w0_target_desc, local_coursetransfer {{/str}}</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <div data-region="w1" hidden>
+            <h2 class="ct-section-title">{{#str}} platforms_w1_title, local_coursetransfer {{/str}}</h2>
+            <p class="ct-text-muted ct-wizard-lead">{{#str}} platforms_w1_lead, local_coursetransfer {{/str}}</p>
+            <div class="ct-field">
+                <label class="ct-field-label" for="ct-platform-name">{{#str}} platforms_field_name, local_coursetransfer {{/str}}</label>
+                <input id="ct-platform-name" type="text" class="ct-input" data-input="name" placeholder="{{#str}} platforms_field_name_ph, local_coursetransfer {{/str}}">
+                <p class="ct-field-help">{{#str}} platforms_field_name_help, local_coursetransfer {{/str}}</p>
+            </div>
+            <div class="ct-field">
+                <label class="ct-field-label" for="ct-platform-host">{{#str}} host_url, local_coursetransfer {{/str}}</label>
+                <input id="ct-platform-host" type="url" class="ct-input" data-input="host" placeholder="https://">
+                <p class="ct-field-help">{{#str}} platforms_field_host_help, local_coursetransfer {{/str}}</p>
+            </div>
+            <div class="ct-field">
+                <label class="ct-field-label" for="ct-platform-token">{{#str}} host_token, local_coursetransfer {{/str}}</label>
+                <div class="ct-field-row">
+                    <input id="ct-platform-token" type="password" class="ct-input ct-input--mono" data-input="token" placeholder="{{#str}} platforms_field_token_ph, local_coursetransfer {{/str}}" autocomplete="off">
+                    <button type="button" class="ct-iconbtn" data-action="reveal" title="{{#str}} platforms_token_reveal, local_coursetransfer {{/str}}" aria-label="{{#str}} platforms_token_reveal, local_coursetransfer {{/str}}">
+                        <i class="fa fa-eye" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="ct-alert ct-alert--neutral ct-mt">
+                    <i class="fa fa-info-circle ct-alert-icon" aria-hidden="true"></i>
+                    <p>{{#str}} platforms_token_help, local_coursetransfer {{/str}}</p>
+                </div>
+            </div>
+        </div>
+
+        <div data-region="w2" hidden>
+            <h2 class="ct-section-title">{{#str}} platforms_w2_title, local_coursetransfer {{/str}}</h2>
+            <p class="ct-text-muted ct-wizard-lead">{{#str}} platforms_w2_lead, local_coursetransfer {{/str}} <strong data-region="w2-host"></strong></p>
+            <button type="button" class="ct-btn ct-btn--outline" data-action="runtest">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+                <span data-region="testbtn-label">{{#str}} platforms_test, local_coursetransfer {{/str}}</span>
+            </button>
+            <p class="ct-text-muted ct-mt" data-region="test-idle">{{#str}} platforms_test_idle, local_coursetransfer {{/str}}</p>
+            {{! One result row per tested role (origin/target), built by the
+                AMD module with the remote platform's actual response. }}
+            <div data-region="test-results" hidden></div>
+        </div>
+
+    </div>
+
+    <div class="ct-wizard-footer">
+        <button type="button" class="ct-btn ct-btn--ghost" data-action="cancel">{{#str}} cancel, core {{/str}}</button>
+        <button type="button" class="ct-btn ct-btn--secondary" data-action="back">
+            <i class="fa fa-chevron-left" aria-hidden="true"></i>
+            {{#str}} platforms_back, local_coursetransfer {{/str}}
+        </button>
+        <span class="ct-wizard-stepnum">{{#str}} platforms_step_of, local_coursetransfer {{/str}} <span data-region="stepnum">1</span>/3</span>
+        <button type="button" class="ct-btn ct-btn--primary" data-action="primary">
+            <span data-region="primary-label">{{#str}} platforms_next, local_coursetransfer {{/str}}</span>
+            <i class="fa fa-chevron-right" aria-hidden="true" data-region="primary-arrow"></i>
+        </button>
+    </div>
+
+</div>

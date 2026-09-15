@@ -40,8 +40,6 @@ use base_plan_exception;
 use base_setting_exception;
 use coding_exception;
 use context_course;
-use core\event\course_section_deleted;
-use core\task\adhoc_task;
 use core\task\manager;
 use core_user;
 use dml_exception;
@@ -51,12 +49,7 @@ use local_coursetransfer\external\frontend\sites_external;
 use local_coursetransfer\factory\tools;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\models\configuration_course;
-use local_coursetransfer\task\create_backup_course_task;
-use mod_label_generator;
-use mod_quiz_generator;
-use mod_resource_generator;
 use moodle_exception;
-use moodle_url;
 use phpunit_util;
 use stdClass;
 use stored_file;
@@ -68,7 +61,6 @@ global $CFG;
 require_once($CFG->dirroot . '/webservice/tests/helpers.php');
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->libdir . '/setuplib.php');
-require_once($CFG->libdir . '/cronlib.php');
 
 /**
  * coursetransfer_restore_course_test
@@ -80,9 +72,7 @@ require_once($CFG->libdir . '/cronlib.php');
  * @group      local_coursetransfer
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class coursetransfer_restore_course_test extends advanced_testcase {
-
-
+final class coursetransfer_restore_course_test extends advanced_testcase {
     /** @var stdClass Origin Course */
     protected $origincourse;
 
@@ -169,7 +159,8 @@ class coursetransfer_restore_course_test extends advanced_testcase {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public function setUp():void {
+    public function setUp(): void {
+        parent::setUp();
 
         $this->resetAfterTest(true);
         $this->generator = phpunit_util::get_data_generator();
@@ -365,49 +356,61 @@ class coursetransfer_restore_course_test extends advanced_testcase {
         $this->create_courses();
         // 1. Test New Course. Without Users.
         $configuration1 = new configuration_course(
-                backup::TARGET_NEW_COURSE,
-                false,
-                false,
-                false,
-                false,
-                0
+            backup::TARGET_NEW_COURSE,
+            false,
+            false,
+            false,
+            false,
+            0
         );
-        list($requesttarget1, $requestorigin1) = $this->test_restore_course(
-                $configuration1, $this->targetnewcourse1, $this->origincourse);
+        [$requesttarget1, $requestorigin1] = $this->test_restore_course(
+            $configuration1,
+            $this->targetnewcourse1,
+            $this->origincourse
+        );
         // 2. Test in Target Course. With Users and Groups.
         $configuration2 = new configuration_course(
-                backup::TARGET_NEW_COURSE,
-                false,
-                false,
-                true,
-                false,
-                0
+            backup::TARGET_NEW_COURSE,
+            false,
+            false,
+            true,
+            false,
+            0
         );
-        list($requesttarget2, $requestorigin2) = $this->test_restore_course(
-                $configuration2, $this->targetcourse2, $this->origincourse);
+        [$requesttarget2, $requestorigin2] = $this->test_restore_course(
+            $configuration2,
+            $this->targetcourse2,
+            $this->origincourse
+        );
         // 3. Test in Target Course. Witouth Users. Delete Content and Users and Groups.
         $configuration3 = new configuration_course(
-                backup::TARGET_EXISTING_DELETING,
-                true,
-                true,
-                false,
-                false,
-                0
+            backup::TARGET_EXISTING_DELETING,
+            true,
+            true,
+            false,
+            false,
+            0
         );
-        list($requesttarget3, $requestorigin3) = $this->test_restore_course(
-                $configuration3, $this->targetcourse3, $this->origincourse);
+        [$requesttarget3, $requestorigin3] = $this->test_restore_course(
+            $configuration3,
+            $this->targetcourse3,
+            $this->origincourse
+        );
         $this->validate_request_not_started($requesttarget3);
         // 5. Test in Target Course.
         $configuration5 = new configuration_course(
-                backup::TARGET_EXISTING_DELETING,
-                false,
-                false,
-                true,
-                false,
-                0
+            backup::TARGET_EXISTING_DELETING,
+            false,
+            false,
+            true,
+            false,
+            0
         );
-        list($requesttarget5, $requestorigin5) = $this->test_restore_course(
-                $configuration5, $this->targetcourse5, $this->origincourse2);
+        [$requesttarget5, $requestorigin5] = $this->test_restore_course(
+            $configuration5,
+            $this->targetcourse5,
+            $this->origincourse2
+        );
 
         // EXECUTE TASKS.
         $this->execute_tasks();
@@ -433,9 +436,11 @@ class coursetransfer_restore_course_test extends advanced_testcase {
         $this->review_modules($this->targetnewcourse1);
         $this->review_enrols($this->targetnewcourse1, 0, 0, []);
         // 2. Test in Target Course. With Users and Groups.
+        // targetcourse2 already had 1 group (group4) before the restore, so after
+        // restoring the origin's 2 groups the total is 3.
         $this->validate_course_equals($this->targetcourse2, $this->origincourse);
         $this->review_modules($this->targetcourse2);
-        $this->review_enrols($this->targetcourse2, 5, 2, [
+        $this->review_enrols($this->targetcourse2, 5, 3, [
                 ['group' => $this->group1, 'count' => 2], ['group' => $this->group2, 'count' => 1]]);
         // 3. Test in Target Course. Without Users. Delete Content and Users and Groups.
         $this->validate_course_not_equals($this->targetcourse3, $this->origincourse);
@@ -464,7 +469,11 @@ class coursetransfer_restore_course_test extends advanced_testcase {
         $field = get_config('local_coursetransfer', 'origin_field_search_user');
         $value = $USER->{$field};
         target_course_callback_external::target_backup_course_completed(
-                $field, $value, $requesttarget->id, $file->get_filesize(), $file->get_filepath()
+            $field,
+            $value,
+            $requesttarget->id,
+            $file->get_filesize(),
+            $file->get_filepath()
         );
         return $file;
     }
@@ -472,7 +481,7 @@ class coursetransfer_restore_course_test extends advanced_testcase {
     /**
      * Tests backup.
      *
-     * @covers coursetransfer::restore_course
+     * @covers \local_coursetransfer\coursetransfer::restore_course
      * @param configuration_course $configuration
      * @param stdClass $coursetarget
      * @param stdClass $courseorigin
@@ -484,43 +493,48 @@ class coursetransfer_restore_course_test extends advanced_testcase {
      * @throws moodle_exception
      */
     protected function test_restore_course(
-            configuration_course $configuration, stdClass $coursetarget, stdClass $courseorigin, $sections = []): array {
+        configuration_course $configuration,
+        stdClass $coursetarget,
+        stdClass $courseorigin,
+        $sections = []
+    ): array {
 
         $requesttarget = coursetransfer_request::set_request_restore_course(
-                $this->user,
-                $this->siteorigin,
-                $coursetarget->id,
-                $courseorigin->id,
-                $configuration,
-                $sections,
-                null);
+            $this->user,
+            $this->siteorigin,
+            $coursetarget->id,
+            $courseorigin->id,
+            $configuration,
+            $sections,
+            null
+        );
 
         $requestorigin = coursetransfer_request::set_request_restore_course_response(
-                $this->user,
-                $requesttarget->id,
-                $this->sitetarget,
-                $coursetarget->id,
-                $courseorigin,
-                $configuration,
-                $sections);
+            $this->user,
+            $requesttarget->id,
+            $this->sitetarget,
+            $coursetarget->id,
+            $courseorigin,
+            $configuration,
+            $sections
+        );
 
         // Create Backup.
         $restask = coursetransfer_backup::create_task_backup_course(
-                $courseorigin->id,
-                $this->user->id,
-                $this->sitetarget,
-                $requesttarget->id,
-                $requestorigin->id,
-                $sections,
-                $configuration->originenrolusers,
-                null,
-                true
+            $courseorigin->id,
+            $this->user->id,
+            $this->sitetarget,
+            $requesttarget->id,
+            $requestorigin->id,
+            $sections,
+            $configuration->originenrolusers,
+            null,
+            true
         );
 
         $this->assertTrue($restask);
 
         return [$requesttarget, $requestorigin];
-
     }
 
     /**
@@ -550,8 +564,13 @@ class coursetransfer_restore_course_test extends advanced_testcase {
         $fs = get_file_storage();
 
         $file = $fs->get_file(
-                $context->id, 'local_coursetransfer', 'backup',
-                $requestorigin->id, '/', 'backup.mbz');
+            $context->id,
+            'local_coursetransfer',
+            'backup',
+            $requestorigin->id,
+            '/',
+            'backup.mbz'
+        );
 
         $this->assertNotEmpty($file);
 
@@ -569,8 +588,12 @@ class coursetransfer_restore_course_test extends advanced_testcase {
      * @throws dml_exception
      */
     protected function execute_restore(
-            stdClass $requesttarget, stdClass $requestorigin, stdClass $coursetarget, stdClass $courseorigin,
-            stored_file $file) {
+        stdClass $requesttarget,
+        stdClass $requestorigin,
+        stdClass $coursetarget,
+        stdClass $courseorigin,
+        stored_file $file
+    ) {
 
         $requesttarget = coursetransfer_request::get($requesttarget->id);
         $requestorigin = coursetransfer_request::get($requestorigin->id);
@@ -679,27 +702,27 @@ class coursetransfer_restore_course_test extends advanced_testcase {
                 $this->assertEquals('SuperHeroes Summary', $section->summary);
                 $mods = 0;
                 foreach ($cms as $cm) {
-                    if ($cm->section === $section->id) {
-                        $mods ++;
+                    // Cast: section_info->id may be a string while cm_info->section is int.
+                    if ((int) $cm->section === (int) $section->id) {
+                        $mods++;
                     }
                 }
                 $this->assertEquals(4, $mods);
-                $sc ++;
+                $sc++;
             }
             if ($section->name === 'Cars') {
                 $this->assertEquals('Cars Summary', $section->summary);
                 $mods = 0;
                 foreach ($cms as $cm) {
-                    if ($cm->section === $section->id) {
-                        $mods ++;
+                    if ((int) $cm->section === (int) $section->id) {
+                        $mods++;
                     }
                 }
                 $this->assertEquals(2, $mods);
-                $sc ++;
+                $sc++;
             }
         }
         $this->assertEquals(2, $sc);
-
     }
 
     /**
@@ -737,5 +760,4 @@ class coursetransfer_restore_course_test extends advanced_testcase {
             $this->assertCount($g['count'], $members);
         }
     }
-
 }

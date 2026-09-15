@@ -34,17 +34,9 @@
 
 namespace local_coursetransfer\task;
 
-use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
-use local_coursetransfer\coursetransfer_request;
-use local_coursetransfer\coursetransfer_sites;
 use moodle_exception;
 
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-
-require_once($CFG->dirroot . '/course/externallib.php');
 
 /**
  * cleanup category bin task
@@ -56,7 +48,6 @@ require_once($CFG->dirroot . '/course/externallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cleanup_category_bin_task extends \core\task\adhoc_task {
-
     // Use the logging trait to get some nice, juicy, logging.
     use \core\task\logging_trait;
 
@@ -64,7 +55,7 @@ class cleanup_category_bin_task extends \core\task\adhoc_task {
      * Execute.
      *
      */
-    public function execute() {
+    public function execute(): void {
         try {
             $this->log_start("Cleanup category bin - Starting...");
             $categoryid = $this->get_custom_data()->categoryid;

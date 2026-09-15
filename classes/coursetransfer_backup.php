@@ -40,6 +40,7 @@ use base_plan_exception;
 use base_setting;
 use base_setting_exception;
 use cm_info;
+use core\task\manager;
 use local_coursetransfer\task\create_backup_course_task;
 use moodle_exception;
 use section_info;
@@ -63,7 +64,6 @@ require_once($CFG->dirroot . '/local/coursetransfer/classes/task/create_backup_c
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_backup {
-
     /**
      * Create Task to back up of Course.
      *
@@ -82,15 +82,25 @@ class coursetransfer_backup {
      * @throws moodle_exception
      */
     public static function create_task_backup_course(
-            int $courseid, int $userid, stdClass $targetsite, int $requestid, int $requestoriginid,
-            array $sections, int $rootusers = 0, int $nextruntime = null, bool $istest = false): bool {
+        int $courseid,
+        int $userid,
+        stdClass $targetsite,
+        int $requestid,
+        int $requestoriginid,
+        array $sections,
+        int $rootusers = 0,
+        ?int $nextruntime = null,
+        bool $istest = false
+    ): bool {
         $bc = new backup_controller(
-                backup::TYPE_1COURSE, $courseid,
-                backup::FORMAT_MOODLE,
-                backup::INTERACTIVE_NO,
-                backup::MODE_GENERAL, $userid,
-                backup::RELEASESESSION_YES);
-        $bc->set_status(backup::STATUS_AWAITING);
+            backup::TYPE_1COURSE,
+            $courseid,
+            backup::FORMAT_MOODLE,
+            backup::INTERACTIVE_NO,
+            backup::MODE_GENERAL,
+            $userid,
+            backup::RELEASESESSION_YES
+        );
         $bc->set_status(backup::STATUS_AWAITING);
         $bc->get_plan()->get_setting('users')->set_status(base_setting::NOT_LOCKED);
         $bc->get_plan()->get_setting('users')->set_value($rootusers);
@@ -107,10 +117,15 @@ class coursetransfer_backup {
 
         self::set_value_settings_section_activities($bc, $courseid, $rootusers, $sections);
 
+        // Core defaults 'filename' to 'backup.mbz' and stores the backup in a file area shared by
+        // every request of the same user, deleting any file already stored under that name. Without
+        // a unique name per request, two overlapping backups would destroy each other's file.
+        $filename = 'local_coursetransfer_' . $requestoriginid . '_' . $courseid . '.mbz';
+        $bc->get_plan()->get_setting('filename')->set_value($filename);
+
         $bc->set_execution(backup::EXECUTION_DELAYED);
         $bc->save_controller();
         $asynctask = new create_backup_course_task();
-        $asynctask->set_blocking(false);
         if (!is_null($nextruntime)) {
             $asynctask->set_next_run_time($nextruntime);
         }
@@ -125,7 +140,7 @@ class coursetransfer_backup {
         ];
         $asynctask->set_custom_data($payload);
         $asynctask->set_userid($userid);
-        return \core\task\manager::queue_adhoc_task($asynctask);
+        return manager::queue_adhoc_task($asynctask);
     }
 
     /**
@@ -139,8 +154,12 @@ class coursetransfer_backup {
      * @throws base_setting_exception
      * @throws moodle_exception
      */
-    public static function set_value_settings_section_activities(backup_controller $bc, int $courseid, int $rootusers,
-            array $sectionsselected) {
+    public static function set_value_settings_section_activities(
+        backup_controller $bc,
+        int $courseid,
+        int $rootusers,
+        array $sectionsselected
+    ): void {
         if (!empty($sectionsselected)) {
             $bc->get_plan()->set_excluding_activities();
             $modinfo = get_fast_modinfo($courseid);
@@ -163,7 +182,6 @@ class coursetransfer_backup {
                     $nameuserinfo = $cm->modname . '_' . $cm->id . '_userinfo';
                     $bc->get_plan()->get_setting($nameuserinfo)->set_value($rootusers);
                 }
-
             }
         }
     }
@@ -205,6 +223,4 @@ class coursetransfer_backup {
         }
         return 0;
     }
-
-
 }

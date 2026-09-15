@@ -44,9 +44,8 @@ namespace local_coursetransfer\models;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class configuration_category extends configuration {
-
     /** @var bool Origin Remove Category */
-    public $originremovecategory;
+    public bool $originremovecategory;
 
     /**
      * constructor.
@@ -59,8 +58,13 @@ class configuration_category extends configuration {
      * @param int|null $nextruntime
      */
     public function __construct(
-            int $targettarget, bool $targetremoveenrols, bool $targetremovegroups,
-            bool $originenrolusers = false, bool $originremovecategory = false, int $nextruntime = null) {
+        int $targettarget,
+        bool $targetremoveenrols,
+        bool $targetremovegroups,
+        bool $originenrolusers = false,
+        bool $originremovecategory = false,
+        ?int $nextruntime = null
+    ) {
         parent::__construct($targettarget, $targetremoveenrols, $targetremovegroups, $originenrolusers, $nextruntime);
         $this->set_origin_remove_category($originremovecategory);
     }
@@ -70,8 +74,7 @@ class configuration_category extends configuration {
      *
      * @param bool $config
      */
-    protected function set_origin_remove_category(bool $config) {
+    protected function set_origin_remove_category(bool $config): void {
         $this->originremovecategory = $config;
     }
-
 }

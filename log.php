@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Log.
+ * Request detail.
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -32,41 +32,38 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_coursetransfer\output\logs\log_page;
+require_once(__DIR__ . '/../../config.php');
 
-require_once('../../config.php');
+global $PAGE, $OUTPUT, $DB;
 
-global $PAGE, $OUTPUT, $USER;
-
+use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\output\detail_page;
 
 $id = required_param('id', PARAM_INT);
 
-$title = get_string('log_page', 'local_coursetransfer') . ': ' . $id;
-
 require_login();
+require_capability('local/coursetransfer:view_logs', context_system::instance());
+
+$record = coursetransfer_request::get($id);
+if (!$record) {
+    throw new moodle_exception('invalidrecord', 'error');
+}
+
+$user = $DB->get_record('user', ['id' => $record->userid], 'id, username');
+$username = $user ? $user->username : '';
+
+$coursename = $record->origin_course_fullname ?: ($record->origin_category_name ?: ('#' . $id));
+$title = get_string('log_page', 'local_coursetransfer') . ': ' . $coursename;
 
 $PAGE->set_pagelayout('standard');
 $PAGE->set_context(context_system::instance());
-$PAGE->set_title($title);
-$PAGE->set_heading($title);
-$PAGE->set_url('/local/coursetransfer/logs.php');
+$PAGE->set_title(get_string('log_page', 'local_coursetransfer') . ': ' . $id);
+// Heading cleared: the page hero (component) renders the course name with the icon.
+$PAGE->set_heading('');
+$PAGE->set_url('/local/coursetransfer/log.php', ['id' => $id]);
 
 $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
-
-if (has_capability('local/coursetransfer:view_logs', context_system::instance())) {
-    $page = new log_page($id);
-} else {
-    $page = new \local_coursetransfer\output\error_page(
-            get_string('forbidden', 'local_coursetransfer'),
-            get_string('you_have_not_permission', 'local_coursetransfer'),
-            'danger',
-            get_string('error')
-    );
-}
-
-
-
-echo $output->render($page);
+echo $output->render(new detail_page($record, $username));
 echo $OUTPUT->footer();

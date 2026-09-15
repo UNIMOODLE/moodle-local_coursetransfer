@@ -26,9 +26,12 @@
                 <FIELD NAME="origin_remove_activities" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="Course Module separate by commas"/>
                 <FIELD NAME="origin_activities" SEQUENCE="false" TYPE="text" NOTNULL="false" COMMENT="JSON of sections with activities"/>
                 <FIELD NAME="origin_category_requests" SEQUENCE="false" TYPE="text" NOTNULL="false" COMMENT="Course Requests Ids by commas from category request"/>
+                <FIELD NAME="origin_category_tree" SEQUENCE="false" TYPE="text" NOTNULL="false" COMMENT="JSON snapshot of the origin category subtree at request time"/>
                 <FIELD NAME="origin_backup_size" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Final Backup size"/>
                 <FIELD NAME="origin_backup_size_estimated" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Estimated Backup size"/>
                 <FIELD NAME="origin_backup_url" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="URL Backup"/>
+                <FIELD NAME="downloaded" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" COMMENT="Bytes downloaded so far (live download progress)"/>
+                <FIELD NAME="restored" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" COMMENT="Restore progress percent 0-100 (live restore progress)"/>
                 <FIELD NAME="target_course_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Course ID where restore origin course"/>
                 <FIELD NAME="target_category_id" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Category ID where restore origin course"/>
                 <FIELD NAME="target_remove_enrols" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" COMMENT="0 = don't remove enrol, 1 = remove enrol"/>
@@ -49,9 +52,13 @@
         <TABLE NAME="local_coursetransfer_origin" COMMENT="Origin Sites availables">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="name" SEQUENCE="false" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="Human-readable platform name"/>
                 <FIELD NAME="host" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="Origin Host URL"/>
                 <FIELD NAME="token" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="Origin Token"/>
                 <FIELD NAME="userid" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User ID last modified"/>
+                <FIELD NAME="lasttest" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Timestamp of last connection test"/>
+                <FIELD NAME="lastteststatus" SEQUENCE="false" TYPE="int" LENGTH="2" NOTNULL="false" COMMENT="Last test result: 1 ok, 0 error, null untested"/>
+                <FIELD NAME="lasttesterror" SEQUENCE="false" TYPE="text" NOTNULL="false" COMMENT="Last test error message"/>
                 <FIELD NAME="timemodified" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true"/>
                 <FIELD NAME="timecreated" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true"/>
             </FIELDS>
@@ -62,9 +69,13 @@
         <TABLE NAME="local_coursetransfer_target" COMMENT="Target Sites availables">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="name" SEQUENCE="false" TYPE="char" LENGTH="255" NOTNULL="false" COMMENT="Human-readable platform name"/>
                 <FIELD NAME="host" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="Target Host URL"/>
                 <FIELD NAME="token" SEQUENCE="false" TYPE="text" NOTNULL="true" COMMENT="Target Token"/>
                 <FIELD NAME="userid" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User ID last modified"/>
+                <FIELD NAME="lasttest" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Timestamp of last connection test"/>
+                <FIELD NAME="lastteststatus" SEQUENCE="false" TYPE="int" LENGTH="2" NOTNULL="false" COMMENT="Last test result: 1 ok, 0 error, null untested"/>
+                <FIELD NAME="lasttesterror" SEQUENCE="false" TYPE="text" NOTNULL="false" COMMENT="Last test error message"/>
                 <FIELD NAME="timemodified" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true"/>
                 <FIELD NAME="timecreated" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="true"/>
             </FIELDS>

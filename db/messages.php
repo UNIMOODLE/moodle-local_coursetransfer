@@ -44,19 +44,27 @@ $messageproviders = [
     'restore_course_completed' => [
             'defaults' => [
                     'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+                    // Notificación de Moodle (campana) sí; email nunca.
+                    'email' => MESSAGE_DISALLOWED,
             ],
     ],
     'restore_category_completed' => [
             'defaults' => [
                     'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+                    // Notificación de Moodle (campana) sí; email nunca.
+                    'email' => MESSAGE_DISALLOWED,
             ]],
     'remove_course_completed' => [
             'defaults' => [
                     'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+                    // Notificación de Moodle (campana) sí; email nunca.
+                    'email' => MESSAGE_DISALLOWED,
             ]],
     'remove_category_completed' => [
             'defaults' => [
                     'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+                    // Notificación de Moodle (campana) sí; email nunca.
+                    'email' => MESSAGE_DISALLOWED,
             ]],
 
 ];
