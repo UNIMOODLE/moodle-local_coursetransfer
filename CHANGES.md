@@ -143,3 +143,11 @@ view_log_request.php --requestid=N`) is preserved. What changed:
 ### Notes
 
 - Requires Moodle 4.5+.
+
+## [1.1.1] - 2024-06-18
+
+- Maintenance update and capability string fixes.
+
+## [Earlier releases]
+
+- Previous versions included course restoration, category restoration, remote deletion, logs, and scheduled tasks.

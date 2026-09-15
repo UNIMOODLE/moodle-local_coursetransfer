@@ -114,6 +114,122 @@ Under **Site administration › Plugins › Local plugins › Course Transfer**
 **Paired platforms** are not configured here: they are managed from the plugin's
 **Platforms** screen (with a connection test).
 
+## Resumen
+
+En esta misma página podremos ver el token del servicio y un enlace a la configuración del plugin.
+
+    /local/coursetransfer/index.php
+
+Además, si en cualquier momento se desconfigura algo o se borra algún rol o usuario, se podrá ejecutar el botón de ‘Refrescar’ (ejecuta el archivo postinstall.php y redirige al mismo sitio) para revisar y arreglar cualquier cambio en la configuración de la plataforma.
+
+
+## Accesos directos desde el panel de administración
+
+El administrador tendrá a su disposición los siguientes enlaces en el apartado de 'Extensiones/Restaurar cursos remotos' del panel de administración:
+
+* Configuración: enlace a la configuración del plugin
+* Resumen: enlace a la página con el token y el botón de refrescar configuración
+* Restaurar cursos o categorías remotas: Enlace donde el administrador podrá ejecutar la restauración de cursos o categorías.
+* Eliminación de cursos de plataforma remota: Enlace donde el administrador podrá borrar cursos o categorías remotos.
+* Registro de ejecuciones: Tabla para revisar las ejecuciones de restauración y borrado de cursos remotos.
+
+## Ejecuciones por CLI
+
+Se han creado los siguiente script de consola:
+* restore_course.php
+    - CLI de restauracion de curso
+* restore_category.php
+    - CLI de restauracion de categoría
+* view_log_target_course.php
+    - CLI para ver los logs de restauraciones en un curso como destino
+* view_log_target_category.php
+    - CLI para ver los logs de restauraciones en una categoría como destino
+* view_log_origin_course.php
+    - CLI para ver los logs de restauraciones en un curso como origen. Las peticiones que ha recibido desde otro Moodle.
+* view_log_origin_category.php
+    - CLI para ver los logs de restauraciones en una categoría como origen. Las peticiones que ha recibido desde otro Moodle.
+* view_log_request.php
+    - CLI para ver los logs de una petición.
+* view_log_request_activities_detail.php
+    - CLI para ver el detalle de las secciones y actividades seleccionadas en una petición.
+* view_logs.php
+    - CLI para ver peticiones filtradas por tipo, dirección, estado, usuario o fecha.
+
+### Ayuda en CLI
+Todos los scripts disponen de ayuda utilizando el argumento help:
+
+    php local/coursetransfer/cli/restore_course.php -h
+
+## Funcionalidades
+
+* RCEP1 - Función para restaurar un grupo de cursos entre plataformas
+* RCEP2 - Función para restaurar una categoría de cursos entre plataformas desarrollado como plugin local
+* RCEP3 - Script CLI Moodle
+* RCEP4 - Plugin de administración para restaurar cursos entre plataformas
+* RCEP5 - Plugin docente
+* RCEP6 - Plugin Moodle para el administrador que permita el borrado de cursos optimizando el rendimiento. La eliminación de cursos en entornos
+* RCEP7 - LOG del estado de restauración y eliminado
+* RCEP8 - Tarea scheduled o ad-hoc
+
+## Tareas en diferido
+El administrador puede seleccionar, tanto por consola, como por interfaz gráfica, si la tarea se ejecutará lo antes posible, o en una fecha determinada.
+Para ello, en siguientes funcionalidades:
+
+* Restauración de curso
+* Restauración de categoría
+* Borrado de curso remoto
+* Borrado de categoría remota
+
+Aparecerá una configuración para poder seleccionar, si la tarea se ejecutará de forma diferida.
+
+En el momento de hacer clic en esa configuración, el usuario podrá seleccionar la fecha en la que comenzará la ejecución en la plataforma de origen.
+
+De esta forma, el cron solo ejecutará esa tarea cuando la fecha de ejecución se haya sobrepasado.
+
+## Notificaciones
+Cuando se ejecuta una funcionalidad, se utilizan tareas adhoc asíncronas que se ejecutan mediante el cron de Moodle.
+Por este motivo, se ha añadido la funcionalidad de aviso por notificación en las siguientes ejecuciones:
+* Restauración de curso
+* Restauración de categoría
+* Borrado de curso remoto
+* Borrado de categoría remota
+El plugin trae una configuración por defecto, pero esta configuración, se puede modificar por el administrador o por el usuario:
+
+   ``/message/notificationpreferences.php``
+
+Si se selecciona web, la notificación será mediante la aplicación web.
+
+Y si selecciona Email, el usuario recibirá un email cuando la funcionalidad se complete.
+
+El administrador podrá desactivar, en cualquier caso, estas notificaciones para todos los usuarios: ```/admin/message.php```
+
+## Tablas de Base de datos
+
+* local_coursetransfer_request
+
+  Contiene la información de las peticiones entre plataformas.
+
+* local_coursetransfer_origin
+
+  Contiene la información de los sitios de origen configurados.
+
+* local_coursetransfer_target
+
+    Contiene la información de los sitios de destino configurados.
+
+## Tests Unitarios
+Para ejecutar los test unitarios en Moodle hay que realizar los siguientes pasos utilizando la documentación oficial https://moodledev.io/general/development/tools/phpunit:
+
+1. Instalar PHP Unit con Composer
+2. Configurar el archivo config.php según documentación
+3. Inicializar el entorno de pruebas con:
+
+   ``php admin\tool\phpunit\cli\init.php``
+
+
+4. Ejecutar el grupo de test de Course Transfer:
+
+    ``vendor\bin\phpunit --filter local_coursetransfer``
 ## 🖥️ Command line usage (optional)
 
 All scripts live in `local/coursetransfer/cli/` and accept `--help` (or `-h`):
@@ -186,7 +302,9 @@ Full credits: [unimoodle.github.io/moodle-local_coursetransfer/credits.html](htt
 <p align="center">
   <a href="https://unimoodle.github.io/"><img src="pix/unimoodle_logo.png" alt="UNIMOODLE" width="220"></a>
 </p>
-
+<p align="center">
+  <img src="https://unimoodle.github.io/assets/images/unidigital-footer2024-1466x187.png" alt="UNIDIGITAL" width="400">
+</p>
 <p align="center">
   <a href="https://tresipunt.com"><img src="pix/tresipunt_logo.svg" alt="Tresipunt" width="150"></a>
 </p>

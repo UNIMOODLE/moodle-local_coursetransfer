@@ -194,7 +194,9 @@ Kreditu osoak: [unimoodle.github.io/moodle-local_coursetransfer/credits.html](ht
 <p align="center">
   <a href="https://unimoodle.github.io/"><img src="pix/unimoodle_logo.png" alt="UNIMOODLE" width="220"></a>
 </p>
-
+<p align="center">
+  <img src="https://unimoodle.github.io/assets/images/unidigital-footer2024-1466x187.png" alt="UNIDIGITAL" width="400">
+</p>
 <p align="center">
   <a href="https://tresipunt.com"><img src="pix/tresipunt_logo.svg" alt="Tresipunt" width="150"></a>
 </p>
