@@ -62,7 +62,6 @@ require_once($CFG->dirroot . '/webservice/lib.php');
  * @package local_coursetransfer\external\backend
  */
 class remove_external extends external_api {
-
     /**
      * Origin remove course parameters.
      *
@@ -70,7 +69,7 @@ class remove_external extends external_api {
      */
     public static function origin_remove_course_parameters(): external_function_parameters {
         return new external_function_parameters(
-                [
+            [
                         'field' => new external_value(PARAM_TEXT, 'Field'),
                         'value' => new external_value(PARAM_TEXT, 'Value'),
                         'courseid' => new external_value(PARAM_INT, 'Course ID'),
@@ -93,11 +92,18 @@ class remove_external extends external_api {
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function origin_remove_course(string $field, string $value, int $courseid,
-            int $requestid, string $targetsite, int $nextruntime): array {
+    public static function origin_remove_course(
+        string $field,
+        string $value,
+        int $courseid,
+        int $requestid,
+        string $targetsite,
+        int $nextruntime
+    ): array {
 
         $params = self::validate_parameters(
-            self::origin_remove_course_parameters(), [
+            self::origin_remove_course_parameters(),
+            [
                 'field' => $field,
                 'value' => $value,
                 'courseid' => $courseid,
@@ -127,8 +133,10 @@ class remove_external extends external_api {
                 $user = $authres['data'];
                 if ($verifytarget['success']) {
                     $res = $authres['data'];
-                    if (has_capability('moodle/course:delete', context_course::instance($course->id), $user) &&
-                        has_capability('local/coursetransfer:origin_remove_course', context_system::instance(), $user)) {
+                    if (
+                        has_capability('moodle/course:delete', context_course::instance($course->id), $user) &&
+                        has_capability('local/coursetransfer:origin_remove_course', context_system::instance(), $user)
+                    ) {
                         $requestorigin = new stdClass();
                         $requestorigin->type = coursetransfer_request::TYPE_REMOVE_COURSE;
                         $requestorigin->siteurl = $targetsite;
@@ -163,8 +171,13 @@ class remove_external extends external_api {
                         $data->course_category_idnumber = $requestorigin->origin_category_idnumber;
 
                         $resremove = coursetransfer_remove::create_task_remove_course(
-                                $requestoriginid, $requestid, $course->id, $verifytarget['data'], $res->id,
-                                $requestorigin->origin_schedule_datetime);
+                            $requestoriginid,
+                            $requestid,
+                            $course->id,
+                            $verifytarget['data'],
+                            $res->id,
+                            $requestorigin->origin_schedule_datetime
+                        );
 
                         if ($resremove) {
                             $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
@@ -221,13 +234,15 @@ class remove_external extends external_api {
      */
     public static function origin_remove_course_returns(): external_single_structure {
         return new external_single_structure(
-                [
+            [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                        [
+                    [
                                 'code' => new external_value(PARAM_TEXT, 'Code'),
                                 'msg' => new external_value(PARAM_TEXT, 'Message'),
-                        ], PARAM_TEXT, 'Errors'
+                        ],
+                    PARAM_TEXT,
+                    'Errors'
                 )),
                 'data' => new external_single_structure(
                     [
@@ -239,7 +254,9 @@ class remove_external extends external_api {
                         'course_category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                         'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
                         'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
-                    ], PARAM_TEXT, 'Data'
+                    ],
+                    PARAM_TEXT,
+                    'Data'
                 ),
                 ]
         );
@@ -252,7 +269,7 @@ class remove_external extends external_api {
      */
     public static function origin_remove_category_parameters(): external_function_parameters {
         return new external_function_parameters(
-                [
+            [
                         'field' => new external_value(PARAM_TEXT, 'Field'),
                         'value' => new external_value(PARAM_TEXT, 'Value'),
                         'catid' => new external_value(PARAM_INT, 'Course Category ID'),
@@ -275,11 +292,18 @@ class remove_external extends external_api {
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function origin_remove_category(string $field, string $value, int $catid,
-            int $requestid, string $targetsite, int $nextruntime): array {
+    public static function origin_remove_category(
+        string $field,
+        string $value,
+        int $catid,
+        int $requestid,
+        string $targetsite,
+        int $nextruntime
+    ): array {
 
         $params = self::validate_parameters(
-            self::origin_remove_category_parameters(), [
+            self::origin_remove_category_parameters(),
+            [
                 'field' => $field,
                 'value' => $value,
                 'catid' => $catid,
@@ -310,8 +334,10 @@ class remove_external extends external_api {
 
                 if ($verifytarget['success']) {
                     $res = $authres['data'];
-                    if (has_capability('moodle/category:manage', \context_system::instance(), $user) &&
-                        has_capability('local/coursetransfer:origin_remove_category', \context_system::instance(), $user)) {
+                    if (
+                        has_capability('moodle/category:manage', \context_system::instance(), $user) &&
+                        has_capability('local/coursetransfer:origin_remove_category', \context_system::instance(), $user)
+                    ) {
                         $requestorigin = new stdClass();
                         $requestorigin->type = coursetransfer_request::TYPE_REMOVE_CATEGORY;
                         $requestorigin->siteurl = $targetsite;
@@ -338,8 +364,13 @@ class remove_external extends external_api {
                         $data->course_category_idnumber = $category->idnumber;
 
                         $resremove = coursetransfer_remove::create_task_remove_category(
-                                $requestoriginid, $requestid, $category->id, $verifytarget['data'], $res->id,
-                                $requestorigin->origin_schedule_datetime);
+                            $requestoriginid,
+                            $requestid,
+                            $category->id,
+                            $verifytarget['data'],
+                            $res->id,
+                            $requestorigin->origin_schedule_datetime
+                        );
 
                         if ($resremove) {
                             $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
@@ -396,13 +427,15 @@ class remove_external extends external_api {
      */
     public static function origin_remove_category_returns(): external_single_structure {
         return new external_single_structure(
-                [
+            [
                         'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                         'errors' => new external_multiple_structure(new external_single_structure(
-                                [
+                            [
                                         'code' => new external_value(PARAM_TEXT, 'Code'),
                                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                                ], PARAM_TEXT, 'Errors'
+                                ],
+                            PARAM_TEXT,
+                            'Errors'
                         )),
                         'data' => new external_single_structure(
                             [
@@ -411,9 +444,11 @@ class remove_external extends external_api {
                                 'course_category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                                 'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
                                 'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
-                            ], PARAM_TEXT, 'Data'
+                            ],
+                            PARAM_TEXT,
+                            'Data'
                         ),
                 ]
         );
     }
-};
+}

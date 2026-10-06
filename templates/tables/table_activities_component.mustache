@@ -25,7 +25,28 @@
   @template local_coursetransfer/tables/table_activities_component
 
   Example context (json):
-
+  {
+      "id": 12,
+      "has_sections": true,
+      "sections": [
+          {
+              "sectionid": 34,
+              "sectionname": "Topic 1",
+              "sectionnum": 1,
+              "selected": true,
+              "hasactivities": true,
+              "activities": [
+                  {
+                      "cmid": 56,
+                      "name": "Assignment 1",
+                      "modname": "assign",
+                      "instance": 78,
+                      "selected": true
+                  }
+              ]
+          }
+      ]
+  }
 }}
 <div data-region="table_activities_component">
     <button type="button" class="btn btn-dark origin-activity" data-toggle="modal" data-target="#ModalActivities-{{ id }}" data-bs-toggle="modal" data-bs-target="#ModalActivities-{{ id }}">
@@ -33,7 +54,7 @@
     </button>
 
     <!-- Modal -->
-    <div class="modal fade bd-example-modal-lg" id="ModalActivities-{{ id }}" tabindex="-1" role="dialog" aria-labelledby="ModalActivities-{{ id }}Title" aria-hidden="true">
+    <div class="modal fade bd-example-modal-lg" id="ModalActivities-{{ id }}" tabindex="-1" role="dialog" aria-labelledby="ModalActivities-{{ id }}LongTitle" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -110,74 +131,3 @@
         </div>
     </div>
 </div>
-<style>
-    div[data-region='table_activities_component'] div.sections-table-header {
-        display: flex;
-        border-bottom: 2px solid #9396AA;
-        padding: 5px;
-        font-size: 14px;
-        font-weight: 600;
-    }
-    div[data-region='table_activities_component'] div.section-info {
-        display: flex;
-        border-bottom: 1px solid #D7D8E2;
-        padding: 10px;
-        font-size: 14px;
-        font-weight: 400;
-    }
-    div[data-region='table_activities_component'] div.section-row {
-        display: flex;
-        flex-direction: column;
-    }
-    div[data-region='table_activities_component'] div.activities-table {
-        width: 90%;
-    }
-    div[data-region='table_activities_component'] div.center-div {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-    }
-    div[data-region='table_activities_component'] div.activities-table-header {
-        display: flex;
-        border-bottom: 2px solid #9396AA;
-        padding: 5px;
-        font-size: 13px;
-        font-weight: 600;
-    }
-    div[data-region='table_activities_component'] div.activities-data {
-        width: 45%;
-    }
-    div[data-region='table_activities_component'] div.activities-data.unselected {
-        opacity: 0.4;
-    }
-    div[data-region='table_activities_component'] div.checkbox {
-        width: 10%;
-    }
-    div[data-region='table_activities_component'] div.activities-row {
-        display: flex;
-        border-bottom: 1px solid #D7D8E2;
-        padding: 5px;
-        font-size: 13px;
-        font-weight: 400;
-    }
-    div[data-region='table_activities_component'] .selected {
-        background-color: #F7F9FC;
-    }
-    div[data-region='table_activities_component'] div.checkbox {
-        width: 10%;
-    }
-    div[data-region='table_activities_component'] div.section-data {
-        width: 30%;
-    }
-    div[data-region='table_activities_component'] div.section-data.unselected {
-        opacity: 0.4;
-    }
-    div[data-region='table_activities_component'] .checkbox i.fa {
-        font-size: 20px;
-        padding-top: 3px;
-    }
-    div[data-region='table_activities_component'] .checkbox i.fa.text-success {
-        color: #21c235 !important;
-    }
-</style>

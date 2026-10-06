@@ -2,12 +2,11 @@
 
 /*
  * ============================================================
- * Course Transfer design system (Tresipunt / Claude Design).
+ * Course Transfer design system (Tresipunt).
  * Everything is scoped under .local-coursetransfer so tokens and
  * component styles never leak outside the plugin's content region.
  * The page shell stays with the theme (Boost, BS4/BS5); fonts fall
  * back to the theme/system stack — no external font CDN is loaded.
- * Source of truth: .tresipunt docs, design/claude-design/.
  * ============================================================
  */
 
@@ -15,6 +14,7 @@
     /* Responsive by CONTAINER width (not viewport): the plugin content often sits
        in a narrow column (theme blocks/drawers), so layout must react to its own
        width. See the @container blocks below. */
+    /* stylelint-disable-next-line csstree/validator -- Container queries are valid CSS; the bundled csstree does not know them. */
     container: ct / inline-size;
     /* Brand (logo colours: magenta #ea1a7f primary, amber #ffa827 secondary) */
     --magenta-50: #fdeaf3;
@@ -68,7 +68,7 @@
     --border-subtle: var(--neutral-100);
     --divider: var(--neutral-100);
     --focus-ring: rgba(248, 64, 21, 0.45);
-    /* Type: the theme owns typography (decision Q4, TIPGOODLE-352). Both
+    /* Type: the theme owns typography (decision Q4). Both
        tokens resolve to `inherit` so every ct-* component uses the theme
        font; a theme shipping brand fonts (e.g. Fresk) cascades in alone. */
     --font-heading: inherit;
@@ -196,7 +196,8 @@
     font-size: 14px;
     cursor: pointer;
     text-decoration: none;
-    transition: background-color var(--dur-fast) var(--ease-standard),
+    transition:
+        background-color var(--dur-fast) var(--ease-standard),
         box-shadow var(--dur-base) var(--ease-standard),
         transform var(--dur-fast) var(--ease-standard);
 }
@@ -590,7 +591,7 @@
     align-items: center;
     justify-content: center;
     filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.10));
-    background: linear-gradient(138deg, #FFF9E4 11.83%, #FFEBED 89.48%);
+    background: linear-gradient(138deg, #fff9e4 11.83%, #ffebed 89.48%);
 }
 
 .local-coursetransfer .ct-page-icon img {
@@ -993,7 +994,8 @@
     align-items: center;
     justify-content: center;
     color: var(--text-muted);
-    transition: border-color var(--dur-fast) var(--ease-standard),
+    transition:
+        border-color var(--dur-fast) var(--ease-standard),
         color var(--dur-fast) var(--ease-standard);
 }
 
@@ -1028,7 +1030,7 @@
     transform-origin: center;
 }
 
-/* ---- FontAwesome sizing per context (Moodle icons rule, TIPGOODLE-352) ---- */
+/* ---- FontAwesome sizing per context (Moodle icons rule) ---- */
 .local-coursetransfer .fa {
     line-height: 1;
 }
@@ -1128,7 +1130,8 @@
     border-radius: var(--radius-md);
     padding: 15px 17px;
     cursor: pointer;
-    transition: background-color var(--dur-fast) var(--ease-standard),
+    transition:
+        background-color var(--dur-fast) var(--ease-standard),
         border-color var(--dur-fast) var(--ease-standard);
 }
 
@@ -1521,7 +1524,8 @@
 }
 
 @keyframes ct-segment-pulse {
-    0%, 100% {
+    0%,
+    100% {
         background: var(--neutral-100);
     }
     50% {
@@ -1896,6 +1900,7 @@
 
 /* Layout stacking reacts to the CONTAINER width (the plugin content column),
    not the window — so it works even when a theme right column/drawer narrows it. */
+/* stylelint-disable-next-line csstree/validator -- Container queries are valid CSS; the bundled csstree does not know them. */
 @container ct (max-width: 720px) {
     .local-coursetransfer .ct-detail-grid {
         grid-template-columns: 1fr;
@@ -1982,9 +1987,9 @@
     }
 
     .local-coursetransfer .ct-destopt-extra {
+        /* stylelint-disable-next-line declaration-no-important -- Overrides a base rule declared later in this file. */
         display: flex !important;
         flex-direction: column;
-        align-items: center;
         align-items: center;
         margin: 10px;
     }
@@ -1994,6 +1999,7 @@
     }
 
     .local-coursetransfer .ct-destcard-head {
+        /* stylelint-disable-next-line declaration-no-important -- Overrides a base rule declared later in this file. */
         display: flex !important;
         justify-content: center;
         flex-direction: column;
@@ -2001,6 +2007,7 @@
     }
 
     .local-coursetransfer .ct-destopt-extra {
+        /* stylelint-disable-next-line declaration-no-important -- Overrides a base rule declared later in this file. */
         padding: 0 !important;
     }
 
@@ -2026,6 +2033,7 @@
     /* Card selectors (type/role/site) to a single column — overrides the inline
        `grid-template-columns:1fr 1fr` some steps set for desktop. */
     .local-coursetransfer .ct-rolecards {
+        /* stylelint-disable-next-line declaration-no-important -- Overrides an inline style set by the templates. */
         grid-template-columns: 1fr !important;
     }
 
@@ -2085,6 +2093,7 @@
         overflow-wrap: anywhere;
         word-break: break-word;
         text-align: center;
+        /* stylelint-disable-next-line declaration-no-important -- Overrides a base rule declared later in this file. */
         display: flex !important;
         flex-direction: column;
     }
@@ -2097,6 +2106,7 @@
         overflow-wrap: anywhere;
         word-break: break-word;
         text-align: center;
+        /* stylelint-disable-next-line declaration-no-important -- Overrides a base rule declared later in this file. */
         display: flex !important;
         flex-direction: column;
     }
@@ -2114,6 +2124,7 @@
 
     .local-coursetransfer .ct-revstats {
         flex-direction: column;
+        /* stylelint-disable-next-line declaration-no-important -- Overrides a base rule declared later in this file. */
         display: flex !important;
     }
 
@@ -2134,6 +2145,7 @@
 
     .local-coursetransfer .ct-selrow-meta {
         width: auto;
+        /* stylelint-disable-next-line declaration-no-important -- Overrides a base rule declared later in this file. */
         text-align: center !important;
         margin-top: 2px;
         font-weight: 600;
@@ -2348,6 +2360,7 @@
     gap: 14px 20px;
 }
 
+/* stylelint-disable-next-line csstree/validator -- Container queries are valid CSS; the bundled csstree does not know them. */
 @container ct (max-width: 540px) {
     .local-coursetransfer .ct-fields {
         grid-template-columns: 1fr;
@@ -2782,7 +2795,7 @@
 }
 
 /* ============================================================
-   Restore wizard (admin + teacher, TIPGOODLE-352)
+   Restore wizard (admin + teacher)
    ============================================================ */
 
 /* Landing: start card */
@@ -4456,7 +4469,7 @@
    leaks to other Moodle pages (this stylesheet is loaded site-wide). */
 @media (min-width: 768px) {
     body.ct-summary-page #page.drawers div[role="main"] {
-        background: linear-gradient(138deg, #FFF9E4 11.83%, #FFEBED 89.48%);
+        background: linear-gradient(138deg, #fff9e4 11.83%, #ffebed 89.48%);
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.10);
         padding: 29px;
         border-radius: 10px;
@@ -4857,12 +4870,19 @@
     font-size: 17px;
 }
 
+.local-coursetransfer .ct-idx-how-text {
+    flex: 1;
+    min-width: 0;
+}
+
 .local-coursetransfer .ct-idx-how-title {
+    display: block;
     font-weight: 700;
     color: var(--text-strong);
 }
 
 .local-coursetransfer .ct-idx-how-sub {
+    display: block;
     font-size: 13px;
     color: var(--text-muted);
 }
@@ -5252,4 +5272,175 @@
     border-radius: 4px;
     padding: 0 6px;
     flex: 0 0 auto;
+}
+/* ---- Legacy activity/configuration tables (rendered per row) ---------- */
+/* Moved out of the Mustache templates: a <style> block inside the body is
+   invalid HTML and was duplicated once per rendered row. */
+div[data-region='table_activities_component'] div.sections-table-header {
+    display: flex;
+    border-bottom: 2px solid #9396aa;
+    padding: 5px;
+    font-size: 14px;
+    font-weight: 600;
+}
+div[data-region='table_activities_component'] div.section-info {
+    display: flex;
+    border-bottom: 1px solid #d7d8e2;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 400;
+}
+div[data-region='table_activities_component'] div.section-row {
+    display: flex;
+    flex-direction: column;
+}
+div[data-region='table_activities_component'] div.activities-table {
+    width: 90%;
+}
+div[data-region='table_activities_component'] div.center-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+div[data-region='table_activities_component'] div.activities-table-header {
+    display: flex;
+    border-bottom: 2px solid #9396aa;
+    padding: 5px;
+    font-size: 13px;
+    font-weight: 600;
+}
+div[data-region='table_activities_component'] div.activities-data {
+    width: 45%;
+}
+div[data-region='table_activities_component'] div.activities-data.unselected {
+    opacity: 0.4;
+}
+div[data-region='table_activities_component'] div.checkbox {
+    width: 10%;
+}
+div[data-region='table_activities_component'] div.activities-row {
+    display: flex;
+    border-bottom: 1px solid #d7d8e2;
+    padding: 5px;
+    font-size: 13px;
+    font-weight: 400;
+}
+div[data-region='table_activities_component'] .selected {
+    background-color: #f7f9fc;
+}
+div[data-region='table_activities_component'] div.checkbox {
+    width: 10%;
+}
+div[data-region='table_activities_component'] div.section-data {
+    width: 30%;
+}
+div[data-region='table_activities_component'] div.section-data.unselected {
+    opacity: 0.4;
+}
+div[data-region='table_activities_component'] .checkbox i.fa {
+    font-size: 20px;
+    padding-top: 3px;
+}
+div[data-region='table_activities_component'] .checkbox i.fa.text-success {
+    color: #21c235;
+}
+div[data-region='table_configuration_component'] .modal-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+}
+div[data-region='table_configuration_component'] ul.configuration-list {
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+}
+div[data-region='table_configuration_component'] li.configuration-group {
+    display: flex;
+    margin: 20px 0;
+}
+div[data-region='table_configuration_component'] div.checkbox {
+    padding: 0 5%;
+}
+div[data-region='table_configuration_component'] div.config-title {
+    padding-bottom: 5px;
+    font-size: 14px;
+    font-weight: 700;
+}
+div[data-region='table_configuration_component'] div.config-desc {
+    padding-bottom: 5px;
+    padding-right: 10px;
+    font-size: 12px;
+    font-weight: 400;
+}
+div[data-region='table_configuration_component'] input[type="checkbox"]:checked,
+div[data-region='table_configuration_component'] input[type="checkbox"]:active,
+div[data-region='table_configuration_component'] input[type="checkbox"]:disabled {
+    box-shadow: none;
+}
+div[data-region='table_configuration_component'] .checkbox i.fa {
+    font-size: 20px;
+    padding-top: 3px;
+}
+
+div[data-region='table_configuration_component'] .checkbox i.fa.text-success {
+    color: #21c235;
+}
+
+/* ---- Step indicator and error page (moved out of their templates) ----- */
+div.local_coursetransfer div[data-region="stepbystep"] ul.stepbystep {
+    display: flex;
+    width: 133px;
+    justify-content: space-between;
+    align-items: center;
+    margin: auto;
+    list-style: none;
+    padding: 0;
+    position: relative;
+}
+div.local_coursetransfer div[data-region="stepbystep"] ul.stepbystep li.step {
+    height: 13px;
+    width: 13px;
+    background-color: black;
+    border-radius: 10px;
+}
+div.local_coursetransfer div[data-region="stepbystep"] ul.stepbystep li.step span.num {
+    display: none;
+}
+div.local_coursetransfer div[data-region="stepbystep"] ul.stepbystep li.step.current {
+    height: 34px;
+    width: 34px;
+    background: #0d6efd;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+div.local_coursetransfer div[data-region="stepbystep"] ul.stepbystep li.step.current span.num {
+    color: white;
+    display: block;
+    margin: auto;
+    font-weight: 600;
+    font-size: 21px;
+}
+div.local_coursetransfer div[data-region="stepbystep"] ul.stepbystep li.line {
+    border-bottom: 1px dotted black;
+    width: 100%;
+    position: absolute;
+    z-index: 0;
+}
+[data-region="local_coursetransfer_error_page"] {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+[data-region="local_coursetransfer_error_page"] i.fa.fa-exclamation-triangle {
+    font-size: 38px;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    color: orange;
 }

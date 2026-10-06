@@ -64,7 +64,6 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class remove_page implements renderable, templatable {
-
     /** @var int How many recent deletions to show on the landing. */
     const RECENT_LIMIT = 5;
 
@@ -103,15 +102,21 @@ class remove_page implements renderable, templatable {
      */
     protected function export_recent(): array {
         $rows = array_merge(
-                coursetransfer_request::get_executions(
-                        ['type' => coursetransfer_request::TYPE_REMOVE_COURSE], 0, self::RECENT_LIMIT),
-                coursetransfer_request::get_executions(
-                        ['type' => coursetransfer_request::TYPE_REMOVE_CATEGORY], 0, self::RECENT_LIMIT)
+            coursetransfer_request::get_executions(
+                ['type' => coursetransfer_request::TYPE_REMOVE_COURSE],
+                0,
+                self::RECENT_LIMIT
+            ),
+            coursetransfer_request::get_executions(
+                ['type' => coursetransfer_request::TYPE_REMOVE_CATEGORY],
+                0,
+                self::RECENT_LIMIT
+            )
         );
-        $rows = array_filter($rows, static function($r) {
+        $rows = array_filter($rows, static function ($r) {
             return (int)$r->direction === coursetransfer_request::DIRECTION_REQUEST;
         });
-        usort($rows, static function($a, $b) {
+        usort($rows, static function ($a, $b) {
             return (int)$b->timemodified <=> (int)$a->timemodified;
         });
         $rows = array_slice($rows, 0, self::RECENT_LIMIT);
@@ -156,8 +161,10 @@ class remove_page implements renderable, templatable {
             'badgeclass' => 'ct-badge--' . str_replace('_', '-', $shortname),
             'summary' => $name,
             'site' => $r->siteurl,
-            'date' => userdate((int)$r->timemodified,
-                    get_string('strftimedatetimeshort', 'langconfig')),
+            'date' => userdate(
+                (int)$r->timemodified,
+                get_string('strftimedatetimeshort', 'langconfig')
+            ),
             'iserror' => $iserror,
             'errcause' => $errcause,
             'erraction' => $erraction,

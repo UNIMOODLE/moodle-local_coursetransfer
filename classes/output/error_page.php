@@ -49,7 +49,6 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class error_page implements renderable, templatable {
-
     /** @var string Title */
     protected string $title;
 

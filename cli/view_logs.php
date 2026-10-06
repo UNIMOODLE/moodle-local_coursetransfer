@@ -35,7 +35,7 @@ use local_coursetransfer\coursetransfer;
 
 define('CLI_SCRIPT', 1);
 
-require(__DIR__.'/../../../config.php');
+require(__DIR__ . '/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 
@@ -74,7 +74,7 @@ Examples:
     # php local/coursetransfer/cli/view_logs.php --type=0 --direction=0 --status=100 --from=1685075232 --to=1685075800 --userid=3
 ';
 
-list($options, $unrecognised) = cli_get_params([
+[$options, $unrecognised] = cli_get_params([
         'help' => false,
         'type' => null,
         'direction' => null,
@@ -87,7 +87,7 @@ list($options, $unrecognised) = cli_get_params([
 ]);
 
 if ($unrecognised) {
-    $unrecognised = implode(PHP_EOL.'  ', $unrecognised);
+    $unrecognised = implode(PHP_EOL . '  ', $unrecognised);
     cli_error(get_string('cliunknowoption', 'core_admin', $unrecognised));
 }
 
@@ -105,12 +105,24 @@ $userid = isset($options['userid']) ? (int) $options['userid'] : null;
 
 
 try {
-
-    $mask = "| %8.8s | %-5.5s | %-5.5s | %-30.30s | %-10.10s ".
+    $mask = "| %8.8s | %-5.5s | %-5.5s | %-30.30s | %-10.10s " .
             "| %-10.10s | %-10.10s | %-10.10s | %-14.14s | %-7.7s | %-13.13s  | %-13.13s | %-40.40s \n";
-    printf($mask,
-            'Req ID', 'Type', 'Dir', 'Site URL', 'Dest Course', 'Orig Course', 'Dest Cat', 'Orig Cat',
-            'Status', 'UserID', 'TimeModified', 'TimeCreated', 'Error');
+    printf(
+        $mask,
+        'Req ID',
+        'Type',
+        'Dir',
+        'Site URL',
+        'Dest Course',
+        'Orig Course',
+        'Dest Cat',
+        'Orig Cat',
+        'Status',
+        'UserID',
+        'TimeModified',
+        'TimeCreated',
+        'Error'
+    );
 
     $filters = [
             'type' => $type,
@@ -129,11 +141,22 @@ try {
         $statuslabel = isset(coursetransfer::STATUS[$item->status])
                 ? get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer')
                 : (string) $item->status;
-        printf($mask,
-                $item->id, $item->type, $item->direction, $item->siteurl, $item->target_course_id, $item->origin_course_id,
-                $item->target_category_id, $item->origin_category_id,
-                $statuslabel,
-                $item->userid, $item->timemodified, $item->timecreated, $error);
+        printf(
+            $mask,
+            $item->id,
+            $item->type,
+            $item->direction,
+            $item->siteurl,
+            $item->target_course_id,
+            $item->origin_course_id,
+            $item->target_category_id,
+            $item->origin_category_id,
+            $statuslabel,
+            $item->userid,
+            $item->timemodified,
+            $item->timecreated,
+            $error
+        );
     }
 
     if (count($items) > 200) {
@@ -142,8 +165,6 @@ try {
         cli_writeln('****************************');
     }
     exit(0);
-
 } catch (moodle_exception $e) {
     cli_error('40004: ' . $e->getMessage(), 1);
 }
-

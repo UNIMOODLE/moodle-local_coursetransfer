@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Request detail page (Tresipunt redesign, TIPGOODLE-352).
+ * Request detail page (Tresipunt redesign).
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -59,7 +59,6 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class detail_page implements renderable, templatable {
-
     /** @var stdClass Request record */
     protected stdClass $record;
 
@@ -124,11 +123,15 @@ class detail_page implements renderable, templatable {
         $isremove = in_array($type, [coursetransfer_request::TYPE_REMOVE_COURSE,
                 coursetransfer_request::TYPE_REMOVE_CATEGORY], true);
         if ($isremove) {
-            $data->openoriginlabel = get_string($iscategory ? 'exec_g_removecat' : 'exec_g_removecourse',
-                    'local_coursetransfer');
+            $data->openoriginlabel = get_string(
+                $iscategory ? 'exec_g_removecat' : 'exec_g_removecourse',
+                'local_coursetransfer'
+            );
         } else {
-            $data->openoriginlabel = get_string($iscategory ? 'exec_g_origincat' : 'exec_g_origincourse',
-                    'local_coursetransfer');
+            $data->openoriginlabel = get_string(
+                $iscategory ? 'exec_g_origincat' : 'exec_g_origincourse',
+                'local_coursetransfer'
+            );
         }
         $data->desturl = '';
         if ($isrestore && !empty($r->target_course_id)) {
@@ -145,8 +148,11 @@ class detail_page implements renderable, templatable {
         $sched = (int)($r->origin_schedule_datetime ?? 0);
         $data->scheduled = $sched > 0 && $sched > time();
         $data->scheduledtext = $data->scheduled
-                ? get_string('exec_scheduled', 'local_coursetransfer',
-                        userdate($sched, get_string('strftimedatetime', 'langconfig')))
+                ? get_string(
+                    'exec_scheduled',
+                    'local_coursetransfer',
+                    userdate($sched, get_string('strftimedatetime', 'langconfig'))
+                )
                 : '';
 
         // Error block.
@@ -289,50 +295,72 @@ class detail_page implements renderable, templatable {
      */
     protected function build_groups(stdClass $r, int $type, bool $dirin): array {
         $dash = '—';
-        $bool = function($value) {
+        $bool = function ($value) {
             if ($value === null || $value === '') {
                 return get_string('no');
             }
             return (int)$value === 1 ? get_string('yes') : get_string('no');
         };
-        $size = function($bytes) {
+        $size = function ($bytes) {
             return number_format(((int)$bytes) / 1000000, 3, ',', ' ') . ' MB';
         };
 
         $general = [
-            $this->field(get_string('exec_f_type', 'local_coursetransfer'),
-                    get_string('exec_type_' . $type, 'local_coursetransfer')),
-            $this->field(get_string('exec_f_direction', 'local_coursetransfer'),
-                    get_string($dirin ? 'platforms_role_origin' : 'platforms_role_target', 'local_coursetransfer')),
+            $this->field(
+                get_string('exec_f_type', 'local_coursetransfer'),
+                get_string('exec_type_' . $type, 'local_coursetransfer')
+            ),
+            $this->field(
+                get_string('exec_f_direction', 'local_coursetransfer'),
+                get_string($dirin ? 'platforms_role_origin' : 'platforms_role_target', 'local_coursetransfer')
+            ),
             $this->field(get_string('exec_f_mode', 'local_coursetransfer'), $this->target_label($r->target_target)),
-            $this->field(get_string('exec_f_scheduled', 'local_coursetransfer'),
-                    empty($r->origin_schedule_datetime) ? $dash : userdate((int)$r->origin_schedule_datetime), true),
+            $this->field(
+                get_string('exec_f_scheduled', 'local_coursetransfer'),
+                empty($r->origin_schedule_datetime) ? $dash : userdate((int)$r->origin_schedule_datetime),
+                true
+            ),
             $this->field(get_string('exec_f_launchedby', 'local_coursetransfer'), $this->username ?: $dash),
             $this->field(get_string('exec_f_date', 'local_coursetransfer'), userdate((int)$r->timemodified)),
         ];
         $remote = [
             $this->field(get_string('exec_f_url', 'local_coursetransfer'), $r->siteurl ?: $dash),
-            $this->field(get_string('exec_f_targetreq', 'local_coursetransfer'),
-                    $r->target_request_id ?: $dash, empty($r->target_request_id)),
+            $this->field(
+                get_string('exec_f_targetreq', 'local_coursetransfer'),
+                $r->target_request_id ?: $dash,
+                empty($r->target_request_id)
+            ),
         ];
         $origincourse = [
             $this->field(get_string('exec_f_coursename', 'local_coursetransfer'), $r->origin_course_fullname ?: $dash),
             $this->field(get_string('exec_f_courseid', 'local_coursetransfer'), $r->origin_course_id ?: $dash),
             $this->field(get_string('exec_f_shortname', 'local_coursetransfer'), $r->origin_course_shortname ?: $dash),
-            $this->field(get_string('exec_f_idnumber', 'local_coursetransfer'),
-                    $r->origin_course_idnumber ?: $dash, empty($r->origin_course_idnumber)),
+            $this->field(
+                get_string('exec_f_idnumber', 'local_coursetransfer'),
+                $r->origin_course_idnumber ?: $dash,
+                empty($r->origin_course_idnumber)
+            ),
         ];
         $origincat = [
             $this->field(get_string('exec_f_catname', 'local_coursetransfer'), $r->origin_category_name ?: $dash),
             $this->field(get_string('exec_f_catid', 'local_coursetransfer'), $r->origin_category_id ?: $dash),
-            $this->field(get_string('exec_f_idnumber', 'local_coursetransfer'),
-                    $r->origin_category_idnumber ?: $dash, empty($r->origin_category_idnumber)),
+            $this->field(
+                get_string('exec_f_idnumber', 'local_coursetransfer'),
+                $r->origin_category_idnumber ?: $dash,
+                empty($r->origin_category_idnumber)
+            ),
         ];
         $dest = [
-            $this->field(get_string('exec_f_targetcourse', 'local_coursetransfer'),
-                    $r->target_course_id ?: $dash, empty($r->target_course_id)),
-            $this->field(get_string('exec_f_targetcat', 'local_coursetransfer'),
-                    $r->target_category_id ?: $dash, empty($r->target_category_id)),
+            $this->field(
+                get_string('exec_f_targetcourse', 'local_coursetransfer'),
+                $r->target_course_id ?: $dash,
+                empty($r->target_course_id)
+            ),
+            $this->field(
+                get_string('exec_f_targetcat', 'local_coursetransfer'),
+                $r->target_category_id ?: $dash,
+                empty($r->target_category_id)
+            ),
             $this->field(get_string('exec_f_removeenrols', 'local_coursetransfer'), $bool($r->target_remove_enrols)),
             $this->field(get_string('exec_f_removegroups', 'local_coursetransfer'), $bool($r->target_remove_groups)),
         ];
@@ -343,8 +371,10 @@ class detail_page implements renderable, templatable {
         ];
         $backup = [
             $this->field(get_string('exec_f_backupsize', 'local_coursetransfer'), $size($r->origin_backup_size)),
-            $this->field(get_string('exec_f_backupsizeest', 'local_coursetransfer'),
-                    $size($r->origin_backup_size_estimated)),
+            $this->field(
+                get_string('exec_f_backupsizeest', 'local_coursetransfer'),
+                $size($r->origin_backup_size_estimated)
+            ),
         ];
 
         // For remove requests the origin course/category IS what gets deleted,

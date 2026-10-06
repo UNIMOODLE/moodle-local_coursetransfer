@@ -81,7 +81,7 @@ $columns = [
 ];
 
 $statusmap = coursetransfer::STATUS;
-// get_executions_filter_sql aliases the request table as `r` and may reference
+// Note that get_executions_filter_sql aliases the request table as `r` and may reference
 // the joined course as `c` (search by target course name).
 $sql = "SELECT r.*, c.fullname AS targetcoursename
           FROM {local_coursetransfer_request} r
@@ -91,28 +91,28 @@ $sql = "SELECT r.*, c.fullname AS targetcoursename
 $rs = $DB->get_recordset_sql($sql, $params);
 
 \core\dataformat::download_data(
-        'coursetransfer_logs',
-        $dataformat,
-        $columns,
-        $rs,
-        function($r) use ($statusmap) {
-            $statuslabel = isset($statusmap[$r->status])
-                    ? get_string('status_' . $statusmap[$r->status]['shortname'], 'local_coursetransfer')
-                    : $r->status;
-            return (object) [
-                    'id' => $r->id,
-                    'siteurl' => $r->siteurl,
-                    'origin_course_id' => $r->origin_course_id,
-                    'origin_course_fullname' => $r->origin_course_fullname,
-                    'target_course_id' => $r->target_course_id,
-                    'status' => $statuslabel,
-                    'backupsize_mb' => !is_null($r->origin_backup_size) ? round($r->origin_backup_size / 1000000, 2) : '',
-                    'downloaded_mb' => !empty($r->downloaded) ? round($r->downloaded / 1000000, 2) : '',
-                    'restored_pct' => !empty($r->restored) ? $r->restored . '%' : '',
-                    'timecreated' => $r->timecreated ? userdate($r->timecreated) : '',
-                    'timemodified' => $r->timemodified ? userdate($r->timemodified) : '',
-                    'error_code' => $r->error_code,
-                    'error_message' => $r->error_message,
-            ];
-        }
+    'coursetransfer_logs',
+    $dataformat,
+    $columns,
+    $rs,
+    function ($r) use ($statusmap) {
+        $statuslabel = isset($statusmap[$r->status])
+                ? get_string('status_' . $statusmap[$r->status]['shortname'], 'local_coursetransfer')
+                : $r->status;
+        return (object) [
+                'id' => $r->id,
+                'siteurl' => $r->siteurl,
+                'origin_course_id' => $r->origin_course_id,
+                'origin_course_fullname' => $r->origin_course_fullname,
+                'target_course_id' => $r->target_course_id,
+                'status' => $statuslabel,
+                'backupsize_mb' => !is_null($r->origin_backup_size) ? round($r->origin_backup_size / 1000000, 2) : '',
+                'downloaded_mb' => !empty($r->downloaded) ? round($r->downloaded / 1000000, 2) : '',
+                'restored_pct' => !empty($r->restored) ? $r->restored . '%' : '',
+                'timecreated' => $r->timecreated ? userdate($r->timecreated) : '',
+                'timemodified' => $r->timemodified ? userdate($r->timemodified) : '',
+                'error_code' => $r->error_code,
+                'error_message' => $r->error_message,
+        ];
+    }
 );

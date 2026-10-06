@@ -33,7 +33,6 @@
  */
 namespace local_coursetransfer\factory;
 
-defined('MOODLE_INTERNAL') || die();
 
 use coding_exception;
 use context_system;
@@ -51,7 +50,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class user {
-
     /** @var string Username WS */
     const USERNAME_WS = 'local_coursetransfer_ws';
 
@@ -93,8 +91,10 @@ class user {
         global $DB;
         $token = null;
         $user = \core_user::get_user($userid);
-        $service = $DB->get_record('external_services',
-                ['component' => 'local_coursetransfer']);
+        $service = $DB->get_record(
+            'external_services',
+            ['component' => 'local_coursetransfer']
+        );
 
         if ($service) {
             $userauthorized = new stdClass();
@@ -120,8 +120,12 @@ class user {
                 try {
                     // Moodle 4.5: external_generate_token() (lib/externallib.php) is
                     // deprecated; use the namespaced util which takes the service object.
-                    $token = \core_external\util::generate_token(EXTERNAL_TOKEN_PERMANENT, $service,
-                            $user->id, context_system::instance());
+                    $token = \core_external\util::generate_token(
+                        EXTERNAL_TOKEN_PERMANENT,
+                        $service,
+                        $user->id,
+                        context_system::instance()
+                    );
                 } catch (moodle_exception $e) {
                     debugging("Can't generate Token!!", serialize($e));
                 }
@@ -141,8 +145,11 @@ class user {
      */
     public static function revoke_token(int $userid): bool {
         global $DB;
-        $externalserviceid = $DB->get_field('external_services', 'id',
-                ['component' => 'local_coursetransfer']);
+        $externalserviceid = $DB->get_field(
+            'external_services',
+            'id',
+            ['component' => 'local_coursetransfer']
+        );
         if (!$externalserviceid) {
             return false;
         }
@@ -198,5 +205,4 @@ class user {
         $user->mnethostid = 1;
         return user_create_user($user);
     }
-
 }

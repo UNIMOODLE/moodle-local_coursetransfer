@@ -20,6 +20,7 @@
     Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
     Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
     Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 }}
 {{!
   @template local_coursetransfer/index_page
@@ -27,6 +28,45 @@
   Summary / integration panel: big logo hero + star TOKEN block (copy /
   create / regenerate / revoke) + integration status + "how to connect" +
   admin quick links. Driven by local_coursetransfer/index_page AMD.
+
+  Example context (json):
+  {
+      "token": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+      "tokencreated": "14/09/2026",
+      "hastoken": true,
+      "notoken": false,
+      "username_ws": "ws_coursetransfer",
+      "logourl": "https://example.com/local/coursetransfer/pix/logo.png",
+      "url_postinstall": "https://example.com/local/coursetransfer/postinstall.php",
+      "url_logs": "https://example.com/local/coursetransfer/logs.php",
+      "checks": [
+          {
+              "state": "ok",
+              "faicon": "fa-key",
+              "label": "Web services",
+              "status": "Enabled",
+              "hasaction": true,
+              "actionurl": "https://example.com/admin/search.php?query=enablewebservices",
+              "actionlabel": "Review"
+          }
+      ],
+      "pluginlinks": [
+          {
+              "href": "https://example.com/local/coursetransfer/logs.php",
+              "faicon": "fa-list",
+              "title": "Logs",
+              "sub": "Requests and their status"
+          }
+      ],
+      "moodlelinks": [
+          {
+              "href": "https://example.com/admin/settings.php?section=externalservices",
+              "faicon": "fa-cogs",
+              "title": "External services",
+              "sub": "Site administration"
+          }
+      ]
+  }
 }}
 <div class="local-coursetransfer ct-wide" data-region="index" data-token="{{ token }}"
         data-postinstall="{{ url_postinstall }}">
@@ -141,10 +181,10 @@
     <section class="ct-idx-how" data-region="how">
         <button type="button" class="ct-idx-how-head" data-action="toggle-how" aria-expanded="false">
             <span class="ct-idx-how-icon"><i class="fa fa-info-circle" aria-hidden="true"></i></span>
-            <div style="flex:1;min-width:0">
-                <div class="ct-idx-how-title">{{#str}} idx_how_title, local_coursetransfer {{/str}}</div>
-                <div class="ct-idx-how-sub">{{#str}} idx_how_sub, local_coursetransfer {{/str}}</div>
-            </div>
+            <span class="ct-idx-how-text">
+                <span class="ct-idx-how-title">{{#str}} idx_how_title, local_coursetransfer {{/str}}</span>
+                <span class="ct-idx-how-sub">{{#str}} idx_how_sub, local_coursetransfer {{/str}}</span>
+            </span>
             <i class="fa fa-chevron-down ct-idx-how-chevron" aria-hidden="true"></i>
         </button>
         <div class="ct-idx-how-body" data-region="how-body" hidden>

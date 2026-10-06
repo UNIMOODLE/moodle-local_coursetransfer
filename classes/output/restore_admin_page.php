@@ -65,7 +65,6 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_admin_page implements renderable, templatable {
-
     /** @var int How many recent restorations to show on the landing. */
     const RECENT_LIMIT = 5;
 
@@ -83,8 +82,10 @@ class restore_admin_page implements renderable, templatable {
         $data->headertitle = get_string('rw_title', 'local_coursetransfer');
         $data->headerdesc = get_string('rw_lead', 'local_coursetransfer');
 
-        $data->back = (new moodle_url('/admin/settings.php',
-                ['section' => 'local_coursetransfer']))->out(false);
+        $data->back = (new moodle_url(
+            '/admin/settings.php',
+            ['section' => 'local_coursetransfer']
+        ))->out(false);
         $data->summaryurl = (new moodle_url('/local/coursetransfer/index.php'))->out(false);
         $data->logurl = (new moodle_url('/local/coursetransfer/logs.php'))->out(false);
 
@@ -117,15 +118,15 @@ class restore_admin_page implements renderable, templatable {
     protected function export_recent(): array {
         // Restores are the course (type 0) and category (type 1) request rows.
         $rows = array_merge(
-                coursetransfer_request::get_executions(['type' => coursetransfer_request::TYPE_COURSE], 0, self::RECENT_LIMIT),
-                coursetransfer_request::get_executions(['type' => coursetransfer_request::TYPE_CATEGORY], 0, self::RECENT_LIMIT)
+            coursetransfer_request::get_executions(['type' => coursetransfer_request::TYPE_COURSE], 0, self::RECENT_LIMIT),
+            coursetransfer_request::get_executions(['type' => coursetransfer_request::TYPE_CATEGORY], 0, self::RECENT_LIMIT)
         );
         // Only requests initiated from this site (we pull the content in).
-        $rows = array_filter($rows, static function($r) {
+        $rows = array_filter($rows, static function ($r) {
             return (int)$r->direction === coursetransfer_request::DIRECTION_REQUEST;
         });
         // Newest first, then cap.
-        usort($rows, static function($a, $b) {
+        usort($rows, static function ($a, $b) {
             return (int)$b->timemodified <=> (int)$a->timemodified;
         });
         $rows = array_slice($rows, 0, self::RECENT_LIMIT);
@@ -182,8 +183,10 @@ class restore_admin_page implements renderable, templatable {
             'site' => $r->siteurl,
             'dest' => $dest,
             'hasdest' => $dest !== '',
-            'date' => userdate((int)$r->timemodified,
-                    get_string('strftimedatetimeshort', 'langconfig')),
+            'date' => userdate(
+                (int)$r->timemodified,
+                get_string('strftimedatetimeshort', 'langconfig')
+            ),
             'iserror' => $iserror,
             'errcause' => $errcause,
             'erraction' => $erraction,

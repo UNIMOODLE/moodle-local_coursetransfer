@@ -38,7 +38,7 @@ use local_coursetransfer\models\configuration_category;
 
 define('CLI_SCRIPT', 1);
 
-require(__DIR__.'/../../../config.php');
+require(__DIR__ . '/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
@@ -78,7 +78,7 @@ Example:
         --target_category_id=5 --origin_enrolusers=true
 ';
 
-list($options, $unrecognised) = cli_get_params([
+[$options, $unrecognised] = cli_get_params([
         'help' => false,
         'site_url' => null,
         'origin_category_id' => null,
@@ -91,7 +91,7 @@ list($options, $unrecognised) = cli_get_params([
 ]);
 
 if ($unrecognised) {
-    $unrecognised = implode(PHP_EOL.'  ', $unrecognised);
+    $unrecognised = implode(PHP_EOL . '  ', $unrecognised);
     cli_error(get_string('cliunknowoption', 'core_admin', $unrecognised));
 }
 
@@ -111,9 +111,9 @@ if (empty($siteurl)) {
     cli_error(get_string('site_url_required', 'local_coursetransfer'), 2);
 }
 
-if ( $origincategoryid === null ) {
+if ($origincategoryid === null) {
     cli_error(get_string('origin_category_id_require', 'local_coursetransfer'), 2);
-} else if ( $origincategoryid <= 0 ) {
+} else if ($origincategoryid <= 0) {
     cli_error(get_string('origin_category_id_integer', 'local_coursetransfer'), 2);
 }
 
@@ -129,7 +129,7 @@ if ($targetcategoryid !== null) {
 }
 
 
-if ( !in_array((int)$originenrolusers, [0, 1])) {
+if (!in_array((int)$originenrolusers, [0, 1])) {
     cli_error(get_string('origin_enrolusers_boolean', 'local_coursetransfer'), 2);
 }
 cli_helper::check_schedule($originscheduledatetime);
@@ -137,11 +137,15 @@ cli_helper::check_schedule($originscheduledatetime);
 $errors = [];
 
 try {
-
     // 1. Setup Configuration.
     $configuration = new configuration_category(
-            backup::TARGET_NEW_COURSE, false, false, $originenrolusers,
-            $originremovecategory, $originscheduledatetime);
+        backup::TARGET_NEW_COURSE,
+        false,
+        false,
+        $originenrolusers,
+        $originremovecategory,
+        $originscheduledatetime
+    );
 
     // 2. Service user (aborts cleanly if the WS user is missing).
     $user = cli_helper::require_ws_user();
@@ -162,9 +166,6 @@ try {
     } else {
         cli_error(json_encode($errors), 1);
     }
-
 } catch (moodle_exception $e) {
     cli_error('40011: ' . $e->getMessage(), 1);
 }
-
-

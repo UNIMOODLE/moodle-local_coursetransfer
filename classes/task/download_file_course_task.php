@@ -53,7 +53,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class download_file_course_task extends \core\task\adhoc_task {
-
     // Use the logging trait to get some nice, juicy, logging.
     use \core\task\logging_trait;
 
@@ -92,7 +91,7 @@ class download_file_course_task extends \core\task\adhoc_task {
             $curl->setopt([
                     'CURLOPT_NOPROGRESS' => 0,
                     'CURLOPT_PROGRESSFUNCTION' =>
-                            function($res, $dltotal, $dlnow, $ultotal, $ulnow) use ($reqid, &$lastheartbeat) {
+                            function ($res, $dltotal, $dlnow, $ultotal, $ulnow) use ($reqid, &$lastheartbeat) {
                                 global $DB;
                                 $now = time();
                                 if ($dlnow > 0 && ($now - $lastheartbeat) >= 5) {
@@ -117,10 +116,13 @@ class download_file_course_task extends \core\task\adhoc_task {
             // 1. Transport / HTTP error. download_one() returns true on success or an
             // error string, and removes the temp file on failure.
             if ($result !== true || $curl->get_errno() || $httpcode !== 200) {
-                $this->set_request_error($request, '13001',
-                        'HTTP ' . $httpcode . ': ' .
+                $this->set_request_error(
+                    $request,
+                    '13001',
+                    'HTTP ' . $httpcode . ': ' .
                         (is_string($result) && $result !== '' ? $result :
-                                ($curl->error !== '' ? $curl->error : 'request failed in file download')));
+                    ($curl->error !== '' ? $curl->error : 'request failed in file download'))
+                );
                 $this->log_finish("Download File Backup Course Remote and Restore Finishing...");
                 return;
             }
@@ -139,15 +141,18 @@ class download_file_course_task extends \core\task\adhoc_task {
                 $body = (string) @file_get_contents($tmpfile, false, null, 0, 4096);
                 $error = json_decode($body);
                 if ($error && !empty($error->errorcode)) {
-                    // e.g. "sitepolicynotagreed: No ha aceptado la política del sitio [debuginfo]".
+                    // For example: "sitepolicynotagreed: No ha aceptado la política del sitio [debuginfo]".
                     $msg = $error->errorcode . ': ' . ($error->error ?? '');
                     if (!empty($error->debuginfo)) {
                         $msg .= ' [' . $error->debuginfo . ']';
                     }
                     $this->set_request_error($request, '13002', $msg);
                 } else {
-                    $this->set_request_error($request, '13003',
-                            'Downloaded file is not a valid MBZ backup (' . $size . ' bytes)');
+                    $this->set_request_error(
+                        $request,
+                        '13003',
+                        'Downloaded file is not a valid MBZ backup (' . $size . ' bytes)'
+                    );
                 }
                 $this->log_finish("Download File Backup Course Remote and Restore Finishing...");
                 return;

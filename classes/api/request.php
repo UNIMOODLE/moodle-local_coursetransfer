@@ -54,7 +54,6 @@ require_once($CFG->libdir . '/filelib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class request {
-
     /** @var int Timeout */
     const TIMEOUT = 20;
 
@@ -108,11 +107,11 @@ class request {
      * @return array
      * @throws dml_exception
      */
-    protected function get_request_params(stdClass $user = null, $page = null, $perpage = null, string $search = ''): array {
+    protected function get_request_params(?stdClass $user = null, $page = null, $perpage = null, string $search = ''): array {
         global $USER;
         $user = is_null($user) ? $USER : $user;
         $params = [];
-        // get_config() returns the value, or false if unset; fall back to 'username'.
+        // Note that get_config() returns the value, or false if unset; fall back to 'username'.
         $field = get_config('local_coursetransfer', 'origin_field_search_user') ?: 'username';
         // The configurable field 'userid' is exposed in the UI but the real user property is 'id'.
         $userprop = ($field === 'userid') ? 'id' : $field;
@@ -136,7 +135,7 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function origin_has_user(stdClass $user = null): response {
+    public function origin_has_user(?stdClass $user = null): response {
         $params = $this->get_request_params($user);
         return $this->req('local_coursetransfer_origin_has_user', $params);
     }
@@ -150,7 +149,7 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function origin_get_categories(stdClass $user = null, int $page = null, int $perpage = null): response {
+    public function origin_get_categories(?stdClass $user = null, ?int $page = null, ?int $perpage = null): response {
         $params = $this->get_request_params($user, $page, $perpage);
         return $this->req('local_coursetransfer_origin_get_categories', $params);
     }
@@ -165,8 +164,12 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function origin_get_courses(stdClass $user = null, int $page = null,
-            int $perpage = null, string $search = ''): response {
+    public function origin_get_courses(
+        ?stdClass $user = null,
+        ?int $page = null,
+        ?int $perpage = null,
+        string $search = ''
+    ): response {
         $params = $this->get_request_params($user, $page, $perpage, $search);
         return $this->req('local_coursetransfer_origin_get_courses', $params);
     }
@@ -179,7 +182,7 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function origin_get_courses_by_ids(array $courseids, stdClass $user = null): response {
+    public function origin_get_courses_by_ids(array $courseids, ?stdClass $user = null): response {
         $params = $this->get_request_params($user);
         $params['courseids'] = json_encode($courseids);
         return $this->req('local_coursetransfer_origin_get_courses_by_ids', $params);
@@ -193,7 +196,7 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function origin_get_course_detail(int $courseid, stdClass $user = null): response {
+    public function origin_get_course_detail(int $courseid, ?stdClass $user = null): response {
         $params = $this->get_request_params($user);
         $params['courseid'] = $courseid;
         return $this->req('local_coursetransfer_origin_get_course_detail', $params);
@@ -207,7 +210,7 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function origin_get_category_detail(int $categoryid, stdClass $user = null): response {
+    public function origin_get_category_detail(int $categoryid, ?stdClass $user = null): response {
         $params = $this->get_request_params($user);
         $params['categoryid'] = $categoryid;
         return $this->req('local_coursetransfer_origin_get_category_detail', $params);
@@ -224,7 +227,7 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function origin_get_category_detail_tree(int $categoryid, stdClass $user = null): response {
+    public function origin_get_category_detail_tree(int $categoryid, ?stdClass $user = null): response {
         $params = $this->get_request_params($user);
         $params['categoryid'] = $categoryid;
         return $this->req('local_coursetransfer_origin_get_category_detail_tree', $params);
@@ -242,8 +245,14 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function origin_backup_course(stdClass $user, int $requestid, int $origincourseid, int $targetcourseid,
-                 configuration_course $configuration, array $sections =[]): response {
+    public function origin_backup_course(
+        stdClass $user,
+        int $requestid,
+        int $origincourseid,
+        int $targetcourseid,
+        configuration_course $configuration,
+        array $sections = []
+    ): response {
         global $CFG;
         $params = $this->get_request_params($user);
         $params['courseid'] = $origincourseid;
@@ -266,7 +275,11 @@ class request {
      * @throws dml_exception
      */
     public function target_backup_course_completed(
-            string $fileurl, int $requestid, int $filesize, stdClass $user = null): response {
+        string $fileurl,
+        int $requestid,
+        int $filesize,
+        ?stdClass $user = null
+    ): response {
         $params = $this->get_request_params($user);
         $params['requestid'] = $requestid;
         $params['backupsize'] = $filesize;
@@ -282,7 +295,7 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function target_remove_course_completed(int $requestid, stdClass $user = null): response {
+    public function target_remove_course_completed(int $requestid, ?stdClass $user = null): response {
         $params = $this->get_request_params($user);
         $params['requestid'] = $requestid;
         return $this->req('local_coursetransfer_target_remove_course_completed', $params);
@@ -300,7 +313,12 @@ class request {
      * @throws dml_exception
      */
     public function target_backup_course_error(
-        stdClass $user, int $requestid, string $error, array $result = [], int $filesize = 0): response {
+        stdClass $user,
+        int $requestid,
+        string $error,
+        array $result = [],
+        int $filesize = 0
+    ): response {
         $params = $this->get_request_params($user);
         $params['requestid'] = $requestid;
         $params['backupsize'] = $filesize;
@@ -324,7 +342,11 @@ class request {
      * @throws dml_exception
      */
     public function target_remove_course_error(
-            stdClass $user, int $requestid, string $error, string $code): response {
+        stdClass $user,
+        int $requestid,
+        string $error,
+        string $code
+    ): response {
         $params = $this->get_request_params($user);
         $params['requestid'] = $requestid;
         $params['errorcode'] = $code;
@@ -339,7 +361,7 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function site_origin_test(stdClass $user = null): response {
+    public function site_origin_test(?stdClass $user = null): response {
         global $CFG;
         $params = $this->get_request_params($user);
         $params['targetsite'] = $CFG->wwwroot;
@@ -353,7 +375,7 @@ class request {
      * @return response
      * @throws dml_exception
      */
-    public function site_target_test(stdClass $user = null): response {
+    public function site_target_test(?stdClass $user = null): response {
         $params = $this->get_request_params($user);
         return $this->req('local_coursetransfer_site_target_test', $params);
     }
@@ -369,7 +391,11 @@ class request {
      * @throws dml_exception
      */
     public function origin_remove_course(
-            int $requestid, int $origincourseid, int $nextruntime = null, stdClass $user = null): response {
+        int $requestid,
+        int $origincourseid,
+        ?int $nextruntime = null,
+        ?stdClass $user = null
+    ): response {
         global $CFG;
         $params = $this->get_request_params($user);
         $params['courseid'] = $origincourseid;
@@ -390,7 +416,11 @@ class request {
      * @throws dml_exception
      */
     public function origin_remove_category(
-            int $requestid, int $origincatid, int $nextruntime = null, stdClass $user = null): response {
+        int $requestid,
+        int $origincatid,
+        ?int $nextruntime = null,
+        ?stdClass $user = null
+    ): response {
         global $CFG;
         $params = $this->get_request_params($user);
         $params['catid'] = $origincatid;
@@ -437,32 +467,43 @@ class request {
         // 1. Transport failure: DNS, connection refused, SSL, timeout...
         if ($cerrno !== 0) {
             $this->log_request($wsname, $info, $cerror, $cerrno, $raw);
-            return $this->error_response(self::ERROR_CURL,
-                    $wsname . ': ' . get_string('error_ws_curl', 'local_coursetransfer',
-                            (object)['msg' => $cerror !== '' ? $cerror : 'cURL', 'errno' => $cerrno]));
+            return $this->error_response(
+                self::ERROR_CURL,
+                $wsname . ': ' . get_string(
+                    'error_ws_curl',
+                    'local_coursetransfer',
+                    (object)['msg' => $cerror !== '' ? $cerror : 'cURL', 'errno' => $cerrno]
+                )
+            );
         }
 
         // 2. Redirect (3xx): never reached the REST endpoint — usually an http/https,
-        //    trailing-slash or www mismatch in the registered platform URL.
+        // trailing-slash or www mismatch in the registered platform URL.
         if ($httpcode >= 300 && $httpcode < 400) {
             $this->log_request($wsname, $info, $cerror, $cerrno, $raw);
-            return $this->error_response(self::ERROR_REDIRECT,
-                    $wsname . ': ' . get_string('error_ws_redirect', 'local_coursetransfer', $httpcode));
+            return $this->error_response(
+                self::ERROR_REDIRECT,
+                $wsname . ': ' . get_string('error_ws_redirect', 'local_coursetransfer', $httpcode)
+            );
         }
 
         // 3. HTTP error status: endpoint reached but failed (WS disabled, wrong path,
-        //    remote 5xx...).
+        // remote 5xx...).
         if ($httpcode >= 400) {
             $this->log_request($wsname, $info, $cerror, $cerrno, $raw);
-            return $this->error_response(self::ERROR_HTTP,
-                    $wsname . ': ' . get_string('error_ws_http', 'local_coursetransfer', $httpcode));
+            return $this->error_response(
+                self::ERROR_HTTP,
+                $wsname . ': ' . get_string('error_ws_http', 'local_coursetransfer', $httpcode)
+            );
         }
 
         // 4. Empty body (often WS REST not enabled on the remote).
         if (trim((string)$raw) === '') {
             $this->log_request($wsname, $info, $cerror, $cerrno, $raw);
-            return $this->error_response(self::ERROR_EMPTY,
-                    $wsname . ': ' . get_string('error_ws_empty', 'local_coursetransfer'));
+            return $this->error_response(
+                self::ERROR_EMPTY,
+                $wsname . ': ' . get_string('error_ws_empty', 'local_coursetransfer')
+            );
         }
 
         // 5. Non-JSON body.
@@ -470,15 +511,24 @@ class request {
             $response = json_decode($raw, false, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             $this->log_request($wsname, $info, $cerror, $cerrno, $raw);
-            return $this->error_response(self::ERROR_DECODE,
-                    $wsname . ': ' . get_string('error_ws_decode', 'local_coursetransfer',
-                            (object)['http' => $httpcode, 'snippet' => mb_substr(trim((string)$raw), 0, 200)]));
+            return $this->error_response(
+                self::ERROR_DECODE,
+                $wsname . ': ' . get_string(
+                    'error_ws_decode',
+                    'local_coursetransfer',
+                    (object)['http' => $httpcode, 'snippet' => mb_substr(trim((string)$raw), 0, 200)]
+                )
+            );
         }
 
         // Expected envelope from the remote plugin: { success, errors, data, paging }.
         if (isset($response->success) && isset($response->errors)) {
             return new response(
-                    $response->success, $response->data ?? null, $response->errors, $response->paging ?? null);
+                $response->success,
+                $response->data ?? null,
+                $response->errors,
+                $response->paging ?? null
+            );
         }
 
         // Anything else (Moodle exception envelope, HTML error page, ...).

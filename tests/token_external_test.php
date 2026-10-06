@@ -38,7 +38,6 @@ use advanced_testcase;
 use local_coursetransfer\external\frontend\token_external;
 use local_coursetransfer\factory\user;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Tests for the token lifecycle web services of the summary screen.
@@ -51,8 +50,7 @@ defined('MOODLE_INTERNAL') || die();
  * @covers     \local_coursetransfer\external\frontend\token_external
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class token_external_test extends advanced_testcase {
-
+final class token_external_test extends advanced_testcase {
     /**
      * Set up: reset DB and act as a site administrator (the token web services
      * require moodle/site:config).

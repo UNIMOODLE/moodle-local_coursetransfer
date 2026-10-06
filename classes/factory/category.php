@@ -53,7 +53,6 @@ require_once($CFG->dirroot . '/course/lib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class category {
-
     /**
      * Create
      *
@@ -98,8 +97,13 @@ class category {
         $record->name = $name;
         // Avoid duplicate idnumber collisions with OTHER categories on the target site
         // (excluding this very category, which may already hold this idnumber).
-        if (!empty($idnumber) && $DB->record_exists_select('course_categories',
-                'idnumber = :idnumber AND id <> :id', ['idnumber' => $idnumber, 'id' => $id])) {
+        if (
+            !empty($idnumber) && $DB->record_exists_select(
+                'course_categories',
+                'idnumber = :idnumber AND id <> :id',
+                ['idnumber' => $idnumber, 'id' => $id]
+            )
+        ) {
             $idnumber = $idnumber . '_' . uniqid();
         }
         $record->idnumber = $idnumber;
@@ -107,5 +111,4 @@ class category {
         $cat = core_course_category::get($id);
         $cat->update($record);
     }
-
 }

@@ -54,7 +54,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class create_backup_course_task extends \core\task\asynchronous_backup_task {
-
     // Use the logging trait to get some nice, juicy, logging.
     use \core\task\logging_trait;
 
@@ -71,7 +70,6 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
         $started = time();
 
         try {
-
             $this->log_start("Course Transfer Backup Starting...");
 
             $istest = $this->get_custom_data()->istest;
@@ -90,7 +88,11 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
             $bc = backup_controller::load_controller($backupid);
 
             $backuprecord = $DB->get_record(
-                    'backup_controllers', ['backupid' => $backupid], 'id, controller', MUST_EXIST);
+                'backup_controllers',
+                ['backupid' => $backupid],
+                'id, controller',
+                MUST_EXIST
+            );
             mtrace('Processing asynchronous backup for backup: ' . $backupid);
 
             // Get the backup controller by backup id. If controller is invalid, this task can never complete.
@@ -117,7 +119,6 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
                     $asynchelper = new async_helper('backup', $backupid);
                     $asynchelper->send_message();
                 }
-
             } else {
                 // If status isn't 700, it means the process has failed.
                 // Retrying isn't going to fix it, so marked operation as failed.
@@ -135,7 +136,10 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
             if ($bc->get_status() === \backup::STATUS_FINISHED_OK) {
                 mtrace('Course Transfer Backup - Creating File ... ');
                 $resfileurl = coursetransfer::create_backupfile_url(
-                        $bc->get_courseid(), $result['backup_destination'], $requestorigin->id);
+                    $bc->get_courseid(),
+                    $result['backup_destination'],
+                    $requestorigin->id
+                );
                 if ($resfileurl->success) {
                     mtrace('Course Transfer Backup - Creating File OK');
                     if ($requestorigin) {
@@ -146,14 +150,23 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
                     }
                     if (!$istest) {
                         $res = $request->target_backup_course_completed(
-                                $resfileurl->fileurl, $requestid, $resfileurl->filesize, $user);
+                            $resfileurl->fileurl,
+                            $requestid,
+                            $resfileurl->filesize,
+                            $user
+                        );
                     }
                     $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
                 } else {
                     mtrace('Course Transfer Backup - Creating File ERROR');
                     if (!$istest) {
                         $res = $request->target_backup_course_error(
-                                $user, $requestid, $resfileurl->error, [], $resfileurl->filesize);
+                            $user,
+                            $requestid,
+                            $resfileurl->error,
+                            [],
+                            $resfileurl->filesize
+                        );
                     }
                 }
             } else {
@@ -182,5 +195,4 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
         $duration = time() - $started;
         mtrace('Backup completed in: ' . $duration . ' seconds');
     }
-
 }

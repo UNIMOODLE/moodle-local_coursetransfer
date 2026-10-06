@@ -57,7 +57,6 @@ require_once($CFG->dirroot . '/course/lib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tools {
-
     /**
      * Create Mod Assign.
      *
@@ -227,5 +226,4 @@ class tools {
         ];
         return $generator->create_instance($record, $options);
     }
-
 }

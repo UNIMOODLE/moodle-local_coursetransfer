@@ -56,7 +56,6 @@ require_once($CFG->dirroot . '/course/externallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class remove_category_task extends \core\task\adhoc_task {
-
     // Use the logging trait to get some nice, juicy, logging.
     use \core\task\logging_trait;
 
@@ -67,7 +66,6 @@ class remove_category_task extends \core\task\adhoc_task {
     public function execute(): void {
 
         try {
-
             $this->log_start("Remove Category Remote Starting...");
 
             $targetsiteid = $this->get_custom_data()->targetsiteid;
@@ -110,7 +108,11 @@ class remove_category_task extends \core\task\adhoc_task {
                 $requestorigin->error_message = $e->getMessage();
                 coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
                 $res = $request->target_remove_course_error(
-                        $user, $requestdestid, $requestorigin->error_message, $requestorigin->error_code);
+                    $user,
+                    $requestdestid,
+                    $requestorigin->error_message,
+                    $requestorigin->error_code
+                );
                 if (!$res->success) {
                     mtrace('Remove Course Remote in Error Callback ERROR: ' . $res->errors[0]->msg);
                     $this->log(json_encode($res));

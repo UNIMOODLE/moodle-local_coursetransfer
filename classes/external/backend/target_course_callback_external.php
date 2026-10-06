@@ -61,7 +61,6 @@ require_once($CFG->dirroot . '/local/coursetransfer/classes/task/download_file_c
  * @package local_coursetransfer\external\backend
  */
 class target_course_callback_external extends external_api {
-
     /**
      * Target Backup Course Completed Parameters.
      *
@@ -92,11 +91,17 @@ class target_course_callback_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function target_backup_course_completed(string $field, string $value, int $requestid,
-                                                           int $backupsize, string $fileurl): array {
+    public static function target_backup_course_completed(
+        string $field,
+        string $value,
+        int $requestid,
+        int $backupsize,
+        string $fileurl
+    ): array {
 
         $params = self::validate_parameters(
-            self::target_backup_course_completed_parameters(), [
+            self::target_backup_course_completed_parameters(),
+            [
                 'field' => $field,
                 'value' => $value,
                 'requestid' => $requestid,
@@ -168,7 +173,7 @@ class target_course_callback_external extends external_api {
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'data' => new external_single_structure(
-                        [
+                    [
                                 'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
                         ]
                 ),
@@ -176,7 +181,9 @@ class target_course_callback_external extends external_api {
                     [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ],
+                    PARAM_TEXT,
+                    'Errors'
                 )),
             ]
         );
@@ -209,7 +216,8 @@ class target_course_callback_external extends external_api {
     public static function target_remove_course_completed(string $field, string $value, int $requestid): array {
 
         $params = self::validate_parameters(
-            self::target_remove_course_completed_parameters(), [
+            self::target_remove_course_completed_parameters(),
+            [
                 'field' => $field,
                 'value' => $value,
                 'requestid' => $requestid,
@@ -277,7 +285,7 @@ class target_course_callback_external extends external_api {
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'data' => new external_single_structure(
-                        [
+                    [
                                 'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
                         ]
                 ),
@@ -285,7 +293,9 @@ class target_course_callback_external extends external_api {
                     [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ],
+                    PARAM_TEXT,
+                    'Errors'
                 )),
             ]
         );
@@ -322,10 +332,17 @@ class target_course_callback_external extends external_api {
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function target_backup_course_error(string $field, string $value, int $requestid, int $backupsize,
-                                                       int $errorcode, string $errormsg): array {
+    public static function target_backup_course_error(
+        string $field,
+        string $value,
+        int $requestid,
+        int $backupsize,
+        int $errorcode,
+        string $errormsg
+    ): array {
         $params = self::validate_parameters(
-            self::target_backup_course_error_parameters(), [
+            self::target_backup_course_error_parameters(),
+            [
                 'field' => $field,
                 'value' => $value,
                 'requestid' => $requestid,
@@ -396,7 +413,7 @@ class target_course_callback_external extends external_api {
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'data' => new external_single_structure(
-                        [
+                    [
                                 'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
                         ]
                 ),
@@ -404,7 +421,9 @@ class target_course_callback_external extends external_api {
                     [
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ],
+                    PARAM_TEXT,
+                    'Errors'
                 )),
             ]
         );
@@ -439,10 +458,16 @@ class target_course_callback_external extends external_api {
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function target_remove_course_error(string $field, string $value, int $requestid,
-                                                       int $errorcode, string $errormsg): array {
+    public static function target_remove_course_error(
+        string $field,
+        string $value,
+        int $requestid,
+        int $errorcode,
+        string $errormsg
+    ): array {
         $params = self::validate_parameters(
-            self::target_remove_course_error_parameters(), [
+            self::target_remove_course_error_parameters(),
+            [
                 'field' => $field,
                 'value' => $value,
                 'requestid' => $requestid,
@@ -510,7 +535,7 @@ class target_course_callback_external extends external_api {
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'data' => new external_single_structure(
-                        [
+                    [
                                 'id' => new external_value(PARAM_INT, 'Request ID', VALUE_OPTIONAL),
                         ]
                 ),
@@ -518,7 +543,9 @@ class target_course_callback_external extends external_api {
                     [
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ],
+                    PARAM_TEXT,
+                    'Errors'
                 )),
             ]
         );

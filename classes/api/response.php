@@ -46,7 +46,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class response {
-
     /** @var bool Whether the operation succeeded. */
     public bool $success;
 
@@ -68,10 +67,10 @@ class response {
      * @param stdClass|array|null $paging
      */
     public function __construct(
-            bool $success,
-            stdClass|array|string|null $data = null,
-            ?array $errors = null,
-            stdClass|array|null $paging = null
+        bool $success,
+        stdClass|array|string|null $data = null,
+        ?array $errors = null,
+        stdClass|array|null $paging = null
     ) {
         $this->success = $success;
         $this->data = $data;

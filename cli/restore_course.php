@@ -38,7 +38,7 @@ use local_coursetransfer\models\configuration_course;
 
 define('CLI_SCRIPT', 1);
 
-require(__DIR__.'/../../../config.php');
+require(__DIR__ . '/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
@@ -103,7 +103,7 @@ Examples:
         --origin_course_id=12 --target_course_id=34
 ';
 
-list($options, $unrecognised) = cli_get_params([
+[$options, $unrecognised] = cli_get_params([
     'help' => false,
     'site_url' => null,
     'origin_course_id' => null,
@@ -121,7 +121,7 @@ list($options, $unrecognised) = cli_get_params([
 ]);
 
 if ($unrecognised) {
-    $unrecognised = implode(PHP_EOL.'  ', $unrecognised);
+    $unrecognised = implode(PHP_EOL . '  ', $unrecognised);
     cli_error(get_string('cliunknowoption', 'core_admin', $unrecognised));
 }
 
@@ -147,13 +147,13 @@ if (empty($siteurl)) {
     cli_error(get_string('site_url_required', 'local_coursetransfer'), 2);
 }
 
-if ( $origincourseid === null ) {
+if ($origincourseid === null) {
     cli_error(get_string('origin_course_id_require', 'local_coursetransfer'), 2);
-} else if ( $origincourseid <= 0 ) {
+} else if ($origincourseid <= 0) {
     cli_error(get_string('origin_course_id_integer', 'local_coursetransfer'), 2);
 }
 
-if ( !in_array($targettarget, [backup::TARGET_NEW_COURSE, backup::TARGET_EXISTING_DELETING, backup::TARGET_EXISTING_ADDING]) ) {
+if (!in_array($targettarget, [backup::TARGET_NEW_COURSE, backup::TARGET_EXISTING_DELETING, backup::TARGET_EXISTING_ADDING])) {
     cli_error(get_string('target_target_is_incorrect', 'local_coursetransfer'), 2);
 }
 
@@ -164,7 +164,7 @@ $user = \local_coursetransfer\cli_helper::require_ws_user();
 // ever deletes a course we created (never a pre-existing target = data loss).
 $creatednew = false;
 
-if ( empty($targetcourseid) && ($targettarget === backup::TARGET_NEW_COURSE)) {
+if (empty($targetcourseid) && ($targettarget === backup::TARGET_NEW_COURSE)) {
     if ($targetcategoryid !== null) {
         try {
             $category = core_course_category::get($targetcategoryid);
@@ -176,27 +176,30 @@ if ( empty($targetcourseid) && ($targettarget === backup::TARGET_NEW_COURSE)) {
     }
     // Create new course.
     $targetcourseid = \local_coursetransfer\factory\course::create(
-            $category, 'Remote Restoring in process...', 'IN-PROGRESS-' . time());
+        $category,
+        'Remote Restoring in process...',
+        'IN-PROGRESS-' . time()
+    );
     $creatednew = true;
-} else if ( empty($targetcourseid) && $targettarget !== backup::TARGET_NEW_COURSE ) {
+} else if (empty($targetcourseid) && $targettarget !== backup::TARGET_NEW_COURSE) {
     cli_error(get_string('target_course_id_is_required', 'local_coursetransfer'), 2);
-} else if ( !empty($targetcourseid) && $targettarget === backup::TARGET_NEW_COURSE ) {
+} else if (!empty($targetcourseid) && $targettarget === backup::TARGET_NEW_COURSE) {
     cli_error(get_string('target_course_id_isnot_correct', 'local_coursetransfer'), 2);
 }
 
-if ( !in_array((int)$originenrolusers, [0, 1])) {
+if (!in_array((int)$originenrolusers, [0, 1])) {
     cli_error(get_string('origin_enrolusers_boolean', 'local_coursetransfer'), 2);
 }
 
-if ( !in_array((int)$targetremoveenrols, [0, 1])) {
+if (!in_array((int)$targetremoveenrols, [0, 1])) {
     cli_error(get_string('target_remove_enrols_boolean', 'local_coursetransfer'), 2);
 }
 
-if ( !in_array((int)$targetremovegroups, [0, 1])) {
+if (!in_array((int)$targetremovegroups, [0, 1])) {
     cli_error(get_string('target_remove_groups_booelan', 'local_coursetransfer'), 2);
 }
 
-if ( !in_array((int)$originremovecourse, [0, 1])) {
+if (!in_array((int)$originremovecourse, [0, 1])) {
     cli_error(get_string('origin_remove_course_boolean', 'local_coursetransfer'), 2);
 }
 cli_helper::check_schedule($originscheduledatetime);
@@ -212,16 +215,15 @@ if ($targettarget === backup::TARGET_EXISTING_ADDING && $targetremoveenrols === 
 $errors = [];
 
 try {
-
     // 1. Setup Configuration.
     $configuration = new configuration_course(
-            $targettarget,
-            $targetremoveenrols,
-            $targetremovegroups,
-            $originenrolusers,
-            $originremovecourse,
-            $originscheduledatetime,
-            $targetnotremoveactivities
+        $targettarget,
+        $targetremoveenrols,
+        $targetremovegroups,
+        $originenrolusers,
+        $originremovecourse,
+        $originscheduledatetime,
+        $targetnotremoveactivities
     );
 
     // 3. Restore Course (service user resolved above via cli_helper).
@@ -244,7 +246,6 @@ try {
         }
         cli_error(json_encode($errors), 1);
     }
-
 } catch (moodle_exception $e) {
     if ($creatednew) {
         // 5b. Remove ONLY the course we created in this run (never a pre-existing target).

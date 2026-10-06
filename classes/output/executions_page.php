@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Unified executions log page (Tresipunt redesign, TIPGOODLE-352).
+ * Unified executions log page (Tresipunt redesign).
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -57,7 +57,6 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class executions_page implements renderable, templatable {
-
     /** @var int Minutes without movement before an active request is flagged as stuck */
     const STUCK_MINUTES = 30;
 
@@ -97,8 +96,16 @@ class executions_page implements renderable, templatable {
      * @param int $page
      * @param int $perpage
      */
-    public function __construct(array $active, array $rows, int $total, array $filters,
-            array $sites, string $tab, int $page, int $perpage) {
+    public function __construct(
+        array $active,
+        array $rows,
+        int $total,
+        array $filters,
+        array $sites,
+        string $tab,
+        int $page,
+        int $perpage
+    ) {
         $this->active = $active;
         $this->rows = $rows;
         $this->total = $total;
@@ -140,8 +147,11 @@ class executions_page implements renderable, templatable {
         }
         $data->norows = empty($data->rows);
         $data->total = $this->total;
-        $data->resultlabel = get_string($this->total === 1 ? 'exec_result_one' : 'exec_results',
-                'local_coursetransfer', $this->total);
+        $data->resultlabel = get_string(
+            $this->total === 1 ? 'exec_result_one' : 'exec_results',
+            'local_coursetransfer',
+            $this->total
+        );
 
         $data->filters = $this->export_filters();
         $data->pagination = $this->export_pagination();
@@ -239,16 +249,20 @@ class executions_page implements renderable, templatable {
                 // than a generic "unknown error" (common on incomplete
                 // category restores where per-course errors live elsewhere).
                 $item->errcause = get_string(
-                        $isincomplete ? 'exec_err_incomplete' : 'exec_err_nomessage',
-                        'local_coursetransfer');
+                    $isincomplete ? 'exec_err_incomplete' : 'exec_err_nomessage',
+                    'local_coursetransfer'
+                );
             }
             $item->erraction = get_string(
-                    $isincomplete ? 'exec_err_incomplete_action' : 'platform_error_action',
-                    'local_coursetransfer');
+                $isincomplete ? 'exec_err_incomplete_action' : 'platform_error_action',
+                'local_coursetransfer'
+            );
             // Retry is only implemented for course restores (LCT-023).
             $item->canretry = (int)$request->type === coursetransfer_request::TYPE_COURSE;
-            $item->retryurl = (new moodle_url('/local/coursetransfer/retry.php',
-                    ['id' => $request->id]))->out(false);
+            $item->retryurl = (new moodle_url(
+                '/local/coursetransfer/retry.php',
+                ['id' => $request->id]
+            ))->out(false);
         }
         return $item;
     }
@@ -263,8 +277,10 @@ class executions_page implements renderable, templatable {
     protected function export_common(stdClass $request): stdClass {
         $item = new stdClass();
         $item->id = $request->id;
-        $item->detailurl = (new moodle_url('/local/coursetransfer/log.php',
-                ['id' => $request->id]))->out(false);
+        $item->detailurl = (new moodle_url(
+            '/local/coursetransfer/log.php',
+            ['id' => $request->id]
+        ))->out(false);
 
         $statuses = coursetransfer::STATUS;
         $shortname = $statuses[(int)$request->status]['shortname'] ?? 'not_started';
@@ -280,8 +296,10 @@ class executions_page implements renderable, templatable {
         $item->isremove = !$isrestore;
         $item->isrestore = $isrestore;
         $item->dirin = ($isrestore && $isrequest) || (!$isrestore && !$isrequest);
-        $item->dirlabel = get_string($item->dirin ? 'platforms_role_origin' : 'platforms_role_target',
-                'local_coursetransfer');
+        $item->dirlabel = get_string(
+            $item->dirin ? 'platforms_role_origin' : 'platforms_role_target',
+            'local_coursetransfer'
+        );
         // Direction of the record itself: request (this site initiated) vs response
         // (this site received a request from a peer). Shown as a compact icon.
         $item->isrequest = $isrequest;
@@ -298,8 +316,10 @@ class executions_page implements renderable, templatable {
         }
 
         $item->site = $request->siteurl;
-        $item->date = userdate((int)$request->timemodified,
-                get_string('strftimedatetimeshort', 'langconfig'));
+        $item->date = userdate(
+            (int)$request->timemodified,
+            get_string('strftimedatetimeshort', 'langconfig')
+        );
 
         // Deferred execution: a pending scheduled task (future run time) so the
         // user can see it will run later. origin_schedule_datetime is a unix ts.
@@ -333,8 +353,10 @@ class executions_page implements renderable, templatable {
         if ($isrestore) {
             if (!empty($request->targetcoursename)) {
                 $item->destname = $request->targetcoursename;
-                $item->desturl = (new moodle_url('/course/view.php',
-                        ['id' => (int)$request->target_course_id]))->out(false);
+                $item->desturl = (new moodle_url(
+                    '/course/view.php',
+                    ['id' => (int)$request->target_course_id]
+                ))->out(false);
             } else if (!empty($request->target_course_id)) {
                 $item->destname = '#' . $request->target_course_id;
                 if (!$item->dirin) {
@@ -361,8 +383,10 @@ class executions_page implements renderable, templatable {
         $filters->to = $this->filters['toraw'] ?? '';
 
         $filters->statusoptions = [];
-        foreach (['' => 'exec_filter_all', 'prog' => 'exec_group_prog', 'wait' => 'exec_group_wait',
-                'done' => 'exec_group_done', 'err' => 'exec_group_err'] as $value => $key) {
+        foreach (
+            ['' => 'exec_filter_all', 'prog' => 'exec_group_prog', 'wait' => 'exec_group_wait',
+                'done' => 'exec_group_done', 'err' => 'exec_group_err'] as $value => $key
+        ) {
             $filters->statusoptions[] = (object)[
                 'value' => $value,
                 'label' => get_string($key, 'local_coursetransfer'),
@@ -380,8 +404,10 @@ class executions_page implements renderable, templatable {
             ];
         }
         $filters->diroptions = [];
-        foreach (['' => 'exec_filter_all_f', 'in' => 'platforms_role_origin',
-                'out' => 'platforms_role_target'] as $value => $key) {
+        foreach (
+            ['' => 'exec_filter_all_f', 'in' => 'platforms_role_origin',
+                'out' => 'platforms_role_target'] as $value => $key
+        ) {
             $filters->diroptions[] = (object)[
                 'value' => $value,
                 'label' => get_string($key, 'local_coursetransfer'),

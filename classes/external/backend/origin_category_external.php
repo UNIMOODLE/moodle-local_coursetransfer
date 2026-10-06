@@ -58,7 +58,6 @@ require_once($CFG->dirroot . '/group/lib.php');
  * @package local_coursetransfer\external\backend
  */
 class origin_category_external extends external_api {
-
     /**
      * Origin get categories parameters.
      *
@@ -89,7 +88,8 @@ class origin_category_external extends external_api {
      */
     public static function origin_get_categories(string $field, string $value, int $page = 0, int $perpage = 0): array {
         $params = self::validate_parameters(
-            self::origin_get_categories_parameters(), [
+            self::origin_get_categories_parameters(),
+            [
                 'field' => $field,
                 'value' => $value,
                 'page' => $page,
@@ -124,7 +124,9 @@ class origin_category_external extends external_api {
                     $subcategories = coursetransfer::get_subcategories($category, $user);
                     $item->totalsubcategories = count($subcategories);
                     $item->totalcourseschild = coursetransfer::get_subcategories_numcourses(
-                            $category->get_courses_count(), $subcategories);
+                        $category->get_courses_count(),
+                        $subcategories
+                    );
                     $data[] = $item;
                 }
                 $paging['totalcount'] = $totalcategories;
@@ -164,7 +166,9 @@ class origin_category_external extends external_api {
                     [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ],
+                    PARAM_TEXT,
+                    'Errors'
                 )),
                 'paging' => new external_single_structure([
                     'totalcount' => new external_value(PARAM_INT, 'Total number of courses', VALUE_OPTIONAL),
@@ -181,7 +185,9 @@ class origin_category_external extends external_api {
                         'totalcourses' => new external_value(PARAM_INT, 'Total courses', VALUE_OPTIONAL),
                         'totalsubcategories' => new external_value(PARAM_INT, 'Total subcategories', VALUE_OPTIONAL),
                         'totalcourseschild' => new external_value(PARAM_INT, 'Total courses all subcategory', VALUE_OPTIONAL),
-                    ], PARAM_TEXT, 'Data'
+                    ],
+                    PARAM_TEXT,
+                    'Data'
                 )),
             ]
         );
@@ -213,7 +219,8 @@ class origin_category_external extends external_api {
      */
     public static function origin_get_category_detail(string $field, string $value, int $categoryid): array {
         $params = self::validate_parameters(
-            self::origin_get_category_detail_parameters(), [
+            self::origin_get_category_detail_parameters(),
+            [
                 'field' => $field,
                 'value' => $value,
                 'categoryid' => $categoryid,
@@ -300,7 +307,9 @@ class origin_category_external extends external_api {
                     [
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ],
+                    PARAM_TEXT,
+                    'Errors'
                 )),
                 'data' => new external_single_structure(
                     [
@@ -358,7 +367,8 @@ class origin_category_external extends external_api {
      */
     public static function origin_get_category_detail_tree(string $field, string $value, int $categoryid): array {
         $params = self::validate_parameters(
-            self::origin_get_category_detail_tree_parameters(), [
+            self::origin_get_category_detail_tree_parameters(),
+            [
                 'field' => $field,
                 'value' => $value,
                 'categoryid' => $categoryid,
@@ -417,7 +427,8 @@ class origin_category_external extends external_api {
                     [
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], 'Errors'
+                    ],
+                    'Errors'
                 )),
                 'data' => new external_value(PARAM_RAW, 'Courses JSON', VALUE_OPTIONAL),
             ]
@@ -429,10 +440,14 @@ class origin_category_external extends external_api {
      *
      * @param core_course_category $category
      * @param array $visited Category ids already walked, to break any cycle (corrupted tree).
+     * @param int $depth Current recursion depth.
      * @return array
      */
-    protected static function get_courses_and_categories(core_course_category $category, array $visited = [],
-            int $depth = 0): array {
+    protected static function get_courses_and_categories(
+        core_course_category $category,
+        array $visited = [],
+        int $depth = 0
+    ): array {
         // Defensive guard: a well-formed Moodle category tree has no cycles, but a corrupted
         // parent chain (or an excessively deep tree) must not cause infinite recursion.
         if ($depth > coursetransfer::MAX_TREE_DEPTH || isset($visited[$category->id])) {
@@ -488,4 +503,4 @@ class origin_category_external extends external_api {
 
         return $data;
     }
-};
+}

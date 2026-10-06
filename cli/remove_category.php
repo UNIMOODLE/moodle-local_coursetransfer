@@ -37,7 +37,7 @@ use local_coursetransfer\coursetransfer;
 
 define('CLI_SCRIPT', 1);
 
-require(__DIR__.'/../../../config.php');
+require(__DIR__ . '/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
@@ -69,7 +69,7 @@ Example:
         --site_url=https://origin.example --origin_category_id=12
 ';
 
-list($options, $unrecognised) = cli_get_params([
+[$options, $unrecognised] = cli_get_params([
     'help' => false,
     'site_url' => null,
     'origin_category_id' => null,
@@ -79,7 +79,7 @@ list($options, $unrecognised) = cli_get_params([
 ]);
 
 if ($unrecognised) {
-    $unrecognised = implode(PHP_EOL.'  ', $unrecognised);
+    $unrecognised = implode(PHP_EOL . '  ', $unrecognised);
     cli_error(get_string('cliunknowoption', 'core_admin', $unrecognised));
 }
 
@@ -96,9 +96,9 @@ if (empty($siteurl)) {
     cli_error(get_string('site_url_required', 'local_coursetransfer'), 2);
 }
 
-if ( $origincategoryid === null ) {
+if ($origincategoryid === null) {
     cli_error(get_string('origin_category_id_require', 'local_coursetransfer'), 2);
-} else if ( $origincategoryid <= 0 ) {
+} else if ($origincategoryid <= 0) {
     cli_error(get_string('origin_category_id_integer', 'local_coursetransfer'), 2);
 }
 cli_helper::check_schedule($originscheduledatetime);
@@ -106,7 +106,6 @@ cli_helper::check_schedule($originscheduledatetime);
 $errors = [];
 
 try {
-
     // 2. User Login.
     $user = cli_helper::require_ws_user();
 
@@ -124,7 +123,6 @@ try {
     } else {
         cli_error(json_encode($errors), 1);
     }
-
 } catch (moodle_exception $e) {
     cli_error('40003: ' . $e->getMessage(), 1);
 }

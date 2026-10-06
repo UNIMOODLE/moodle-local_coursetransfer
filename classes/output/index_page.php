@@ -54,7 +54,6 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class index_page implements renderable, templatable {
-
     /**
      * constructor.
      *
@@ -86,15 +85,18 @@ class index_page implements renderable, templatable {
             $userok = (bool)$user;
             if ($user) {
                 $row = $DB->get_record_sql(
-                        "SELECT et.token, et.timecreated
+                    "SELECT et.token, et.timecreated
                            FROM {external_tokens} et
                            JOIN {external_services} es ON et.externalserviceid = es.id
                           WHERE es.component = :cmp AND et.userid = :uid",
-                        ['cmp' => 'local_coursetransfer', 'uid' => $user->id]);
+                    ['cmp' => 'local_coursetransfer', 'uid' => $user->id]
+                );
                 if ($row) {
                     $token = $row->token;
-                    $tokencreated = userdate((int)$row->timecreated,
-                            get_string('strftimedate', 'langconfig'));
+                    $tokencreated = userdate(
+                        (int)$row->timecreated,
+                        get_string('strftimedate', 'langconfig')
+                    );
                 }
             }
         } catch (moodle_exception $e) {
@@ -106,8 +108,10 @@ class index_page implements renderable, templatable {
         $data->tokencreated = $tokencreated;
 
         // URLs.
-        $data->url_config = (new moodle_url('/admin/settings.php',
-                ['section' => 'local_coursetransfer']))->out(false);
+        $data->url_config = (new moodle_url(
+            '/admin/settings.php',
+            ['section' => 'local_coursetransfer']
+        ))->out(false);
         $data->url_postinstall = (new moodle_url('/local/coursetransfer/postinstall.php'))->out(false);
         $data->url_platforms = (new moodle_url('/local/coursetransfer/sites.php'))->out(false);
         $data->url_logs = (new moodle_url('/local/coursetransfer/logs.php'))->out(false);
@@ -130,8 +134,10 @@ class index_page implements renderable, templatable {
                 if (empty($service->restrictedusers)) {
                     $serviceok = true;
                 } else if ($user) {
-                    $serviceok = $DB->record_exists('external_services_users',
-                            ['externalserviceid' => $service->id, 'userid' => $user->id]);
+                    $serviceok = $DB->record_exists(
+                        'external_services_users',
+                        ['externalserviceid' => $service->id, 'userid' => $user->id]
+                    );
                 }
             }
         } catch (\Throwable $e) {
@@ -156,7 +162,8 @@ class index_page implements renderable, templatable {
         $lastcron = 0;
         try {
             $lastcron = (int)$DB->get_field_sql(
-                    'SELECT MAX(lastruntime) FROM {task_scheduled} WHERE disabled = 0');
+                'SELECT MAX(lastruntime) FROM {task_scheduled} WHERE disabled = 0'
+            );
         } catch (\Throwable $e) {
             $lastcron = 0;
         }
@@ -164,73 +171,123 @@ class index_page implements renderable, templatable {
         $cronago = $lastcron > 0 ? format_time(time() - $lastcron) : '';
 
         $repair = get_string('idx_fix', 'local_coursetransfer');
-        $url_tasks = (new moodle_url('/admin/tool/task/scheduledtasks.php'))->out(false);
+        $urltasks = (new moodle_url('/admin/tool/task/scheduledtasks.php'))->out(false);
 
         $data->checks = [
-            $this->check('fa-key', get_string('idx_check_token', 'local_coursetransfer'),
-                    $data->hastoken ? 'ok' : 'error',
-                    get_string($data->hastoken ? 'idx_check_token_ok' : 'idx_check_token_ko', 'local_coursetransfer'),
-                    $data->hastoken ? '' : $repair,
-                    $data->hastoken ? '' : $data->url_postinstall),
-            $this->check('fa-plug', get_string('idx_check_ws', 'local_coursetransfer'),
-                    $wsok ? 'ok' : 'warn',
-                    get_string($wsok ? 'idx_check_ws_ok' : 'idx_check_ws_ko', 'local_coursetransfer'),
-                    $wsok ? '' : get_string('config', 'local_coursetransfer'),
-                    $wsok ? '' : $data->url_config),
-            $this->check('fa-cubes', get_string('idx_check_service', 'local_coursetransfer'),
-                    $serviceok ? 'ok' : 'error',
-                    get_string($serviceok ? 'idx_check_service_ok' : 'idx_check_service_ko', 'local_coursetransfer'),
-                    $serviceok ? '' : $repair,
-                    $serviceok ? '' : $data->url_postinstall),
-            $this->check('fa-user-circle-o', get_string('idx_check_user', 'local_coursetransfer'),
-                    $userok ? 'ok' : 'error',
-                    get_string($userok ? 'idx_check_user_ok' : 'idx_check_user_ko', 'local_coursetransfer'),
-                    $userok ? '' : $repair,
-                    $userok ? '' : $data->url_postinstall),
-            $this->check('fa-user-o', get_string('idx_check_active', 'local_coursetransfer'),
-                    $activeok ? 'ok' : 'error',
-                    get_string($activeok ? 'idx_check_active_ok' : 'idx_check_active_ko', 'local_coursetransfer'),
-                    $activeok ? '' : $repair,
-                    $activeok ? '' : $data->url_postinstall),
-            $this->check('fa-shield', get_string('idx_check_caps', 'local_coursetransfer'),
-                    $capsok ? 'ok' : 'error',
-                    get_string($capsok ? 'idx_check_caps_ok' : 'idx_check_caps_ko', 'local_coursetransfer'),
-                    $capsok ? '' : $repair,
-                    $capsok ? '' : $data->url_postinstall),
-            $this->check('fa-clock-o', get_string('idx_check_cron', 'local_coursetransfer'),
-                    $cronok ? 'ok' : 'warn',
-                    $cronok
+            $this->check(
+                'fa-key',
+                get_string('idx_check_token', 'local_coursetransfer'),
+                $data->hastoken ? 'ok' : 'error',
+                get_string($data->hastoken ? 'idx_check_token_ok' : 'idx_check_token_ko', 'local_coursetransfer'),
+                $data->hastoken ? '' : $repair,
+                $data->hastoken ? '' : $data->url_postinstall
+            ),
+            $this->check(
+                'fa-plug',
+                get_string('idx_check_ws', 'local_coursetransfer'),
+                $wsok ? 'ok' : 'warn',
+                get_string($wsok ? 'idx_check_ws_ok' : 'idx_check_ws_ko', 'local_coursetransfer'),
+                $wsok ? '' : get_string('config', 'local_coursetransfer'),
+                $wsok ? '' : $data->url_config
+            ),
+            $this->check(
+                'fa-cubes',
+                get_string('idx_check_service', 'local_coursetransfer'),
+                $serviceok ? 'ok' : 'error',
+                get_string($serviceok ? 'idx_check_service_ok' : 'idx_check_service_ko', 'local_coursetransfer'),
+                $serviceok ? '' : $repair,
+                $serviceok ? '' : $data->url_postinstall
+            ),
+            $this->check(
+                'fa-user-circle-o',
+                get_string('idx_check_user', 'local_coursetransfer'),
+                $userok ? 'ok' : 'error',
+                get_string($userok ? 'idx_check_user_ok' : 'idx_check_user_ko', 'local_coursetransfer'),
+                $userok ? '' : $repair,
+                $userok ? '' : $data->url_postinstall
+            ),
+            $this->check(
+                'fa-user-o',
+                get_string('idx_check_active', 'local_coursetransfer'),
+                $activeok ? 'ok' : 'error',
+                get_string($activeok ? 'idx_check_active_ok' : 'idx_check_active_ko', 'local_coursetransfer'),
+                $activeok ? '' : $repair,
+                $activeok ? '' : $data->url_postinstall
+            ),
+            $this->check(
+                'fa-shield',
+                get_string('idx_check_caps', 'local_coursetransfer'),
+                $capsok ? 'ok' : 'error',
+                get_string($capsok ? 'idx_check_caps_ok' : 'idx_check_caps_ko', 'local_coursetransfer'),
+                $capsok ? '' : $repair,
+                $capsok ? '' : $data->url_postinstall
+            ),
+            $this->check(
+                'fa-clock-o',
+                get_string('idx_check_cron', 'local_coursetransfer'),
+                $cronok ? 'ok' : 'warn',
+                $cronok
                             ? get_string('idx_check_cron_ok', 'local_coursetransfer', $cronago)
                             : get_string('idx_check_cron_ko', 'local_coursetransfer'),
-                    get_string('idx_ml_cron', 'local_coursetransfer'), $url_tasks),
-            $this->check('fa-globe', get_string('idx_check_platforms', 'local_coursetransfer'),
-                    $nplatforms > 0 ? 'ok' : 'warn',
-                    get_string('idx_check_platforms_n', 'local_coursetransfer', $nplatforms),
-                    get_string('platforms_link', 'local_coursetransfer'), $data->url_platforms),
+                get_string('idx_ml_cron', 'local_coursetransfer'),
+                $urltasks
+            ),
+            $this->check(
+                'fa-globe',
+                get_string('idx_check_platforms', 'local_coursetransfer'),
+                $nplatforms > 0 ? 'ok' : 'warn',
+                get_string('idx_check_platforms_n', 'local_coursetransfer', $nplatforms),
+                get_string('platforms_link', 'local_coursetransfer'),
+                $data->url_platforms
+            ),
         ];
 
         // Quick links.
         $data->pluginlinks = [
-            $this->link('fa-globe', get_string('platforms_title', 'local_coursetransfer'),
-                    get_string('idx_l_platforms', 'local_coursetransfer'), $data->url_platforms),
-            $this->link('fa-download', get_string('rw_title', 'local_coursetransfer'),
-                    get_string('idx_l_restore', 'local_coursetransfer'),
-                    (new moodle_url('/local/coursetransfer/origin_restore.php'))->out(false)),
-            $this->link('fa-trash', get_string('rmv_title', 'local_coursetransfer'),
-                    get_string('idx_l_remove', 'local_coursetransfer'),
-                    (new moodle_url('/local/coursetransfer/origin_remove.php'))->out(false)),
-            $this->link('fa-list-alt', get_string('logs_page', 'local_coursetransfer'),
-                    get_string('idx_l_logs', 'local_coursetransfer'), $data->url_logs),
-            $this->link('fa-cog', get_string('config', 'local_coursetransfer'),
-                    get_string('idx_l_config', 'local_coursetransfer'), $data->url_config),
+            $this->link(
+                'fa-globe',
+                get_string('platforms_title', 'local_coursetransfer'),
+                get_string('idx_l_platforms', 'local_coursetransfer'),
+                $data->url_platforms
+            ),
+            $this->link(
+                'fa-download',
+                get_string('rw_title', 'local_coursetransfer'),
+                get_string('idx_l_restore', 'local_coursetransfer'),
+                (new moodle_url('/local/coursetransfer/origin_restore.php'))->out(false)
+            ),
+            $this->link(
+                'fa-trash',
+                get_string('rmv_title', 'local_coursetransfer'),
+                get_string('idx_l_remove', 'local_coursetransfer'),
+                (new moodle_url('/local/coursetransfer/origin_remove.php'))->out(false)
+            ),
+            $this->link(
+                'fa-list-alt',
+                get_string('logs_page', 'local_coursetransfer'),
+                get_string('idx_l_logs', 'local_coursetransfer'),
+                $data->url_logs
+            ),
+            $this->link(
+                'fa-cog',
+                get_string('config', 'local_coursetransfer'),
+                get_string('idx_l_config', 'local_coursetransfer'),
+                $data->url_config
+            ),
         ];
         $data->moodlelinks = [
-            $this->link('fa-key', get_string('idx_ml_tokens', 'local_coursetransfer'),
-                    'admin/webservice/tokens.php',
-                    (new moodle_url('/admin/webservice/tokens.php'))->out(false)),
-            $this->link('fa-clock-o', get_string('idx_ml_cron', 'local_coursetransfer'),
-                    'admin/tool/task/scheduledtasks.php',
-                    (new moodle_url('/admin/tool/task/scheduledtasks.php'))->out(false)),
+            $this->link(
+                'fa-key',
+                get_string('idx_ml_tokens', 'local_coursetransfer'),
+                'admin/webservice/tokens.php',
+                (new moodle_url('/admin/webservice/tokens.php'))->out(false)
+            ),
+            $this->link(
+                'fa-clock-o',
+                get_string('idx_ml_cron', 'local_coursetransfer'),
+                'admin/tool/task/scheduledtasks.php',
+                (new moodle_url('/admin/tool/task/scheduledtasks.php'))->out(false)
+            ),
         ];
 
         return $data;
@@ -247,8 +304,14 @@ class index_page implements renderable, templatable {
      * @param string $actionurl
      * @return stdClass
      */
-    protected function check(string $faicon, string $label, string $state,
-            string $status, string $actionlabel = '', string $actionurl = ''): stdClass {
+    protected function check(
+        string $faicon,
+        string $label,
+        string $state,
+        string $status,
+        string $actionlabel = '',
+        string $actionurl = ''
+    ): stdClass {
         return (object)[
             'faicon' => $faicon,
             'label' => $label,
@@ -272,6 +335,4 @@ class index_page implements renderable, templatable {
     protected function link(string $faicon, string $title, string $sub, string $href): stdClass {
         return (object)['faicon' => $faicon, 'title' => $title, 'sub' => $sub, 'href' => $href];
     }
-
 }
-

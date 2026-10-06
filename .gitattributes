@@ -1,3 +1,21 @@
+# Source is stored with LF line endings, wherever it is cloned. Without this, a
+# clone on Windows with core.autocrlf=true rewrites every file to CRLF and the
+# next commit looks as if the whole tree had changed.
+* text=auto eol=lf
+
+*.php       text eol=lf
+*.js        text eol=lf
+*.css       text eol=lf
+*.mustache  text eol=lf
+*.xml       text eol=lf
+*.md        text eol=lf
+*.svg       text eol=lf
+*.yml       text eol=lf
+
+*.png       binary
+*.jpg       binary
+*.gif       binary
+
 # Files excluded from the archives GitHub generates for a tag (zipball/tarball).
 # The release workflow (.github/workflows/moodle_release.yml) publishes that
 # zipball to the Moodle Plugins directory, so development-only files must not

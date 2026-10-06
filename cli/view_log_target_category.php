@@ -36,7 +36,7 @@ use local_coursetransfer\coursetransfer;
 
 define('CLI_SCRIPT', 1);
 
-require(__DIR__.'/../../../config.php');
+require(__DIR__ . '/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 
@@ -58,7 +58,7 @@ Examples:
     # php local/coursetransfer/cli/view_log_target_category.php --categoryid=3
 ';
 
-list($options, $unrecognised) = cli_get_params([
+[$options, $unrecognised] = cli_get_params([
         'help' => false,
         'categoryid' => null,
 ], [
@@ -66,7 +66,7 @@ list($options, $unrecognised) = cli_get_params([
 ]);
 
 if ($unrecognised) {
-    $unrecognised = implode(PHP_EOL.'  ', $unrecognised);
+    $unrecognised = implode(PHP_EOL . '  ', $unrecognised);
     cli_error(get_string('cliunknowoption', 'core_admin', $unrecognised));
 }
 
@@ -77,18 +77,27 @@ if ($options['help']) {
 
 $categoryid = (int) $options['categoryid'];
 
-if ( $categoryid === null ) {
+if ($categoryid === null) {
     cli_error(get_string('target_category_id_require', 'local_coursetransfer'), 2);
-} else if ( $categoryid <= 0 ) {
+} else if ($categoryid <= 0) {
     cli_error(get_string('target_category_id_integer', 'local_coursetransfer'), 2);
 }
 
 try {
-
     $mask = "| %12.15s |%-35.35s | %-14.14s | %-14.14s  | %-14.14s | %-30.30s  | %-30.30s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
-    printf($mask,
-            'Request ID', 'Dest Site', 'Dest Category', 'Orig Category',
-            'Status', 'Courses Selected', 'Error', 'UserID', 'TimeModified', 'TimeCreated');
+    printf(
+        $mask,
+        'Request ID',
+        'Dest Site',
+        'Dest Category',
+        'Orig Category',
+        'Status',
+        'Courses Selected',
+        'Error',
+        'UserID',
+        'TimeModified',
+        'TimeCreated'
+    );
 
     foreach (\local_coursetransfer\coursetransfer_request::get_by_target_category_id($categoryid) as $item) {
         $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
@@ -99,17 +108,24 @@ try {
             if (empty($coursesid)) {
                 $coursesid .= $req->origin_course_id;
             } else {
-                $coursesid .= '-'. $req->origin_course_id;
+                $coursesid .= '-' . $req->origin_course_id;
             }
         }
-        printf($mask,
-                $item->id, $item->siteurl, $item->target_category_id, $item->origin_category_id,
-                get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
-                $coursesid, $error, $item->userid, $item->timemodified, $item->timecreated);
+        printf(
+            $mask,
+            $item->id,
+            $item->siteurl,
+            $item->target_category_id,
+            $item->origin_category_id,
+            get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
+            $coursesid,
+            $error,
+            $item->userid,
+            $item->timemodified,
+            $item->timecreated
+        );
     }
     exit(0);
-
 } catch (moodle_exception $e) {
     cli_error('40008: ' . $e->getMessage(), 1);
 }
-

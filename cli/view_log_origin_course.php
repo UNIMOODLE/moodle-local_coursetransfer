@@ -36,7 +36,7 @@ use local_coursetransfer\coursetransfer;
 
 define('CLI_SCRIPT', 1);
 
-require(__DIR__.'/../../../config.php');
+require(__DIR__ . '/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 
@@ -58,7 +58,7 @@ Examples:
     # php local/coursetransfer/cli/view_log_origin_course.php --courseid=3
 ';
 
-list($options, $unrecognised) = cli_get_params([
+[$options, $unrecognised] = cli_get_params([
         'help' => false,
         'courseid' => null,
 ], [
@@ -66,7 +66,7 @@ list($options, $unrecognised) = cli_get_params([
 ]);
 
 if ($unrecognised) {
-    $unrecognised = implode(PHP_EOL.'  ', $unrecognised);
+    $unrecognised = implode(PHP_EOL . '  ', $unrecognised);
     cli_error(get_string('cliunknowoption', 'core_admin', $unrecognised));
 }
 
@@ -77,31 +77,49 @@ if ($options['help']) {
 
 $courseid = (int) $options['courseid'];
 
-if ( $courseid === null ) {
+if ($courseid === null) {
     cli_error(get_string('courseid_require', 'local_coursetransfer'), 2);
-} else if ( $courseid <= 0 ) {
+} else if ($courseid <= 0) {
     cli_error(get_string('courseid_integer', 'local_coursetransfer'), 2);
 }
 
 try {
-
-    $mask = "| %10.10s |%-12.12s |%-35.35s | %-14.14s | %-13.13s  ".
+    $mask = "| %10.10s |%-12.12s |%-35.35s | %-14.14s | %-13.13s  " .
             "| %-8.8s | %-50.50s  | %-8.8s  | %-7.7s  | %-15.15s  | %-15.15s |\n";
-    printf($mask,
-            'Request', 'Dest Req', 'Dest Site', 'Dest Course', 'Orig Course',
-            'Status', 'Error', 'Size', 'UserID', 'TimeModified', 'TimeCreated');
+    printf(
+        $mask,
+        'Request',
+        'Dest Req',
+        'Dest Site',
+        'Dest Course',
+        'Orig Course',
+        'Status',
+        'Error',
+        'Size',
+        'UserID',
+        'TimeModified',
+        'TimeCreated'
+    );
 
     $items = \local_coursetransfer\coursetransfer_request::get_by_origin_course_id($courseid);
     foreach ($items as $item) {
         $error = !empty($item->error_code) ? $item->error_code . ': ' . $item->error_message : '-';
-        printf($mask,
-                $item->id, $item->target_request_id, $item->siteurl, $item->target_course_id, $item->origin_course_id,
-                get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
-                $error, $item->origin_backup_size, $item->userid, $item->timemodified, $item->timecreated);
+        printf(
+            $mask,
+            $item->id,
+            $item->target_request_id,
+            $item->siteurl,
+            $item->target_course_id,
+            $item->origin_course_id,
+            get_string('status_' . coursetransfer::STATUS[$item->status]['shortname'], 'local_coursetransfer'),
+            $error,
+            $item->origin_backup_size,
+            $item->userid,
+            $item->timemodified,
+            $item->timecreated
+        );
     }
     exit(0);
-
 } catch (moodle_exception $e) {
     cli_error('40005: ' . $e->getMessage(), 1);
 }
-

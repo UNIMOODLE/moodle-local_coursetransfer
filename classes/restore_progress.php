@@ -35,7 +35,6 @@ namespace local_coursetransfer;
 use core\progress\base;
 use dml_exception;
 
-defined('MOODLE_INTERNAL') || die;
 
 /**
  * Progress reporter that writes the live restore percentage (0-100) into the
@@ -47,7 +46,6 @@ defined('MOODLE_INTERNAL') || die;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_progress extends base {
-
     /** @var int Request id to update. */
     protected int $requestid;
 
@@ -81,7 +79,7 @@ class restore_progress extends base {
             if ($now < $this->nextupdate) {
                 return;
             }
-            list($min) = $this->get_progress_proportion_range();
+            [$min] = $this->get_progress_proportion_range();
             $pct = max(0, min(100, (int) round($min * 100)));
             $this->nextupdate = $now + $this->interval;
         } else {

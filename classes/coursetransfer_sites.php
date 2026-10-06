@@ -49,7 +49,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_sites {
-
     /** @var string Table Prex */
     const TABLE_PREX = 'local_coursetransfer_';
 
@@ -100,14 +99,16 @@ class coursetransfer_sites {
      */
     public static function get_by_host(string $type, string $host): mixed {
         global $DB;
-        $compare = $DB->sql_compare_text('host');
-        $compareplaceholder = $DB->sql_compare_text(':host');
+        // The length is explicit: the 32-character default of sql_compare_text() would compare only
+        // the start of the URL, and two platforms sharing that prefix would resolve to the same row.
+        $compare = $DB->sql_compare_text('host', 255);
+        $compareplaceholder = $DB->sql_compare_text(':host', 255);
         $records = $DB->get_records_sql(
-                "SELECT id, host, token
+            "SELECT id, host, token
                     FROM {" . self::TABLE_PREX . $type . "}
                     WHERE {$compare} = {$compareplaceholder}",
-                [
-                        'host' => $host,
+            [
+                        'host' => self::clean_host($host),
                 ]
         );
         if ($records) {
@@ -232,6 +233,13 @@ class coursetransfer_sites {
      */
     public static function is_in_use(string $host): bool {
         global $DB;
-        return $DB->record_exists('local_coursetransfer_request', ['siteurl' => self::clean_host($host)]);
+        // The siteurl column is TEXT, so a plain equality condition is rejected by the DML layer.
+        // The length is explicit: the 32-character default would compare only the start of the URL.
+        $select = $DB->sql_compare_text('siteurl', 255) . ' = ' . $DB->sql_compare_text(':siteurl', 255);
+        return $DB->record_exists_select(
+            'local_coursetransfer_request',
+            $select,
+            ['siteurl' => self::clean_host($host)]
+        );
     }
 }

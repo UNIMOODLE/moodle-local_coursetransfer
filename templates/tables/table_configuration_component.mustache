@@ -25,7 +25,19 @@
   @template local_coursetransfer/tables/table_configuration_component
 
   Example context (json):
-
+  {
+      "id": 12,
+      "course_new": true,
+      "target_remove_enrols": false,
+      "target_remove_groups": false,
+      "target_remove_activities": false,
+      "target_merge_activities": true,
+      "origin_enrol_users": true,
+      "origin_remove_course": false,
+      "origin_schedule": true,
+      "has_scheduled_time": true,
+      "origin_schedule_datetime": "2026-09-14 10:00"
+  }
 }}
 <div data-region="table_configuration_component">
     <button type="button" class="btn btn-light configuration" data-toggle="modal" data-target="#ModalConfiguration-{{ id }}" data-bs-toggle="modal" data-bs-target="#ModalConfiguration-{{ id }}">
@@ -33,7 +45,7 @@
     </button>
     <!-- Modal -->
     <div class="modal fade bd-example-modal-lg" id="ModalConfiguration-{{ id }}" tabindex="-1" role="dialog"
-         aria-labelledby="ModalConfiguration-{{ id }}Title" aria-hidden="true">
+         aria-labelledby="ModalConfiguration-{{ id }}LongTitle" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -173,47 +185,3 @@
         </div>
     </div>
 </div>
-<style>
-    div[data-region='table_configuration_component'] .modal-body {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        text-align: left;
-    }
-    div[data-region='table_configuration_component'] ul.configuration-list {
-        list-style-type: none;
-        padding: 0;
-        width: 100%;
-    }
-    div[data-region='table_configuration_component'] li.configuration-group {
-        display: flex;
-        margin: 20px 0;
-    }
-    div[data-region='table_configuration_component'] div.checkbox {
-        padding: 0 5%;
-    }
-    div[data-region='table_configuration_component'] div.config-title {
-        padding-bottom: 5px;
-        font-size: 14px;
-        font-weight: 700;
-    }
-    div[data-region='table_configuration_component'] div.config-desc {
-        padding-bottom: 5px;
-        padding-right: 10px;
-        font-size: 12px;
-        font-weight: 400;
-    }
-    div[data-region='table_configuration_component'] input[type="checkbox"]:checked, input[type="checkbox"]:active, input[type="checkbox"]:disabled {
-        box-shadow: none;
-    }
-    div[data-region='table_configuration_component'] .checkbox i.fa {
-        font-size: 20px;
-        padding-top: 3px;
-    }
-
-    div[data-region='table_configuration_component'] .checkbox i.fa.text-success {
-        color: #21c235 !important;
-    }
-</style>
