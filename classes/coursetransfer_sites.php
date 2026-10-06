@@ -49,7 +49,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_sites {
-
     /** @var string Table Prex */
     const TABLE_PREX = 'local_coursetransfer_';
 
@@ -105,10 +104,10 @@ class coursetransfer_sites {
         $compare = $DB->sql_compare_text('host', 255);
         $compareplaceholder = $DB->sql_compare_text(':host', 255);
         $records = $DB->get_records_sql(
-                "SELECT id, host, token
+            "SELECT id, host, token
                     FROM {" . self::TABLE_PREX . $type . "}
                     WHERE {$compare} = {$compareplaceholder}",
-                [
+            [
                         'host' => self::clean_host($host),
                 ]
         );

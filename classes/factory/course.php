@@ -53,7 +53,6 @@ require_once($CFG->dirroot . '/course/lib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course {
-
     /**
      * Create
      *
@@ -64,8 +63,12 @@ class course {
      * @return int
      * @throws moodle_exception
      */
-    public static function create(core_course_category $category,
-            string $fullname, string $shortname, string $summary = ''): int {
+    public static function create(
+        core_course_category $category,
+        string $fullname,
+        string $shortname,
+        string $summary = ''
+    ): int {
 
         $datacourse = new stdClass();
         $datacourse->category = $category->id;
@@ -81,5 +84,4 @@ class course {
             throw new moodle_exception('0090100', $e->getMessage());
         }
     }
-
 }

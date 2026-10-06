@@ -64,7 +64,6 @@ require_once($CFG->dirroot . '/local/coursetransfer/classes/task/create_backup_c
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_restore {
-
     /**
      * Create task restore course.
      *
@@ -75,7 +74,7 @@ class coursetransfer_restore {
     public static function create_task_restore_course(stdClass $request, stored_file $file): bool {
         $resasynctask = new restore_course_task();
         $resasynctask->set_custom_data(
-                ['requestid' => $request->id, 'fileid' => $file->get_id()]
+            ['requestid' => $request->id, 'fileid' => $file->get_id()]
         );
         return manager::queue_adhoc_task($resasynctask);
     }
@@ -136,8 +135,14 @@ class coursetransfer_restore {
                 $target = backup::TARGET_EXISTING_DELETING;
             }
 
-            $rc = new restore_controller($filepath, $courseid,
-                    backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, $target);
+            $rc = new restore_controller(
+                $filepath,
+                $courseid,
+                backup::INTERACTIVE_NO,
+                backup::MODE_GENERAL,
+                $userid,
+                $target
+            );
 
             // Report live restore progress (percent) into the request row (LCT-022).
             $rc->set_progress(new restore_progress((int)$request->id));
@@ -192,7 +197,6 @@ class coursetransfer_restore {
                 coursetransfer_request::insert_or_update($request, $request->id);
                 return false;
             }
-
         } catch (\Throwable $e) {
             $request->status = coursetransfer_request::STATUS_ERROR;
             $request->error_code = '10400';

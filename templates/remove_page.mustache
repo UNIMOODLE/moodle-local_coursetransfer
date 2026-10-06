@@ -20,6 +20,7 @@
     Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
     Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
     Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 }}
 {{!
   @template local_coursetransfer/remove_page
@@ -28,6 +29,28 @@
   done, driven by local_coursetransfer/remove_wizard. Deletes courses or whole
   categories on a remote origin platform. The .ct-remove scope recolours the
   shared wizard components red (destructive).
+
+  Example context (json):
+  {
+      "logurl": "https://example.com/local/coursetransfer/logs.php",
+      "pagesize": 10,
+      "canremovecourse": true,
+      "canremovecategory": true,
+      "hasrecent": true,
+      "recent": [
+          {
+              "date": "14/09/2026 10:00",
+              "site": "Campus 2025",
+              "summary": "Course: Mathematics I",
+              "statuslabel": "Completed",
+              "badgeclass": "ct-badge--ok",
+              "detailurl": "https://example.com/local/coursetransfer/log.php?id=1",
+              "iserror": false,
+              "errcause": "",
+              "erraction": ""
+          }
+      ]
+  }
 }}
 <div class="local-coursetransfer ct-wide ct-remove" data-region="remove"
         data-logurl="{{ logurl }}" data-pagesize="{{ pagesize }}"

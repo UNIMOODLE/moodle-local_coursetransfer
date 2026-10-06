@@ -51,7 +51,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_remove {
-
     /** @var int Cleanup bin task nextruntim plus */
     const CLEANUP_BIN_TASK_NEXTRUNTIME_PLUS = 240;
 
@@ -67,8 +66,13 @@ class coursetransfer_remove {
      * @return bool
      */
     public static function create_task_remove_course(
-            int $requestoriginid, int $requestdestid, int $courseid,
-            stdClass $destsite, int $userid, int $nextruntime = null): bool {
+        int $requestoriginid,
+        int $requestdestid,
+        int $courseid,
+        stdClass $destsite,
+        int $userid,
+        ?int $nextruntime = null
+    ): bool {
         $resasynctask = new remove_course_task();
         $payload = [
                 'targetsiteid' => $destsite->id,
@@ -96,7 +100,13 @@ class coursetransfer_remove {
      * @return bool
      */
     public static function create_task_remove_category(
-            int $requestoriginid, int $requestdestid, int $catid, stdClass $destsite, int $userid, int $nextruntime = null): bool {
+        int $requestoriginid,
+        int $requestdestid,
+        int $catid,
+        stdClass $destsite,
+        int $userid,
+        ?int $nextruntime = null
+    ): bool {
         $resasynctask = new remove_category_task();
         $payload = [
                 'targetsiteid' => $destsite->id,

@@ -56,7 +56,6 @@ require_once($CFG->dirroot . '/group/lib.php');
  * @package local_coursetransfer\external\frontend
  */
 class search_course extends external_api {
-
     /**
      * Origin restore Step1 parameters.
      *
@@ -79,8 +78,9 @@ class search_course extends external_api {
      */
     public static function search_by_name(string $text): array {
         $params = self::validate_parameters(
-            self::search_by_name_parameters(), [
-                'text' => $text
+            self::search_by_name_parameters(),
+            [
+                'text' => $text,
             ]
         );
 
@@ -132,16 +132,15 @@ class search_course extends external_api {
                         'msg' => new external_value(PARAM_RAW, 'Message'),
                     ]
                 )),
-                'data' => new external_multiple_structure(new external_single_structure(
-                    [
+                'data' => new external_multiple_structure(
+                    new external_single_structure([
                         'id' => new external_value(PARAM_INT, 'Coursename ID'),
                         'fullname' => new external_value(PARAM_TEXT, 'Fullname'),
                         'shortname' => new external_value(PARAM_TEXT, 'Course short name', VALUE_OPTIONAL),
                         'idnumber' => new external_value(PARAM_RAW, 'Course ID number', VALUE_OPTIONAL),
-                    ]),
+                    ])
                 ),
             ]
         );
     }
-
-};
+}

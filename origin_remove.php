@@ -61,15 +61,17 @@ $output = $PAGE->get_renderer('local_coursetransfer');
 echo $OUTPUT->header();
 // Either delete capability (course or category) may enter the assistant; each
 // kind is then gated per capability inside the wizard and the web service.
-if (has_capability('local/coursetransfer:origin_remove_course', $context)
-        || has_capability('local/coursetransfer:origin_remove_category', $context)) {
+if (
+    has_capability('local/coursetransfer:origin_remove_course', $context)
+        || has_capability('local/coursetransfer:origin_remove_category', $context)
+) {
     $page = new remove_page();
 } else {
     $page = new error_page(
-            get_string('forbidden', 'local_coursetransfer'),
-            get_string('you_have_not_permission', 'local_coursetransfer'),
-            'danger',
-            get_string('error')
+        get_string('forbidden', 'local_coursetransfer'),
+        get_string('you_have_not_permission', 'local_coursetransfer'),
+        'danger',
+        get_string('error')
     );
 }
 

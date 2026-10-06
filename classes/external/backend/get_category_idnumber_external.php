@@ -48,7 +48,6 @@ global $CFG;
  * @package local_coursetransfer\external\backend
  */
 class get_category_idnumber_external extends external_api {
-
     /**
      * Parameter definition.
      *

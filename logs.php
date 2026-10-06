@@ -104,6 +104,14 @@ $sites = coursetransfer_request::get_execution_sites();
 $output = $PAGE->get_renderer('local_coursetransfer');
 
 echo $OUTPUT->header();
-echo $output->render(new executions_page($active, $rows, $total, $filters,
-        $sites, $tab, $pagenum, $perpage));
+echo $output->render(new executions_page(
+    $active,
+    $rows,
+    $total,
+    $filters,
+    $sites,
+    $tab,
+    $pagenum,
+    $perpage
+));
 echo $OUTPUT->footer();

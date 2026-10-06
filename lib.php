@@ -42,14 +42,11 @@
 function local_coursetransfer_extend_navigation_course(navigation_node $navigation, stdClass $course, context_course $context) {
 
     if (has_capability('local/coursetransfer:origin_restore_course', $context)) {
-
         $label = get_string('origin_restore_course', 'local_coursetransfer');
         $url = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $course->id]);
         $icon = new pix_icon('t/restore', $label);
         $navigation->add($label, $url, navigation_node::TYPE_COURSE, null, null, $icon);
-
     }
-
 }
 
 /**
@@ -66,13 +63,17 @@ function local_coursetransfer_extend_settings_navigation(navigation_node $naviga
         if (has_capability('local/coursetransfer:origin_restore_course', $context)) {
             $course = $PAGE->course;
             $coursereusenode = $navigation->find('coursereuse', \navigation_node::TYPE_CONTAINER);
-            // Add the node to the settingsnav
+            // Add the node to the settingsnav.
             if ($coursereusenode) {
                 $url = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $course->id]);
-                $coursereusenode->add(get_string('origin_restore_course', 'local_coursetransfer'), 
-                                    $url,
-                                    \navigation_node::TYPE_SETTING, null, null,
-                                    new pix_icon('t/restore', get_string('origin_restore_course', 'local_coursetransfer')));
+                $coursereusenode->add(
+                    get_string('origin_restore_course', 'local_coursetransfer'),
+                    $url,
+                    \navigation_node::TYPE_SETTING,
+                    null,
+                    null,
+                    new pix_icon('t/restore', get_string('origin_restore_course', 'local_coursetransfer'))
+                );
             }
         }
     }
@@ -90,21 +91,31 @@ function local_coursetransfer_extend_settings_navigation(navigation_node $naviga
             );
 
             $coursetransfercategory = $categorynode->add_node($coursetransfercategorynode, 'restorecourse');
-            $coursetransfercategory->add(get_string('configuration', 'local_coursetransfer'),
-                         new moodle_url('/admin/settings.php', ['section'=>'local_coursetransfer']),
-                         \navigation_node::TYPE_SETTING);
-            $coursetransfercategory->add(get_string('summary', 'local_coursetransfer'),
-                    new moodle_url('/local/coursetransfer/index.php'),
-                    \navigation_node::TYPE_SETTING);
-            $coursetransfercategory->add(get_string('restore_page', 'local_coursetransfer'),
-                    new moodle_url('/local/coursetransfer/origin_restore.php'),
-                    \navigation_node::TYPE_SETTING);
-            $coursetransfercategory->add(get_string('remove_page', 'local_coursetransfer'),
-                    new moodle_url('/local/coursetransfer/origin_remove.php'),
-                    \navigation_node::TYPE_SETTING);
-            $coursetransfercategory->add(get_string('logs_page', 'local_coursetransfer'),
-                    new moodle_url('/local/coursetransfer/logs.php'),
-                    \navigation_node::TYPE_SETTING);
+            $coursetransfercategory->add(
+                get_string('configuration', 'local_coursetransfer'),
+                new moodle_url('/admin/settings.php', ['section' => 'local_coursetransfer']),
+                \navigation_node::TYPE_SETTING
+            );
+            $coursetransfercategory->add(
+                get_string('summary', 'local_coursetransfer'),
+                new moodle_url('/local/coursetransfer/index.php'),
+                \navigation_node::TYPE_SETTING
+            );
+            $coursetransfercategory->add(
+                get_string('restore_page', 'local_coursetransfer'),
+                new moodle_url('/local/coursetransfer/origin_restore.php'),
+                \navigation_node::TYPE_SETTING
+            );
+            $coursetransfercategory->add(
+                get_string('remove_page', 'local_coursetransfer'),
+                new moodle_url('/local/coursetransfer/origin_remove.php'),
+                \navigation_node::TYPE_SETTING
+            );
+            $coursetransfercategory->add(
+                get_string('logs_page', 'local_coursetransfer'),
+                new moodle_url('/local/coursetransfer/logs.php'),
+                \navigation_node::TYPE_SETTING
+            );
         }
     }
 }
@@ -129,12 +140,12 @@ function local_coursetransfer_extend_navigation_category_settings(navigation_nod
     $label = get_string('origin_restore_category', 'local_coursetransfer');
 
     $node = navigation_node::create(
-            $label,
-            $url,
-            navigation_node::NODETYPE_LEAF,
-            'local_coursetransfer',
-            'local_coursetransfer',
-            new pix_icon('trash', $pluginname, 'tool_recyclebin')
+        $label,
+        $url,
+        navigation_node::NODETYPE_LEAF,
+        'local_coursetransfer',
+        'local_coursetransfer',
+        new pix_icon('trash', $pluginname, 'tool_recyclebin')
     );
 
     if ($PAGE->url->compare($url, URL_MATCH_BASE)) {
@@ -159,8 +170,7 @@ function local_coursetransfer_extend_navigation_category_settings(navigation_nod
  * @throws moodle_exception
  * @throws require_login_exception
  */
-
-function local_coursetransfer_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=[]): bool {
+function local_coursetransfer_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []): bool {
     // Check that the filearea is sane.
     if ($filearea !== 'backup') {
         return false;
@@ -180,7 +190,7 @@ function local_coursetransfer_pluginfile($course, $cm, $context, $filearea, $arg
     if (!$args) {
         $filepath = '/';
     } else {
-        $filepath = '/'.implode('/', $args).'/';
+        $filepath = '/' . implode('/', $args) . '/';
     }
 
     // Retrieve the file.

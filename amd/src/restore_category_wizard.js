@@ -284,7 +284,12 @@ define([
             });
             this.$root.find('.ct-step').each(function() {
                 var idx = parseInt($(this).attr('data-step-index'), 10);
-                var st = idx < n ? 'done' : (idx === n ? 'current' : 'pending');
+                var st = 'pending';
+                if (idx < n) {
+                    st = 'done';
+                } else if (idx === n) {
+                    st = 'current';
+                }
                 $(this).attr('data-state', st);
             });
             this.renderSitebar();
@@ -697,25 +702,13 @@ define([
         },
 
         /**
-         * Render the review summary (values injected as text).
+         * Build the consolidated origin/destination card.
+         *
+         * @return {jQuery} The review card.
          */
-        renderReview: function() {
+        buildReviewCard: function() {
             var s = this.state;
             var self = this;
-            var $review = this.region('review').empty();
-
-            // Plain-language explanation of what running will do (Nielsen: help
-            // users understand system status before a consequential action).
-            var intro = (this.S.rcc_review_intro || '')
-                .replace('{$a->origin}', s.catname)
-                .replace('{$a->dest}', this.targetcatname);
-            if (intro) {
-                $review.append($('<p>').addClass('ct-step-lead').text(intro));
-            }
-
-            // A single consolidated card with labelled rows. Uses the same
-            // direction terms as the rest of the app ("Traigo de" / "Envío a"),
-            // not new wording.
             var $card = $('<div>').addClass('ct-review-item');
             $card.append($('<span>').addClass('ct-review-hero-icon')
                 .append($('<i>').addClass('fa fa-folder-open-o').attr('aria-hidden', 'true')));
@@ -754,9 +747,17 @@ define([
             if (s.catmeta) {
                 $card.append($('<span>').addClass('ct-chip ct-chip--existing').text(s.catmeta));
             }
-            $review.append($card);
+            return $card;
+        },
 
-            // Cross-cutting options grid.
+        /**
+         * Build the cross-cutting options grid.
+         *
+         * @return {jQuery} The options grid.
+         */
+        buildOptionsGrid: function() {
+            var s = this.state;
+            var self = this;
             var $grid = $('<div>').addClass('ct-review-grid ct-review-grid--wrap ct-mt');
             // Each option as a scannable card: icon + label + value. State
             // ('danger'|'ok') colours icon and value.
@@ -784,20 +785,52 @@ define([
                 ? (self.S.rw_review_sched_at || 'Scheduled: {$a}').replace('{$a}', self.formatSchedule(s.scheduledate))
                 : (self.S.rw_review_sched_now || 'Immediate');
             cell('fa-clock-o', self.S.rw_review_schedule_field || 'Execution', sched);
-            $review.append($grid);
+            return $grid;
+        },
+
+        /**
+         * Show or hide the notice warning that the origin category will be deleted.
+         */
+        renderRemoveOrigin: function() {
+            var s = this.state;
+            var $ro = this.region('review-removeorigin');
+            if (!s.removeorigin) {
+                $ro.prop('hidden', true);
+                return;
+            }
+            var txt = (this.S.rw_review_removeorigin || '{$a->count} {$a->kind} — {$a->site}')
+                .replace('{$a->count}', 1)
+                .replace('{$a->kind}', this.S.rw_categories_pl || '')
+                .replace('{$a->site}', s.sitename || '');
+            this.region('review-removeorigin-text').text(txt);
+            $ro.prop('hidden', false);
+        },
+
+        /**
+         * Render the review summary (values injected as text).
+         */
+        renderReview: function() {
+            var s = this.state;
+            var $review = this.region('review').empty();
+
+            // Plain-language explanation of what running will do (Nielsen: help
+            // users understand system status before a consequential action).
+            var intro = (this.S.rcc_review_intro || '')
+                .replace('{$a->origin}', s.catname)
+                .replace('{$a->dest}', this.targetcatname);
+            if (intro) {
+                $review.append($('<p>').addClass('ct-step-lead').text(intro));
+            }
+
+            // A single consolidated card with labelled rows. Uses the same
+            // direction terms as the rest of the app, not new wording.
+            $review.append(this.buildReviewCard());
+
+            // Cross-cutting options grid.
+            $review.append(this.buildOptionsGrid());
 
             // Destructive: origin category will be deleted.
-            var $ro = this.region('review-removeorigin');
-            if (s.removeorigin) {
-                var txt = (this.S.rw_review_removeorigin || '{$a->count} {$a->kind} — {$a->site}')
-                    .replace('{$a->count}', 1)
-                    .replace('{$a->kind}', this.S.rw_categories_pl || '')
-                    .replace('{$a->site}', s.sitename || '');
-                this.region('review-removeorigin-text').text(txt);
-                $ro.prop('hidden', false);
-            } else {
-                $ro.prop('hidden', true);
-            }
+            this.renderRemoveOrigin();
         },
 
         // ---- Submit ---------------------------------------------------

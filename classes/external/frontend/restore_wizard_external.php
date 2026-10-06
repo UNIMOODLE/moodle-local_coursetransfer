@@ -78,7 +78,6 @@ require_once($CFG->dirroot . '/webservice/lib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_wizard_external extends external_api {
-
     /**
      * Get sites parameters.
      *
@@ -103,19 +102,19 @@ class restore_wizard_external extends external_api {
      * @throws coding_exception
      * @throws dml_exception
      * @throws invalid_parameter_exception
- */
+     */
     public static function get_sites(): array {
         global $CFG;
         $context = context_system::instance();
         self::validate_context($context);
         require_capability('local/coursetransfer:origin_restore', $context);
 
-        $normalize = function(string $url): string {
+        $normalize = function (string $url): string {
             return strtolower(rtrim(trim($url), '/'));
         };
         $localhost = $normalize($CFG->wwwroot);
         $sites = [];
-        // coursetransfer_sites::list('origin') gives us name/lasttest/lastteststatus
+        // Note that coursetransfer_sites::list('origin') gives us name/lasttest/lastteststatus
         // keyed and indexed by the site record id, which IS the position.
         $records = coursetransfer_sites::list('origin');
         foreach ($records as $record) {
@@ -162,8 +161,11 @@ class restore_wizard_external extends external_api {
                         'host' => new external_value(PARAM_RAW, 'Site host'),
                         'connected' => new external_value(PARAM_BOOL, 'Whether last test was OK'),
                         'status' => new external_value(PARAM_TEXT, 'Connection status text'),
-                        'iscurrent' => new external_value(PARAM_BOOL,
-                                'Whether the site is this very platform (self-pairing)', VALUE_OPTIONAL),
+                        'iscurrent' => new external_value(
+                            PARAM_BOOL,
+                            'Whether the site is this very platform (self-pairing)',
+                            VALUE_OPTIONAL
+                        ),
                     ]
                 )),
             ]
@@ -203,11 +205,12 @@ class restore_wizard_external extends external_api {
      * @throws dml_exception
      * @throws invalid_parameter_exception
      * @throws required_capability_exception
- */
+     */
     public static function list_origin(int $siteid, string $type, int $page, int $perpage, string $query): array {
         global $USER;
         $params = self::validate_parameters(
-            self::list_origin_parameters(), [
+            self::list_origin_parameters(),
+            [
                 'siteid' => $siteid,
                 'type' => $type,
                 'page' => $page,
@@ -249,8 +252,8 @@ class restore_wizard_external extends external_api {
                         // A category restore imports the WHOLE subtree (the
                         // category's own courses plus every subcategory's,
                         // recursively). The backend exposes:
-                        //   totalcourses      = courses directly in the root
-                        //   totalcourseschild = grand total (root + subcategories)
+                        // totalcourses      = courses directly in the root
+                        // totalcourseschild = grand total (root + subcategories)
                         // So the headline "courses to import" is totalcourseschild,
                         // and the breakdown is root + (total - root). This avoids
                         // the confusing "0 courses" (root only) next to a large
@@ -349,10 +352,18 @@ class restore_wizard_external extends external_api {
                         'categoryid' => new external_value(PARAM_INT, 'Origin category id (courses)', VALUE_OPTIONAL, 0),
                         'parent' => new external_value(PARAM_TEXT, 'Parent category name (categories)', VALUE_OPTIONAL, ''),
                         'subcats' => new external_value(PARAM_INT, 'Number of subcategories (categories)', VALUE_OPTIONAL, 0),
-                        'rootcourses' => new external_value(PARAM_INT,
-                                'Courses directly in the category root (categories)', VALUE_OPTIONAL, 0),
-                        'subcatcourses' => new external_value(PARAM_INT,
-                                'Courses in subcategories (categories)', VALUE_OPTIONAL, 0),
+                        'rootcourses' => new external_value(
+                            PARAM_INT,
+                            'Courses directly in the category root (categories)',
+                            VALUE_OPTIONAL,
+                            0
+                        ),
+                        'subcatcourses' => new external_value(
+                            PARAM_INT,
+                            'Courses in subcategories (categories)',
+                            VALUE_OPTIONAL,
+                            0
+                        ),
                         'meta' => new external_value(PARAM_TEXT, 'Size or course count'),
                         'url' => new external_value(PARAM_RAW, 'Remote URL of the course/category', VALUE_OPTIONAL, ''),
                     ]
@@ -381,8 +392,12 @@ class restore_wizard_external extends external_api {
             [
                 'siteid' => new external_value(PARAM_INT, 'Site position (origin record id)'),
                 'courseid' => new external_value(PARAM_INT, 'Origin course id'),
-                'targetcourseid' => new external_value(PARAM_INT,
-                        'Target (local) course id where the teacher is acting (0 = system context)', VALUE_DEFAULT, 0),
+                'targetcourseid' => new external_value(
+                    PARAM_INT,
+                    'Target (local) course id where the teacher is acting (0 = system context)',
+                    VALUE_DEFAULT,
+                    0
+                ),
             ]
         );
     }
@@ -407,11 +422,12 @@ class restore_wizard_external extends external_api {
      * @throws dml_exception
      * @throws invalid_parameter_exception
      * @throws required_capability_exception
-    */
+     */
     public static function get_sections(int $siteid, int $courseid, int $targetcourseid = 0): array {
         global $USER;
         $params = self::validate_parameters(
-            self::get_sections_parameters(), [
+            self::get_sections_parameters(),
+            [
                 'siteid' => $siteid,
                 'courseid' => $courseid,
                 'targetcourseid' => $targetcourseid,
@@ -444,7 +460,7 @@ class restore_wizard_external extends external_api {
 
             $success = (bool)$res->success;
             if ($success) {
-                // $res->data is the origin course object; $res->data->sections is
+                // Note that $res->data is the origin course object; $res->data->sections is
                 // an array of {sectionnum, sectionid, sectionname, activities[]}
                 // (see origin_course_external::origin_get_course_detail_returns
                 // and new_origin_restore_course_step3_page::export_for_template).
@@ -553,7 +569,8 @@ class restore_wizard_external extends external_api {
     public static function get_category_tree(int $siteid, int $categoryid): array {
         global $USER;
         $params = self::validate_parameters(
-            self::get_category_tree_parameters(), [
+            self::get_category_tree_parameters(),
+            [
                 'siteid' => $siteid,
                 'categoryid' => $categoryid,
             ]
@@ -574,7 +591,7 @@ class restore_wizard_external extends external_api {
             $res = $request->origin_get_category_detail_tree($categoryid, $USER);
             $success = (bool)$res->success;
             if ($success) {
-                // origin_get_category_detail_tree returns its payload as a JSON string.
+                // Note that origin_get_category_detail_tree returns its payload as a JSON string.
                 $tree = is_string($res->data) ? $res->data : json_encode($res->data);
             } else {
                 $errors = $res->errors;
@@ -639,7 +656,8 @@ class restore_wizard_external extends external_api {
     public static function delete_request(int $requestid): array {
         global $DB;
         $params = self::validate_parameters(
-            self::delete_request_parameters(), ['requestid' => $requestid]
+            self::delete_request_parameters(),
+            ['requestid' => $requestid]
         );
         $requestid = $params['requestid'];
 
@@ -698,13 +716,21 @@ class restore_wizard_external extends external_api {
                 'type' => new external_value(PARAM_ALPHA, 'Type: course|category'),
                 // Per-course destination config (type course).
                 'courses' => new external_multiple_structure(
-                        new external_single_structure([
+                    new external_single_structure([
                             'origincourseid' => new external_value(PARAM_INT, 'Origin course id'),
                             'targetid' => new external_value(PARAM_INT, 'Target course id (0 = create new)'),
-                            'categorytarget' => new external_value(PARAM_INT,
-                                    'Target category when creating new (0 = default)', VALUE_DEFAULT, 0),
-                            'mode' => new external_value(PARAM_ALPHA,
-                                    'merge|replace when target exists', VALUE_DEFAULT, 'merge'),
+                            'categorytarget' => new external_value(
+                                PARAM_INT,
+                                'Target category when creating new (0 = default)',
+                                VALUE_DEFAULT,
+                                0
+                            ),
+                            'mode' => new external_value(
+                                PARAM_ALPHA,
+                                'merge|replace when target exists',
+                                VALUE_DEFAULT,
+                                'merge'
+                            ),
                             'removeenrols' => new external_value(PARAM_BOOL, 'Remove enrolments', VALUE_DEFAULT, false),
                             'removegroups' => new external_value(PARAM_BOOL, 'Remove groups', VALUE_DEFAULT, false),
                             // Teacher flow: optional per-section/activity selection. Empty => whole course.
@@ -725,17 +751,37 @@ class restore_wizard_external extends external_api {
                                     )),
                                 ]
                             ), 'Selected sections/activities (teacher flow)', VALUE_DEFAULT, []),
-                        ]), 'Per-course destination config', VALUE_DEFAULT, []),
+                    ]),
+                    'Per-course destination config',
+                    VALUE_DEFAULT,
+                    []
+                ),
                 // Origin categories (type category).
                 'catids' => new external_multiple_structure(
-                        new external_value(PARAM_INT, 'Origin category id'), 'Origin categories', VALUE_DEFAULT, []),
-                'targetcatid' => new external_value(PARAM_INT,
-                        'Target local category for category restore (0 = default)', VALUE_DEFAULT, 0),
-                'catmode' => new external_value(PARAM_ALPHA,
-                        'merge|replace for category restore', VALUE_DEFAULT, 'merge'),
+                    new external_value(PARAM_INT, 'Origin category id'),
+                    'Origin categories',
+                    VALUE_DEFAULT,
+                    []
+                ),
+                'targetcatid' => new external_value(
+                    PARAM_INT,
+                    'Target local category for category restore (0 = default)',
+                    VALUE_DEFAULT,
+                    0
+                ),
+                'catmode' => new external_value(
+                    PARAM_ALPHA,
+                    'merge|replace for category restore',
+                    VALUE_DEFAULT,
+                    'merge'
+                ),
                 'includeusers' => new external_value(PARAM_BOOL, 'Include users (global)'),
-                'removeorigin' => new external_value(PARAM_BOOL,
-                        'Delete the origin course/category after restoring (global)', VALUE_DEFAULT, false),
+                'removeorigin' => new external_value(
+                    PARAM_BOOL,
+                    'Delete the origin course/category after restoring (global)',
+                    VALUE_DEFAULT,
+                    false
+                ),
                 'schedule' => new external_value(PARAM_INT, 'Schedule timestamp in ms (0 = now)'),
             ]
         );
@@ -768,12 +814,21 @@ class restore_wizard_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws required_capability_exception
      */
-    public static function submit(int $siteid, string $type, array $courses = [], array $catids = [],
-            int $targetcatid = 0, string $catmode = 'merge', bool $includeusers = false,
-            bool $removeorigin = false, int $schedule = 0): array {
+    public static function submit(
+        int $siteid,
+        string $type,
+        array $courses = [],
+        array $catids = [],
+        int $targetcatid = 0,
+        string $catmode = 'merge',
+        bool $includeusers = false,
+        bool $removeorigin = false,
+        int $schedule = 0
+    ): array {
         global $USER;
         $params = self::validate_parameters(
-            self::submit_parameters(), [
+            self::submit_parameters(),
+            [
                 'siteid' => $siteid,
                 'type' => $type,
                 'courses' => $courses,
@@ -831,12 +886,20 @@ class restore_wizard_external extends external_api {
                     $dcat = ($targetcatid === 0)
                             ? core_course_category::get_default()
                             : core_course_category::get($targetcatid);
-                    require_capability('moodle/restore:restorecourse',
-                            context_coursecat::instance($dcat->id));
+                    require_capability(
+                        'moodle/restore:restorecourse',
+                        context_coursecat::instance($dcat->id)
+                    );
                     foreach ($catids as $catid) {
                         try {
                             $config = new configuration_category(
-                                    $targettarget, false, false, $includeusers, $removeorigin, $nextruntime);
+                                $targettarget,
+                                false,
+                                false,
+                                $includeusers,
+                                $removeorigin,
+                                $nextruntime
+                            );
                             // Preserve the origin subcategory hierarchy on the target.
                             $res = coursetransfer::restore_category_tree($USER, $site, $targetcatid, (int)$catid, $config);
                             $success = $success && (bool)$res['success'];
@@ -867,20 +930,25 @@ class restore_wizard_external extends external_api {
                                 $dcat = ($catid === 0)
                                         ? core_course_category::get_default()
                                         : core_course_category::get($catid);
-                                require_capability('moodle/restore:restorecourse',
-                                        context_coursecat::instance($dcat->id));
+                                require_capability(
+                                    'moodle/restore:restorecourse',
+                                    context_coursecat::instance($dcat->id)
+                                );
                                 $targetcourseid = course::create(
-                                        $dcat,
-                                        'Remote Restoring in process...',
-                                        'IN-PROGRESS-' . time() . '-' . $num);
+                                    $dcat,
+                                    'Remote Restoring in process...',
+                                    'IN-PROGRESS-' . time() . '-' . $num
+                                );
                                 $targettarget = backup::TARGET_NEW_COURSE;
                                 $removeenrols = false;
                                 $removegroups = false;
                             } else {
                                 // Restore over an existing target course.
                                 $targetcourseid = (int)$c['targetid'];
-                                require_capability('moodle/restore:restorecourse',
-                                        context_course::instance($targetcourseid));
+                                require_capability(
+                                    'moodle/restore:restorecourse',
+                                    context_course::instance($targetcourseid)
+                                );
                                 $mode = $c['mode'] ?? 'merge';
                                 $targettarget = ($mode === 'replace')
                                         ? backup::TARGET_EXISTING_DELETING
@@ -889,15 +957,26 @@ class restore_wizard_external extends external_api {
                                 $removegroups = !empty($c['removegroups']);
                             }
                             $config = new configuration_course(
-                                    $targettarget, $removeenrols, $removegroups, $includeusers,
-                                    $removeorigin, $nextruntime);
+                                $targettarget,
+                                $removeenrols,
+                                $removegroups,
+                                $includeusers,
+                                $removeorigin,
+                                $nextruntime
+                            );
                             // Teacher flow: pass the selected sections/activities. The
                             // params structure already matches the format expected by
                             // restore_course/restore_course_unity (same shape as the old
                             // new_origin_restore_course_step5). Empty => whole course.
                             $sections = (isset($c['sections']) && is_array($c['sections'])) ? $c['sections'] : [];
                             $res = coursetransfer::restore_course(
-                                    $USER, $site, $targetcourseid, $origincourseid, $config, $sections);
+                                $USER,
+                                $site,
+                                $targetcourseid,
+                                $origincourseid,
+                                $config,
+                                $sections
+                            );
                             $success = $success && (bool)$res['success'];
                             if (!empty($res['errors'])) {
                                 $errors = array_merge($errors, $res['errors']);
@@ -925,8 +1004,10 @@ class restore_wizard_external extends external_api {
         }
 
         if ($type === 'category') {
-            $nexturl = new moodle_url('/local/coursetransfer/logs.php',
-                    ['type' => coursetransfer_request::TYPE_CATEGORY]);
+            $nexturl = new moodle_url(
+                '/local/coursetransfer/logs.php',
+                ['type' => coursetransfer_request::TYPE_CATEGORY]
+            );
         } else {
             $nexturl = new moodle_url('/local/coursetransfer/logs.php');
         }
@@ -959,7 +1040,8 @@ class restore_wizard_external extends external_api {
                 'data' => new external_single_structure(
                     [
                         'requestids' => new external_multiple_structure(
-                                new external_value(PARAM_INT, 'Request ID')),
+                            new external_value(PARAM_INT, 'Request ID')
+                        ),
                         'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#'),
                     ]
                 ),
@@ -1024,12 +1106,19 @@ class restore_wizard_external extends external_api {
      * @throws restricted_context_exception
      * @throws invalid_parameter_exception
      * @throws required_capability_exception
- */
-    public static function submit_course(int $siteid, int $origincourseid, int $targetcourseid,
-            string $mode = 'merge', bool $includeusers = false, array $sections = []): array {
+     */
+    public static function submit_course(
+        int $siteid,
+        int $origincourseid,
+        int $targetcourseid,
+        string $mode = 'merge',
+        bool $includeusers = false,
+        array $sections = []
+    ): array {
         global $USER;
         $params = self::validate_parameters(
-            self::submit_course_parameters(), [
+            self::submit_course_parameters(),
+            [
                 'siteid' => $siteid,
                 'origincourseid' => $origincourseid,
                 'targetcourseid' => $targetcourseid,
@@ -1072,9 +1161,21 @@ class restore_wizard_external extends external_api {
 
             $site = coursetransfer::get_site_by_position($siteid);
             $config = new configuration_course(
-                    $targettarget, false, false, $includeusers, false, null);
+                $targettarget,
+                false,
+                false,
+                $includeusers,
+                false,
+                null
+            );
             $res = coursetransfer::restore_course(
-                    $USER, $site, $targetcourseid, $origincourseid, $config, $sections);
+                $USER,
+                $site,
+                $targetcourseid,
+                $origincourseid,
+                $config,
+                $sections
+            );
             $success = (bool)$res['success'];
             if (!empty($res['errors'])) {
                 $errors = array_merge($errors, $res['errors']);
@@ -1123,8 +1224,12 @@ class restore_wizard_external extends external_api {
                 'origincatid' => new external_value(PARAM_INT, 'Origin category id'),
                 'targetcatid' => new external_value(PARAM_INT, 'Target (current) category id'),
                 'includeusers' => new external_value(PARAM_BOOL, 'Include users and groups', VALUE_DEFAULT, false),
-                'removeorigin' => new external_value(PARAM_BOOL,
-                        'Delete the origin category after restoring', VALUE_DEFAULT, false),
+                'removeorigin' => new external_value(
+                    PARAM_BOOL,
+                    'Delete the origin category after restoring',
+                    VALUE_DEFAULT,
+                    false
+                ),
                 'schedule' => new external_value(PARAM_INT, 'Schedule timestamp in ms (0 = now)', VALUE_DEFAULT, 0),
             ]
         );
@@ -1150,12 +1255,19 @@ class restore_wizard_external extends external_api {
      * @throws restricted_context_exception
      * @throws invalid_parameter_exception
      * @throws required_capability_exception
- */
-    public static function submit_category(int $siteid, int $origincatid, int $targetcatid,
-            bool $includeusers = false, bool $removeorigin = false, int $schedule = 0): array {
+     */
+    public static function submit_category(
+        int $siteid,
+        int $origincatid,
+        int $targetcatid,
+        bool $includeusers = false,
+        bool $removeorigin = false,
+        int $schedule = 0
+    ): array {
         global $USER;
         $params = self::validate_parameters(
-            self::submit_category_parameters(), [
+            self::submit_category_parameters(),
+            [
                 'siteid' => $siteid,
                 'origincatid' => $origincatid,
                 'targetcatid' => $targetcatid,
@@ -1186,7 +1298,13 @@ class restore_wizard_external extends external_api {
         try {
             $site = coursetransfer::get_site_by_position($siteid);
             $config = new configuration_category(
-                    backup::TARGET_NEW_COURSE, false, false, $includeusers, $removeorigin, $nextruntime);
+                backup::TARGET_NEW_COURSE,
+                false,
+                false,
+                $includeusers,
+                $removeorigin,
+                $nextruntime
+            );
             // Preserve the origin subcategory hierarchy on the target.
             $res = coursetransfer::restore_category_tree($USER, $site, $targetcatid, $origincatid, $config);
             $success = (bool)$res['success'];
@@ -1236,7 +1354,9 @@ class restore_wizard_external extends external_api {
                 'siteid' => new external_value(PARAM_INT, 'Site position (origin record id)'),
                 'type' => new external_value(PARAM_ALPHA, 'Type: course|category'),
                 'ids' => new external_multiple_structure(
-                        new external_value(PARAM_INT, 'Origin course/category id'), 'Ids to delete'),
+                    new external_value(PARAM_INT, 'Origin course/category id'),
+                    'Ids to delete'
+                ),
                 'schedule' => new external_value(PARAM_INT, 'Schedule timestamp in ms (0 = now)', VALUE_DEFAULT, 0),
             ]
         );
@@ -1261,12 +1381,12 @@ class restore_wizard_external extends external_api {
      * @throws dml_exception
      * @throws invalid_parameter_exception
      * @throws required_capability_exception
- */
-    
+     */
     public static function remove_submit(int $siteid, string $type, array $ids, int $schedule = 0): array {
         global $USER;
         $params = self::validate_parameters(
-            self::remove_submit_parameters(), [
+            self::remove_submit_parameters(),
+            [
                 'siteid' => $siteid,
                 'type' => $type,
                 'ids' => $ids,
@@ -1400,5 +1520,4 @@ class restore_wizard_external extends external_api {
         }
         return $out;
     }
-
 }

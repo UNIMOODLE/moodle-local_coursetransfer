@@ -53,7 +53,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_request {
-
     /** @var string Table */
     const TABLE = 'local_coursetransfer_request';
 
@@ -123,8 +122,10 @@ class coursetransfer_request {
      */
     public static function get_by_target_course_id(int $courseid): array {
         global $DB;
-        return $DB->get_records(self::TABLE,
-                ['target_course_id' => $courseid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_REQUEST]);
+        return $DB->get_records(
+            self::TABLE,
+            ['target_course_id' => $courseid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_REQUEST]
+        );
     }
 
     /**
@@ -136,8 +137,10 @@ class coursetransfer_request {
      */
     public static function get_by_target_category_id(int $catid): array {
         global $DB;
-        return $DB->get_records(self::TABLE,
-                ['target_category_id' => $catid, 'type' => self::TYPE_CATEGORY, 'direction' => self::DIRECTION_REQUEST]);
+        return $DB->get_records(
+            self::TABLE,
+            ['target_category_id' => $catid, 'type' => self::TYPE_CATEGORY, 'direction' => self::DIRECTION_REQUEST]
+        );
     }
 
     /**
@@ -149,8 +152,10 @@ class coursetransfer_request {
      */
     public static function get_by_origin_course_id(int $courseid): array {
         global $DB;
-        return $DB->get_records(self::TABLE,
-                ['origin_course_id' => $courseid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_RESPONSE]);
+        return $DB->get_records(
+            self::TABLE,
+            ['origin_course_id' => $courseid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_RESPONSE]
+        );
     }
 
     /**
@@ -162,8 +167,10 @@ class coursetransfer_request {
      */
     public static function get_by_origin_category_id(int $catid): array {
         global $DB;
-        return $DB->get_records(self::TABLE,
-                ['origin_category_id' => $catid, 'type' => self::TYPE_CATEGORY, 'direction' => self::DIRECTION_RESPONSE]);
+        return $DB->get_records(
+            self::TABLE,
+            ['origin_category_id' => $catid, 'type' => self::TYPE_CATEGORY, 'direction' => self::DIRECTION_RESPONSE]
+        );
     }
 
     /**
@@ -240,10 +247,12 @@ class coursetransfer_request {
      */
     public static function get_related_adhoc_tasks(int $requestid): array {
         global $DB;
-        $candidates = $DB->get_records_select('task_adhoc',
-                'component = :component AND ' . $DB->sql_like('customdata', ':needle'),
-                ['component' => 'local_coursetransfer', 'needle' => '%"requestid":' . $requestid . '%'],
-                'nextruntime ASC');
+        $candidates = $DB->get_records_select(
+            'task_adhoc',
+            'component = :component AND ' . $DB->sql_like('customdata', ':needle'),
+            ['component' => 'local_coursetransfer', 'needle' => '%"requestid":' . $requestid . '%'],
+            'nextruntime ASC'
+        );
         $tasks = [];
         foreach ($candidates as $task) {
             $data = json_decode($task->customdata);
@@ -267,12 +276,21 @@ class coursetransfer_request {
      * @param int|null $dateto Upper bound for timemodified (timestamp).
      * @param int|null $sizeminbytes Lower bound for origin_backup_size (bytes).
      * @param int|null $sizemaxbytes Upper bound for origin_backup_size (bytes).
+     * @param int|null $origincourseid Origin course id filter.
+     * @param int|null $targetcourseid Target course id filter.
      * @return array [string $where, array $params]
      */
-    public static function get_logs_filter_sql(int $type, int $direction, int|string $status = null, int $datefrom = null,
-                                               int $dateto = null, int $sizeminbytes = null,
-                                               int $sizemaxbytes = null, $origincourseid = null,
-                                               $targetcourseid = null): array {
+    public static function get_logs_filter_sql(
+        int $type,
+        int $direction,
+        int|string|null $status = null,
+        ?int $datefrom = null,
+        ?int $dateto = null,
+        ?int $sizeminbytes = null,
+        ?int $sizemaxbytes = null,
+        ?int $origincourseid = null,
+        ?int $targetcourseid = null
+    ): array {
         $where = 'direction = :direction AND type = :type';
         $params = ['direction' => $direction, 'type' => $type];
         if (is_numeric($status)) {
@@ -449,7 +467,8 @@ class coursetransfer_request {
         global $DB;
         $compare = $DB->sql_compare_text('siteurl', 255);
         $records = $DB->get_records_sql(
-                "SELECT DISTINCT $compare AS siteurl FROM {" . self::TABLE . '}');
+            "SELECT DISTINCT $compare AS siteurl FROM {" . self::TABLE . '}'
+        );
         $sites = [];
         foreach ($records as $record) {
             if (!empty($record->siteurl)) {
@@ -469,7 +488,7 @@ class coursetransfer_request {
      * @param string $errorcode Error code to store if a fatal happens.
      */
     public static function register_fatal_shutdown(int $requestid, string $errorcode): void {
-        core_shutdown_manager::register_function(function() use ($requestid, $errorcode) {
+        core_shutdown_manager::register_function(function () use ($requestid, $errorcode) {
             global $DB;
             $err = error_get_last();
             $fatalmask = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR;
@@ -500,8 +519,10 @@ class coursetransfer_request {
         global $DB;
 
         $reqcat = $DB->get_record(self::TABLE, ['id' => $requestid]);
-        $courses = $DB->get_records(self::TABLE,
-                ['request_category_id' => $requestid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_REQUEST]);
+        $courses = $DB->get_records(
+            self::TABLE,
+            ['request_category_id' => $requestid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_REQUEST]
+        );
 
         $completed = 1;
         foreach ($courses as $course) {
@@ -545,8 +566,7 @@ class coursetransfer_request {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function insert_or_update(stdClass $object, int $id = null): bool|int
-    {
+    public static function insert_or_update(stdClass $object, ?int $id = null): bool|int {
         global $DB;
         if (!array_key_exists($object->status, coursetransfer::STATUS)) {
             throw new moodle_exception('STATUS IS NOT VALID');
@@ -586,9 +606,15 @@ class coursetransfer_request {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function set_request_restore_course(stdClass $user,
-            stdClass $site, int $targetcourseid, int $origincourseid, configuration_course $configuration,
-            array $sections, int $requestcatid = null): stdClass {
+    public static function set_request_restore_course(
+        stdClass $user,
+        stdClass $site,
+        int $targetcourseid,
+        int $origincourseid,
+        configuration_course $configuration,
+        array $sections,
+        ?int $requestcatid = null
+    ): stdClass {
         global $USER;
         $userid = is_null($user) ? $USER->id : $user->id;
         $object = new stdClass();
@@ -628,9 +654,16 @@ class coursetransfer_request {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function set_request_restore_course_response(stdClass $user, int $targetrequestid,
-            stdClass $targetsite, int $targetcourseid, stdClass $origincourse, configuration_course $configuration,
-            array $sections, int $requestcatid = null): stdClass {
+    public static function set_request_restore_course_response(
+        stdClass $user,
+        int $targetrequestid,
+        stdClass $targetsite,
+        int $targetcourseid,
+        stdClass $origincourse,
+        configuration_course $configuration,
+        array $sections,
+        ?int $requestcatid = null
+    ): stdClass {
         global $USER;
         $user = is_null($user) ? $USER : $user;
         $origincat = core_course_category::get($origincourse->category, MUST_EXIST);
@@ -684,12 +717,18 @@ class coursetransfer_request {
      * @throws moodle_exception
      */
     public static function set_request_restore_category(
-            stdClass $site, int $targetcategoryid, int $origincategoryid, string $origincategoryname,
-            configuration_category $configuration, stdClass $user): stdClass {
+        stdClass $site,
+        int $targetcategoryid,
+        int $origincategoryid,
+        string $origincategoryname,
+        configuration_category $configuration,
+        stdClass $user
+    ): stdClass {
         global $USER;
         $userid = is_null($user) ? $USER->id : $user->id;
         $object = new stdClass();
-        $object->type = self::TYPE_CATEGORY;;
+        $object->type = self::TYPE_CATEGORY;
+        ;
         $object->siteurl = $site->host;
         $object->direction = self::DIRECTION_REQUEST;
         $object->target_category_id = $targetcategoryid;
@@ -748,7 +787,11 @@ class coursetransfer_request {
      * @throws moodle_exception
      */
     public static function set_request_remove_course(
-            stdClass $site, int $origincourseid, stdClass $user = null, $nextruntime = null): stdClass {
+        stdClass $site,
+        int $origincourseid,
+        ?stdClass $user = null,
+        $nextruntime = null
+    ): stdClass {
         global $USER;
         $userid = is_null($user) ? $USER->id : $user->id;
         $object = new stdClass();
@@ -775,7 +818,11 @@ class coursetransfer_request {
      * @throws moodle_exception
      */
     public static function set_request_remove_category(
-            stdClass $site, int $origincatid, stdClass $user = null, $nextruntime = null): stdClass {
+        stdClass $site,
+        int $origincatid,
+        ?stdClass $user = null,
+        $nextruntime = null
+    ): stdClass {
         global $USER;
         $userid = is_null($user) ? $USER->id : $user->id;
         $object = new stdClass();

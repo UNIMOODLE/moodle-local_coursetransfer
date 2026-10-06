@@ -61,7 +61,6 @@ require_once($CFG->dirroot . '/group/lib.php');
  * @package local_coursetransfer\external\backend
  */
 class origin_course_backup_external extends external_api {
-
     /**
      * Origin Backup course parameters.
      *
@@ -77,18 +76,34 @@ class origin_course_backup_external extends external_api {
                 'requestid' => new external_value(PARAM_INT, 'Request ID'),
                 'targetsite' => new external_value(PARAM_TEXT, 'Target Site'),
                 'configuration' => new external_single_structure(
-                        [
+                    [
                                'target_target' => new external_value(PARAM_INT, 'Target Target'),
                                'target_remove_enrols' => new external_value(PARAM_BOOL, 'Target Remove Enrols'),
                                'target_remove_groups' => new external_value(PARAM_BOOL, 'Target Remove Groups'),
-                               'origin_remove_course' => new external_value(PARAM_BOOL,
-                                               'Origin Remove Course', VALUE_DEFAULT, false),
-                               'origin_enrol_users' => new external_value(PARAM_BOOL,
-                                               'Origin Enrol Users', VALUE_DEFAULT, false),
-                               'target_notremove_activities' => new external_value(PARAM_TEXT,
-                                               'Target Not Remove Activities by commas', VALUE_DEFAULT, ''),
-                               'nextruntime' => new external_value(PARAM_INT,
-                                               'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0),
+                               'origin_remove_course' => new external_value(
+                                   PARAM_BOOL,
+                                   'Origin Remove Course',
+                                   VALUE_DEFAULT,
+                                   false
+                               ),
+                               'origin_enrol_users' => new external_value(
+                                   PARAM_BOOL,
+                                   'Origin Enrol Users',
+                                   VALUE_DEFAULT,
+                                   false
+                               ),
+                               'target_notremove_activities' => new external_value(
+                                   PARAM_TEXT,
+                                   'Target Not Remove Activities by commas',
+                                   VALUE_DEFAULT,
+                                   ''
+                               ),
+                               'nextruntime' => new external_value(
+                                   PARAM_INT,
+                                   'Scheduler Next Run Time Timestamp',
+                                   VALUE_DEFAULT,
+                                   0
+                               ),
                         ]
                 ),
                 'sections' => new external_multiple_structure(new external_single_structure(
@@ -128,11 +143,20 @@ class origin_course_backup_external extends external_api {
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function origin_backup_course(string $field, string $value, int $courseid, int $targetcourseid,
-            int $requestid, string $targetsite, array $configuration, array $sections = []): array {
+    public static function origin_backup_course(
+        string $field,
+        string $value,
+        int $courseid,
+        int $targetcourseid,
+        int $requestid,
+        string $targetsite,
+        array $configuration,
+        array $sections = []
+    ): array {
 
         $params = self::validate_parameters(
-            self::origin_backup_course_parameters(), [
+            self::origin_backup_course_parameters(),
+            [
                 'field' => $field,
                 'value' => $value,
                 'courseid' => $courseid,
@@ -167,28 +191,35 @@ class origin_course_backup_external extends external_api {
                 $user = $authres['data'];
                 if ($verifytarget['success']) {
                     if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id), $user)) {
-
                         $nextruntime = empty($configuration['nextruntime']) ? null : $configuration['nextruntime'];
                         $config = new configuration_course(
-                                $configuration['target_target'],
-                                $configuration['target_remove_enrols'],
-                                $configuration['target_remove_groups'],
-                                $configuration['origin_enrol_users'],
-                                $configuration['origin_remove_course'],
-                                $nextruntime
+                            $configuration['target_target'],
+                            $configuration['target_remove_enrols'],
+                            $configuration['target_remove_groups'],
+                            $configuration['origin_enrol_users'],
+                            $configuration['origin_remove_course'],
+                            $nextruntime
                         );
                         $requestorigin = coursetransfer_request::set_request_restore_course_response(
-                                $user,
-                                $requestid,
-                                $verifytarget['data'],
-                                $targetcourseid,
-                                $course,
-                                $config,
-                                $sections);
+                            $user,
+                            $requestid,
+                            $verifytarget['data'],
+                            $targetcourseid,
+                            $course,
+                            $config,
+                            $sections
+                        );
 
                         $resbackup = coursetransfer_backup::create_task_backup_course(
-                                $course->id, $user->id, $verifytarget['data'], $requestid, $requestorigin->id, $sections,
-                                $configuration['origin_enrol_users'], $nextruntime);
+                            $course->id,
+                            $user->id,
+                            $verifytarget['data'],
+                            $requestid,
+                            $requestorigin->id,
+                            $sections,
+                            $configuration['origin_enrol_users'],
+                            $nextruntime
+                        );
 
                         if ($resbackup) {
                             $requestorigin->status = coursetransfer_request::STATUS_IN_PROGRESS;
@@ -268,7 +299,9 @@ class origin_course_backup_external extends external_api {
                     [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ],
+                    PARAM_TEXT,
+                    'Errors'
                 )),
                 'data' => new external_single_structure(
                     [
@@ -280,11 +313,16 @@ class origin_course_backup_external extends external_api {
                         'course_category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
                         'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
                         'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
-                        'origin_backup_size_estimated' => new external_value(PARAM_INT,
-                            'Backup Size Estimated (MB)', VALUE_OPTIONAL ),
-                    ], PARAM_TEXT, 'Data'
+                        'origin_backup_size_estimated' => new external_value(
+                            PARAM_INT,
+                            'Backup Size Estimated (MB)',
+                            VALUE_OPTIONAL
+                        ),
+                    ],
+                    PARAM_TEXT,
+                    'Data'
                 ),
             ]
         );
     }
-};
+}

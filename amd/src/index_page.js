@@ -127,12 +127,13 @@ define([
             if (!value) {
                 return;
             }
-            // navigator.clipboard is only available in secure contexts (HTTPS or
+            // The navigator.clipboard API is only available in secure contexts (HTTPS or
             // localhost); on plain HTTP it is undefined, so fall back to a
             // temporary textarea + execCommand, which works everywhere.
             if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
                 navigator.clipboard.writeText(value).then(function() {
                     self.copyFeedback();
+                    return null;
                 }).catch(function() {
                     self.legacyCopy(value);
                 });

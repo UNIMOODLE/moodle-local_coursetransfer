@@ -52,7 +52,6 @@ use moodle_exception;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_course_task extends \core\task\adhoc_task {
-
     // Use the logging trait to get some nice, juicy, logging.
     use \core\task\logging_trait;
 
@@ -104,12 +103,18 @@ class restore_course_task extends \core\task\adhoc_task {
                     $remcaterrormsg = null;
                     if ($reqcat->status === coursetransfer_request::STATUS_COMPLETED) {
                         coursetransfer_notification::send_restore_category_completed(
-                                $request->userid, $request->origin_category_id);
+                            $request->userid,
+                            $request->origin_category_id
+                        );
                         coursetransfer_request::trigger_request_completed($reqcat);
                         if ($reqcat->origin_remove_category) {
                             $this->log('Origin Category Removing...');
-                            if (has_capability('local/coursetransfer:origin_remove_category',
-                                    context_system::instance())) {
+                            if (
+                                has_capability(
+                                    'local/coursetransfer:origin_remove_category',
+                                    context_system::instance()
+                                )
+                            ) {
                                 try {
                                     coursetransfer::remove_category($site, $request->origin_category_id);
                                 } catch (moodle_exception $e) {

@@ -60,7 +60,6 @@ require_once($CFG->dirroot . '/webservice/lib.php');
  * @package local_coursetransfer\external\frontend
  */
 class search_category extends external_api {
-
     /** @var int Maximum categories returned per query (keeps the payload bounded). */
     const MAX_RESULTS = 30;
 
@@ -73,9 +72,12 @@ class search_category extends external_api {
         return new external_function_parameters(
             [
                 'text' => new external_value(PARAM_TEXT, 'Text for searching a destination category'),
-                'type' => new external_value(PARAM_ALPHA,
+                'type' => new external_value(
+                    PARAM_ALPHA,
                     'Restore type: "category" (option 0 = Top/root) or "course" (option 0 = default category)',
-                    VALUE_DEFAULT, ''),
+                    VALUE_DEFAULT,
+                    ''
+                ),
             ]
         );
     }
@@ -98,7 +100,8 @@ class search_category extends external_api {
      */
     public static function search_by_name(string $text, string $type = ''): array {
         $params = self::validate_parameters(
-            self::search_by_name_parameters(), [
+            self::search_by_name_parameters(),
+            [
                 'text' => $text,
                 'type' => $type,
             ]
@@ -167,14 +170,13 @@ class search_category extends external_api {
                         'msg' => new external_value(PARAM_RAW, 'Message'),
                     ]
                 )),
-                'data' => new external_multiple_structure(new external_single_structure(
-                    [
+                'data' => new external_multiple_structure(
+                    new external_single_structure([
                         'id' => new external_value(PARAM_INT, 'Category ID (0 = default category)'),
                         'name' => new external_value(PARAM_TEXT, 'Category path name'),
-                    ]),
+                    ])
                 ),
             ]
         );
     }
-
 }

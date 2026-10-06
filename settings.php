@@ -37,87 +37,127 @@ use local_coursetransfer\coursetransfer;
 defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) {
-
     global $ADMIN, $CFG;
 
     // The category may already exist: local_coursetransfermanager creates it too
     // when its settings load first (plugin settings load in displayname order,
     // which is locale-dependent).
     if (!$ADMIN->locate('local_coursetransfer_category')) {
-        $ADMIN->add('modules', new admin_category('local_coursetransfer_category',
-                new lang_string('pluginname', 'local_coursetransfer')));
+        $ADMIN->add('modules', new admin_category(
+            'local_coursetransfer_category',
+            new lang_string('pluginname', 'local_coursetransfer')
+        ));
     }
 
-    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_config',
-            get_string('configuration', 'local_coursetransfer'),
-            $CFG->wwwroot . '/admin/settings.php?section=local_coursetransfer'));
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage(
+        'local_coursetransfer_config',
+        get_string('configuration', 'local_coursetransfer'),
+        $CFG->wwwroot . '/admin/settings.php?section=local_coursetransfer'
+    ));
 
-    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_summary',
-            get_string('summary', 'local_coursetransfer'),
-            $CFG->wwwroot . '/local/coursetransfer/index.php'));
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage(
+        'local_coursetransfer_summary',
+        get_string('summary', 'local_coursetransfer'),
+        $CFG->wwwroot . '/local/coursetransfer/index.php'
+    ));
 
-    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_restore',
-            get_string('restore_page', 'local_coursetransfer'),
-            $CFG->wwwroot . '/local/coursetransfer/origin_restore.php'));
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage(
+        'local_coursetransfer_restore',
+        get_string('restore_page', 'local_coursetransfer'),
+        $CFG->wwwroot . '/local/coursetransfer/origin_restore.php'
+    ));
 
-    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_remove',
-            get_string('remove_page', 'local_coursetransfer'),
-            $CFG->wwwroot . '/local/coursetransfer/origin_remove.php'));
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage(
+        'local_coursetransfer_remove',
+        get_string('remove_page', 'local_coursetransfer'),
+        $CFG->wwwroot . '/local/coursetransfer/origin_remove.php'
+    ));
 
-    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_sites',
-            get_string('platforms_title', 'local_coursetransfer'),
-            $CFG->wwwroot . '/local/coursetransfer/sites.php'));
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage(
+        'local_coursetransfer_sites',
+        get_string('platforms_title', 'local_coursetransfer'),
+        $CFG->wwwroot . '/local/coursetransfer/sites.php'
+    ));
 
-    $ADMIN->add('local_coursetransfer_category', new admin_externalpage('local_coursetransfer_logs',
-            get_string('logs_page', 'local_coursetransfer'),
-            $CFG->wwwroot . '/local/coursetransfer/logs.php'));
+    $ADMIN->add('local_coursetransfer_category', new admin_externalpage(
+        'local_coursetransfer_logs',
+        get_string('logs_page', 'local_coursetransfer'),
+        $CFG->wwwroot . '/local/coursetransfer/logs.php'
+    ));
 
-    $settings = new admin_settingpage('local_coursetransfer',
-        get_string('pluginname', 'local_coursetransfer'));
+    $settings = new admin_settingpage(
+        'local_coursetransfer',
+        get_string('pluginname', 'local_coursetransfer')
+    );
     $ADMIN->add('localplugins', $settings);
 
-    $settings->add(new admin_setting_heading('local_coursetransfer/pluginname',
-        get_string('pluginname_header_general', 'local_coursetransfer'), ''));
+    $settings->add(new admin_setting_heading(
+        'local_coursetransfer/pluginname',
+        get_string('pluginname_header_general', 'local_coursetransfer'),
+        ''
+    ));
 
-    $settings->add(new admin_setting_configtext('local_coursetransfer/target_restore_course_max_size',
+    $settings->add(new admin_setting_configtext(
+        'local_coursetransfer/target_restore_course_max_size',
         get_string('setting_target_restore_course_max_size', 'local_coursetransfer'),
         get_string('setting_target_restore_course_max_size_desc', 'local_coursetransfer'),
-            500, PARAM_INT));
+        500,
+        PARAM_INT
+    ));
 
-    $settings->add(new admin_setting_configtext('local_coursetransfer/request_timeout',
+    $settings->add(new admin_setting_configtext(
+        'local_coursetransfer/request_timeout',
         get_string('request_timeout', 'local_coursetransfer'),
         get_string('request_timeout_desc', 'local_coursetransfer'),
-            20, PARAM_INT));
+        20,
+        PARAM_INT
+    ));
 
-    $settings->add(new admin_setting_configcheckbox('local_coursetransfer/ignorecurlsecurity',
+    $settings->add(new admin_setting_configcheckbox(
+        'local_coursetransfer/ignorecurlsecurity',
         get_string('setting_ignorecurlsecurity', 'local_coursetransfer'),
         get_string('setting_ignorecurlsecurity_desc', 'local_coursetransfer'),
-            1));
+        1
+    ));
 
-    $settings->add(new admin_setting_configtext('local_coursetransfer/pagesize',
+    $settings->add(new admin_setting_configtext(
+        'local_coursetransfer/pagesize',
         get_string('setting_pagesize', 'local_coursetransfer'),
         get_string('setting_pagesize_desc', 'local_coursetransfer'),
-            5, PARAM_INT));
+        5,
+        PARAM_INT
+    ));
 
-    $settings->add(new admin_setting_configduration('local_coursetransfer/clean_adhoc_faildelay',
+    $settings->add(new admin_setting_configduration(
+        'local_coursetransfer/clean_adhoc_faildelay',
         get_string('clean_adhoc_faildelay', 'local_coursetransfer'),
         get_string('clean_adhoc_faildelay_desc', 'local_coursetransfer'),
-            86400, DAYSECS));
+        86400,
+        DAYSECS
+    ));
 
-    $settings->add(new admin_setting_configempty('local_coursetransfer/platforms',
-            new lang_string('platforms_title', 'local_coursetransfer'),
-            html_writer::link(new moodle_url('/local/coursetransfer/sites.php'),
-                    new lang_string('platforms_link', 'local_coursetransfer'))));
+    $settings->add(new admin_setting_configempty(
+        'local_coursetransfer/platforms',
+        new lang_string('platforms_title', 'local_coursetransfer'),
+        html_writer::link(
+            new moodle_url('/local/coursetransfer/sites.php'),
+            new lang_string('platforms_link', 'local_coursetransfer')
+        )
+    ));
 
-    $settings->add(new admin_setting_configcheckbox('local_coursetransfer/remove_course_cleanup',
-            get_string('remove_course_cleanup', 'local_coursetransfer'),
-            get_string('remove_course_cleanup_desc', 'local_coursetransfer'),
-            false));
+    $settings->add(new admin_setting_configcheckbox(
+        'local_coursetransfer/remove_course_cleanup',
+        get_string('remove_course_cleanup', 'local_coursetransfer'),
+        get_string('remove_course_cleanup_desc', 'local_coursetransfer'),
+        false
+    ));
 
-    $settings->add(new admin_setting_configcheckbox('local_coursetransfer/remove_cat_cleanup',
-            get_string('remove_cat_cleanup', 'local_coursetransfer'),
-            get_string('remove_cat_cleanup_desc', 'local_coursetransfer'),
-            false));
+    $settings->add(new admin_setting_configcheckbox(
+        'local_coursetransfer/remove_cat_cleanup',
+        get_string('remove_cat_cleanup', 'local_coursetransfer'),
+        get_string('remove_cat_cleanup_desc', 'local_coursetransfer'),
+        false
+    ));
 
     $choices = coursetransfer::FIELDS_USER;
     $options = [];
@@ -125,15 +165,17 @@ if ($hassiteconfig) {
         $options[$choice] = $choice;
     }
 
-    $item = new admin_setting_configselect('local_coursetransfer/origin_field_search_user',
-            get_string('setting_origin_field_search_user', 'local_coursetransfer'),
-            get_string('setting_origin_field_search_user_desc', 'local_coursetransfer'),
-            'username', $options );
+    $item = new admin_setting_configselect(
+        'local_coursetransfer/origin_field_search_user',
+        get_string('setting_origin_field_search_user', 'local_coursetransfer'),
+        get_string('setting_origin_field_search_user_desc', 'local_coursetransfer'),
+        'username',
+        $options
+    );
 
     $settings->add($item);
 
     $item->set_updatedcallback(function () {
         redirect(new moodle_url('/local/coursetransfer/postinstall.php'));
     });
-
 }

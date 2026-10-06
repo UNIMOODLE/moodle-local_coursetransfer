@@ -56,7 +56,6 @@ require_once($CFG->dirroot . '/local/coursetransfer/classes/task/create_backup_c
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_download {
-
     /**
      * Create Task to dowload Course.
      *
@@ -67,7 +66,7 @@ class coursetransfer_download {
     public static function create_task_download_course(stdClass $request, string $fileurl): bool {
         $asynctask = new download_file_course_task();
         $asynctask->set_custom_data(
-                ['requestid' => $request->id, 'fileurl' => $fileurl]
+            ['requestid' => $request->id, 'fileurl' => $fileurl]
         );
         return manager::queue_adhoc_task($asynctask);
     }

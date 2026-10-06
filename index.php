@@ -34,7 +34,7 @@
 
 use local_coursetransfer\output\index_page;
 
-require(__DIR__.'/../../config.php');
+require(__DIR__ . '/../../config.php');
 global $CFG, $DB, $PAGE, $OUTPUT;
 
 require_login();
@@ -58,4 +58,3 @@ if (is_siteadmin()) {
     echo $output->render($page);
     echo $OUTPUT->footer();
 }
-

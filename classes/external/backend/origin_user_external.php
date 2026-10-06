@@ -56,7 +56,6 @@ require_once($CFG->dirroot . '/group/lib.php');
  * @package local_coursetransfer\external\backend
  */
 class origin_user_external extends external_api {
-
     /**
      * Origin has user parameters.
      *
@@ -83,7 +82,8 @@ class origin_user_external extends external_api {
      */
     public static function origin_has_user(string $field, string $value): array {
         $params = self::validate_parameters(
-            self::origin_has_user_parameters(), [
+            self::origin_has_user_parameters(),
+            [
                 'field' => $field,
                 'value' => $value,
             ]

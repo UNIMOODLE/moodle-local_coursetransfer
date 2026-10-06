@@ -44,7 +44,6 @@ namespace local_coursetransfer\models;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class configuration {
-
     /** @var int Destinity Target: 2: New Course, 3: Remove Content , 4: Merge the backup course into this course */
     public int $targettarget;
 
@@ -70,11 +69,11 @@ abstract class configuration {
      * @param int|null $nextruntime
      */
     public function __construct(
-            int $targettarget,
-            bool $targetremoveenrols,
-            bool $targetremovegroups,
-            bool $originenrolusers,
-            int $nextruntime = null
+        int $targettarget,
+        bool $targetremoveenrols,
+        bool $targetremovegroups,
+        bool $originenrolusers,
+        ?int $nextruntime = null
     ) {
         $this->set_target_target($targettarget);
         $this->set_target_remove_enrols($targetremoveenrols);
@@ -124,8 +123,7 @@ abstract class configuration {
      *
      * @param int|null $config
      */
-    protected function set_nextruntime(int $config = null): void {
+    protected function set_nextruntime(?int $config = null): void {
         $this->nextruntime = $config;
     }
-
 }

@@ -104,7 +104,10 @@ define([
          */
         resetState: function() {
             // Default kind = the only one allowed, or course.
-            var kind = this.cancourse ? 'course' : (this.cancategory ? 'category' : 'course');
+            var kind = 'course';
+            if (!this.cancourse && this.cancategory) {
+                kind = 'category';
+            }
             this.state = {
                 view: 'landing',
                 step: 0,
@@ -278,7 +281,12 @@ define([
             });
             this.$root.find('.ct-step').each(function() {
                 var idx = parseInt($(this).attr('data-step-index'), 10);
-                var st = idx < n ? 'done' : (idx === n ? 'current' : 'pending');
+                var st = 'pending';
+                if (idx < n) {
+                    st = 'done';
+                } else if (idx === n) {
+                    st = 'current';
+                }
                 $(this).attr('data-state', st);
             });
             this.renderSitebar();

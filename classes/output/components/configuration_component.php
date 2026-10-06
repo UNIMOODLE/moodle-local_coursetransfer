@@ -51,7 +51,6 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class configuration_component implements renderable, templatable {
-
     /** @var configuration_course Configuration */
     protected configuration_course $configuration;
 

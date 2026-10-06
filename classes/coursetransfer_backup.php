@@ -64,7 +64,6 @@ require_once($CFG->dirroot . '/local/coursetransfer/classes/task/create_backup_c
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_backup {
-
     /**
      * Create Task to back up of Course.
      *
@@ -83,14 +82,25 @@ class coursetransfer_backup {
      * @throws moodle_exception
      */
     public static function create_task_backup_course(
-            int $courseid, int $userid, stdClass $targetsite, int $requestid, int $requestoriginid,
-            array $sections, int $rootusers = 0, int $nextruntime = null, bool $istest = false): bool {
+        int $courseid,
+        int $userid,
+        stdClass $targetsite,
+        int $requestid,
+        int $requestoriginid,
+        array $sections,
+        int $rootusers = 0,
+        ?int $nextruntime = null,
+        bool $istest = false
+    ): bool {
         $bc = new backup_controller(
-                backup::TYPE_1COURSE, $courseid,
-                backup::FORMAT_MOODLE,
-                backup::INTERACTIVE_NO,
-                backup::MODE_GENERAL, $userid,
-                backup::RELEASESESSION_YES);
+            backup::TYPE_1COURSE,
+            $courseid,
+            backup::FORMAT_MOODLE,
+            backup::INTERACTIVE_NO,
+            backup::MODE_GENERAL,
+            $userid,
+            backup::RELEASESESSION_YES
+        );
         $bc->set_status(backup::STATUS_AWAITING);
         $bc->get_plan()->get_setting('users')->set_status(base_setting::NOT_LOCKED);
         $bc->get_plan()->get_setting('users')->set_value($rootusers);
@@ -144,8 +154,12 @@ class coursetransfer_backup {
      * @throws base_setting_exception
      * @throws moodle_exception
      */
-    public static function set_value_settings_section_activities(backup_controller $bc, int $courseid, int $rootusers,
-            array $sectionsselected): void {
+    public static function set_value_settings_section_activities(
+        backup_controller $bc,
+        int $courseid,
+        int $rootusers,
+        array $sectionsselected
+    ): void {
         if (!empty($sectionsselected)) {
             $bc->get_plan()->set_excluding_activities();
             $modinfo = get_fast_modinfo($courseid);
@@ -168,7 +182,6 @@ class coursetransfer_backup {
                     $nameuserinfo = $cm->modname . '_' . $cm->id . '_userinfo';
                     $bc->get_plan()->get_setting($nameuserinfo)->set_value($rootusers);
                 }
-
             }
         }
     }

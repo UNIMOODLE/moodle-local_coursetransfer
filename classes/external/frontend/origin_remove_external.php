@@ -63,7 +63,6 @@ require_once($CFG->dirroot . '/group/lib.php');
  * @package local_coursetransfer\external\frontend
  */
 class origin_remove_external extends external_api {
-
     /**
      * Origin remove step1 parameters.
      *
@@ -71,7 +70,7 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_step1_parameters(): external_function_parameters {
         return new external_function_parameters(
-                [
+            [
                         'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                         'type' => new external_value(PARAM_TEXT, 'Type restore'),
                 ]
@@ -89,7 +88,8 @@ class origin_remove_external extends external_api {
     public static function origin_remove_step1(int $siteurl, string $type): array {
         global $USER;
         $params = self::validate_parameters(
-            self::origin_remove_step1_parameters(), [
+            self::origin_remove_step1_parameters(),
+            [
                 'siteurl' => $siteurl,
                 'type' => $type,
             ]
@@ -115,8 +115,8 @@ class origin_remove_external extends external_api {
             if ($res->success) {
                 $data = $res->data;
                 $nexturl = new moodle_url(
-                        '/local/coursetransfer/origin_remove.php',
-                        ['step' => 2, 'site' => $siteurl, 'type' => $type]
+                    '/local/coursetransfer/origin_remove.php',
+                    ['step' => 2, 'site' => $siteurl, 'type' => $type]
                 );
                 $data->nexturl = $nexturl->out(false);
                 $success = true;
@@ -145,7 +145,7 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_step1_returns(): external_single_structure {
         return new external_single_structure(
-                [
+            [
                     'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                     'errors' => new external_multiple_structure(new external_single_structure(
                         [
@@ -174,15 +174,19 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_step3_parameters(): external_function_parameters {
         return new external_function_parameters(
-                [
+            [
                         'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                         'courses' => new external_multiple_structure(new external_single_structure(
-                                [
+                            [
                                         'id' => new external_value(PARAM_INT, 'Origin Course ID'),
                                 ]
                         )),
-                        'nextruntime' => new external_value(PARAM_INT,
-                                'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0),
+                        'nextruntime' => new external_value(
+                            PARAM_INT,
+                            'Scheduler Next Run Time Timestamp',
+                            VALUE_DEFAULT,
+                            0
+                        ),
                 ]
         );
     }
@@ -202,7 +206,8 @@ class origin_remove_external extends external_api {
     public static function origin_remove_step3(int $siteurl, array $courses, int $nextruntime): array {
         global $USER;
         $params = self::validate_parameters(
-            self::origin_remove_step3_parameters(), [
+            self::origin_remove_step3_parameters(),
+            [
                 'siteurl' => $siteurl,
                 'courses' => $courses,
                 'nextruntime' => $nextruntime,
@@ -282,15 +287,15 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_step3_returns(): external_single_structure {
         return new external_single_structure(
-                [
+            [
                     'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                     'data' => new external_single_structure(
-                            [
+                        [
                                 'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#'),
                             ]
                     ),
                     'errors' => new external_multiple_structure(new external_single_structure(
-                            [
+                        [
                                 'code' => new external_value(PARAM_TEXT, 'Code'),
                                 'msg' => new external_value(PARAM_RAW, 'Message'),
                             ]
@@ -306,11 +311,15 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_cat_step3_parameters(): external_function_parameters {
         return new external_function_parameters(
-                [
+            [
                     'siteurl' => new external_value(PARAM_INT, 'Site Url'),
                     'catid' => new external_value(PARAM_INT, 'Origin Course Category ID'),
-                    'nextruntime' => new external_value(PARAM_INT,
-                            'Scheduler Next Run Time Timestamp', VALUE_DEFAULT, 0),
+                    'nextruntime' => new external_value(
+                        PARAM_INT,
+                        'Scheduler Next Run Time Timestamp',
+                        VALUE_DEFAULT,
+                        0
+                    ),
                 ]
         );
     }
@@ -330,7 +339,8 @@ class origin_remove_external extends external_api {
     public static function origin_remove_cat_step3(int $siteurl, int $catid, int $nextruntime): array {
         global $USER;
         $params = self::validate_parameters(
-            self::origin_remove_cat_step3_parameters(), [
+            self::origin_remove_cat_step3_parameters(),
+            [
                 'siteurl' => $siteurl,
                 'catid' => $catid,
                 'nextruntime' => $nextruntime,
@@ -407,15 +417,15 @@ class origin_remove_external extends external_api {
      */
     public static function origin_remove_cat_step3_returns(): external_single_structure {
         return new external_single_structure(
-                [
+            [
                     'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                     'data' => new external_single_structure(
-                            [
+                        [
                                 'nexturl' => new external_value(PARAM_RAW, 'Next URL', VALUE_OPTIONAL, '#'),
                             ]
                     ),
                     'errors' => new external_multiple_structure(new external_single_structure(
-                            [
+                        [
                                 'code' => new external_value(PARAM_TEXT, 'Code'),
                                 'msg' => new external_value(PARAM_RAW, 'Message'),
                             ]
@@ -423,4 +433,4 @@ class origin_remove_external extends external_api {
                 ]
         );
     }
-};
+}

@@ -52,7 +52,6 @@ use moodle_url;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_notification {
-
     /**
      * Send Restore Completed
      *
@@ -73,15 +72,18 @@ class coursetransfer_notification {
         $message->userfrom = \core_user::get_noreply_user();
         $message->userto = $user;
         $sub = get_string('messageprovider:restore_course_completed', 'local_coursetransfer')
-                . ' [' . $courseid .']';
+                . ' [' . $courseid . ']';
         $message->subject = $sub;
-        $msghtml = get_string('notification_restore_course_completed', 'local_coursetransfer',
-        '<strong>' . $course->fullname . '</strong>');
+        $msghtml = get_string(
+            'notification_restore_course_completed',
+            'local_coursetransfer',
+            '<strong>' . $course->fullname . '</strong>'
+        );
         $msghtml .= '<br>';
         $msghtml .= get_string('view_detail', 'local_coursetransfer');
         $msghtml .= '<br>';
-        $msghtml .= '<a class="btn btn-link" target="_blank" href="'. $detailurl->out(false)
-                . '">'. $detailurl->out(false) . '</a>';
+        $msghtml .= '<a class="btn btn-link" target="_blank" href="' . $detailurl->out(false)
+                . '">' . $detailurl->out(false) . '</a>';
         $message->fullmessage = $sub;
         $message->fullmessageformat = FORMAT_HTML;
         $message->fullmessagehtml = $msghtml;
@@ -112,15 +114,18 @@ class coursetransfer_notification {
         $message->userfrom = \core_user::get_noreply_user();
         $message->userto = $user;
         $sub = get_string('messageprovider:restore_category_completed', 'local_coursetransfer')
-                . ' [' . $catid .']';
+                . ' [' . $catid . ']';
         $message->subject = $sub;
-        $msghtml = get_string('notification_restore_category_completed', 'local_coursetransfer',
-                '<strong>' . $cat->name . '</strong>');
+        $msghtml = get_string(
+            'notification_restore_category_completed',
+            'local_coursetransfer',
+            '<strong>' . $cat->name . '</strong>'
+        );
         $msghtml .= '<br>';
         $msghtml .= get_string('view_detail', 'local_coursetransfer');
         $msghtml .= '<br>';
-        $msghtml .= '<a class="btn btn-link" target="_blank" href="'. $detailurl->out(false)
-                . '">'. $detailurl->out(false) . '</a>';
+        $msghtml .= '<a class="btn btn-link" target="_blank" href="' . $detailurl->out(false)
+                . '">' . $detailurl->out(false) . '</a>';
         $message->fullmessage = $msghtml;
         $message->fullmessageformat = FORMAT_HTML;
         $message->fullmessagehtml = $msghtml;
@@ -149,14 +154,17 @@ class coursetransfer_notification {
         $message->userfrom = \core_user::get_noreply_user();
         $message->userto = $user;
         $sub = get_string('messageprovider:remove_course_completed', 'local_coursetransfer')
-                . ' [' . $origincourseid .']';
-        $msghtml = get_string('notification_remove_course_completed', 'local_coursetransfer',
-                '<strong>' . $origincourseid . '</strong>');
+                . ' [' . $origincourseid . ']';
+        $msghtml = get_string(
+            'notification_remove_course_completed',
+            'local_coursetransfer',
+            '<strong>' . $origincourseid . '</strong>'
+        );
         $msghtml .= '<br>';
         $msghtml .= get_string('view_detail', 'local_coursetransfer');
         $msghtml .= '<br>';
-        $msghtml .= '<a class="btn btn-link" target="_blank" href="'. $detailurl->out(false)
-                . '">'. $detailurl->out(false) . '</a>';
+        $msghtml .= '<a class="btn btn-link" target="_blank" href="' . $detailurl->out(false)
+                . '">' . $detailurl->out(false) . '</a>';
         $message->subject = $sub;
         $message->fullmessage = $msghtml;
         $message->fullmessageformat = FORMAT_HTML;
@@ -185,15 +193,18 @@ class coursetransfer_notification {
         $message->userfrom = \core_user::get_noreply_user();
         $message->userto = $user;
         $sub = get_string('messageprovider:remove_category_completed', 'local_coursetransfer')
-                . ' [' . $origincatid .']';
+                . ' [' . $origincatid . ']';
         $message->subject = $sub;
-        $msghtml = get_string('notification_remove_category_completed', 'local_coursetransfer',
-                '<strong>' . $origincatid . '</strong>');
+        $msghtml = get_string(
+            'notification_remove_category_completed',
+            'local_coursetransfer',
+            '<strong>' . $origincatid . '</strong>'
+        );
         $msghtml .= '<br>';
         $msghtml .= get_string('view_detail', 'local_coursetransfer');
         $msghtml .= '<br>';
-        $msghtml .= '<a class="btn btn-link" target="_blank" href="'. $detailurl->out(false)
-                . '">'. $detailurl->out(false) . '</a>';
+        $msghtml .= '<a class="btn btn-link" target="_blank" href="' . $detailurl->out(false)
+                . '">' . $detailurl->out(false) . '</a>';
         $message->fullmessage = $msghtml;
         $message->fullmessageformat = FORMAT_HTML;
         $message->fullmessagehtml = $msghtml;

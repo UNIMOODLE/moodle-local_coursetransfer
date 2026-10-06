@@ -153,7 +153,12 @@ define([
         });
         $wizard.find('.ct-step').each(function() {
             var i = parseInt($(this).attr('data-step'), 10);
-            var stepstate = i < state.wStep ? 'done' : (i === state.wStep ? 'current' : 'pending');
+            var stepstate = 'pending';
+            if (i < state.wStep) {
+                stepstate = 'done';
+            } else if (i === state.wStep) {
+                stepstate = 'current';
+            }
             $(this).attr('data-state', stepstate);
         });
         $wizard.find('[data-region="stepnum"]').text(state.wStep + 1);

@@ -60,7 +60,6 @@ require_once($CFG->dirroot . '/group/lib.php');
  * @package local_coursetransfer\external\frontend
  */
 class sites_external extends external_api {
-
     /**
      * Site add parameters.
      *
@@ -91,7 +90,8 @@ class sites_external extends external_api {
     public static function site_add(string $type, string $host, string $token, string $name = ''): array {
         global $DB, $USER;
         $params = self::validate_parameters(
-            self::site_add_parameters(), [
+            self::site_add_parameters(),
+            [
                 'type' => $type,
                 'host' => $host,
                 'token' => $token,
@@ -133,8 +133,11 @@ class sites_external extends external_api {
                 $object->userid = $USER->id;
                 $object->timemodified = time();
                 $object->timecreated = time();
-                $recordselect = $DB->get_record_select('local_coursetransfer_' . $type,
-                    "host = :host", ['host' => $object->host]);
+                $recordselect = $DB->get_record_select(
+                    'local_coursetransfer_' . $type,
+                    "host = :host",
+                    ['host' => $object->host]
+                );
                 if ($recordselect) {
                     $errors[] = [
                         'code' => '18042',
@@ -207,7 +210,7 @@ class sites_external extends external_api {
      */
     public static function site_edit_parameters(): external_function_parameters {
         return new external_function_parameters(
-                [
+            [
                     'type' => new external_value(PARAM_TEXT, 'Type: target or origin'),
                     'id' => new external_value(PARAM_INT, 'Host ID'),
                     'host' => new external_value(PARAM_RAW, 'Host Url'),
@@ -232,7 +235,8 @@ class sites_external extends external_api {
     public static function site_edit(string $type, int $id, string $host, string $token, string $name = ''): array {
         global $DB, $USER;
         $params = self::validate_parameters(
-            self::site_edit_parameters(), [
+            self::site_edit_parameters(),
+            [
                 'type' => $type,
                 'id' => $id,
                 'host' => $host,
@@ -281,8 +285,11 @@ class sites_external extends external_api {
                 $object->token = $token;
                 $object->userid = $USER->id;
                 $object->timemodified = time();
-                $recordselect = $DB->get_record_select('local_coursetransfer_' . $type,
-                    "host = :host", ['host' => $object->host]);
+                $recordselect = $DB->get_record_select(
+                    'local_coursetransfer_' . $type,
+                    "host = :host",
+                    ['host' => $object->host]
+                );
                 if ($recordselect && (int)$recordselect->id !== $object->id) {
                     $errors[] = [
                         'code' => '18032',
@@ -314,7 +321,7 @@ class sites_external extends external_api {
      */
     public static function site_edit_returns(): external_single_structure {
         return new external_single_structure(
-                [
+            [
                     'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                     'errors' => new external_multiple_structure(new external_single_structure(
                         [
@@ -338,7 +345,7 @@ class sites_external extends external_api {
      */
     public static function site_remove_parameters(): external_function_parameters {
         return new external_function_parameters(
-                [
+            [
                     'type' => new external_value(PARAM_TEXT, 'Type: target or origin'),
                     'id' => new external_value(PARAM_INT, 'Host ID'),
                 ]
@@ -354,11 +361,12 @@ class sites_external extends external_api {
      * @throws coding_exception
      * @throws dml_exception
      * @throws invalid_parameter_exception
-    */
+     */
     public static function site_remove(string $type, int $id): array {
         global $DB;
         $params = self::validate_parameters(
-            self::site_remove_parameters(), [
+            self::site_remove_parameters(),
+            [
                 'type' => $type,
                 'id' => $id,
             ]
@@ -419,13 +427,13 @@ class sites_external extends external_api {
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                        [
+                    [
                             'code' => new external_value(PARAM_TEXT, 'Code'),
                             'msg' => new external_value(PARAM_RAW, 'Message'),
                         ]
                 )),
                 'data' => new external_single_structure(
-                        [
+                    [
                             'id' => new external_value(PARAM_INT, 'Site ID', VALUE_OPTIONAL),
                         ]
                 ),
@@ -440,7 +448,7 @@ class sites_external extends external_api {
      */
     public static function site_test_parameters(): external_function_parameters {
         return new external_function_parameters(
-                [
+            [
                     'type' => new external_value(PARAM_TEXT, 'Type: target or origin'),
                     'id' => new external_value(PARAM_INT, 'Host ID'),
                 ]
@@ -460,7 +468,8 @@ class sites_external extends external_api {
     public static function site_test(string $type, int $id): array {
         global $USER;
         $params = self::validate_parameters(
-            self::site_test_parameters(), [
+            self::site_test_parameters(),
+            [
                 'type' => $type,
                 'id' => $id,
             ]
@@ -565,7 +574,7 @@ class sites_external extends external_api {
      */
     public static function site_check_parameters(): external_function_parameters {
         return new external_function_parameters(
-                [
+            [
                     'type' => new external_value(PARAM_TEXT, 'Type: target or origin'),
                     'host' => new external_value(PARAM_RAW, 'Host Url'),
                     'token' => new external_value(PARAM_RAW, 'Host Token'),
@@ -589,7 +598,8 @@ class sites_external extends external_api {
     public static function site_check(string $type, string $host, string $token): array {
         global $USER;
         $params = self::validate_parameters(
-            self::site_check_parameters(), [
+            self::site_check_parameters(),
+            [
                 'type' => $type,
                 'host' => $host,
                 'token' => $token,
@@ -698,7 +708,8 @@ class sites_external extends external_api {
     public static function origin_test(string $field, string $value, string $targetsite): array {
         global $USER;
         $params = self::validate_parameters(
-            self::origin_test_parameters(), [
+            self::origin_test_parameters(),
+            [
                 'field' => $field,
                 'value' => $value,
                 'targetsite' => $targetsite,
@@ -759,10 +770,12 @@ class sites_external extends external_api {
             [
                 'success' => new external_value(PARAM_BOOL, 'Was it a success?'),
                 'errors' => new external_multiple_structure(new external_single_structure(
-                        [
+                    [
                             'code' => new external_value(PARAM_TEXT, 'Code'),
                             'msg' => new external_value(PARAM_TEXT, 'Message'),
-                        ], PARAM_TEXT, 'Errors'
+                        ],
+                    PARAM_TEXT,
+                    'Errors'
                 )),
             ]
         );
@@ -795,7 +808,8 @@ class sites_external extends external_api {
     public static function target_test(string $field, string $value): array {
 
         $params = self::validate_parameters(
-            self::target_test_parameters(), [
+            self::target_test_parameters(),
+            [
                 'field' => $field,
                 'value' => $value,
             ]
@@ -843,10 +857,11 @@ class sites_external extends external_api {
                     [
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
-                    ], PARAM_TEXT, 'Errors'
+                    ],
+                    PARAM_TEXT,
+                    'Errors'
                 )),
             ]
         );
     }
-
-};
+}

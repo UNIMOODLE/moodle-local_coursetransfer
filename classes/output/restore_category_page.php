@@ -63,7 +63,6 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_category_page implements renderable, templatable {
-
     /** @var int How many recent restorations of this category to show. */
     const RECENT_LIMIT = 5;
 
@@ -100,8 +99,10 @@ class restore_category_page implements renderable, templatable {
         $data->localsite = format_string(get_site()->fullname);
 
         $data->caturl = (new moodle_url('/course/index.php', ['categoryid' => $this->category->id]))->out(false);
-        $data->logurl = (new moodle_url('/local/coursetransfer/origin_restore_category.php',
-                ['id' => $this->category->id]))->out(false);
+        $data->logurl = (new moodle_url(
+            '/local/coursetransfer/origin_restore_category.php',
+            ['id' => $this->category->id]
+        ))->out(false);
 
         // Search page size (plugin setting, default 5).
         $data->pagesize = max(1, (int)(get_config('local_coursetransfer', 'pagesize') ?: 5));
@@ -122,7 +123,7 @@ class restore_category_page implements renderable, templatable {
     protected function export_recent(): array {
         $rows = coursetransfer_request::get_by_target_category_id($this->category->id);
         $rows = is_array($rows) ? array_values($rows) : [];
-        usort($rows, static function($a, $b) {
+        usort($rows, static function ($a, $b) {
             return (int)$b->timemodified <=> (int)$a->timemodified;
         });
         $rows = array_slice($rows, 0, self::RECENT_LIMIT);
@@ -167,8 +168,10 @@ class restore_category_page implements renderable, templatable {
             'badgeclass' => 'ct-badge--' . str_replace('_', '-', $shortname),
             'summary' => $name,
             'site' => $r->siteurl,
-            'date' => userdate((int)$r->timemodified,
-                    get_string('strftimedatetimeshort', 'langconfig')),
+            'date' => userdate(
+                (int)$r->timemodified,
+                get_string('strftimedatetimeshort', 'langconfig')
+            ),
             'iserror' => $iserror,
             'errcause' => $errcause,
             'erraction' => $erraction,

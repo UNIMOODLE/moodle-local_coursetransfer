@@ -52,17 +52,16 @@ use core_privacy\local\request\userlist;
 class provider implements
         // This plugin does not store any data itself.
         // It has no database tables, and it purely acts as a conduit, sending data externally.
-        \core_privacy\local\metadata\provider,
-        \core_privacy\local\request\core_userlist_provider,
-        \core_privacy\local\request\plugin\provider {
-
+    \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\request\plugin\provider {
     /**
      * Return the fields which contain personal data.
      *
      * @param collection $collection a reference to the collection to use to store the metadata.
      * @return collection the updated collection of metadata items.
      */
-    public static function get_metadata(collection $collection) : collection {
+    public static function get_metadata(collection $collection): collection {
         return $collection;
     }
 
@@ -72,7 +71,7 @@ class provider implements
      * @param int $userid the userid.
      * @return contextlist the list of contexts containing user info for the user.
      */
-    public static function get_contexts_for_userid(int $userid) : contextlist {
+    public static function get_contexts_for_userid(int $userid): contextlist {
         return new contextlist();
     }
 
@@ -115,5 +114,4 @@ class provider implements
      */
     public static function delete_data_for_users(approved_userlist $userlist) {
     }
-
 }

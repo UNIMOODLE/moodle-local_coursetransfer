@@ -66,7 +66,6 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_course_page implements renderable, templatable {
-
     /** @var int How many recent restorations of this course to show. */
     const RECENT_LIMIT = 5;
 
@@ -100,8 +99,11 @@ class restore_course_page implements renderable, templatable {
         $data->headerdesc = get_string('rct_lead', 'local_coursetransfer');
 
         $data->courseid = (int)$this->course->id;
-        $data->coursename = format_string($this->course->fullname,
-                true, ['context' => $context]);
+        $data->coursename = format_string(
+            $this->course->fullname,
+            true,
+            ['context' => $context]
+        );
 
         // Which restore modes over the current course the teacher may use.
         // Mirrors the legacy flow: merge and empty-and-restore are separate
@@ -113,8 +115,10 @@ class restore_course_page implements renderable, templatable {
         $data->pagesize = max(1, (int)(get_config('local_coursetransfer', 'pagesize') ?: 5));
 
         $data->courseurl = (new moodle_url('/course/view.php', ['id' => $this->course->id]))->out(false);
-        $data->logurl = (new moodle_url('/local/coursetransfer/origin_restore_course.php',
-                ['id' => $this->course->id]))->out(false);
+        $data->logurl = (new moodle_url(
+            '/local/coursetransfer/origin_restore_course.php',
+            ['id' => $this->course->id]
+        ))->out(false);
 
         $data->recent = $this->export_recent();
         $data->hasrecent = !empty($data->recent);
@@ -132,13 +136,16 @@ class restore_course_page implements renderable, templatable {
      */
     protected function export_recent(): array {
         $rows = coursetransfer_request::get_executions(
-                ['type' => coursetransfer_request::TYPE_COURSE], 0, 100);
+            ['type' => coursetransfer_request::TYPE_COURSE],
+            0,
+            100
+        );
         // Only restorations pulled INTO this course.
-        $rows = array_filter($rows, function($r) {
+        $rows = array_filter($rows, function ($r) {
             return (int)$r->direction === coursetransfer_request::DIRECTION_REQUEST
                     && (int)$r->target_course_id === (int)$this->course->id;
         });
-        usort($rows, static function($a, $b) {
+        usort($rows, static function ($a, $b) {
             return (int)$b->timemodified <=> (int)$a->timemodified;
         });
         $rows = array_slice($rows, 0, self::RECENT_LIMIT);
@@ -183,8 +190,10 @@ class restore_course_page implements renderable, templatable {
             'badgeclass' => 'ct-badge--' . str_replace('_', '-', $shortname),
             'summary' => $name,
             'site' => $r->siteurl,
-            'date' => userdate((int)$r->timemodified,
-                    get_string('strftimedatetimeshort', 'langconfig')),
+            'date' => userdate(
+                (int)$r->timemodified,
+                get_string('strftimedatetimeshort', 'langconfig')
+            ),
             'iserror' => $iserror,
             'errcause' => $errcause,
             'erraction' => $erraction,

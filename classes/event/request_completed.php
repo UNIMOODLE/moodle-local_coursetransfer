@@ -34,7 +34,6 @@
 
 namespace local_coursetransfer\event;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Fired when a course transfer request (restore or remove, course or category)
@@ -45,7 +44,6 @@ defined('MOODLE_INTERNAL') || die();
  * @package local_coursetransfer\event
  */
 class request_completed extends \core\event\base {
-
     /**
      * Init.
      */

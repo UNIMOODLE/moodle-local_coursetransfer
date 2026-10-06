@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- * Unified paired-platforms page (Tresipunt redesign, TIPGOODLE-352).
+ * Unified paired-platforms page (Tresipunt redesign).
  *
  * @package    local_coursetransfer
  * @copyright  2023 Proyecto UNIMOODLE
@@ -55,7 +55,6 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class platforms_page implements renderable, templatable {
-
     /** @var stdClass[] Platforms (merged origin/target rows by host) */
     protected array $platforms;
 
@@ -135,13 +134,19 @@ class platforms_page implements renderable, templatable {
         } else if ((int)$platform->lastteststatus === 1) {
             $item->connok = true;
             $item->connlabel = get_string('platform_conn_ok', 'local_coursetransfer');
-            $item->lasttestlabel = get_string('platform_lasttest', 'local_coursetransfer',
-                    userdate($platform->lasttest, get_string('strftimedatetimeshort', 'langconfig')));
+            $item->lasttestlabel = get_string(
+                'platform_lasttest',
+                'local_coursetransfer',
+                userdate($platform->lasttest, get_string('strftimedatetimeshort', 'langconfig'))
+            );
         } else {
             $item->connerror = true;
             $item->connlabel = get_string('platform_conn_error', 'local_coursetransfer');
-            $item->lasttestlabel = get_string('platform_lasttest', 'local_coursetransfer',
-                    userdate($platform->lasttest, get_string('strftimedatetimeshort', 'langconfig')));
+            $item->lasttestlabel = get_string(
+                'platform_lasttest',
+                'local_coursetransfer',
+                userdate($platform->lasttest, get_string('strftimedatetimeshort', 'langconfig'))
+            );
             $item->errcause = (string)$platform->lasttesterror;
             $item->erraction = get_string('platform_error_action', 'local_coursetransfer');
         }
@@ -165,7 +170,7 @@ class platforms_page implements renderable, templatable {
      */
     protected function is_self_host(string $host): bool {
         global $CFG;
-        $normalize = function(string $url): string {
+        $normalize = function (string $url): string {
             return strtolower(rtrim(trim($url), '/'));
         };
         return $normalize($host) === $normalize($CFG->wwwroot);

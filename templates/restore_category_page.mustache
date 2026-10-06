@@ -20,6 +20,7 @@
     Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
     Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
     Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 }}
 {{!
   @template local_coursetransfer/restore_category_page
@@ -28,6 +29,30 @@
   wizard + done, driven by local_coursetransfer/restore_category_wizard. Brings
   a remote category (all its courses, including subcategories) into the CURRENT
   category.
+
+  Example context (json):
+  {
+      "catid": 5,
+      "catname": "Faculty of Science",
+      "caturl": "https://example.com/course/index.php?categoryid=5",
+      "localsite": "This site",
+      "site": "Campus 2025",
+      "pagesize": 10,
+      "hasrecent": true,
+      "recent": [
+          {
+              "date": "14/09/2026 10:00",
+              "site": "Campus 2025",
+              "summary": "Category: Faculty of Science",
+              "statuslabel": "Completed",
+              "badgeclass": "ct-badge--ok",
+              "detailurl": "https://example.com/local/coursetransfer/log.php?id=1",
+              "iserror": false,
+              "errcause": "",
+              "erraction": ""
+          }
+      ]
+  }
 }}
 <div class="local-coursetransfer ct-wide" data-region="restore_category"
         data-catid="{{ catid }}" data-catname="{{ catname }}" data-localsite="{{ localsite }}"

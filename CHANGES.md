@@ -2,6 +2,64 @@
 
 All notable changes to this plugin are documented here.
 
+## 2.1.0 — 2026-09-14
+
+Housekeeping and hardening release, prepared for publication. **No behaviour
+changes**: the plugin does the same as 2.0.1. It is now verified by CI across ten
+combinations: PHP 8.1 – 8.4, Moodle 4.5 and 5.1, PostgreSQL and MariaDB.
+
+### Added
+
+- **Continuous integration** on every push and pull request
+  (`.github/workflows/ci.yml`), running the full `moodle-plugin-ci` suite.
+- **`.gitattributes`** pinning line endings to LF, so a clone on Windows does not
+  rewrite the whole tree.
+- **Example contexts** for the seven templates that had none (or had an empty one),
+  so Mustache Lint can render and validate them.
+
+### Fixed
+
+- **Four duplicated string keys.** `target_category_id_integer`, `site_not_found`,
+  `deleteintarget` and `direction` were declared twice, so the second declaration
+  silently won. In the first two cases the surviving text was the wrong one: the
+  CLI error message lost its usage hint, and `site_not_found` diverged from the
+  wording still used by the `eu` and `gl` files. The first declaration is now the
+  one kept, which also realigns the five languages.
+
+- **An upgrade step had no savepoint.** The `2024040500` block —the one renaming the
+  `destiny` table and its fields to `target`— never called
+  `upgrade_plugin_savepoint()`, so it was re-executed on every subsequent upgrade of
+  a site coming from an older version.
+
+- **PHP 8.4 compatibility:** 41 parameters relied on the implicit nullable of a
+  `null` default, deprecated in 8.4. They are now explicitly nullable. Two
+  parameters of `get_logs_filter_sql()` had no declared type at all.
+
+- **Accessibility:** the activities and configuration modals pointed
+  `aria-labelledby` at an id that does not exist (`…Title` instead of
+  `…LongTitle`), so no screen reader could resolve their title.
+
+- **Invalid markup:** a `<div>` inside a `<button>` and a `<span>` as a direct child
+  of a `<ul>`, neither of which is allowed.
+
+- **A stylesheet rule leaked outside the plugin:** `input[type="checkbox"]:active`
+  and `:disabled` were not scoped, so they applied to the whole Moodle site.
+
+- **A template declared the wrong name:** `components/activity.mustache` identified
+  itself as `components/section`.
+
+### Changed
+
+- **CSS moved out of the Mustache templates.** A `<style>` block inside the body is
+  invalid HTML and, in the table components, was duplicated once per rendered row.
+  It now lives in `styles.css`.
+- **The code passes `moodle-plugin-ci` clean**: PHP Lint, Moodle Code Checker
+  (`--max-warnings 0`), Moodle PHPDoc Checker, Validate, Upgrade savepoints,
+  Mustache Lint and Grunt (`--max-lint-warnings 0`). This meant a large but purely
+  cosmetic reformat, plus splitting three oversized methods in the wizard modules
+  into named helpers. The language files are also sorted alphabetically and
+  stripped of section comments, which the checker does not allow.
+
 ## 2.0.1 — 2026-09-09
 
 Bug fix release. No schema changes and no new settings; the upgrade step only

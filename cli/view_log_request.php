@@ -37,7 +37,7 @@ use local_coursetransfer\coursetransfer_request;
 
 define('CLI_SCRIPT', 1);
 
-require(__DIR__.'/../../../config.php');
+require(__DIR__ . '/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 
@@ -59,7 +59,7 @@ Examples:
     # php local/coursetransfer/cli/view_log_request.php --requestid=3
 ';
 
-list($options, $unrecognised) = cli_get_params([
+[$options, $unrecognised] = cli_get_params([
         'help' => false,
         'requestid' => null,
 ], [
@@ -67,7 +67,7 @@ list($options, $unrecognised) = cli_get_params([
 ]);
 
 if ($unrecognised) {
-    $unrecognised = implode(PHP_EOL.'  ', $unrecognised);
+    $unrecognised = implode(PHP_EOL . '  ', $unrecognised);
     cli_error(get_string('cliunknowoption', 'core_admin', $unrecognised));
 }
 
@@ -78,14 +78,13 @@ if ($options['help']) {
 
 $requestid = (int) $options['requestid'];
 
-if ( $requestid === null ) {
+if ($requestid === null) {
     cli_error(get_string('requestid_require', 'local_coursetransfer'), 2);
-} else if ( $requestid <= 0 ) {
+} else if ($requestid <= 0) {
     cli_error(get_string('requestid_integer', 'local_coursetransfer'), 2);
 }
 
 try {
-
     $request = coursetransfer_request::get($requestid);
     if ($request) {
         foreach ($request as $key => $item) {
@@ -97,20 +96,20 @@ try {
                         if (empty($coursesid)) {
                             $coursesid .= $course->id;
                         } else {
-                            $coursesid .= '-'. $course->id;
+                            $coursesid .= '-' . $course->id;
                         }
                     }
                 }
-                cli_writeln( $key . ': ' . $coursesid);
+                cli_writeln($key . ': ' . $coursesid);
             } else if ($key === 'type') {
                 $type = (int)$item === coursetransfer_request::TYPE_COURSE ? 'restore course' : 'restore category';
-                cli_writeln( $key . ': ' . $type);
+                cli_writeln($key . ': ' . $type);
             } else if ($key === 'direction') {
                 $type = (int)$item === coursetransfer_request::DIRECTION_REQUEST ? 'request' : 'answer';
-                cli_writeln( $key . ': ' . $type);
+                cli_writeln($key . ': ' . $type);
             } else if ($key === 'origin_activities') {
-                cli_writeln( $key . ': ' . 'view more details in view_log_request_activities_detail');
-            } else if ($key === 'target_target' ) {
+                cli_writeln($key . ': ' . 'view more details in view_log_request_activities_detail');
+            } else if ($key === 'target_target') {
                 switch ($item) {
                     case 2:
                         $target = 'In New Course';
@@ -124,27 +123,27 @@ try {
                     default:
                         $target = '-';
                 }
-                cli_writeln( $key . ': ' . $target);
-            } else if ($key === 'timemodified' || $key === 'timecreated' ) {
-                cli_writeln( $key . ': ' . userdate($item));
-            } else if ($key === 'origin_enrolusers' || $key === 'origin_remove_course' ||
+                cli_writeln($key . ': ' . $target);
+            } else if ($key === 'timemodified' || $key === 'timecreated') {
+                cli_writeln($key . ': ' . userdate($item));
+            } else if (
+                $key === 'origin_enrolusers' || $key === 'origin_remove_course' ||
                     $key === 'origin_remove_category' || $key === 'target_remove_enrols' ||
-                    $key === 'target_remove_groups' ) {
+                    $key === 'target_remove_groups'
+            ) {
                 $bool = (int)$item === 1 ? 'true' : 'false';
-                cli_writeln( $key . ': ' . $bool);
+                cli_writeln($key . ': ' . $bool);
             } else if ($key === 'status') {
-                cli_writeln( $key . ': ' . get_string('status_' .
+                cli_writeln($key . ': ' . get_string('status_' .
                                 coursetransfer::STATUS[$item]['shortname'], 'local_coursetransfer'));
             } else {
-                cli_writeln( $key . ': ' . $item );
+                cli_writeln($key . ': ' . $item);
             }
         }
     } else {
-        cli_writeln( get_string('request_not_found', 'local_coursetransfer') );
+        cli_writeln(get_string('request_not_found', 'local_coursetransfer'));
     }
     exit(0);
-
 } catch (moodle_exception $e) {
     cli_error('40009: ' . $e->getMessage(), 1);
 }
-

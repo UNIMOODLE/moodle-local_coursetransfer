@@ -444,7 +444,12 @@ define([
             // Stepper markers.
             this.$root.find('.ct-step').each(function() {
                 var idx = parseInt($(this).attr('data-step-index'), 10);
-                var st = idx < n ? 'done' : (idx === n ? 'current' : 'pending');
+                var st = 'pending';
+                if (idx < n) {
+                    st = 'done';
+                } else if (idx === n) {
+                    st = 'current';
+                }
                 $(this).attr('data-state', st);
             });
             this.renderSitebar();
@@ -1312,6 +1317,49 @@ define([
             return d.exmode !== 'replace' || !!d.confirm;
         },
 
+        /**
+         * Work out the status tag of a destination card.
+         *
+         * @param {Boolean} ready Whether the card is fully configured.
+         * @param {Boolean} isNew Whether the destination is a new course.
+         * @param {Boolean} isReplace Whether the destination course is replaced.
+         * @return {Object} Tag text and its modifier class.
+         */
+        cardTag: function(ready, isNew, isReplace) {
+            if (!ready) {
+                return {text: this.S.rw_tag_unconfigured || 'Not configured', cls: 'ct-destcard-tag--warn'};
+            }
+            if (isNew) {
+                return {text: this.S.rw_tag_new || 'New', cls: 'ct-destcard-tag--new'};
+            }
+            if (isReplace) {
+                return {text: this.S.rw_tag_replace || 'Replaces', cls: 'ct-destcard-tag--danger'};
+            }
+            return {text: this.S.rw_tag_merge || 'Merges', cls: 'ct-destcard-tag--merge'};
+        },
+
+        /**
+         * Work out the class list of a destination card.
+         *
+         * @param {Boolean} ready Whether the card is fully configured.
+         * @param {Boolean} isExisting Whether the destination is an existing course.
+         * @param {Boolean} isReplace Whether the destination course is replaced.
+         * @param {Boolean} expanded Whether the card is expanded.
+         * @return {String} The class list.
+         */
+        cardClasses: function(ready, isExisting, isReplace, expanded) {
+            var cls = 'ct-destcard';
+            if (!ready) {
+                cls += ' ct-destcard--warn';
+            } else if (isExisting && isReplace) {
+                cls += ' ct-destcard--danger';
+            }
+            if (expanded) {
+                cls += ' ct-destcard--open';
+            }
+            return cls;
+        },
+
         buildCard: function(id) {
             var d = this.state.dest[id] || {};
             var info = this.state.checked[id] || {};
@@ -1323,33 +1371,10 @@ define([
             var expanded = !!d.expanded;
 
             // Card status tag. Not-ready cards read as "unconfigured" (warn).
-            var tagText;
-            var tagClass;
-            if (!ready) {
-                tagText = this.S.rw_tag_unconfigured || 'Not configured';
-                tagClass = 'ct-destcard-tag--warn';
-            } else if (isNew) {
-                tagText = this.S.rw_tag_new || 'New';
-                tagClass = 'ct-destcard-tag--new';
-            } else if (isReplace) {
-                tagText = this.S.rw_tag_replace || 'Replaces';
-                tagClass = 'ct-destcard-tag--danger';
-            } else {
-                tagText = this.S.rw_tag_merge || 'Merges';
-                tagClass = 'ct-destcard-tag--merge';
-            }
+            var tag = this.cardTag(ready, isNew, isReplace);
 
-            var cardClass = 'ct-destcard';
-            if (!ready) {
-                cardClass += ' ct-destcard--warn';
-            } else if (isExisting && isReplace) {
-                cardClass += ' ct-destcard--danger';
-            }
-            if (expanded) {
-                cardClass += ' ct-destcard--open';
-            }
-
-            var $card = $('<div>').addClass(cardClass).attr('data-cid', id);
+            var $card = $('<div>').addClass(this.cardClasses(ready, isExisting, isReplace, expanded))
+                .attr('data-cid', id);
 
             // Header (click to expand/collapse).
             var $head = $('<div>').addClass('ct-destcard-head')
@@ -1361,7 +1386,7 @@ define([
                 $hinfo.append($('<div>').addClass('ct-destcard-sub').text(info.meta));
             }
             $head.append($hinfo);
-            $head.append($('<span>').addClass('ct-destcard-tag ' + tagClass).text(tagText));
+            $head.append($('<span>').addClass('ct-destcard-tag ' + tag.cls).text(tag.text));
             // Explicit call-to-action so the user sees the card is expandable
             // and where to configure the destination. Collapsed => "Configure",
             // expanded => "Collapse".
@@ -2010,6 +2035,78 @@ define([
                 + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
         },
 
+        /**
+         * Count the per-course destinations of the selection.
+         *
+         * @param {Array} items Selected course ids.
+         * @param {Boolean} iscat Whether this is a category restore.
+         * @return {Object} Counts of new, existing and replace destinations.
+         */
+        destBreakdown: function(items, iscat) {
+            var self = this;
+            var bd = {nnew: 0, nexisting: 0, nreplace: 0};
+            if (iscat) {
+                return bd;
+            }
+            items.forEach(function(id) {
+                var d = self.state.dest[id] || {mode: 'new'};
+                if (d.mode === 'existing') {
+                    bd.nexisting++;
+                    if (d.exmode === 'replace') {
+                        bd.nreplace++;
+                    }
+                } else {
+                    bd.nnew++;
+                }
+            });
+            return bd;
+        },
+
+        /**
+         * Build the breakdown row, with one chip per destination kind.
+         *
+         * @param {Object} bd Counts as returned by destBreakdown().
+         * @return {jQuery} The breakdown row.
+         */
+        buildBreakdownRow: function(bd) {
+            var $bd = $('<div>').addClass('ct-breakdown ct-mt');
+            $bd.append($('<span>').addClass('ct-breakdown-lbl').text(this.S.rw_cat_breakdown || 'Breakdown'));
+            if (bd.nnew > 0) {
+                $bd.append($('<span>').addClass('ct-chip ct-chip--new')
+                    .text((this.S.rw_bd_new || '{$a}').replace('{$a}', bd.nnew)));
+            }
+            if (bd.nexisting > 0) {
+                $bd.append($('<span>').addClass('ct-chip ct-chip--existing')
+                    .text((this.S.rw_bd_existing || '{$a}').replace('{$a}', bd.nexisting)));
+            }
+            if (bd.nreplace > 0) {
+                $bd.append($('<span>').addClass('ct-chip ct-chip--replace')
+                    .text((this.S.rw_bd_replace || '{$a}').replace('{$a}', bd.nreplace)));
+            }
+            return $bd;
+        },
+
+        /**
+         * Show or hide the notice warning that the origins will be deleted.
+         */
+        renderRemoveOrigin: function() {
+            var s = this.state;
+            var $ro = this.region('review-removeorigin');
+            if (!s.removeorigin) {
+                $ro.prop('hidden', true);
+                return;
+            }
+            var kind = s.type === 'category'
+                ? (this.S.rw_categories_pl || '')
+                : (this.S.rw_courses_pl || '');
+            var txt = (this.S.rw_review_removeorigin || '{$a->count} {$a->kind} — {$a->site}')
+                .replace('{$a->count}', this.selectedIds().length)
+                .replace('{$a->kind}', kind)
+                .replace('{$a->site}', s.sitename || '');
+            this.$root.find('[data-region="review-removeorigin-text"]').text(txt);
+            $ro.prop('hidden', false);
+        },
+
         renderReview: function() {
             var s = this.state;
             var self = this;
@@ -2019,24 +2116,7 @@ define([
             var kindlabel = iscat
                 ? (this.S.rw_kind_category || 'Category')
                 : (this.S.rw_kind_course || 'Course');
-
-            // Per-course destination breakdown (course type only).
-            var nnew = 0;
-            var nexisting = 0;
-            var nreplace = 0;
-            if (!iscat) {
-                items.forEach(function(id) {
-                    var d = self.state.dest[id] || {mode: 'new'};
-                    if (d.mode === 'existing') {
-                        nexisting++;
-                        if (d.exmode === 'replace') {
-                            nreplace++;
-                        }
-                    } else {
-                        nnew++;
-                    }
-                });
-            }
+            var bd = this.destBreakdown(items, iscat);
 
             var $review = this.region('review').empty();
 
@@ -2056,7 +2136,7 @@ define([
             $hero.append($('<span>').addClass('ct-review-count').text(count));
             $review.append($hero);
 
-            // Per-item list: origin course → destination + mode chip.
+            // Per-item list: origin course to destination, plus the mode chip.
             var $list = $('<div>').addClass('ct-review-list');
             items.slice(0, 8).forEach(function(id) {
                 $list.append(self.buildReviewItem(id, iscat));
@@ -2067,48 +2147,19 @@ define([
             }
             $review.append($list);
 
-            // Breakdown (course only) — only meaningful with several courses;
-            // for a single course the item's own chip already says it. Shown as
-            // a labelled row ("Reparto: …") so the numbers are understandable.
+            // Breakdown (course only) is only meaningful with several courses;
+            // for a single course the item's own chip already says it.
             if (!iscat && count > 1) {
-                var $bd = $('<div>').addClass('ct-breakdown ct-mt');
-                $bd.append($('<span>').addClass('ct-breakdown-lbl').text(this.S.rw_cat_breakdown || 'Breakdown'));
-                if (nnew > 0) {
-                    $bd.append($('<span>').addClass('ct-chip ct-chip--new')
-                        .text((this.S.rw_bd_new || '{$a}').replace('{$a}', nnew)));
-                }
-                if (nexisting > 0) {
-                    $bd.append($('<span>').addClass('ct-chip ct-chip--existing')
-                        .text((this.S.rw_bd_existing || '{$a}').replace('{$a}', nexisting)));
-                }
-                if (nreplace > 0) {
-                    $bd.append($('<span>').addClass('ct-chip ct-chip--replace')
-                        .text((this.S.rw_bd_replace || '{$a}').replace('{$a}', nreplace)));
-                }
-                $review.append($bd);
+                $review.append(this.buildBreakdownRow(bd));
             }
 
             // Cross-cutting options summary (homogeneous field grid).
             $review.append(this.buildGlobalsGrid(iscat));
 
-            var anyreplace = iscat ? (s.mode === 'replace') : (nreplace > 0);
+            var anyreplace = iscat ? (s.mode === 'replace') : (bd.nreplace > 0);
             this.region('review-danger').prop('hidden', !anyreplace);
 
-            // Destructive: origins will be deleted after restoring.
-            var $ro = this.region('review-removeorigin');
-            if (s.removeorigin) {
-                var kind = s.type === 'category'
-                    ? (this.S.rw_categories_pl || '')
-                    : (this.S.rw_courses_pl || '');
-                var txt = (this.S.rw_review_removeorigin || '{$a->count} {$a->kind} — {$a->site}')
-                    .replace('{$a->count}', this.selectedIds().length)
-                    .replace('{$a->kind}', kind)
-                    .replace('{$a->site}', s.sitename || '');
-                this.$root.find('[data-region="review-removeorigin-text"]').text(txt);
-                $ro.prop('hidden', false);
-            } else {
-                $ro.prop('hidden', true);
-            }
+            this.renderRemoveOrigin();
         },
 
         // ---- Submit -----------------------------------------------------

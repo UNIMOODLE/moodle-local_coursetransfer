@@ -114,6 +114,12 @@ define([
          * Reset in-memory state.
          */
         resetState: function() {
+            var mode = '';
+            if (this.canmerge) {
+                mode = 'merge';
+            } else if (this.canreplace) {
+                mode = 'replace';
+            }
             this.state = {
                 view: 'landing',
                 step: 0,
@@ -136,7 +142,7 @@ define([
                 // structure/summary is brought), keyed by section index.
                 emptysecs: {},
                 // Options.
-                mode: this.canmerge ? 'merge' : (this.canreplace ? 'replace' : ''),
+                mode: mode,
                 confirmdestroy: false,
                 includeusers: false
             };
@@ -297,7 +303,12 @@ define([
             });
             this.$root.find('.ct-step').each(function() {
                 var idx = parseInt($(this).attr('data-step-index'), 10);
-                var st = idx < n ? 'done' : (idx === n ? 'current' : 'pending');
+                var st = 'pending';
+                if (idx < n) {
+                    st = 'done';
+                } else if (idx === n) {
+                    st = 'current';
+                }
                 $(this).attr('data-state', st);
             });
             this.renderSitebar();
@@ -989,8 +1000,13 @@ define([
                 var $sec = $('<div>').addClass('ct-sectree-section');
                 var $head = $('<button>').attr('type', 'button').addClass('ct-sectree-head')
                     .attr('data-action', 'toggle-section').attr('data-secidx', i);
-                var $check = $('<span>').addClass('ct-sectree-check'
-                    + (isall ? ' ct-sectree-check--on' : (issome ? ' ct-sectree-check--some' : '')));
+                var checkmod = '';
+                if (isall) {
+                    checkmod = ' ct-sectree-check--on';
+                } else if (issome) {
+                    checkmod = ' ct-sectree-check--some';
+                }
+                var $check = $('<span>').addClass('ct-sectree-check' + checkmod);
                 $check.append($('<i>').addClass('fa ' + (issome ? 'fa-minus' : 'fa-check'))
                     .attr('aria-hidden', 'true'));
                 $head.append($check);

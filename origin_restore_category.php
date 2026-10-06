@@ -70,10 +70,10 @@ if (has_capability('local/coursetransfer:origin_restore_category', $context)) {
     $page = new restore_category_page($category);
 } else {
     $page = new error_page(
-            get_string('forbidden', 'local_coursetransfer'),
-            get_string('you_have_not_permission', 'local_coursetransfer'),
-            'danger',
-            get_string('error')
+        get_string('forbidden', 'local_coursetransfer'),
+        get_string('you_have_not_permission', 'local_coursetransfer'),
+        'danger',
+        get_string('error')
     );
 }
 

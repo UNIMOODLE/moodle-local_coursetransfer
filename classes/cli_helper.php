@@ -39,7 +39,6 @@ use dml_exception;
 use local_coursetransfer\factory\user;
 use stdClass;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Shared helpers for the plugin CLI scripts.
@@ -56,7 +55,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cli_helper {
-
     /** @var int Exit code: success. */
     const EXIT_OK = 0;
 

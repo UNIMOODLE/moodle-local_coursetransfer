@@ -76,7 +76,6 @@ require_once($CFG->dirroot . '/local/coursetransfer/classes/task/create_backup_c
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer {
-
     /** @var int Maximum category subtree depth walked/recreated (guards against cycles). */
     const MAX_TREE_DEPTH = 25;
 
@@ -329,7 +328,7 @@ class coursetransfer {
                 'sectionnum' => $section->section,
                 'sectionid' => $section->id,
                 'sectionname' => is_null($section->name) ?
-                    get_string('sectionname', 'format_'. $course->format) . ' ' . $section->section : $section->name,
+                    get_string('sectionname', 'format_' . $course->format) . ' ' . $section->section : $section->name,
                 'activities' => self::get_activities_by_section($modinfo, $section->id),
             ];
             $finalsections[] = $finalsection;
@@ -439,12 +438,12 @@ class coursetransfer {
 
             // Make the link.
             $fileurl = moodle_url::make_webservice_pluginfile_url(
-                    $storedfile->get_contextid(),
-                    $storedfile->get_component(),
-                    $storedfile->get_filearea(),
-                    $storedfile->get_itemid(),
-                    $storedfile->get_filepath(),
-                    $storedfile->get_filename()
+                $storedfile->get_contextid(),
+                $storedfile->get_component(),
+                $storedfile->get_filearea(),
+                $storedfile->get_itemid(),
+                $storedfile->get_filepath(),
+                $storedfile->get_filename()
             );
             $success = true;
             $url = $fileurl->out(true);
@@ -478,9 +477,14 @@ class coursetransfer {
      * @param array $sections
      * @return array
      */
-    public static function restore_course(stdClass $user,
-            stdClass $site, int $targetcourseid, int $origincourseid,
-            configuration_course $configuration, array $sections = []): array {
+    public static function restore_course(
+        stdClass $user,
+        stdClass $site,
+        int $targetcourseid,
+        int $origincourseid,
+        configuration_course $configuration,
+        array $sections = []
+    ): array {
 
         try {
             return self::restore_course_unity($user, $site, $targetcourseid, $origincourseid, $configuration, $sections);
@@ -513,8 +517,10 @@ class coursetransfer {
      * @throws moodle_exception
      */
     public static function restore_retry(stdClass $request): array {
-        if ((int)$request->type !== coursetransfer_request::TYPE_COURSE
-                || (int)$request->direction !== coursetransfer_request::DIRECTION_REQUEST) {
+        if (
+            (int)$request->type !== coursetransfer_request::TYPE_COURSE
+                || (int)$request->direction !== coursetransfer_request::DIRECTION_REQUEST
+        ) {
             return ['success' => false, 'errors' => [
                     ['code' => '10020', 'msg' => get_string('retry_not_supported', 'local_coursetransfer')]]];
         }
@@ -525,9 +531,9 @@ class coursetransfer {
 
         // Anti-duplicate: relaunching while a healthy adhoc task is queued/running would
         // duplicate the operation (double restore, races). So (LCT-023):
-        //  - block if there is an ACTIVE task (faildelay == 0: queued or running normally);
-        //  - if the related tasks are only FAILING/backing off (faildelay > 0), remove them
-        //    and proceed — recovering a stuck task is exactly what the retry is for.
+        // - block if there is an ACTIVE task (faildelay == 0: queued or running normally);
+        // - if the related tasks are only FAILING/backing off (faildelay > 0), remove them
+        // and proceed — recovering a stuck task is exactly what the retry is for.
         global $DB;
         $stucktaskids = [];
         foreach (coursetransfer_request::get_related_adhoc_tasks((int)$request->id) as $task) {
@@ -543,8 +549,10 @@ class coursetransfer {
 
         // 1. Re-restore: if the .mbz is already downloaded, just re-queue the restore.
         $status = (int)$request->status;
-        if ($status === coursetransfer_request::STATUS_DOWNLOADED
-                || $status === coursetransfer_request::STATUS_RESTORE) {
+        if (
+            $status === coursetransfer_request::STATUS_DOWNLOADED
+                || $status === coursetransfer_request::STATUS_RESTORE
+        ) {
             $file = self::find_downloaded_backup($request);
             if ($file) {
                 $request->status = coursetransfer_request::STATUS_DOWNLOADED;
@@ -565,17 +573,23 @@ class coursetransfer {
         }
         $site = self::get_site_by_url($request->siteurl);
         $configuration = new configuration_course(
-                (int)$request->target_target,
-                (bool)$request->target_remove_enrols,
-                (bool)$request->target_remove_groups,
-                (bool)$request->origin_enrolusers,
-                (bool)$request->origin_remove_course,
-                !empty($request->origin_schedule_datetime) ? (int)$request->origin_schedule_datetime : null,
-                (string)($request->origin_remove_activities ?? '')
+            (int)$request->target_target,
+            (bool)$request->target_remove_enrols,
+            (bool)$request->target_remove_groups,
+            (bool)$request->origin_enrolusers,
+            (bool)$request->origin_remove_course,
+            !empty($request->origin_schedule_datetime) ? (int)$request->origin_schedule_datetime : null,
+            (string)($request->origin_remove_activities ?? '')
         );
         $sections = !empty($request->origin_activities) ? (array) json_decode($request->origin_activities, true) : [];
         $res = self::restore_course(
-                $user, $site, (int)$request->target_course_id, (int)$request->origin_course_id, $configuration, $sections);
+            $user,
+            $site,
+            (int)$request->target_course_id,
+            (int)$request->origin_course_id,
+            $configuration,
+            $sections
+        );
         if (!empty($res['success'])) {
             // Mark the old request as superseded by the new one.
             $newid = $res['data']['requestid'] ?? '';
@@ -620,7 +634,11 @@ class coursetransfer {
      * @throws moodle_exception
      */
     public static function remove_course(
-            stdClass $site, int $origincourseid, stdClass $user = null, int $nextruntime = null): array {
+        stdClass $site,
+        int $origincourseid,
+        ?stdClass $user = null,
+        ?int $nextruntime = null
+    ): array {
 
         $errors = [];
 
@@ -673,8 +691,12 @@ class coursetransfer {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function remove_category(stdClass $site, int $origincatid,
-            stdClass $user = null, int $nextruntime = null): array {
+    public static function remove_category(
+        stdClass $site,
+        int $origincatid,
+        ?stdClass $user = null,
+        ?int $nextruntime = null
+    ): array {
 
         $errors = [];
 
@@ -724,13 +746,23 @@ class coursetransfer {
      * @return array
      */
     public static function restore_category(
-            stdClass $user, stdClass $site, int $targetcategoryid, int $origincategoryid,
-            configuration_category $configuration, array $courses = []): array {
+        stdClass $user,
+        stdClass $site,
+        int $targetcategoryid,
+        int $origincategoryid,
+        configuration_category $configuration,
+        array $courses = []
+    ): array {
 
         try {
             // 2. Category Request DB.
             $requestobject = coursetransfer_request::set_request_restore_category(
-                    $site, $targetcategoryid, $origincategoryid, '', $configuration, $user
+                $site,
+                $targetcategoryid,
+                $origincategoryid,
+                '',
+                $configuration,
+                $user
             );
             $request = new request($site);
             $origincategoryname = '';
@@ -766,25 +798,34 @@ class coursetransfer {
             $catcourserequests = [];
 
             foreach ($courses as $course) {
-
                 // 1. Configuration Course.
                 $configurationcourse = new configuration_course(
-                        $configuration->targettarget,
-                        $configuration->targetremoveenrols,
-                        $configuration->targetremovegroups,
-                        $configuration->originenrolusers,
-                        false,
-                        $configuration->nextruntime);
+                    $configuration->targettarget,
+                    $configuration->targetremoveenrols,
+                    $configuration->targetremovegroups,
+                    $configuration->originenrolusers,
+                    false,
+                    $configuration->nextruntime
+                );
 
                 // 2. Create new course in this category.
                 $targetcourseid = course::create(
-                        core_course_category::get($targetcategoryid),
-                        $course->fullname, $course->shortname . uniqid());
+                    core_course_category::get($targetcategoryid),
+                    $course->fullname,
+                    $course->shortname . uniqid()
+                );
                 $origincourseid = $course->id;
 
                 // 3. Request Restore Course.
                 $courseres = self::restore_course_unity(
-                        $user, $site, $targetcourseid, $origincourseid, $configurationcourse, [], $requestobject->id);
+                    $user,
+                    $site,
+                    $targetcourseid,
+                    $origincourseid,
+                    $configurationcourse,
+                    [],
+                    $requestobject->id
+                );
 
                 if (!$courseres['success']) {
                     $success = false;
@@ -834,13 +875,22 @@ class coursetransfer {
      * @return array
      */
     public static function restore_category_tree(
-            stdClass $user, stdClass $site, int $targetcategoryid, int $origincategoryid,
-            configuration_category $configuration): array {
+        stdClass $user,
+        stdClass $site,
+        int $targetcategoryid,
+        int $origincategoryid,
+        configuration_category $configuration
+    ): array {
         $errors = [];
         try {
             // 1. Category Request DB.
             $requestobject = coursetransfer_request::set_request_restore_category(
-                    $site, $targetcategoryid, $origincategoryid, '', $configuration, $user
+                $site,
+                $targetcategoryid,
+                $origincategoryid,
+                '',
+                $configuration,
+                $user
             );
             $request = new request($site);
             $res = $request->origin_get_category_detail_tree($origincategoryid, $user);
@@ -881,13 +931,27 @@ class coursetransfer {
             $catcourserequests = [];
             foreach (($data->courses ?? []) as $course) {
                 $success = self::restore_tree_course(
-                        $course, $user, $site, $targetcategoryid, $configuration,
-                        $requestobject, $catcourserequests, $errors) && $success;
+                    $course,
+                    $user,
+                    $site,
+                    $targetcategoryid,
+                    $configuration,
+                    $requestobject,
+                    $catcourserequests,
+                    $errors
+                ) && $success;
             }
             foreach (($data->categories ?? []) as $cat) {
                 $success = self::restore_tree_category(
-                        $cat, $user, $site, $targetcategoryid, $configuration,
-                        $requestobject, $catcourserequests, $errors) && $success;
+                    $cat,
+                    $user,
+                    $site,
+                    $targetcategoryid,
+                    $configuration,
+                    $requestobject,
+                    $catcourserequests,
+                    $errors
+                ) && $success;
             }
 
             return [
@@ -912,12 +976,20 @@ class coursetransfer {
      * @param stdClass $requestobject
      * @param array $catcourserequests
      * @param array $errors
+     * @param int $depth Current recursion depth.
      * @return bool
      */
     protected static function restore_tree_category(
-            stdClass $cat, stdClass $user, stdClass $site, int $parentid,
-            configuration_category $configuration, stdClass $requestobject,
-            array &$catcourserequests, array &$errors, int $depth = 0): bool {
+        stdClass $cat,
+        stdClass $user,
+        stdClass $site,
+        int $parentid,
+        configuration_category $configuration,
+        stdClass $requestobject,
+        array &$catcourserequests,
+        array &$errors,
+        int $depth = 0
+    ): bool {
         // Defensive guard against a pathologically deep (or crafted) tree.
         if ($depth > self::MAX_TREE_DEPTH) {
             $errors[] = ['code' => '11004', 'msg' => 'Maximum category tree depth exceeded'];
@@ -930,13 +1002,28 @@ class coursetransfer {
         $success = true;
         foreach (($cat->courses ?? []) as $course) {
             $success = self::restore_tree_course(
-                    $course, $user, $site, $targetcategoryid, $configuration,
-                    $requestobject, $catcourserequests, $errors) && $success;
+                $course,
+                $user,
+                $site,
+                $targetcategoryid,
+                $configuration,
+                $requestobject,
+                $catcourserequests,
+                $errors
+            ) && $success;
         }
         foreach (($cat->categories ?? []) as $child) {
             $success = self::restore_tree_category(
-                    $child, $user, $site, $targetcategoryid, $configuration,
-                    $requestobject, $catcourserequests, $errors, $depth + 1) && $success;
+                $child,
+                $user,
+                $site,
+                $targetcategoryid,
+                $configuration,
+                $requestobject,
+                $catcourserequests,
+                $errors,
+                $depth + 1
+            ) && $success;
         }
         return $success;
     }
@@ -955,22 +1042,38 @@ class coursetransfer {
      * @return bool
      */
     protected static function restore_tree_course(
-            stdClass $course, stdClass $user, stdClass $site, int $targetcategoryid,
-            configuration_category $configuration, stdClass $requestobject,
-            array &$catcourserequests, array &$errors): bool {
+        stdClass $course,
+        stdClass $user,
+        stdClass $site,
+        int $targetcategoryid,
+        configuration_category $configuration,
+        stdClass $requestobject,
+        array &$catcourserequests,
+        array &$errors
+    ): bool {
         try {
             $configurationcourse = new configuration_course(
-                    $configuration->targettarget,
-                    $configuration->targetremoveenrols,
-                    $configuration->targetremovegroups,
-                    $configuration->originenrolusers,
-                    false,
-                    $configuration->nextruntime);
+                $configuration->targettarget,
+                $configuration->targetremoveenrols,
+                $configuration->targetremovegroups,
+                $configuration->originenrolusers,
+                false,
+                $configuration->nextruntime
+            );
             $targetcourseid = course::create(
-                    core_course_category::get($targetcategoryid),
-                    $course->fullname, $course->shortname . '_' . uniqid());
+                core_course_category::get($targetcategoryid),
+                $course->fullname,
+                $course->shortname . '_' . uniqid()
+            );
             $courseres = self::restore_course_unity(
-                    $user, $site, $targetcourseid, (int)$course->id, $configurationcourse, [], $requestobject->id);
+                $user,
+                $site,
+                $targetcourseid,
+                (int)$course->id,
+                $configurationcourse,
+                [],
+                $requestobject->id
+            );
             if (!$courseres['success']) {
                 $errors = array_merge($errors, $courseres['errors']);
             }
@@ -1000,18 +1103,38 @@ class coursetransfer {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    protected static function restore_course_unity(stdClass $user, stdClass $site, int $targetcourseid, int $origincourseid,
-            configuration_course $configuration, array $sections = [], int $requestcatid = null): array {
+    protected static function restore_course_unity(
+        stdClass $user,
+        stdClass $site,
+        int $targetcourseid,
+        int $origincourseid,
+        configuration_course $configuration,
+        array $sections = [],
+        ?int $requestcatid = null
+    ): array {
 
         $errors = [];
         // 1. Request DB.
-        $requestobject = coursetransfer_request::set_request_restore_course($user,
-                $site, $targetcourseid, $origincourseid, $configuration, $sections, $requestcatid);
+        $requestobject = coursetransfer_request::set_request_restore_course(
+            $user,
+            $site,
+            $targetcourseid,
+            $origincourseid,
+            $configuration,
+            $sections,
+            $requestcatid
+        );
 
         // 2. Call CURL Origin Backup Course.
         $request = new request($site);
         $res = $request->origin_backup_course(
-                $user, $requestobject->id, $origincourseid, $targetcourseid, $configuration, $sections);
+            $user,
+            $requestobject->id,
+            $origincourseid,
+            $targetcourseid,
+            $configuration,
+            $sections
+        );
         // 3. Success or Errors.
         if ($res->success) {
             // 4a. Update Request DB Completed.
@@ -1076,7 +1199,7 @@ class coursetransfer {
      * @param stdClass|null $user
      * @return core_course_category[]
      */
-    public static function get_subcategories(core_course_category $category, stdClass $user = null): array {
+    public static function get_subcategories(core_course_category $category, ?stdClass $user = null): array {
         $categories = [];
         self::get_childs($category, $categories, $user);
         return $categories;
@@ -1089,7 +1212,7 @@ class coursetransfer {
      * @param array $categories
      * @param stdClass|null $user
      */
-    public static function get_childs(core_course_category $category, array &$categories, stdClass $user = null): void {
+    public static function get_childs(core_course_category $category, array &$categories, ?stdClass $user = null): void {
         if ($category->get_children_count() > 0) {
             foreach ($category->get_children() as $child) {
                 if ($child->is_uservisible($user)) {
@@ -1174,7 +1297,6 @@ class coursetransfer {
 
         // 8. Create Token.
         return user::create_token($userid);
-
     }
 
     /**
@@ -1239,8 +1361,8 @@ class coursetransfer {
         $total = count($courses);
         if ($perpage > 0) {
             $currentpage = max(0, $page);
-            $startIndex = $currentpage * $perpage;
-            $courses = array_slice($courses, $startIndex, $perpage);
+            $startindex = $currentpage * $perpage;
+            $courses = array_slice($courses, $startindex, $perpage);
         }
         return ['total' => $total, 'courses' => $courses];
     }
@@ -1290,8 +1412,6 @@ class coursetransfer {
 
         // Search the courses.
         return core_course_category::search_courses($searchcriteria, $options, $requiredcapabilities);
-
-
     }
 
     /**
@@ -1419,8 +1539,10 @@ class coursetransfer {
      */
     public static function can_restore_in_not_new_course(stdClass $user): bool {
         $context = context_system::instance();
-        if (has_capability('local/coursetransfer:target_restore_content_remove', $context, $user->id) &&
-                has_capability('local/coursetransfer:target_restore_merge', $context, $user->id)) {
+        if (
+            has_capability('local/coursetransfer:target_restore_content_remove', $context, $user->id) &&
+                has_capability('local/coursetransfer:target_restore_merge', $context, $user->id)
+        ) {
             return true;
         }
         return false;
@@ -1497,7 +1619,6 @@ class coursetransfer {
             } catch (moodle_exception $e) {
                 mtrace("Error cleanup_category_bin: " . $e->getMessage());
             }
-
         } else {
             mtrace("remove_cat_cleanup is not active");
         }

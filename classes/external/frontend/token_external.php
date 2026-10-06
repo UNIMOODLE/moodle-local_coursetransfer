@@ -60,7 +60,6 @@ global $CFG;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class token_external extends external_api {
-
     /**
      * Common returns: success + token + errors.
      *
@@ -119,7 +118,7 @@ class token_external extends external_api {
         $errors = [];
         $token = '';
         try {
-            // postinstall() creates/repairs user+role+capabilities+WS+REST and
+            // Note that postinstall() creates/repairs user+role+capabilities+WS+REST and
             // returns the token (creating it if missing).
             $token = (string)\local_coursetransfer\coursetransfer::postinstall();
         } catch (moodle_exception $e) {
@@ -138,6 +137,8 @@ class token_external extends external_api {
     }
 
     /**
+     * Revoke Parameters.
+     *
      * @return external_function_parameters
      */
     public static function revoke_parameters(): external_function_parameters {

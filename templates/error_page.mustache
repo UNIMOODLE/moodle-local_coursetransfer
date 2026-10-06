@@ -25,7 +25,12 @@
   @template local_coursetransfer/error_page
 
   Example context (json):
-
+  {
+      "title": "Request not found",
+      "msg": "The request you are trying to open does not exist or has been removed.",
+      "level": "danger",
+      "levelstr": "Error"
+  }
 }}
 <div data-region="local_coursetransfer_error_page">
     <div class="card text-center mt-6" style="width: 18rem;">
@@ -37,16 +42,3 @@
         </div>
     </div>
 </div>
-<style>
-    [data-region="local_coursetransfer_error_page"] {
-        display: flex;
-        justify-content: center;
-        align-content: center;
-    }
-    [data-region="local_coursetransfer_error_page"] i.fa.fa-exclamation-triangle {
-        font-size: 38px;
-        margin-bottom: 10px;
-        margin-top: 5px;
-        color: orange;
-    }
-</style>

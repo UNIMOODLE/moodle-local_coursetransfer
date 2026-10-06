@@ -37,7 +37,6 @@ namespace local_coursetransfer\task;
 use local_coursetransfer\coursetransfer;
 use moodle_exception;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * cleanup category bin task
@@ -49,7 +48,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cleanup_category_bin_task extends \core\task\adhoc_task {
-
     // Use the logging trait to get some nice, juicy, logging.
     use \core\task\logging_trait;
 

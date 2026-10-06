@@ -38,7 +38,6 @@ use advanced_testcase;
 use local_coursetransfer\external\frontend\restore_wizard_external;
 use local_coursetransfer\external\frontend\sites_external;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Tests for the restore/remove wizard web services: get_sites happy path and
@@ -57,8 +56,7 @@ defined('MOODLE_INTERNAL') || die();
  * @covers     \local_coursetransfer\external\frontend\restore_wizard_external
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class restore_wizard_external_test extends advanced_testcase {
-
+final class restore_wizard_external_test extends advanced_testcase {
     /**
      * Set up.
      */

@@ -51,12 +51,11 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class clean_adhoc_failed_task extends \core\task\scheduled_task {
+    // Use the logging trait to get some nice, juicy, logging.
+    use \core\task\logging_trait;
 
     /** @var int Max FAIL Delay time in seconds */
     const MAX_FAILDELAY = 60;
-
-    // Use the logging trait to get some nice, juicy, logging.
-    use \core\task\logging_trait;
 
     /**
      * Get a descriptive name for this task (shown to admins).
@@ -86,9 +85,11 @@ class clean_adhoc_failed_task extends \core\task\scheduled_task {
             return;
         }
 
-        $tasksdb = $DB->get_records_select('task_adhoc',
-                'component = ? AND faildelay > ?',
-                ['local_coursetransfer', $faildelay]);
+        $tasksdb = $DB->get_records_select(
+            'task_adhoc',
+            'component = ? AND faildelay > ?',
+            ['local_coursetransfer', $faildelay]
+        );
         if (count($tasksdb) > 0) {
             foreach ($tasksdb as $taskdb) {
                 try {

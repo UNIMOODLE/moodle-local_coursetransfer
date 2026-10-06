@@ -34,7 +34,7 @@
 
 define('CLI_SCRIPT', 1);
 
-require(__DIR__.'/../../../config.php');
+require(__DIR__ . '/../../../config.php');
 global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 
@@ -56,7 +56,7 @@ Examples:
     # php local/coursetransfer/cli/view_log_request_activities_detail.php --requestid=3
 ';
 
-list($options, $unrecognised) = cli_get_params([
+[$options, $unrecognised] = cli_get_params([
         'help' => false,
         'requestid' => null,
 ], [
@@ -64,7 +64,7 @@ list($options, $unrecognised) = cli_get_params([
 ]);
 
 if ($unrecognised) {
-    $unrecognised = implode(PHP_EOL.'  ', $unrecognised);
+    $unrecognised = implode(PHP_EOL . '  ', $unrecognised);
     cli_error(get_string('cliunknowoption', 'core_admin', $unrecognised));
 }
 
@@ -75,14 +75,13 @@ if ($options['help']) {
 
 $requestid = (int) $options['requestid'];
 
-if ( $requestid === null ) {
+if ($requestid === null) {
     cli_error(get_string('requestid_require', 'local_coursetransfer'), 2);
-} else if ( $requestid <= 0 ) {
+} else if ($requestid <= 0) {
     cli_error(get_string('requestid_integer', 'local_coursetransfer'), 2);
 }
 
 try {
-
     $request = \local_coursetransfer\coursetransfer_request::get($requestid);
     if ($request) {
         $decode = json_decode($request->origin_activities);
@@ -92,11 +91,9 @@ try {
             cli_writeln(json_encode($decode, JSON_PRETTY_PRINT));
         }
     } else {
-        cli_writeln( get_string('request_not_found', 'local_coursetransfer') );
+        cli_writeln(get_string('request_not_found', 'local_coursetransfer'));
     }
     exit(0);
-
 } catch (moodle_exception $e) {
     cli_error('40010: ' . $e->getMessage(), 1);
 }
-

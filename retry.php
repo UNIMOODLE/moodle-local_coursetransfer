@@ -55,20 +55,26 @@ $logsurl = new moodle_url('/local/coursetransfer/logs.php');
 
 $request = coursetransfer_request::get($id);
 if (!$request) {
-    redirect($logsurl, get_string('retry_error', 'local_coursetransfer', 'ID ' . $id),
-            null, notification::NOTIFY_ERROR);
+    redirect(
+        $logsurl,
+        get_string('retry_error', 'local_coursetransfer', 'ID ' . $id),
+        null,
+        notification::NOTIFY_ERROR
+    );
 }
 
-$returnurl = new moodle_url('/local/coursetransfer/logs.php',
-        ['type' => $request->type, 'direction' => $request->direction]);
+$returnurl = new moodle_url(
+    '/local/coursetransfer/logs.php',
+    ['type' => $request->type, 'direction' => $request->direction]
+);
 
 // Confirmation step.
 if (!$confirm) {
     echo $OUTPUT->header();
     echo $OUTPUT->confirm(
-            get_string('retry_confirm', 'local_coursetransfer', $id),
-            new moodle_url('/local/coursetransfer/retry.php', ['id' => $id, 'confirm' => 1, 'sesskey' => sesskey()]),
-            $returnurl
+        get_string('retry_confirm', 'local_coursetransfer', $id),
+        new moodle_url('/local/coursetransfer/retry.php', ['id' => $id, 'confirm' => 1, 'sesskey' => sesskey()]),
+        $returnurl
     );
     echo $OUTPUT->footer();
     exit;
