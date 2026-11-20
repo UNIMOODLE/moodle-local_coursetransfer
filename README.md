@@ -6,8 +6,8 @@
 <h1 align="center">Course Transfer</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.1.0-informational" alt="Version">
-  <a href="https://moodle.org"><img src="https://img.shields.io/badge/Moodle-4.5%20--%205.1-orange?logo=moodle" alt="Moodle"></a>
+  <img src="https://img.shields.io/badge/version-2.2.0-informational" alt="Version">
+  <a href="https://moodle.org"><img src="https://img.shields.io/badge/Moodle-4.5%20--%205.3-orange?logo=moodle" alt="Moodle"></a>
   <img src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php&logoColor=white" alt="PHP">
   <img src="https://img.shields.io/badge/License-GPL--3.0-green" alt="License">
   <a href="https://unimoodle.github.io/"><img src="https://img.shields.io/badge/project%20by-UNIMOODLE-194866" alt="Project by UNIMOODLE"></a>
@@ -45,6 +45,9 @@ restore) runs in the background via scheduled tasks.
   **detail** view with a timeline and the associated tasks.
 - **CLI automation** — scripts to launch restores/deletions and query the logs
   from the command line.
+- **Data-loss protection** — the origin is only removed after a complete and
+  verified restore, removed courses stay in the recycle bin for a configurable
+  time, and every removal between platforms is recorded as an event (see below).
 
 ## 💡 Use cases
 
@@ -70,6 +73,11 @@ restore) runs in the background via scheduled tasks.
   on both sides, so cron must be running.
 - The user is resolved by equivalence across platforms (by `username`, `email`
   or `idnumber`, configurable).
+- The services used between platforms can only be called with the other
+  site's **service user token** (capability `local/coursetransfer:webservice`; in 2.2 a token user without it is still accepted with a deprecation warning, 2.3 will reject it),
+  never from the browser. Permissions are then checked on the equivalent user:
+  the origin only lists and backs up what that user could back up by hand.
+- Calls between platforms verify the **TLS certificate** of the other site.
 - It does **not** modify the Moodle core or theme; it uninstalls like any other
   local plugin.
 
@@ -77,9 +85,11 @@ restore) runs in the background via scheduled tasks.
 
 | Requirement | Version |
 |---|---|
-| Moodle | 4.5+ (tested up to 5.1) |
+| Moodle | 4.5, 5.1 or 5.3 |
 | PHP | 8.1+ |
-| Configuration | **REST** web services enabled and a **service user** (the plugin helps create it from *Summary*) |
+| Configuration | **REST** web services enabled and a **service user** (the plugin creates it from *Summary*) |
+| Cron | Running on **both** platforms: backups, downloads, restores, removals and cleanups are tasks |
+| TLS | A valid certificate on every paired platform: self-signed certificates or incomplete chains are rejected while `sslverifypeer` is on |
 | Other plugins | None required |
 
 ## 🚀 Installation
@@ -104,132 +114,53 @@ Under **Site administration › Plugins › Local plugins › Course Transfer**
 |---|---|
 | **Maximum course size to restore** (`target_restore_course_max_size`) | Limit (MB) of the backup (`.mbz`) to restore; if exceeded, the download fails and it is recorded in the log. |
 | **Request timeout** (`request_timeout`) | Seconds to wait for the calls between platforms. |
-| **Ignore cURL security** (`ignorecurlsecurity`) | Allows operating against sites with internal/unverifiable certificates (use with care). |
+| **Allow connections to internal hosts** (`ignorecurlsecurity`) | Off by default. While on, Moodle's blocked hosts and ports (`curlsecurityblockedhosts`) do not apply to the calls between platforms. Prefer leaving it off and allowing only the paired hosts in that list. It does not disable the certificate check. |
+| **Verify the certificate of the paired platforms** (`sslverifypeer`) | On by default. Turning it off sends the token to peers whose identity is not checked: only at the administrator's own risk. The connection test explains when a certificate cannot be verified. |
 | **Results per page** (`pagesize`) | Number of results per page in the wizard search boxes. |
 | **Failed adhoc task cleanup** (`clean_adhoc_faildelay`) | Age from which failed tasks are cleaned up (`0` = disabled). |
 | **Empty trash after deleting a course** (`remove_course_cleanup`) | Permanently removes the course deleted remotely. |
 | **Empty trash after deleting a category** (`remove_cat_cleanup`) | Permanently removes the category deleted remotely. |
-| **User search field** (`origin_field_search_user`) | Field used to match the equivalent user across platforms (`username` / `email` / `idnumber`). |
+| **User search field** (`origin_field_search_user`) | Field used to match the equivalent user across platforms (`username` / `email` / user ID / `idnumber`). Changing it repairs the integration. |
+| **Check the restored course before removing the origin** (`verifymanifest`) | On by default. See *Data-loss protection*. |
+| **Days in the recycle bin before the definitive deletion** (`recyclebinretentiondays`) | Default 30, minimum 1. See *Data-loss protection*. |
+| **Days to keep transferred backups** (`backup_files_retention`) | Default 7, minimum 1. Backups served as origin and safety copies kept as target are deleted this many days after their transfer finished. |
 
 **Paired platforms** are not configured here: they are managed from the plugin's
-**Platforms** screen (with a connection test).
+**Platforms** screen (with a connection test), and only by administrators
+(`moodle/site:config`). A platform URL is a plain base URL,
+`http(s)://host[:port][/path]`, and must match the other site's `wwwroot`.
 
-## Resumen
+## 🛡️ Data-loss protection
 
-En esta misma página podremos ver el token del servicio y un enlace a la configuración del plugin.
+Removing the origin after a restore (course or category) is the only operation
+that can lose a course. These safeguards apply:
 
-    /local/coursetransfer/index.php
+| Safeguard | What it protects | How to configure it |
+|---|---|---|
+| **Complete restore** | The origin is kept if the restore plan reports missing modules or files (error `10410`). A category is removed only when every course of it was restored without issues, the requester could see all its subcategories on the origin, and the origin category has no new courses since the restore started. | Always on |
+| **Manifest check** | Before removing an origin course, its sections and activities per module (asked of the origin) and, with users, the enrolled users (read from the backup) are compared with the restored course. If anything is missing, the origin is kept and the log says what (`10412`). | `verifymanifest` (on) |
+| **Requester's permissions** | The removal runs as the user who asked for it, on both sites: `local/coursetransfer:origin_remove_course` / `_category` here, and `moodle/course:delete` / `moodle/category:manage` plus the same capability on the origin. | Roles |
+| **Safety copy** | Before a restore that may remove the origin, the target keeps a copy of the backup. | `backup_files_retention` (never purged before its origin is removed plus the recycle bin retention; kept when the restore was incomplete) |
+| **Recycle bin** | With *Definitive deletion of course* on, a course removed at the request of another platform stays in the recycle bin for the configured days before it is purged, so it can still be restored by hand. Needs the category recycle bin of `tool_recyclebin`; removing a whole category always empties its bin (Moodle core). If the core recycle bin expires items sooner (7 days by default), the setting and the Summary diagnosis warn about it. | `recyclebinretentiondays` (30) |
+| **Audit** | Every removal asked of or done for another platform, and every decision to remove or keep the origin after a restore, is logged as an event (*Site administration › Reports › Logs*). | Always on |
 
-Además, si en cualquier momento se desconfigura algo o se borra algún rol o usuario, se podrá ejecutar el botón de ‘Refrescar’ (ejecuta el archivo postinstall.php y redirige al mismo sitio) para revisar y arreglar cualquier cambio en la configuración de la plataforma.
+When the origin is kept, the request still shows the restore as completed, with
+the reason in its detail; the origin can then be removed with the *Delete remote
+content* wizard once checked.
 
+## 🔐 Permissions
 
-## Accesos directos desde el panel de administración
+| Capability | Default | Lets the user |
+|---|---|---|
+| `local/coursetransfer:origin_restore` | — | Restore remote courses or categories (site level) |
+| `local/coursetransfer:origin_restore_course` / `_category` | Manager, editing teacher / Manager | Use the restore wizard from a course / category |
+| `local/coursetransfer:origin_restore_course_users` | Manager | Include users and their data in the backup |
+| `local/coursetransfer:origin_remove_course` / `_category` | Manager | Remove courses / categories on the origin |
+| `local/coursetransfer:target_restore_*` | Manager, editing teacher | Delete content, enrolments or groups of the target course, or merge into it |
+| `local/coursetransfer:view_logs` | Manager | See the execution log |
+| `local/coursetransfer:manage_requests` | Manager (cloned from `view_logs`) | Delete log entries and retry a restore |
+| `local/coursetransfer:webservice` | Only the service user role | Call the services used by peer platforms |
 
-El administrador tendrá a su disposición los siguientes enlaces en el apartado de 'Extensiones/Restaurar cursos remotos' del panel de administración:
-
-* Configuración: enlace a la configuración del plugin
-* Resumen: enlace a la página con el token y el botón de refrescar configuración
-* Restaurar cursos o categorías remotas: Enlace donde el administrador podrá ejecutar la restauración de cursos o categorías.
-* Eliminación de cursos de plataforma remota: Enlace donde el administrador podrá borrar cursos o categorías remotos.
-* Registro de ejecuciones: Tabla para revisar las ejecuciones de restauración y borrado de cursos remotos.
-
-## Ejecuciones por CLI
-
-Se han creado los siguiente script de consola:
-* restore_course.php
-    - CLI de restauracion de curso
-* restore_category.php
-    - CLI de restauracion de categoría
-* view_log_target_course.php
-    - CLI para ver los logs de restauraciones en un curso como destino
-* view_log_target_category.php
-    - CLI para ver los logs de restauraciones en una categoría como destino
-* view_log_origin_course.php
-    - CLI para ver los logs de restauraciones en un curso como origen. Las peticiones que ha recibido desde otro Moodle.
-* view_log_origin_category.php
-    - CLI para ver los logs de restauraciones en una categoría como origen. Las peticiones que ha recibido desde otro Moodle.
-* view_log_request.php
-    - CLI para ver los logs de una petición.
-* view_log_request_activities_detail.php
-    - CLI para ver el detalle de las secciones y actividades seleccionadas en una petición.
-* view_logs.php
-    - CLI para ver peticiones filtradas por tipo, dirección, estado, usuario o fecha.
-
-### Ayuda en CLI
-Todos los scripts disponen de ayuda utilizando el argumento help:
-
-    php local/coursetransfer/cli/restore_course.php -h
-
-## Funcionalidades
-
-* RCEP1 - Función para restaurar un grupo de cursos entre plataformas
-* RCEP2 - Función para restaurar una categoría de cursos entre plataformas desarrollado como plugin local
-* RCEP3 - Script CLI Moodle
-* RCEP4 - Plugin de administración para restaurar cursos entre plataformas
-* RCEP5 - Plugin docente
-* RCEP6 - Plugin Moodle para el administrador que permita el borrado de cursos optimizando el rendimiento. La eliminación de cursos en entornos
-* RCEP7 - LOG del estado de restauración y eliminado
-* RCEP8 - Tarea scheduled o ad-hoc
-
-## Tareas en diferido
-El administrador puede seleccionar, tanto por consola, como por interfaz gráfica, si la tarea se ejecutará lo antes posible, o en una fecha determinada.
-Para ello, en siguientes funcionalidades:
-
-* Restauración de curso
-* Restauración de categoría
-* Borrado de curso remoto
-* Borrado de categoría remota
-
-Aparecerá una configuración para poder seleccionar, si la tarea se ejecutará de forma diferida.
-
-En el momento de hacer clic en esa configuración, el usuario podrá seleccionar la fecha en la que comenzará la ejecución en la plataforma de origen.
-
-De esta forma, el cron solo ejecutará esa tarea cuando la fecha de ejecución se haya sobrepasado.
-
-## Notificaciones
-Cuando se ejecuta una funcionalidad, se utilizan tareas adhoc asíncronas que se ejecutan mediante el cron de Moodle.
-Por este motivo, se ha añadido la funcionalidad de aviso por notificación en las siguientes ejecuciones:
-* Restauración de curso
-* Restauración de categoría
-* Borrado de curso remoto
-* Borrado de categoría remota
-El plugin trae una configuración por defecto, pero esta configuración, se puede modificar por el administrador o por el usuario:
-
-   ``/message/notificationpreferences.php``
-
-Si se selecciona web, la notificación será mediante la aplicación web.
-
-Y si selecciona Email, el usuario recibirá un email cuando la funcionalidad se complete.
-
-El administrador podrá desactivar, en cualquier caso, estas notificaciones para todos los usuarios: ```/admin/message.php```
-
-## Tablas de Base de datos
-
-* local_coursetransfer_request
-
-  Contiene la información de las peticiones entre plataformas.
-
-* local_coursetransfer_origin
-
-  Contiene la información de los sitios de origen configurados.
-
-* local_coursetransfer_target
-
-    Contiene la información de los sitios de destino configurados.
-
-## Tests Unitarios
-Para ejecutar los test unitarios en Moodle hay que realizar los siguientes pasos utilizando la documentación oficial https://moodledev.io/general/development/tools/phpunit:
-
-1. Instalar PHP Unit con Composer
-2. Configurar el archivo config.php según documentación
-3. Inicializar el entorno de pruebas con:
-
-   ``php admin\tool\phpunit\cli\init.php``
-
-
-4. Ejecutar el grupo de test de Course Transfer:
-
-    ``vendor\bin\phpunit --filter local_coursetransfer``
 ## 🖥️ Command line usage (optional)
 
 All scripts live in `local/coursetransfer/cli/` and accept `--help` (or `-h`):

@@ -38,7 +38,10 @@ use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer_remove;
 use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\coursetransfer_sites;
-use moodle_exception;
+use local_coursetransfer\event\remote_removal_executed;
+use local_coursetransfer\event\remote_removal_rejected;
+use stdClass;
+use Throwable;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -64,64 +67,130 @@ class remove_course_task extends \core\task\adhoc_task {
      *
      */
     public function execute(): void {
+        $this->log_start("Remove Course Remote Starting...");
 
+        $data = $this->get_custom_data();
+        $requestoriginid = (int)($data->requestoriginid ?? 0);
+        $requestdestid = (int)($data->requestdestid ?? 0);
+        $courseid = (int)($data->courseid ?? 0);
+
+        $requestorigin = coursetransfer_request::get($requestoriginid);
+        if (!$requestorigin) {
+            // Without its request nothing would record what was removed (LCT-036).
+            $this->log_finish('Request ' . $requestoriginid . ' not found: nothing removed.');
+            return;
+        }
+        if ((int)$requestorigin->status === coursetransfer_request::STATUS_COMPLETED) {
+            $this->log_finish('Request ' . $requestoriginid . ' already completed.');
+            return;
+        }
+
+        $user = \core_user::get_user((int)($data->userid ?? 0));
+        $request = null;
         try {
-            $this->log_start("Remove Course Remote Starting...");
+            $site = coursetransfer_sites::get('target', (int)($data->targetsiteid ?? 0));
+            $request = $site ? new request($site) : null;
 
-            $targetsiteid = $this->get_custom_data()->targetsiteid;
-            $courseid = $this->get_custom_data()->courseid;
             $course = get_course($courseid);
-            $requestoriginid = $this->get_custom_data()->requestoriginid;
-            $requestdestid = $this->get_custom_data()->requestdestid;
-            $userid = $this->get_custom_data()->userid;
+            // The removal runs as the cron: check it on the user who asked for it.
+            if (
+                !$user || !has_capability('moodle/course:delete', \context_course::instance($courseid), $user)
+                    || !has_capability('local/coursetransfer:origin_remove_course', \context_system::instance(), $user)
+            ) {
+                $this->fail($requestorigin, $request, $user, $requestdestid, '15002', 'USER HAS NOT CAPABILITY');
+                return;
+            }
 
-            $user = \core_user::get_user($userid);
-            $site = coursetransfer_sites::get('target', $targetsiteid);
-            $request = new request($site);
-
-            $requestorigin = coursetransfer_request::get($requestoriginid);
-
+            // Its served backups would go with its context: they must outlive the removal (protection period).
+            coursetransfer_remove::preserve_served_backups([$courseid]);
             $res = \core_course_external::delete_courses([$courseid]);
 
             if (count($res['warnings']) > 0) {
-                $errors[] = json_encode($res['warnings']);
-                $requestorigin->status = coursetransfer_request::STATUS_ERROR;
-                $requestorigin->error_code = '15001';
-                $requestorigin->error_message = json_encode($res['warnings']);
-                coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
-                $res = $request->target_remove_course_error(
-                    $user,
-                    $requestdestid,
-                    $requestorigin->error_message,
-                    $requestorigin->error_code
-                );
+                $this->fail($requestorigin, $request, $user, $requestdestid, '15001', json_encode($res['warnings']));
+            } else {
+                coursetransfer_request::update_fields($requestoriginid, ['status' => coursetransfer_request::STATUS_COMPLETED]);
+                $this->audit(remote_removal_executed::class, $requestorigin, 'removed');
+
+                coursetransfer_remove::create_cleanup_course_bin_task($course);
+
+                if ($request) {
+                    $res = $request->target_remove_course_completed($requestdestid, $user);
+                    if (!$res->success) {
+                        coursetransfer_request::update_fields($requestoriginid, [
+                            'status' => coursetransfer_request::STATUS_ERROR,
+                            'error_code' => $res->errors[0]->code,
+                            'error_message' => $res->errors[0]->msg,
+                        ]);
+                        mtrace('Remove Course Remote in Completed Callback ERROR: ' . $res->errors[0]->msg);
+                        $this->log(json_encode($res));
+                    }
+                }
+            }
+        } catch (\dml_missing_record_exception $e) {
+            $this->fail($requestorigin, $request, $user, $requestdestid, '15003', 'Course ' . $courseid . ' not found');
+        } catch (Throwable $e) {
+            // Leave the request in a final state and tell the target (LCT-015).
+            $this->fail($requestorigin, $request, $user, $requestdestid, '15000', $e->getMessage());
+        } finally {
+            $this->log_finish("Remove Course Remote Finishing...");
+        }
+    }
+
+    /**
+     * Mark the request as failed and tell the target.
+     *
+     * @param stdClass $requestorigin
+     * @param request|null $request
+     * @param stdClass|false $user
+     * @param int $requestdestid
+     * @param string $code
+     * @param string $message
+     */
+    protected function fail(
+        stdClass $requestorigin,
+        ?request $request,
+        $user,
+        int $requestdestid,
+        string $code,
+        string $message
+    ): void {
+        mtrace('Remove Course Remote ERROR: ' . $message);
+        $this->audit(remote_removal_rejected::class, $requestorigin, $code . ' ' . $message);
+        try {
+            coursetransfer_request::update_fields((int)$requestorigin->id, [
+                'status' => coursetransfer_request::STATUS_ERROR,
+                'error_code' => $code,
+                'error_message' => $message,
+            ]);
+            if ($request && $user) {
+                $res = $request->target_remove_course_error($user, $requestdestid, $message, $code);
                 if (!$res->success) {
                     mtrace('Remove Course Remote in Error Callback ERROR: ' . $res->errors[0]->msg);
                     $this->log(json_encode($res));
                 }
-            } else {
-                $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
-                coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
-
-                coursetransfer_remove::create_cleanup_course_bin_task($course);
-
-                $res = $request->target_remove_course_completed($requestdestid, $user);
-
-                if (!$res->success) {
-                    $requestorigin->status = coursetransfer_request::STATUS_ERROR;
-                    $requestorigin->error_code = $res->errors[0]->code;
-                    $requestorigin->error_message = $res->errors[0]->msg;
-                    coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
-                    mtrace('Remove Course Remote in Completed Callback ERROR: ' . $res->errors[0]->msg);
-                    $this->log(json_encode($res));
-                    coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
-                }
             }
-        } catch (moodle_exception $e) {
-            mtrace('Remove Course Remote ERROR: ' . $e->getMessage());
-            $this->log($e->getMessage());
+        } catch (Throwable $e) {
+            $this->log('Remove Course Remote ERROR: ' . $e->getMessage());
         }
+    }
 
-        $this->log_finish("Remove Course Remote Finishing...");
+    /**
+     * Audit what was done with a removal asked by another platform.
+     *
+     * @param string $event Event class.
+     * @param stdClass $requestorigin
+     * @param string $result
+     */
+    protected function audit(string $event, stdClass $requestorigin, string $result): void {
+        try {
+            $event::fire((int)$requestorigin->id, (int)($this->get_custom_data()->userid ?? 0), [
+                'kind' => 'course',
+                'id' => (int)($this->get_custom_data()->courseid ?? 0),
+                'site' => (string)$requestorigin->siteurl,
+                'result' => $result,
+            ]);
+        } catch (Throwable $e) {
+            $this->log('Audit event not triggered: ' . $e->getMessage());
+        }
     }
 }

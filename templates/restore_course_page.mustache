@@ -213,6 +213,7 @@
                 </div>
 
                 {{! Include users and groups. }}
+                {{#canincludeusers}}
                 <div class="ct-switchrow ct-mt">
                     <div class="ct-switchrow-body">
                         <span class="ct-rolecard-title">{{#str}} rw_users, local_coursetransfer {{/str}}</span>
@@ -220,6 +221,7 @@
                     </div>
                     <button type="button" class="ct-switch" data-action="toggle-users" role="switch" aria-checked="false"></button>
                 </div>
+                {{/canincludeusers}}
 
                 <div class="ct-alert ct-alert--success ct-mt" data-region="mode-safe" hidden>
                     <i class="fa fa-check-circle ct-alert-icon" aria-hidden="true"></i>

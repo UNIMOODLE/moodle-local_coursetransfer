@@ -226,9 +226,11 @@
                     <a class="ct-iconbtn ct-iconbtn--xs" href="{{ detailurl }}" target="_blank" rel="noopener" title="{{#str}} exec_detail, local_coursetransfer {{/str}}" aria-label="{{#str}} exec_detail, local_coursetransfer {{/str}}">
                         <i class="fa fa-chevron-right" aria-hidden="true"></i>
                     </a>
+                    {{#candelete}}
                     <button type="button" class="ct-iconbtn ct-iconbtn--xs ct-iconbtn--danger" data-action="delete-log" data-id="{{ id }}" title="{{#str}} exec_delete, local_coursetransfer {{/str}}" aria-label="{{#str}} exec_delete, local_coursetransfer {{/str}}">
                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                     </button>
+                    {{/candelete}}
                 </span>
             </div>
             {{#iserror}}

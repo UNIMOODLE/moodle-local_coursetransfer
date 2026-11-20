@@ -110,6 +110,8 @@ class restore_course_page implements renderable, templatable {
         // rights. Only the allowed ones are offered by the wizard.
         $data->canmerge = coursetransfer::can_target_restore_merge($USER, $context);
         $data->canreplace = coursetransfer::can_target_restore_content_remove($USER, $context);
+        // The server rejects user data without this capability: do not offer it (N4).
+        $data->canincludeusers = has_capability('local/coursetransfer:origin_restore_course_users', $context);
 
         // Search page size (plugin setting, default 5).
         $data->pagesize = max(1, (int)(get_config('local_coursetransfer', 'pagesize') ?: 5));

@@ -102,18 +102,19 @@ class coursetransfer_backup {
             backup::RELEASESESSION_YES
         );
         $bc->set_status(backup::STATUS_AWAITING);
-        $bc->get_plan()->get_setting('users')->set_status(base_setting::NOT_LOCKED);
-        $bc->get_plan()->get_setting('users')->set_value($rootusers);
-        $bc->get_plan()->get_setting('role_assignments')->set_status(base_setting::NOT_LOCKED);
-        $bc->get_plan()->get_setting('role_assignments')->set_value($rootusers);
-        $bc->get_plan()->get_setting('comments')->set_status(base_setting::NOT_LOCKED);
-        $bc->get_plan()->get_setting('comments')->set_value($rootusers);
-        $bc->get_plan()->get_setting('badges')->set_status(base_setting::NOT_LOCKED);
-        $bc->get_plan()->get_setting('badges')->set_value($rootusers);
-        $bc->get_plan()->get_setting('userscompletion')->set_status(base_setting::NOT_LOCKED);
-        $bc->get_plan()->get_setting('userscompletion')->set_value($rootusers);
-        $bc->get_plan()->get_setting('groups')->set_status(base_setting::NOT_LOCKED);
-        $bc->get_plan()->get_setting('groups')->set_value($rootusers);
+        $plan = $bc->get_plan();
+        // The core backup_check locks what the user may not back up (e.g. without moodle/backup:userinfo):
+        // keep those locks, as the manual backup form does (TIPCOUTRAN-10, N4).
+        if ($plan->get_setting('users')->get_status() === base_setting::LOCKED_BY_PERMISSION) {
+            $rootusers = 0;
+        }
+        foreach (['users', 'role_assignments', 'comments', 'badges', 'userscompletion', 'groups'] as $name) {
+            $setting = $plan->get_setting($name);
+            if ($setting->get_status() !== base_setting::LOCKED_BY_PERMISSION) {
+                $setting->set_status(base_setting::NOT_LOCKED);
+                $setting->set_value($rootusers);
+            }
+        }
 
         self::set_value_settings_section_activities($bc, $courseid, $rootusers, $sections);
 

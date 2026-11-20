@@ -127,6 +127,8 @@ final class coursetransfer_backup_filename_test extends advanced_testcase {
      */
     protected function setup_config() {
         global $CFG;
+        // Registering sites requires moodle/site:config (TIPCOUTRAN-10).
+        $this->setAdminUser();
         $token = coursetransfer::postinstall();
         $this->user = core_user::get_user_by_username(user::USERNAME_WS);
         $ressiteorigin = sites_external::site_add('origin', $CFG->wwwroot, $token);

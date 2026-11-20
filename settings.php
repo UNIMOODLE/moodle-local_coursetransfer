@@ -113,10 +113,19 @@ if ($hassiteconfig) {
         PARAM_INT
     ));
 
+    // Off by default: when on, curlsecurityblockedhosts does not apply to the peers (SSRF).
     $settings->add(new admin_setting_configcheckbox(
         'local_coursetransfer/ignorecurlsecurity',
         get_string('setting_ignorecurlsecurity', 'local_coursetransfer'),
         get_string('setting_ignorecurlsecurity_desc', 'local_coursetransfer'),
+        0
+    ));
+
+    // On by default: off, the token and the backups may reach whoever intercepts the connection.
+    $settings->add(new admin_setting_configcheckbox(
+        'local_coursetransfer/sslverifypeer',
+        get_string('setting_sslverifypeer', 'local_coursetransfer'),
+        get_string('setting_sslverifypeer_desc', 'local_coursetransfer'),
         1
     ));
 
@@ -175,7 +184,44 @@ if ($hassiteconfig) {
 
     $settings->add($item);
 
+    // The settings form already checked sesskey: repair here instead of redirecting to a GET
+    // action, which also cut short the save of the remaining settings (LCT-030).
     $item->set_updatedcallback(function () {
-        redirect(new moodle_url('/local/coursetransfer/postinstall.php'));
+        // A failed repair must not stop the save of the remaining settings: it is reported instead.
+        try {
+            coursetransfer::postinstall();
+        } catch (\Throwable $e) {
+            \core\notification::error(get_string('postinstall_error', 'local_coursetransfer', s($e->getMessage())));
+        }
     });
+
+    // Protection against data loss (TIPCOUTRAN-10).
+    $settings->add(new admin_setting_heading(
+        'local_coursetransfer/integrity_header',
+        get_string('integrity_header', 'local_coursetransfer'),
+        ''
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'local_coursetransfer/verifymanifest',
+        get_string('verifymanifest', 'local_coursetransfer'),
+        get_string('verifymanifest_desc', 'local_coursetransfer'),
+        1
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_coursetransfer/recyclebinretentiondays',
+        get_string('recyclebinretentiondays', 'local_coursetransfer'),
+        get_string('recyclebinretentiondays_desc', 'local_coursetransfer'),
+        30,
+        '/^[1-9][0-9]*$/'
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_coursetransfer/backup_files_retention',
+        get_string('backup_files_retention', 'local_coursetransfer'),
+        get_string('backup_files_retention_desc', 'local_coursetransfer'),
+        7,
+        '/^[1-9][0-9]*$/'
+    ));
 }

@@ -43,6 +43,7 @@ use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\coursetransfer_sites;
 use moodle_exception;
 use stdClass;
+use Throwable;
 
 /**
  * create_backup_course_task
@@ -61,6 +62,33 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
     public stdClass $site;
 
     /**
+     * Local (origin) request id of the task.
+     *
+     * Every released version (2.1 and 2.2) stores the target's id in requestid and the local one in
+     * requestoriginid. The inverse layout (local id in requestid, target's in remoterequestid) is read too,
+     * but nothing writes it.
+     *
+     * @return int
+     */
+    public function get_local_request_id(): int {
+        $data = $this->get_custom_data();
+        if (isset($data->remoterequestid)) {
+            return (int)($data->requestid ?? 0);
+        }
+        return (int)($data->requestoriginid ?? 0);
+    }
+
+    /**
+     * Request id on the target site, to which the callbacks are sent.
+     *
+     * @return int
+     */
+    public function get_remote_request_id(): int {
+        $data = $this->get_custom_data();
+        return (int)($data->remoterequestid ?? $data->requestid ?? 0);
+    }
+
+    /**
      * Execute the task.
      *
      */
@@ -68,21 +96,39 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
         global $DB;
 
         $started = time();
+        $this->log_start("Course Transfer Backup Starting...");
+
+        $istest = !empty($this->get_custom_data()->istest);
+        $backupid = $this->get_custom_data()->backupid ?? '';
+        $requestid = $this->get_remote_request_id();
+        $siteid = (int)($this->get_custom_data()->targetsite ?? 0);
+        $requestoriginid = $this->get_local_request_id();
+        $bc = null;
+        $requestorigin = null;
+        $callback = null;
 
         try {
-            $this->log_start("Course Transfer Backup Starting...");
+            $user = core_user::get_user((int)$this->get_userid());
+            if (!$istest) {
+                $site = coursetransfer_sites::get('target', $siteid);
+                $callback = $site ? new request($site) : null;
+            }
 
-            $istest = $this->get_custom_data()->istest;
-            $backupid = $this->get_custom_data()->backupid;
-            $requestid = $this->get_custom_data()->requestid;
-            $siteid = $this->get_custom_data()->targetsite;
-            $requestoriginid = $this->get_custom_data()->requestoriginid;
-
+            $requestorigin = $requestoriginid ? coursetransfer_request::get($requestoriginid) : false;
+            if (!$requestorigin) {
+                // The request was deleted here: tell the target so it does not wait forever (LCT-036).
+                $this->notify_error($callback, $user, $requestid, 'Origin request ' . $requestoriginid . ' not found');
+                $this->log_finish('Request ' . $requestoriginid . ' not found: no backup.');
+                return;
+            }
+            $finished = [coursetransfer_request::STATUS_COMPLETED, coursetransfer_request::STATUS_ERROR];
+            if (in_array((int)$requestorigin->status, $finished, true)) {
+                // A retry must not make a second backup nor call the target again.
+                $this->log_finish('Request ' . $requestoriginid . ' already finished (status ' . $requestorigin->status . ').');
+                return;
+            }
             if (!$backupid) {
                 throw new moodle_exception('BACKUP ID NOT FOUND');
-            }
-            if (!$requestoriginid) {
-                throw new moodle_exception('REQUEST ORIGIN ID NOT FOUND');
             }
 
             $bc = backup_controller::load_controller($backupid);
@@ -97,8 +143,7 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
 
             // Get the backup controller by backup id. If controller is invalid, this task can never complete.
             if ($backuprecord->controller === '') {
-                mtrace('Bad backup controller status, invalid controller, ending backup execution.');
-                return;
+                throw new moodle_exception('Bad backup controller status, invalid controller');
             }
 
             $bc->set_progress(new \core\progress\db_updater($backuprecord->id, 'backup_controllers', 'progress'));
@@ -127,72 +172,122 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
             }
 
             $result = $bc->get_results();
-            $userid = $bc->get_userid();
-            $user = core_user::get_user($userid);
-            $site = coursetransfer_sites::get('target', $siteid);
-            $request = new request($site);
+            $user = core_user::get_user($bc->get_userid());
 
-            $requestorigin = coursetransfer_request::get($requestoriginid);
-            if ($bc->get_status() === \backup::STATUS_FINISHED_OK) {
+            if ($bc->get_status() !== \backup::STATUS_FINISHED_OK) {
+                // The origin records the failure whatever the target answers (LCT-037).
+                $this->fail($requestoriginid, '10201', 'Backup failed: ' . json_encode($result));
+                if ($callback) {
+                    $res = $callback->target_backup_course_error($user, $requestid, '', $result);
+                    $this->check_callback($requestoriginid, $res);
+                }
+            } else {
                 mtrace('Course Transfer Backup - Creating File ... ');
                 $resfileurl = coursetransfer::create_backupfile_url(
                     $bc->get_courseid(),
                     $result['backup_destination'],
-                    $requestorigin->id
+                    $requestoriginid
                 );
                 if ($resfileurl->success) {
                     mtrace('Course Transfer Backup - Creating File OK');
-                    if ($requestorigin) {
-                        $requestorigin->fileurl = $resfileurl->fileurl;
-                        $requestorigin->origin_backup_url = $resfileurl->fileurl;
-                        $requestorigin->origin_backup_size = $resfileurl->filesize;
-                        coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
-                    }
-                    if (!$istest) {
-                        $res = $request->target_backup_course_completed(
+                    coursetransfer_request::update_fields($requestoriginid, [
+                        'fileurl' => $resfileurl->fileurl,
+                        'origin_backup_url' => $resfileurl->fileurl,
+                        'origin_backup_size' => $resfileurl->filesize,
+                        'status' => coursetransfer_request::STATUS_COMPLETED,
+                    ]);
+                    if ($callback) {
+                        $res = $callback->target_backup_course_completed(
                             $resfileurl->fileurl,
                             $requestid,
                             $resfileurl->filesize,
                             $user
                         );
+                        $this->check_callback($requestoriginid, $res);
                     }
-                    $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
                 } else {
                     mtrace('Course Transfer Backup - Creating File ERROR');
-                    if (!$istest) {
-                        $res = $request->target_backup_course_error(
+                    // The origin records the failure whatever the target answers (LCT-049).
+                    $this->fail($requestoriginid, '10201', $resfileurl->error);
+                    if ($callback) {
+                        $res = $callback->target_backup_course_error(
                             $user,
                             $requestid,
                             $resfileurl->error,
                             [],
                             $resfileurl->filesize
                         );
+                        $this->check_callback($requestoriginid, $res);
                     }
                 }
-            } else {
-                if (!$istest) {
-                    $res = $request->target_backup_course_error($user, $requestid, '', $result);
-                }
             }
-            if (!$istest) {
-                if (!$res->success) {
-                    $requestorigin->status = coursetransfer_request::STATUS_ERROR;
-                    $requestorigin->error_code = $res->errors[0]->code;
-                    $requestorigin->error_message = $res->errors[0]->msg;
-                    coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
-                    mtrace('Course Transfer Backup ERROR: ' . $res->errors[0]->msg);
-                    $this->log(json_encode($res));
-                }
-            }
-            coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
-            $bc->destroy();
-        } catch (moodle_exception $e) {
+        } catch (Throwable $e) {
+            // Leave the request in a final state and tell the target (LCT-015).
             mtrace('Course Transfer Backup ERROR: ' . $e->getMessage());
             $this->log($e->getMessage());
+            if ($requestorigin) {
+                $this->fail($requestoriginid, '10200', $e->getMessage());
+                $this->notify_error($callback, $user ?? null, $requestid, $e->getMessage());
+            }
+        } finally {
+            if ($bc) {
+                $bc->destroy();
+            }
         }
         $this->log_finish("Course Transfer Backup Finishing...");
 
         $duration = time() - $started;
         mtrace('Backup completed in: ' . $duration . ' seconds');
+    }
+
+    /**
+     * Mark the local request as failed.
+     *
+     * @param int $requestoriginid
+     * @param string $code
+     * @param string $message
+     */
+    protected function fail(int $requestoriginid, string $code, string $message): void {
+        try {
+            coursetransfer_request::update_fields($requestoriginid, [
+                'status' => coursetransfer_request::STATUS_ERROR,
+                'error_code' => $code,
+                'error_message' => $message,
+            ]);
+        } catch (Throwable $e) {
+            $this->log('Request ' . $requestoriginid . ' not updated: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Record on the local request that the target rejected a callback.
+     *
+     * @param int $requestoriginid
+     * @param \local_coursetransfer\api\response $res
+     */
+    protected function check_callback(int $requestoriginid, $res): void {
+        if (!$res->success) {
+            $this->fail($requestoriginid, (string)$res->errors[0]->code, $res->errors[0]->msg);
+            mtrace('Course Transfer Backup ERROR: ' . $res->errors[0]->msg);
+        }
+    }
+
+    /**
+     * Best-effort error callback to the target.
+     *
+     * @param request|null $callback
+     * @param stdClass|false|null $user
+     * @param int $requestid Target request id.
+     * @param string $message
+     */
+    protected function notify_error(?request $callback, $user, int $requestid, string $message): void {
+        if (!$callback || !$user || !$requestid) {
+            return;
+        }
+        try {
+            $callback->target_backup_course_error($user, $requestid, $message);
+        } catch (Throwable $e) {
+            $this->log('Error callback not sent: ' . $e->getMessage());
+        }
     }
 }

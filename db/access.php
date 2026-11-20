@@ -36,7 +36,9 @@ defined('MOODLE_INTERNAL') || die;
 
 $capabilities = [
 
+    // Only lists course and category names of the origin: no risk flag.
     'local/coursetransfer:origin_view_courses' => [
+        'riskbitmask' => 0,
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
@@ -49,6 +51,7 @@ $capabilities = [
     ],
 
     'local/coursetransfer:origin_restore' => [
+        'riskbitmask' => RISK_XSS | RISK_CONFIG | RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
@@ -61,6 +64,7 @@ $capabilities = [
     ],
 
     'local/coursetransfer:origin_restore_course' => [
+        'riskbitmask' => RISK_XSS | RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
@@ -76,6 +80,7 @@ $capabilities = [
     // category manager use the contextual restore wizard, mirroring
     // origin_restore_course for the course context.
     'local/coursetransfer:origin_restore_category' => [
+        'riskbitmask' => RISK_XSS | RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSECAT,
         'archetypes' => [
@@ -88,6 +93,7 @@ $capabilities = [
     ],
 
     'local/coursetransfer:origin_remove_course' => [
+            'riskbitmask' => RISK_DATALOSS,
             'captype' => 'write',
             'contextlevel' => CONTEXT_COURSE,
             'archetypes' => [
@@ -100,6 +106,7 @@ $capabilities = [
     ],
 
     'local/coursetransfer:origin_remove_category' => [
+            'riskbitmask' => RISK_DATALOSS,
             'captype' => 'write',
             'contextlevel' => CONTEXT_SYSTEM,
             'archetypes' => [
@@ -112,6 +119,7 @@ $capabilities = [
     ],
 
     'local/coursetransfer:origin_restore_course_users' => [
+        'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
@@ -124,6 +132,7 @@ $capabilities = [
     ],
 
     'local/coursetransfer:target_restore_enrol_remove' => [
+            'riskbitmask' => RISK_DATALOSS,
             'captype' => 'write',
             'contextlevel' => CONTEXT_COURSE,
             'archetypes' => [
@@ -136,6 +145,7 @@ $capabilities = [
     ],
 
     'local/coursetransfer:target_restore_groups_remove' => [
+            'riskbitmask' => RISK_DATALOSS,
             'captype' => 'write',
             'contextlevel' => CONTEXT_COURSE,
             'archetypes' => [
@@ -148,6 +158,7 @@ $capabilities = [
     ],
 
     'local/coursetransfer:target_restore_content_remove' => [
+        'riskbitmask' => RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
@@ -160,6 +171,7 @@ $capabilities = [
     ],
 
     'local/coursetransfer:target_restore_merge' => [
+        'riskbitmask' => RISK_XSS | RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
@@ -172,6 +184,7 @@ $capabilities = [
     ],
 
     'local/coursetransfer:view_logs' => [
+        'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
@@ -181,6 +194,27 @@ $capabilities = [
             'teacher' => CAP_PROHIBIT,
             'student' => CAP_PROHIBIT,
         ],
+    ],
+
+    // Delete execution logs and retry a failed restore: writes, so view_logs (read) is not
+    // enough. Cloned from view_logs so roles that could do it before keep it after upgrading.
+    'local/coursetransfer:manage_requests' => [
+        'riskbitmask' => RISK_XSS | RISK_DATALOSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'local/coursetransfer:view_logs',
+    ],
+
+    // Call the services that only peer platforms use. Only the plugin's service user role
+    // (local_coursetransfer_ws) gets it, in postinstall() and upgrade; no archetype.
+    'local/coursetransfer:webservice' => [
+        'riskbitmask' => RISK_PERSONAL | RISK_XSS | RISK_CONFIG | RISK_DATALOSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [],
     ],
 
 ];

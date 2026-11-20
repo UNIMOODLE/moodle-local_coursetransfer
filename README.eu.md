@@ -6,8 +6,8 @@
 <h1 align="center">Course Transfer</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.1.0-informational" alt="Bertsioa">
-  <a href="https://moodle.org"><img src="https://img.shields.io/badge/Moodle-4.5%20--%205.1-orange?logo=moodle" alt="Moodle"></a>
+  <img src="https://img.shields.io/badge/version-2.2.0-informational" alt="Bertsioa">
+  <a href="https://moodle.org"><img src="https://img.shields.io/badge/Moodle-4.5%20--%205.3-orange?logo=moodle" alt="Moodle"></a>
   <img src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php&logoColor=white" alt="PHP">
   <img src="https://img.shields.io/badge/License-GPL--3.0-green" alt="Lizentzia">
   <a href="https://unimoodle.github.io/"><img src="https://img.shields.io/badge/project%20by-UNIMOODLE-194866" alt="UNIMOODLE proiektua"></a>
@@ -83,9 +83,11 @@ programatutako atazen bidez.
 
 | Betekizuna | Bertsioa |
 |---|---|
-| Moodle | 4.5+ (5.1 arte probatuta) |
+| Moodle | 4.5, 5.1 edo 5.3 |
 | PHP | 8.1+ |
 | Konfigurazioa | **REST** web zerbitzuak gaituta eta **zerbitzu-erabiltzaile** bat (pluginak *Laburpena* pantailatik sortzen laguntzen du) |
+| Cron | **Bi** plataformetan martxan: kopiak, deskargak, leheneratzeak, ezabatzeak eta garbiketak atazak dira |
+| TLS | Ziurtagiri baliozkoa parekatutako plataforma bakoitzean: auto-sinatutakoak eta kate osatugabeak baztertzen dira `sslverifypeer` aktibatuta dagoen bitartean |
 | Beste pluginak | Ez du behar |
 
 ## 🚀 Instalazioa
@@ -110,15 +112,59 @@ programatutako atazen bidez.
 |---|---|
 | **Leheneratzeko ikastaroaren gehienezko tamaina** (`target_restore_course_max_size`) | Leheneratu beharreko kopiaren (`.mbz`) MB muga; gainditzen bada, deskargak huts egiten du eta erregistroan jasotzen da. |
 | **Eskaeraren itxaron-denbora** (`request_timeout`) | Plataformen arteko deien itxaron-segundoak. |
-| **Ez ikusi cURL segurtasuna** (`ignorecurlsecurity`) | Barne-ziurtagiriak edo egiaztaezinak dituzten guneekin lan egitea ahalbidetzen du (kontuz erabili). |
+| **Baimendu barne-ostalarietarako konexioak** (`ignorecurlsecurity`) | Lehenespenez desaktibatuta. Aktibatuta dagoen bitartean, Moodleren blokeatutako ostalariak eta atakak (`curlsecurityblockedhosts`) ez dira aplikatzen plataformen arteko deietan. Hobe desaktibatuta uztea eta zerrenda horretan parekatutako ostalariak bakarrik baimentzea. Ez du ziurtagiriaren egiaztapena desaktibatzen. |
+| **Egiaztatu parekatutako plataformen ziurtagiria** (`sslverifypeer`) | Lehenespenez aktibatuta. Desaktibatzeak tokena identitatea egiaztatzen ez zaien parekoei bidaltzen die: administratzailearen ardurapean bakarrik. Konexio-probak azaltzen du ziurtagiri bat egiaztatu ezin denean. |
 | **Emaitzak orriko** (`pagesize`) | Laguntzaileen bilatzaileetan orriko agertzen diren emaitza kopurua. |
 | **Huts egindako adhoc atazen garbiketa** (`clean_adhoc_faildelay`) | Zenbat denbora igarota garbitzen diren huts egindako atazak (`0` = desaktibatuta). |
 | **Hustu zakarrontzia ikastaroa ezabatu ondoren** (`remove_course_cleanup`) | Urrunetik ezabatutako ikastaroa behin betiko kentzen du. |
 | **Hustu zakarrontzia kategoria ezabatu ondoren** (`remove_cat_cleanup`) | Urrunetik ezabatutako kategoria behin betiko kentzen du. |
-| **Erabiltzailea bilatzeko eremua** (`origin_field_search_user`) | Plataformen artean erabiltzaile baliokidea parekatzeko erabiltzen den eremua (`username` / `email` / `idnumber`). |
+| **Erabiltzailea bilatzeko eremua** (`origin_field_search_user`) | Plataformen artean erabiltzaile baliokidea parekatzeko erabiltzen den eremua (`username` / `email` / erabiltzailearen IDa / `idnumber`). Aldatzean, integrazioa konpontzen da. |
+| **Egiaztatu leheneratutako ikastaroa jatorria ezabatu aurretik** (`verifymanifest`) | Lehenespenez aktibatuta. Ikus *Datuen galeraren aurkako babesa*. |
+| **Zakarrontzian egun kopurua behin betiko ezabatu aurretik** (`recyclebinretentiondays`) | Lehenespenez 30, gutxienez 1. Ikus *Datuen galeraren aurkako babesa*. |
+| **Transferitutako kopiak gordetzeko egunak** (`backup_files_retention`) | Lehenespenez 7, gutxienez 1. Jatorri gisa zerbitzatutako kopiak eta helburu gisa gordetako segurtasun-kopiak transferentzia amaitu eta egun horiek igarotakoan ezabatzen dira. |
 
 **Parekatutako plataformak** ez dira hemen konfiguratzen: pluginaren
 **Plataformak** pantailatik kudeatzen dira (konexio-probarekin).
+
+## 🛡️ Datuen galeraren aurkako babesa
+
+Plataformen arteko zerbitzuak beste gunearen **zerbitzu-erabiltzailearen
+tokenarekin** bakarrik dei daitezke (`local/coursetransfer:webservice` gaitasuna; 2.2an gaitasunik gabeko token-erabiltzailea onartzen da oraindik, zaharkitze-abisu batekin, eta 2.3k baztertuko du),
+inoiz ez nabigatzailetik, eta beste gunearen **TLS ziurtagiria** egiaztatzen dute.
+Ondoren, baimenak erabiltzaile baliokidearen gainean egiaztatzen dira: jatorriak
+erabiltzaile horrek eskuz kopia lezakeena bakarrik zerrendatzen eta kopiatzen du.
+Administratzaileek bakarrik (`moodle/site:config`) eman ditzakete alta
+plataformak, eta URLa oinarrizko URL soila da, `http(s)://ostalaria[:ataka][/bidea]`,
+beste gunearen `wwwroot`-aren berdina.
+
+Leheneratze baten ondoren jatorria ezabatzea (ikastaroa edo kategoria) da
+ikastaro bat gal dezakeen eragiketa bakarra. Babes hauek aplikatzen dira:
+
+| Babesa | Zer babesten du | Nola konfiguratzen da |
+|---|---|---|
+| **Leheneratze osoa** | Jatorria gordetzen da leheneratze-planak falta diren modulu edo fitxategien berri ematen badu (`10410` errorea). Kategoria bat ezabatzen da soilik bere ikastaro guztiak arazorik gabe leheneratu badira, eskatzaileak jatorrian haren azpikategoria guztiak ikusten bazituen eta jatorriko kategoriak leheneratzea hasi zenetik ikastaro berririk ez badu. | Beti aktibatuta |
+| **Manifestuaren egiaztapena** | Jatorriko ikastaro bat ezabatu aurretik, haren atalak eta modulu bakoitzeko jarduerak (jatorriari eskatuak) eta, erabiltzaileekin, matrikulatuak (kopiatik irakurriak) leheneratutako ikastaroarekin alderatzen dira. Zerbait falta bada, jatorria gordetzen da eta erregistroak zer falta den dio (`10412`). | `verifymanifest` (aktibatuta) |
+| **Eskatzailearen baimenak** | Ezabaketa eskatu duen erabiltzaile gisa egiten da, bi guneetan: `local/coursetransfer:origin_remove_course` / `_category` hemen, eta `moodle/course:delete` / `moodle/category:manage` gehi gaitasun bera jatorrian. | Rolak |
+| **Aurretiazko segurtasun-kopia** | Jatorria ezaba dezakeen leheneratze baten aurretik, helburuak backuparen kopia bat gordetzen du. | `backup_files_retention` (ez da inoiz garbitzen jatorria ezabatu eta zakarrontziaren atxikipena igaro arte; leheneratzea osatu gabe geratu bada, gorde egiten da) |
+| **Zakarrontzia** | *Ikastaroaren behin betiko ezabaketa* aktibatuta, beste plataforma baten eskariz ezabatutako ikastaroa zakarrontzian geratzen da konfiguratutako egunetan hustu aurretik, eta eskuz leheneratu daiteke. `tool_recyclebin`-en kategorien zakarrontzia behar du; kategoria oso bat ezabatzeak beti husten du bere zakarrontzia (Moodleren nukleoa). Nukleoaren zakarrontziak lehenago iraungitzen baditu elementuak (lehenespenez 7 egun), ezarpenak eta *Laburpena*-ko diagnostikoak ohartarazten dute. | `recyclebinretentiondays` (30) |
+| **Auditoria** | Beste plataforma bati eskatutako edo harentzat egindako ezabaketa bakoitza, eta leheneratze baten ondoren jatorria ezabatu edo gordetzeko erabaki bakoitza, gertaera gisa erregistratzen da (*Gunearen administrazioa › Txostenak › Egunkariak*). | Beti aktibatuta |
+
+Jatorria gordetzen denean, eskaerak leheneratzea osatutzat erakusten jarraitzen
+du, arrazoia xehetasunetan duela; berrikusi ondoren, jatorria *Ezabatu urruneko
+edukia* morroiarekin ezaba daiteke.
+
+## 🔐 Baimenak
+
+| Gaitasuna | Lehenespenez | Zer ahalbidetzen du |
+|---|---|---|
+| `local/coursetransfer:origin_restore` | — | Urruneko ikastaroak edo kategoriak leheneratzea (gune-mailan) |
+| `local/coursetransfer:origin_restore_course` / `_category` | Kudeatzailea, irakasle editorea / Kudeatzailea | Leheneratze-morroia ikastaro / kategoria batetik erabiltzea |
+| `local/coursetransfer:origin_restore_course_users` | Kudeatzailea | Erabiltzaileak eta haien datuak kopian sartzea |
+| `local/coursetransfer:origin_remove_course` / `_category` | Kudeatzailea | Jatorrian ikastaroak / kategoriak ezabatzea |
+| `local/coursetransfer:target_restore_*` | Kudeatzailea, irakasle editorea | Helburuko ikastaroaren edukia, matrikulak edo taldeak ezabatzea, edo bertan bateratzea |
+| `local/coursetransfer:view_logs` | Kudeatzailea | Exekuzioen erregistroa ikustea |
+| `local/coursetransfer:manage_requests` | Kudeatzailea (`view_logs`-etik klonatua) | Erregistroak ezabatzea eta leheneratze bat berriro saiatzea |
+| `local/coursetransfer:webservice` | Zerbitzu-erabiltzailearen rola bakarrik | Parekatutako plataformek erabiltzen dituzten zerbitzuei deitzea |
 
 ## 🖥️ Komando-lerroko erabilera (aukerakoa)
 

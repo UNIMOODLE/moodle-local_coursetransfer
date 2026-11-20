@@ -1,25 +1,40 @@
-# Release 2.1.0
+# Release 2.2.0
 
 ## Summary
 
-Version 2.1.0 of the Course Transfer plugin corresponds to Pull Request #71 and introduces the main update for Moodle 4.5–5.1, along with a complete redesign of the interface and the course/category restore and deletion workflows.
+Version 2.2.0 of the Course Transfer plugin adds compatibility with Moodle 5.3, makes the
+communication between platforms more robust and makes sure that nothing is removed from
+the origin unless the copy in the target is complete and verified.
 
 ## Main changes
 
-- Updated compatibility with Moodle 4.5, 5.0 and 5.1.
-- Complete redesign of the plugin screens and user experience across transfer processes.
-- New wizard-style flows for restoring courses, restoring categories, deleting courses and deleting categories.
-- Improved course search and destination/origin category selection.
-- New execution, detail and log views to monitor requests and transfer results.
-- Modernisation of web services and frontend components to align with recent Moodle versions.
-- Internal adjustments to backup management, file naming, request flows and course/category handling.
-- Review of permissions, administration pages and configuration screens to improve maintainability and usability.
+- Compatibility with Moodle 4.5, 5.1 and 5.3 (`supported = [405, 503]`), verified on each
+  change with PHP 8.1 to 8.4 on PostgreSQL and MariaDB.
+- Cross-platform web services can only be called by the plugin's service user (new capability
+  `local/coursetransfer:webservice`, granted on upgrade), never from a browser session.
+- Paired platforms can only be added or edited by site administrators, with URL validation and
+  the core cURL security restored by default.
+- The token of the origin no longer travels in URLs nor is stored in the database, task data or
+  logs; downloads verify the TLS certificate of the peer (setting `sslverifypeer`).
+- The origin is only removed after a complete and verified restore (backup manifest), when no
+  new or hidden courses appeared in the origin, and with the identity of the user who asked for
+  it. Safety copies of the backups are kept until the origin is removed and the retention
+  period ends.
+- Idempotent tasks and callbacks: a retried or duplicated call no longer restores twice.
+- Complete privacy provider, audit events for removals and new data-safety settings.
+- Moodle 5.3 fixes: user creation API and CLI scripts on sites with `forcelogin`.
 
 ## Impact
 
-This release prepares the plugin for recent Moodle versions with a more modern interface and a clearer workflow for administrators and users.
+Sites that pair platforms keep working after the upgrade. Read the upgrade notes in
+`CHANGES.md`: a peer with a self-signed or incomplete TLS chain stops connecting until its CA
+is trusted, new or edited platforms must use a plain base URL (existing ones are kept as
+they are), and a service token of a user without the new capability is accepted in 2.2 with a
+deprecation warning and rejected in 2.3.
 
 ## Notes
 
-- PR #71 is identified as the release "Course Transfer 2.1.0: compatibility with Moodle 4.5–5.1 and complete redesign of the screens".
-- This change includes a significant review of the frontend and the plugin's internal logic, so it is recommended to test it in Moodle 4.5–5.1 environments before production deployment.
+- Upgrade both platforms when possible; the protocol stays compatible with 2.1 during this
+  version.
+- As with any release that touches restore and removal, test it in a pre-production
+  environment with the actual peer platforms before deploying it to production.

@@ -56,6 +56,7 @@ class configuration_category extends configuration {
      * @param bool $originenrolusers
      * @param bool $originremovecategory
      * @param int|null $nextruntime
+     * @param bool $keepsafetycopy Keep each course's backup until the origin is removed plus its retention.
      */
     public function __construct(
         int $targettarget,
@@ -63,10 +64,12 @@ class configuration_category extends configuration {
         bool $targetremovegroups,
         bool $originenrolusers = false,
         bool $originremovecategory = false,
-        ?int $nextruntime = null
+        ?int $nextruntime = null,
+        bool $keepsafetycopy = false
     ) {
         parent::__construct($targettarget, $targetremoveenrols, $targetremovegroups, $originenrolusers, $nextruntime);
         $this->set_origin_remove_category($originremovecategory);
+        $this->set_keep_safety_copy($keepsafetycopy);
     }
 
     /**

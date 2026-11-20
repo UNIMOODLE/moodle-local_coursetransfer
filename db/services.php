@@ -50,12 +50,15 @@ defined('MOODLE_INTERNAL') || die();
 
 $functions = [
 
+    // Peer-only services (origin_*, target_*, site_origin_test, site_target_test,
+    // get_category_idnumber): another platform calls them with this site's service user token.
+    // Not callable from AJAX and they require local/coursetransfer:webservice (TIPCOUTRAN-10, H8).
     'local_coursetransfer_origin_has_user' => [
         'classname' => origin_user_external::class,
         'methodname' => 'origin_has_user',
         'description' => 'Asks to origin if user exists',
         'type' => 'read',
-        'ajax' => true,
+        'ajax' => false,
         'loginrequired' => true,
     ],
 
@@ -64,7 +67,7 @@ $functions = [
         'methodname' => 'origin_get_courses',
         'description' => 'Get all courses from user',
         'type' => 'read',
-        'ajax' => true,
+        'ajax' => false,
         'loginrequired' => true,
     ],
 
@@ -73,7 +76,7 @@ $functions = [
         'methodname' => 'origin_get_categories',
         'description' => 'Get all categories from user',
         'type' => 'read',
-        'ajax' => true,
+        'ajax' => false,
         'loginrequired' => true,
     ],
 
@@ -82,7 +85,7 @@ $functions = [
         'methodname' => 'origin_get_course_detail',
         'description' => 'Get specific course details',
         'type' => 'read',
-        'ajax' => true,
+        'ajax' => false,
         'loginrequired' => true,
     ],
 
@@ -91,7 +94,7 @@ $functions = [
         'methodname' => 'origin_get_category_detail',
         'description' => 'Get specific category details',
         'type' => 'read',
-        'ajax' => true,
+        'ajax' => false,
         'loginrequired' => true,
     ],
 
@@ -102,7 +105,7 @@ $functions = [
         'methodname' => 'origin_get_category_detail_tree',
         'description' => 'Get specific category details in tree format',
         'type' => 'read',
-        'ajax' => true,
+        'ajax' => false,
         'loginrequired' => true,
     ],
 
@@ -111,7 +114,7 @@ $functions = [
         'methodname' => 'origin_backup_course',
         'description' => 'Asks origin to make a backup of the course',
         'type' => 'write',
-        'ajax' => true,
+        'ajax' => false,
         'loginrequired' => true,
     ],
 
@@ -120,7 +123,7 @@ $functions = [
         'methodname' => 'origin_backup_course',
         'description' => 'Asks origin to make a backup of the course',
         'type' => 'write',
-        'ajax' => true,
+        'ajax' => false,
         'loginrequired' => true,
     ],
 
@@ -129,7 +132,7 @@ $functions = [
         'methodname' => 'target_backup_course_completed',
         'description' => 'Notify origin that the backup is completed',
         'type' => 'write',
-        'ajax' => true,
+        'ajax' => false,
         'loginrequired' => true,
     ],
 
@@ -138,7 +141,7 @@ $functions = [
         'methodname' => 'target_backup_course_error',
         'description' => 'Notify origin that an error ocurred',
         'type' => 'write',
-        'ajax' => true,
+        'ajax' => false,
         'loginrequired' => true,
     ],
 
@@ -147,7 +150,7 @@ $functions = [
         'methodname' => 'target_remove_course_completed',
         'description' => 'Notify origin that the course remove is completed',
         'type' => 'write',
-        'ajax' => true,
+        'ajax' => false,
         'loginrequired' => true,
     ],
 
@@ -156,16 +159,19 @@ $functions = [
         'methodname' => 'target_remove_course_error',
         'description' => 'Notify origin that an error ocurred',
         'type' => 'write',
-        'ajax' => true,
+        'ajax' => false,
         'loginrequired' => true,
     ],
 
+    // DEPRECATED since 2026111900, to be removed in the next version: no screen uses the old remove
+    // wizard steps any more (superseded by restore_wizard_remove_submit). Kept for one version
+    // for any external caller (Decision 4 of TIPCOUTRAN-10), not from AJAX.
     'local_coursetransfer_origin_remove_step1' => [
             'classname' => origin_remove_external::class,
             'methodname' => 'origin_remove_step1',
             'description' => 'Execute courses or category remove from moodle remote in step1',
             'type' => 'write',
-            'ajax' => true,
+            'ajax' => false,
             'loginrequired' => true,
     ],
 
@@ -174,7 +180,7 @@ $functions = [
             'methodname' => 'origin_remove_step3',
             'description' => 'Execute courses remove from moodle remote in step3',
             'type' => 'write',
-            'ajax' => true,
+            'ajax' => false,
             'loginrequired' => true,
     ],
 
@@ -183,7 +189,7 @@ $functions = [
             'methodname' => 'origin_remove_cat_step3',
             'description' => 'Execute category remove from moodle remote in step3',
             'type' => 'write',
-            'ajax' => true,
+            'ajax' => false,
             'loginrequired' => true,
     ],
 
@@ -192,7 +198,7 @@ $functions = [
             'methodname' => 'origin_remove_course',
             'description' => 'Remove origin course',
             'type' => 'write',
-            'ajax' => true,
+            'ajax' => false,
             'loginrequired' => true,
     ],
 
@@ -201,7 +207,7 @@ $functions = [
             'methodname' => 'origin_remove_category',
             'description' => 'Remove origin category',
             'type' => 'write',
-            'ajax' => true,
+            'ajax' => false,
             'loginrequired' => true,
     ],
 
@@ -255,7 +261,7 @@ $functions = [
             'methodname' => 'origin_test',
             'description' => 'Site Origin Test',
             'type' => 'read',
-            'ajax' => true,
+            'ajax' => false,
             'loginrequired' => true,
     ],
 
@@ -264,7 +270,7 @@ $functions = [
             'methodname' => 'target_test',
             'description' => 'Site Target Test',
             'type' => 'read',
-            'ajax' => true,
+            'ajax' => false,
             'loginrequired' => true,
     ],
 
@@ -294,7 +300,7 @@ $functions = [
         'methodname' => 'origin_get_courses_by_ids',
         'description' => 'Get courses by ids from user',
         'type' => 'read',
-        'ajax' => true,
+        'ajax' => false,
         'loginrequired' => true,
     ],
 

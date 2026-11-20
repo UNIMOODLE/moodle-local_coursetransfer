@@ -42,6 +42,10 @@ global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
+// Run as the admin, as core admin CLI scripts do: without a user, category lookups and
+// capability checks fail on sites with forcelogin (the default for new sites from 5.3).
+\core\session\manager::set_user(get_admin());
+
 $usage = 'Delete a category (and its courses) on a remote (origin) platform.
 
 DESTRUCTIVE: the category is removed on the origin site. The origin must be
