@@ -81,6 +81,11 @@ class restore_admin_page implements renderable, templatable {
 
         $data->headertitle = get_string('rw_title', 'local_coursetransfer');
         $data->headerdesc = get_string('rw_lead', 'local_coursetransfer');
+        // The server rejects user data without this capability: do not offer it (N4).
+        $data->canincludeusers = has_capability(
+            'local/coursetransfer:origin_restore_course_users',
+            \context_system::instance()
+        );
 
         $data->back = (new moodle_url(
             '/admin/settings.php',

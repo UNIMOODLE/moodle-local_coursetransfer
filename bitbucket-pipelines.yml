@@ -1,0 +1,68 @@
+# Code validation before the plugin reaches develop. A single combination,
+# Moodle 5.3 on PHP 8.3 (the amd/build branch): Bitbucket Pipelines is billed per build minute.
+image: moodlehq/moodle-php-apache:8.3
+
+definitions:
+  services:
+    mariadb:
+      image: mariadb:11
+      memory: 1024
+      variables:
+        MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
+        MYSQL_CHARACTER_SET_SERVER: 'utf8mb4'
+        MYSQL_COLLATION_SERVER: 'utf8mb4_unicode_ci'
+
+  steps:
+    - step: &moodle-plugin-ci
+        name: Moodle Plugin CI
+        # 1x keeps the minute cost down. If PHPUnit runs out of memory,
+        # add "size: 2x" here: double RAM, double minutes.
+        services:
+          - mariadb
+        caches:
+          - composer
+        script:
+          - export DB=mariadb
+          - export MOODLE_BRANCH=MOODLE_503_STABLE
+          - export NVM_DIR="$HOME/.nvm"
+          # Composer disables its plugins for root unless told otherwise.
+          - export COMPOSER_ALLOW_SUPERUSER=1
+          - git config --global --add safe.directory '*'
+          - locale-gen en_AU.UTF-8 || true
+          # The mustache lint runs the W3C validator, a .jar: the image has no Java.
+          - apt-get update -qq && apt-get install -y -qq --no-install-recommends default-jre-headless
+          # Node must exist before composer create-project, which runs npm install.
+          # lts/jod is the .nvmrc of Moodle 5.1 and 5.3.
+          - if [ ! -s "$NVM_DIR/nvm.sh" ]; then curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash; fi
+          - . "$NVM_DIR/nvm.sh"
+          - nvm install lts/jod
+          # moodle-plugin-ci installs Moodle as a sibling of the plugin.
+          - mkdir -p /opt/ci-workspace
+          - cp -a "$BITBUCKET_CLONE_DIR" /opt/ci-workspace/plugin
+          - cd /opt/ci-workspace
+          - if ! command -v composer >/dev/null 2>&1; then curl -fsSL https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer; fi
+          - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
+          - export PATH="/opt/ci-workspace/ci/bin:/opt/ci-workspace/ci/vendor/bin:$PATH"
+          # Only if the plugin declares $plugin->dependencies: add each one,
+          # pinned to a released tag so upstream commits cannot break the build.
+          # - moodle-plugin-ci add-plugin --branch vX.Y.Z <owner>/<repo>
+          - moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
+          - moodle-plugin-ci phplint
+          - moodle-plugin-ci phpcs --max-warnings 0
+          - moodle-plugin-ci phpdoc --max-warnings 0
+          - moodle-plugin-ci validate
+          - moodle-plugin-ci savepoints
+          - moodle-plugin-ci mustache
+          - moodle-plugin-ci grunt --max-lint-warnings 0
+          - moodle-plugin-ci phpunit --fail-on-warning
+          # Behat is left out on purpose: Selenium and Chrome multiply the minutes.
+
+pipelines:
+  # Only on pull requests: the cost follows deliveries, not every push.
+  pull-requests:
+    '**':
+      - step: *moodle-plugin-ci
+
+  custom:
+    manual:
+      - step: *moodle-plugin-ci

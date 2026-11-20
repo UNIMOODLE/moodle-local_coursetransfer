@@ -72,7 +72,7 @@
             <div class="ct-platform-card" data-region="platform"
                  data-host="{{ host }}" data-name="{{ name }}"
                  data-originid="{{ originid }}" data-targetid="{{ targetid }}"
-                 data-token="{{ token }}"
+                 {{#hastoken}}data-hastoken="1"{{/hastoken}}
                  {{#inuse}}data-inuse="1"{{/inuse}}>
                 <div class="ct-platform-main">
                     <span class="ct-sitecard-icon {{#connerror}}ct-sitecard-icon--error{{/connerror}}{{#connuntested}}ct-sitecard-icon--muted{{/connuntested}}">
@@ -121,6 +121,11 @@
                     </div>
                 </div>
                 {{/connerror}}
+                {{#connwarn}}
+                <div class="alert alert-warning ct-mt mb-0" role="status">
+                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i> {{ warncause }}
+                </div>
+                {{/connwarn}}
             </div>
             {{/platforms}}
             {{^hasplatforms}}

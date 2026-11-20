@@ -645,7 +645,7 @@ class restore_wizard_external extends external_api {
      * Delete a request (execution log) record.
      *
      * Removes the local_coursetransfer_request row so the entry disappears from the
-     * logs. Guarded by the view_logs capability (system context).
+     * logs. Guarded by the manage_requests capability (system context): it writes.
      *
      * @param int $requestid
      * @return array
@@ -663,7 +663,7 @@ class restore_wizard_external extends external_api {
 
         $context = context_system::instance();
         self::validate_context($context);
-        require_capability('local/coursetransfer:view_logs', $context);
+        require_capability('local/coursetransfer:manage_requests', $context);
 
         $errors = [];
         $success = false;
@@ -856,6 +856,10 @@ class restore_wizard_external extends external_api {
         $context = context_system::instance();
         self::validate_context($context);
         require_capability('local/coursetransfer:origin_restore', $context);
+        if ($includeusers) {
+            // Same right as the legacy flow to bring origin user data (N4).
+            require_capability('local/coursetransfer:origin_restore_course_users', $context);
+        }
 
         // Schedule: incoming timestamp is in ms; 0 = run now (null nextruntime).
         $nextruntime = ($schedule > 0) ? (int)floor($schedule / 1000) : null;
@@ -1139,6 +1143,10 @@ class restore_wizard_external extends external_api {
         $context = context_course::instance($targetcourseid);
         self::validate_context($context);
         require_capability('local/coursetransfer:origin_restore_course', $context);
+        if ($includeusers) {
+            // Same right as the legacy flow to bring origin user data (N4).
+            require_capability('local/coursetransfer:origin_restore_course_users', $context);
+        }
 
         $success = true;
         $errors = [];
@@ -1288,6 +1296,10 @@ class restore_wizard_external extends external_api {
         self::validate_context($context);
         require_capability('local/coursetransfer:origin_restore_category', $context);
         require_capability('moodle/restore:restorecourse', $context);
+        if ($includeusers) {
+            // Same right as the legacy flow to bring origin user data (N4).
+            require_capability('local/coursetransfer:origin_restore_course_users', $context);
+        }
 
         $nextruntime = ($schedule > 0) ? (int)floor($schedule / 1000) : null;
 

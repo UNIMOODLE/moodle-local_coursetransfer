@@ -58,6 +58,9 @@ class response {
     /** @var stdClass|array|null Paging info or null. */
     public stdClass|array|null $paging;
 
+    /** @var array|null Deprecated ways the call used, as the peer reports them (2.2), or null. */
+    public ?array $deprecations = null;
+
     /**
      * response constructor.
      *

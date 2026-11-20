@@ -112,16 +112,8 @@ class platforms_page implements renderable, templatable {
         $item->inuse = !empty($this->inuse[$platform->host]);
         $item->isself = $this->is_self_host($platform->host);
 
-        // Current token, so editing (e.g. renaming) never forces re-entering
-        // it. Admin-only page (moodle/site:config). When both role rows hold
-        // different tokens the field is left empty and must be re-entered.
-        $origintoken = $platform->origin->token ?? null;
-        $targettoken = $platform->target->token ?? null;
-        if ($origintoken !== null && $targettoken !== null) {
-            $item->token = ($origintoken === $targettoken) ? $origintoken : '';
-        } else {
-            $item->token = $origintoken ?? $targettoken ?? '';
-        }
+        // Never send the stored token to the browser: editing with an empty token keeps it.
+        $item->hastoken = !empty($platform->origin->token) || !empty($platform->target->token);
 
         // Connection badge from the persisted last test.
         $item->connok = false;
@@ -133,6 +125,9 @@ class platforms_page implements renderable, templatable {
             $item->lasttestlabel = get_string('platform_untested', 'local_coursetransfer');
         } else if ((int)$platform->lastteststatus === 1) {
             $item->connok = true;
+            // A successful test may still carry a warning (deprecated pairing, removed in 2.3).
+            $item->connwarn = trim((string)$platform->lasttesterror) !== '';
+            $item->warncause = (string)$platform->lasttesterror;
             $item->connlabel = get_string('platform_conn_ok', 'local_coursetransfer');
             $item->lasttestlabel = get_string(
                 'platform_lasttest',

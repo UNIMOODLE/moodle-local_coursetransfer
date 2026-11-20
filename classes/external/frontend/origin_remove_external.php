@@ -78,12 +78,22 @@ class origin_remove_external extends external_api {
     }
 
     /**
+     * Mark the service as deprecated (TIPCOUTRAN-10, Decision 4).
+     *
+     * @return bool
+     */
+    public static function origin_remove_step1_is_deprecated(): bool {
+        return true;
+    }
+
+    /**
      * Origin remove step1.
      *
      * @param int $siteurl
      * @param string $type
      * @return array
      * @throws invalid_parameter_exception
+     * @deprecated since 2026111900, no screen uses it: see restore_wizard_external::remove_submit()
      */
     public static function origin_remove_step1(int $siteurl, string $type): array {
         global $USER;
@@ -94,6 +104,8 @@ class origin_remove_external extends external_api {
                 'type' => $type,
             ]
         );
+
+        self::validate_context(context_system::instance());
 
         $siteurl = $params['siteurl'];
         $type = $params['type'];
@@ -192,6 +204,15 @@ class origin_remove_external extends external_api {
     }
 
     /**
+     * Mark the service as deprecated (TIPCOUTRAN-10, Decision 4).
+     *
+     * @return bool
+     */
+    public static function origin_remove_step3_is_deprecated(): bool {
+        return true;
+    }
+
+    /**
      * Origin remove step3.
      *
      * @param int $siteurl
@@ -202,6 +223,7 @@ class origin_remove_external extends external_api {
      * @throws dml_exception
      * @throws invalid_parameter_exception
      * @throws moodle_exception
+     * @deprecated since 2026111900, no screen uses it: see restore_wizard_external::remove_submit()
      */
     public static function origin_remove_step3(int $siteurl, array $courses, int $nextruntime): array {
         global $USER;
@@ -225,6 +247,7 @@ class origin_remove_external extends external_api {
                 'type' => coursetransfer_request::TYPE_REMOVE_COURSE,
         ]);
         $data->nexturl = $nexturl->out(false);
+        self::validate_context(context_system::instance());
 
         if (has_capability('local/coursetransfer:origin_remove_course', context_system::instance())) {
             try {
@@ -325,6 +348,15 @@ class origin_remove_external extends external_api {
     }
 
     /**
+     * Mark the service as deprecated (TIPCOUTRAN-10, Decision 4).
+     *
+     * @return bool
+     */
+    public static function origin_remove_cat_step3_is_deprecated(): bool {
+        return true;
+    }
+
+    /**
      * Origin remove category step3.
      *
      * @param int $siteurl
@@ -335,6 +367,7 @@ class origin_remove_external extends external_api {
      * @throws dml_exception
      * @throws invalid_parameter_exception
      * @throws moodle_exception
+     * @deprecated since 2026111900, no screen uses it: see restore_wizard_external::remove_submit()
      */
     public static function origin_remove_cat_step3(int $siteurl, int $catid, int $nextruntime): array {
         global $USER;
@@ -358,7 +391,8 @@ class origin_remove_external extends external_api {
                 'type' => coursetransfer_request::TYPE_REMOVE_CATEGORY,
         ]);
         $data->nexturl = $nexturl->out(false);
-        if (has_capability('local/coursetransfer:origin_remove_course', context_system::instance())) {
+        self::validate_context(context_system::instance());
+        if (has_capability('local/coursetransfer:origin_remove_category', context_system::instance())) {
             try {
                 $site = coursetransfer::get_site_by_position($siteurl);
                 $nextruntime = $nextruntime / 1000;

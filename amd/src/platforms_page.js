@@ -65,6 +65,8 @@ define([
             name: '',
             host: '',
             token: '',
+            hastoken: false,
+            storedhost: '',
             testok: false,
             saving: false,
         };
@@ -135,12 +137,27 @@ define([
             return state.roles.origin || state.roles.target;
         }
         if (state.wStep === 1) {
-            return state.name.trim() !== '' && state.host.trim() !== '' && state.token.trim() !== '';
+            return state.name.trim() !== '' && state.host.trim() !== '' && (state.token.trim() !== '' || keepsToken());
         }
         // Step 3: the test is recommended but never blocks saving — cross
         // pairing means one side always has to register first (and its
         // origin test will fail with 18001 until the other side does too).
         return true;
+    }
+
+    /**
+     * Whether an edition can keep the stored token: the server never sends it to the browser,
+     * and only keeps it for the same host and the roles already registered.
+     *
+     * @return {Boolean}
+     */
+    function keepsToken() {
+        var normalize = function(url) {
+            return (url || '').trim().replace(/\/+$/, '').toLowerCase();
+        };
+        var newrole = (state.roles.origin && state.originid === 0) || (state.roles.target && state.targetid === 0);
+        return state.hastoken && state.token.trim() === '' && !newrole
+            && normalize(state.host) === normalize(state.storedhost);
     }
 
     /**
@@ -199,13 +216,19 @@ define([
             state.roles.target = state.targetid > 0;
             state.name = $card.attr('data-name') || '';
             state.host = $card.attr('data-host') || '';
-            // Keep the stored token so editing other fields never loses it.
-            state.token = $card.attr('data-token') || '';
+            // The stored token is not in the page: leaving the field empty keeps it.
+            state.hastoken = $card.attr('data-hastoken') === '1';
+            state.storedhost = state.host;
         }
         var $wizard = $root.find('[data-region="wizard"]');
         $wizard.find('[data-input="name"]').val(state.name);
         $wizard.find('[data-input="host"]').val(state.host);
-        $wizard.find('[data-input="token"]').val(state.token).attr('type', 'password');
+        var $token = $wizard.find('[data-input="token"]');
+        if ($token.attr('data-defaultph') === undefined) {
+            $token.attr('data-defaultph', $token.attr('placeholder') || '');
+        }
+        $token.val('').attr('type', 'password')
+            .attr('placeholder', state.hastoken ? strings.tokenkeep : $token.attr('data-defaultph'));
         $root.find('[data-region="list"]').prop('hidden', true);
         $wizard.prop('hidden', false);
         renderWizard();
@@ -226,8 +249,15 @@ define([
      */
     function checkCalls() {
         var calls = [];
+        var stored = keepsToken();
         ['origin', 'target'].forEach(function(type) {
-            if (state.roles[type]) {
+            if (state.roles[type] && stored) {
+                // Same host and token: test the stored rows (the token never reaches the browser).
+                calls.push({
+                    methodname: SERVICES.SITE_TEST,
+                    args: {type: type, id: type === 'origin' ? state.originid : state.targetid},
+                });
+            } else if (state.roles[type]) {
                 calls.push({
                     methodname: SERVICES.SITE_CHECK,
                     args: {type: type, host: state.host.trim(), token: state.token.trim()},
@@ -649,6 +679,7 @@ define([
                 {key: 'platform_error_action', component: 'local_coursetransfer'},
                 {key: 'platforms_saved_untested', component: 'local_coursetransfer'},
                 {key: 'platforms_test_role_pending', component: 'local_coursetransfer'},
+                {key: 'platforms_field_token_keep', component: 'local_coursetransfer'},
             ];
             Str.get_strings(keys).then(function(results) {
                 strings.next = results[0];
@@ -670,6 +701,7 @@ define([
                 strings.hintdefault = results[16];
                 strings.saveduntested = results[17];
                 strings.rolepending = results[18];
+                strings.tokenkeep = results[19];
                 bind();
                 restoreBanner();
                 runAutoTest();

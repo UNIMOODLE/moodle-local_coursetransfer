@@ -53,6 +53,9 @@ class user {
     /** @var string Username WS */
     const USERNAME_WS = 'local_coursetransfer_ws';
 
+    /** @var string Email of the service user: a reserved TLD (RFC 2606) that never resolves. */
+    const EMAIL_WS = 'local_coursetransfer_ws@example.invalid';
+
     /**
      * Create User.
      *
@@ -65,7 +68,7 @@ class user {
     public static function create_user(int $roleid): int {
         global $DB;
         $username = self::USERNAME_WS;
-        $email = 'coursetransfer@test.xxx';
+        $email = self::EMAIL_WS;
         $name = 'Course Transfer';
         $lastname = 'WS';
         $desc = 'Local Course Transfer User for services web and cli script';
@@ -103,7 +106,11 @@ class user {
             $userauthorized->iprestriction = '';
             $userauthorized->validuntil = '';
             $userauthorized->timecreated = time();
-            $DB->insert_record('external_services_users', $userauthorized);
+            // The postinstall() step runs again from "Refresh": authorise the user only once (LCT-042).
+            $authorised = ['externalserviceid' => $service->id, 'userid' => $user->id];
+            if (!$DB->record_exists('external_services_users', $authorised)) {
+                $DB->insert_record('external_services_users', $userauthorized);
+            }
 
             $usertokens = $DB->get_records('external_tokens', [
                     'userid' => $user->id,
@@ -193,7 +200,6 @@ class user {
      */
     public static function create(string $username, string $email, string $firstname, string $lastname, string $desc): int {
         global $CFG;
-        require_once($CFG->dirroot . '/user/lib.php');
         $user = new stdClass();
         $user->username = $username;
         $user->password = generate_password(10);
@@ -203,6 +209,14 @@ class user {
         $user->description = $desc;
         $user->confirmed = 1;
         $user->mnethostid = 1;
+        // A service account: Moodle must never send it email (backup reports, notifications).
+        $user->emailstop = 1;
+        // Moodle 5.3 deprecates user_create_user() (MDL-82650) in favour of
+        // \core\user::create_user(), which does not exist before 5.3.
+        if (method_exists(\core\user::class, 'create_user')) {
+            return \core\user::create_user($user);
+        }
+        require_once($CFG->dirroot . '/user/lib.php');
         return user_create_user($user);
     }
 }

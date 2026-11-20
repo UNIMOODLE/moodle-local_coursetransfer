@@ -65,9 +65,10 @@ class coursetransfer_download {
      */
     public static function create_task_download_course(stdClass $request, string $fileurl): bool {
         $asynctask = new download_file_course_task();
+        // The URL goes without the origin's token: the task resolves it when it runs (LCT-011).
         $asynctask->set_custom_data(
-            ['requestid' => $request->id, 'fileurl' => $fileurl]
+            ['requestid' => (int)$request->id, 'fileurl' => strtok($fileurl, '?')]
         );
-        return manager::queue_adhoc_task($asynctask);
+        return (bool)manager::queue_adhoc_task($asynctask, true);
     }
 }

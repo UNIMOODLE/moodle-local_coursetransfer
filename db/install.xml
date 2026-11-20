@@ -27,6 +27,7 @@
                 <FIELD NAME="origin_activities" SEQUENCE="false" TYPE="text" NOTNULL="false" COMMENT="JSON of sections with activities"/>
                 <FIELD NAME="origin_category_requests" SEQUENCE="false" TYPE="text" NOTNULL="false" COMMENT="Course Requests Ids by commas from category request"/>
                 <FIELD NAME="origin_category_tree" SEQUENCE="false" TYPE="text" NOTNULL="false" COMMENT="JSON snapshot of the origin category subtree at request time"/>
+                <FIELD NAME="origin_manifest" SEQUENCE="false" TYPE="text" NOTNULL="false" COMMENT="JSON manifest of the origin course and its comparison with the restored course"/>
                 <FIELD NAME="origin_backup_size" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Final Backup size"/>
                 <FIELD NAME="origin_backup_size_estimated" SEQUENCE="false" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Estimated Backup size"/>
                 <FIELD NAME="origin_backup_url" SEQUENCE="false" TYPE="text" LENGTH="255" NOTNULL="false" COMMENT="URL Backup"/>
