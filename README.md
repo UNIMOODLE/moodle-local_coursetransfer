@@ -6,8 +6,8 @@
 <h1 align="center">Course Transfer</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.1.0-informational" alt="Version">
-  <a href="https://moodle.org"><img src="https://img.shields.io/badge/Moodle-4.5%20--%205.1-orange?logo=moodle" alt="Moodle"></a>
+  <img src="https://img.shields.io/badge/version-2.2.0-informational" alt="Version">
+  <a href="https://moodle.org"><img src="https://img.shields.io/badge/Moodle-4.5%20--%205.3-orange?logo=moodle" alt="Moodle"></a>
   <img src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php&logoColor=white" alt="PHP">
   <img src="https://img.shields.io/badge/License-GPL--3.0-green" alt="License">
   <a href="https://unimoodle.github.io/"><img src="https://img.shields.io/badge/project%20by-UNIMOODLE-194866" alt="Project by UNIMOODLE"></a>
@@ -45,6 +45,9 @@ restore) runs in the background via scheduled tasks.
   **detail** view with a timeline and the associated tasks.
 - **CLI automation** — scripts to launch restores/deletions and query the logs
   from the command line.
+- **Data-loss protection** — the origin is only removed after a complete and
+  verified restore, removed courses stay in the recycle bin for a configurable
+  time, and every removal between platforms is recorded as an event (see below).
 
 ## 💡 Use cases
 
@@ -70,6 +73,11 @@ restore) runs in the background via scheduled tasks.
   on both sides, so cron must be running.
 - The user is resolved by equivalence across platforms (by `username`, `email`
   or `idnumber`, configurable).
+- The services used between platforms can only be called with the other
+  site's **service user token** (capability `local/coursetransfer:webservice`; in 2.2 a token user without it is still accepted with a deprecation warning, 2.3 will reject it),
+  never from the browser. Permissions are then checked on the equivalent user:
+  the origin only lists and backs up what that user could back up by hand.
+- Calls between platforms verify the **TLS certificate** of the other site.
 - It does **not** modify the Moodle core or theme; it uninstalls like any other
   local plugin.
 
@@ -77,9 +85,11 @@ restore) runs in the background via scheduled tasks.
 
 | Requirement | Version |
 |---|---|
-| Moodle | 4.5+ (tested up to 5.1) |
+| Moodle | 4.5, 5.1 or 5.3 |
 | PHP | 8.1+ |
-| Configuration | **REST** web services enabled and a **service user** (the plugin helps create it from *Summary*) |
+| Configuration | **REST** web services enabled and a **service user** (the plugin creates it from *Summary*) |
+| Cron | Running on **both** platforms: backups, downloads, restores, removals and cleanups are tasks |
+| TLS | A valid certificate on every paired platform: self-signed certificates or incomplete chains are rejected while `sslverifypeer` is on |
 | Other plugins | None required |
 
 ## 🚀 Installation
@@ -104,15 +114,52 @@ Under **Site administration › Plugins › Local plugins › Course Transfer**
 |---|---|
 | **Maximum course size to restore** (`target_restore_course_max_size`) | Limit (MB) of the backup (`.mbz`) to restore; if exceeded, the download fails and it is recorded in the log. |
 | **Request timeout** (`request_timeout`) | Seconds to wait for the calls between platforms. |
-| **Ignore cURL security** (`ignorecurlsecurity`) | Allows operating against sites with internal/unverifiable certificates (use with care). |
+| **Allow connections to internal hosts** (`ignorecurlsecurity`) | Off by default. While on, Moodle's blocked hosts and ports (`curlsecurityblockedhosts`) do not apply to the calls between platforms. Prefer leaving it off and allowing only the paired hosts in that list. It does not disable the certificate check. |
+| **Verify the certificate of the paired platforms** (`sslverifypeer`) | On by default. Turning it off sends the token to peers whose identity is not checked: only at the administrator's own risk. The connection test explains when a certificate cannot be verified. |
 | **Results per page** (`pagesize`) | Number of results per page in the wizard search boxes. |
 | **Failed adhoc task cleanup** (`clean_adhoc_faildelay`) | Age from which failed tasks are cleaned up (`0` = disabled). |
 | **Empty trash after deleting a course** (`remove_course_cleanup`) | Permanently removes the course deleted remotely. |
 | **Empty trash after deleting a category** (`remove_cat_cleanup`) | Permanently removes the category deleted remotely. |
-| **User search field** (`origin_field_search_user`) | Field used to match the equivalent user across platforms (`username` / `email` / `idnumber`). |
+| **User search field** (`origin_field_search_user`) | Field used to match the equivalent user across platforms (`username` / `email` / user ID / `idnumber`). Changing it repairs the integration. |
+| **Check the restored course before removing the origin** (`verifymanifest`) | On by default. See *Data-loss protection*. |
+| **Days in the recycle bin before the definitive deletion** (`recyclebinretentiondays`) | Default 30, minimum 1. See *Data-loss protection*. |
+| **Days to keep transferred backups** (`backup_files_retention`) | Default 7, minimum 1. Backups served as origin and safety copies kept as target are deleted this many days after their transfer finished. |
 
 **Paired platforms** are not configured here: they are managed from the plugin's
-**Platforms** screen (with a connection test).
+**Platforms** screen (with a connection test), and only by administrators
+(`moodle/site:config`). A platform URL is a plain base URL,
+`http(s)://host[:port][/path]`, and must match the other site's `wwwroot`.
+
+## 🛡️ Data-loss protection
+
+Removing the origin after a restore (course or category) is the only operation
+that can lose a course. These safeguards apply:
+
+| Safeguard | What it protects | How to configure it |
+|---|---|---|
+| **Complete restore** | The origin is kept if the restore plan reports missing modules or files (error `10410`). A category is removed only when every course of it was restored without issues, the requester could see all its subcategories on the origin, and the origin category has no new courses since the restore started. | Always on |
+| **Manifest check** | Before removing an origin course, its sections and activities per module (asked of the origin) and, with users, the enrolled users (read from the backup) are compared with the restored course. If anything is missing, the origin is kept and the log says what (`10412`). | `verifymanifest` (on) |
+| **Requester's permissions** | The removal runs as the user who asked for it, on both sites: `local/coursetransfer:origin_remove_course` / `_category` here, and `moodle/course:delete` / `moodle/category:manage` plus the same capability on the origin. | Roles |
+| **Safety copy** | Before a restore that may remove the origin, the target keeps a copy of the backup. | `backup_files_retention` (never purged before its origin is removed plus the recycle bin retention; kept when the restore was incomplete) |
+| **Recycle bin** | With *Definitive deletion of course* on, a course removed at the request of another platform stays in the recycle bin for the configured days before it is purged, so it can still be restored by hand. Needs the category recycle bin of `tool_recyclebin`; removing a whole category always empties its bin (Moodle core). If the core recycle bin expires items sooner (7 days by default), the setting and the Summary diagnosis warn about it. | `recyclebinretentiondays` (30) |
+| **Audit** | Every removal asked of or done for another platform, and every decision to remove or keep the origin after a restore, is logged as an event (*Site administration › Reports › Logs*). | Always on |
+
+When the origin is kept, the request still shows the restore as completed, with
+the reason in its detail; the origin can then be removed with the *Delete remote
+content* wizard once checked.
+
+## 🔐 Permissions
+
+| Capability | Default | Lets the user |
+|---|---|---|
+| `local/coursetransfer:origin_restore` | — | Restore remote courses or categories (site level) |
+| `local/coursetransfer:origin_restore_course` / `_category` | Manager, editing teacher / Manager | Use the restore wizard from a course / category |
+| `local/coursetransfer:origin_restore_course_users` | Manager | Include users and their data in the backup |
+| `local/coursetransfer:origin_remove_course` / `_category` | Manager | Remove courses / categories on the origin |
+| `local/coursetransfer:target_restore_*` | Manager, editing teacher | Delete content, enrolments or groups of the target course, or merge into it |
+| `local/coursetransfer:view_logs` | Manager | See the execution log |
+| `local/coursetransfer:manage_requests` | Manager (cloned from `view_logs`) | Delete log entries and retry a restore |
+| `local/coursetransfer:webservice` | Only the service user role | Call the services used by peer platforms |
 
 ## 🖥️ Command line usage (optional)
 

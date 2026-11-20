@@ -6,8 +6,8 @@
 <h1 align="center">Course Transfer</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.1.0-informational" alt="Versió">
-  <a href="https://moodle.org"><img src="https://img.shields.io/badge/Moodle-4.5%20--%205.1-orange?logo=moodle" alt="Moodle"></a>
+  <img src="https://img.shields.io/badge/version-2.2.0-informational" alt="Versió">
+  <a href="https://moodle.org"><img src="https://img.shields.io/badge/Moodle-4.5%20--%205.3-orange?logo=moodle" alt="Moodle"></a>
   <img src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php&logoColor=white" alt="PHP">
   <img src="https://img.shields.io/badge/License-GPL--3.0-green" alt="Llicència">
   <a href="https://unimoodle.github.io/"><img src="https://img.shields.io/badge/project%20by-UNIMOODLE-194866" alt="Projecte d'UNIMOODLE"></a>
@@ -78,9 +78,11 @@ i restauració) s'executa en segon pla mitjançant tasques programades.
 
 | Requisit | Versió |
 |---|---|
-| Moodle | 4.5+ (provat fins a 5.1) |
+| Moodle | 4.5, 5.1 o 5.3 |
 | PHP | 8.1+ |
 | Configuració | Serveis web **REST** habilitats i un **usuari de servei** (el connector ajuda a crear-lo des de *Resum*) |
+| Cron | En marxa a **les dues** plataformes: còpies, descàrregues, restauracions, esborraments i neteges són tasques |
+| TLS | Certificat vàlid a cada plataforma aparellada: es rebutgen els autosignats i les cadenes incompletes mentre `sslverifypeer` estigui activat |
 | Altres connectors | No en requereix |
 
 ## 🚀 Instal·lació
@@ -105,15 +107,58 @@ A **Administració del lloc › Connectors › Locals › Course Transfer**
 |---|---|
 | **Mida màxima del curs a restaurar** (`target_restore_course_max_size`) | Límit en MB de la còpia (`.mbz`) a restaurar; si se supera, la descàrrega falla i queda reflectit al registre. |
 | **Temps d'espera de la petició** (`request_timeout`) | Segons d'espera de les crides entre plataformes. |
-| **Ignora la seguretat de cURL** (`ignorecurlsecurity`) | Permet operar contra llocs amb certificats interns o no verificables (fer-ne un ús prudent). |
+| **Permet connexions a amfitrions interns** (`ignorecurlsecurity`) | Desactivat per defecte. Mentre estigui actiu, els amfitrions i ports bloquejats de Moodle (`curlsecurityblockedhosts`) no s'apliquen a les crides entre plataformes. Millor deixar-lo desactivat i permetre en aquesta llista només els amfitrions aparellats. No desactiva la comprovació del certificat. |
+| **Verifica el certificat de les plataformes aparellades** (`sslverifypeer`) | Activat per defecte. Desactivar-lo envia el testimoni a parells la identitat dels quals no es comprova: només sota la responsabilitat de l'administrador. La prova de connexió explica quan no es pot verificar un certificat. |
 | **Resultats per pàgina** (`pagesize`) | Nombre de resultats per pàgina als cercadors dels assistents. |
 | **Neteja de tasques adhoc fallides** (`clean_adhoc_faildelay`) | Antiguitat a partir de la qual es netegen les tasques fallides (`0` = desactivat). |
 | **Buida la paperera en esborrar un curs** (`remove_course_cleanup`) | Elimina definitivament el curs esborrat en remot. |
 | **Buida la paperera en esborrar una categoria** (`remove_cat_cleanup`) | Elimina definitivament la categoria esborrada en remot. |
-| **Camp de cerca d'usuari** (`origin_field_search_user`) | Camp pel qual s'aparella l'usuari equivalent entre plataformes (`username` / `email` / `idnumber`). |
+| **Camp de cerca d'usuari** (`origin_field_search_user`) | Camp pel qual s'aparella l'usuari equivalent entre plataformes (`username` / `email` / ID d'usuari / `idnumber`). En canviar-lo es repara la integració. |
+| **Comprova el curs restaurat abans d'esborrar l'origen** (`verifymanifest`) | Activat per defecte. Vegeu *Protecció contra la pèrdua de dades*. |
+| **Dies a la paperera abans de l'esborrament definitiu** (`recyclebinretentiondays`) | 30 per defecte, mínim 1. Vegeu *Protecció contra la pèrdua de dades*. |
+| **Dies que es conserven les còpies transferides** (`backup_files_retention`) | 7 per defecte, mínim 1. Les còpies servides com a origen i les còpies de seguretat desades com a destinació s'esborren aquests dies després d'acabar la transferència. |
 
 Les **plataformes aparellades** no es configuren aquí: es gestionen des de la
 pantalla **Plataformes** del connector (amb prova de connexió).
+
+## 🛡️ Protecció contra la pèrdua de dades
+
+Els serveis entre plataformes només es poden cridar amb el **testimoni de l'usuari
+de servei** de l'altre lloc (capacitat `local/coursetransfer:webservice`; a la 2.2 un usuari de testimoni sense aquesta capacitat encara s'accepta amb un avís de deprecació, la 2.3 el rebutjarà), mai des
+del navegador, i verifiquen el **certificat TLS** de l'altre lloc. Els permisos
+es comproven després sobre l'usuari equivalent: l'origen només llista i copia el
+que aquest usuari podria copiar a mà. Només els administradors
+(`moodle/site:config`) donen d'alta plataformes, i l'URL és una URL base sense
+res més, `http(s)://amfitrió[:port][/camí]`, igual al `wwwroot` de l'altre lloc.
+
+Esborrar l'origen després d'una restauració (de curs o de categoria) és l'única
+operació que pot fer perdre un curs. S'apliquen aquestes salvaguardes:
+
+| Salvaguarda | Què protegeix | Com es configura |
+|---|---|---|
+| **Restauració completa** | L'origen es conserva si el pla de restauració informa de mòduls o fitxers que falten (error `10410`). Una categoria només s'esborra si tots els seus cursos s'han restaurat sense incidències, qui ho demana veia totes les seves subcategories a l'origen i la categoria de l'origen no té cursos nous des que va començar la restauració. | Sempre activa |
+| **Comprovació del manifest** | Abans d'esborrar un curs de l'origen es comparen amb el curs restaurat les seves seccions i activitats per mòdul (demanades a l'origen) i, amb usuaris, els matriculats (llegits de la còpia). Si falta alguna cosa, l'origen es conserva i el registre diu què (`10412`). | `verifymanifest` (activada) |
+| **Permisos de qui ho demana** | L'esborrament es fa com l'usuari que l'ha demanat, als dos llocs: `local/coursetransfer:origin_remove_course` / `_category` aquí, i `moodle/course:delete` / `moodle/category:manage` més la mateixa capacitat a l'origen. | Rols |
+| **Còpia de seguretat prèvia** | Abans d'una restauració que pot esborrar l'origen, la destinació desa una còpia del backup. | `backup_files_retention` (mai no es purga abans que el seu origen estigui esborrat més la retenció de la paperera; es conserva si la restauració ha quedat incompleta) |
+| **Paperera** | Amb *Esborrament definitiu del curs* activat, un curs esborrat a petició d'una altra plataforma es queda a la paperera els dies configurats abans de buidar-se, i es pot restaurar a mà. Cal la paperera de categories de `tool_recyclebin`; esborrar una categoria sencera sempre en buida la paperera (nucli de Moodle). Si la paperera del nucli caduca abans (7 dies per defecte), el paràmetre i el diagnòstic de *Resum* ho avisen. | `recyclebinretentiondays` (30) |
+| **Auditoria** | Cada esborrament demanat a una altra plataforma o fet per a ella, i cada decisió d'esborrar o conservar l'origen després d'una restauració, queda com a esdeveniment (*Administració del lloc › Informes › Registres*). | Sempre activa |
+
+Quan l'origen es conserva, la petició continua mostrant la restauració com a
+completada, amb el motiu al detall; un cop revisat, l'origen es pot esborrar amb
+l'assistent *Esborra contingut remot*.
+
+## 🔐 Permisos
+
+| Capacitat | Per defecte | Permet |
+|---|---|---|
+| `local/coursetransfer:origin_restore` | — | Restaurar cursos o categories remots (nivell lloc) |
+| `local/coursetransfer:origin_restore_course` / `_category` | Gestor, professor editor / Gestor | Fer servir l'assistent de restauració des d'un curs / una categoria |
+| `local/coursetransfer:origin_restore_course_users` | Gestor | Incloure usuaris i les seves dades a la còpia |
+| `local/coursetransfer:origin_remove_course` / `_category` | Gestor | Esborrar cursos / categories a l'origen |
+| `local/coursetransfer:target_restore_*` | Gestor, professor editor | Esborrar contingut, matriculacions o grups del curs de destinació, o fusionar-hi |
+| `local/coursetransfer:view_logs` | Gestor | Veure el registre d'execucions |
+| `local/coursetransfer:manage_requests` | Gestor (clonada de `view_logs`) | Esborrar registres i reintentar una restauració |
+| `local/coursetransfer:webservice` | Només el rol de l'usuari de servei | Cridar els serveis que fan servir les plataformes aparellades |
 
 ## 🖥️ Ús per línia d'ordres (opcional)
 

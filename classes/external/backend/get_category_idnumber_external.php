@@ -31,7 +31,7 @@
 namespace local_coursetransfer\external\backend;
 
 use coding_exception;
-use core_external\external_api;
+use core_text;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
@@ -47,7 +47,13 @@ global $CFG;
  *
  * @package local_coursetransfer\external\backend
  */
-class get_category_idnumber_external extends external_api {
+class get_category_idnumber_external extends backend_api {
+    /** @var int Longest pattern accepted (category idnumbers are at most 100 characters). */
+    const MAX_PATTERN_LENGTH = 255;
+
+    /** @var int PCRE backtracking limit while matching the peer's pattern. */
+    const BACKTRACK_LIMIT = 10000;
+
     /**
      * Parameter definition.
      *
@@ -78,6 +84,7 @@ class get_category_idnumber_external extends external_api {
         $params = self::validate_parameters(self::get_category_idnumber_parameters(), [
             'pattern' => $pattern,
         ]);
+        self::validate_service_user();
 
         $categories = $DB->get_records_select(
             'course_categories',
@@ -89,15 +96,38 @@ class get_category_idnumber_external extends external_api {
 
         $matches = [];
         $regex = '/' . str_replace('/', '\/', $params['pattern']) . '/';
-
-        foreach ($categories as $category) {
-            if (@preg_match($regex, $category->idnumber)) {
-                $matches[] = [
-                    'id' => (int)$category->id,
-                    'name' => $category->name,
-                    'idnumber' => $category->idnumber,
-                ];
+        // The pattern comes from the peer: bound its length and backtracking, and report a pattern
+        // that does not compile or blows a limit instead of silencing it (LCT-010, ReDoS).
+        $backtracklimit = ini_get('pcre.backtrack_limit');
+        ini_set('pcre.backtrack_limit', (string) self::BACKTRACK_LIMIT);
+        try {
+            $valid = core_text::strlen($params['pattern']) <= self::MAX_PATTERN_LENGTH && @preg_match($regex, '') !== false;
+            foreach ($valid ? $categories : [] as $category) {
+                $match = @preg_match($regex, $category->idnumber);
+                if ($match === false) {
+                    $valid = false;
+                    break;
+                }
+                if ($match) {
+                    $matches[] = [
+                        'id' => (int)$category->id,
+                        'name' => $category->name,
+                        'idnumber' => $category->idnumber,
+                    ];
+                }
             }
+        } finally {
+            // The lowered limit must not outlive this call, whatever happens in it.
+            ini_set('pcre.backtrack_limit', $backtracklimit);
+        }
+
+        if (!$valid) {
+            return [
+                'success' => false,
+                'category' => ['id' => 0, 'name' => '', 'idnumber' => ''],
+                'matchcount' => 0,
+                'error' => get_string('categorypatterninvalid', 'local_coursetransfer'),
+            ];
         }
 
         if (count($matches) !== 1) {

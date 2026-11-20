@@ -35,7 +35,9 @@
 namespace local_coursetransfer\output;
 
 use dml_exception;
+use local_coursetransfer\coursetransfer_remove;
 use local_coursetransfer\coursetransfer_sites;
+use local_coursetransfer\external\backend\backend_api;
 use local_coursetransfer\factory\user;
 use moodle_exception;
 use moodle_url;
@@ -112,7 +114,8 @@ class index_page implements renderable, templatable {
             '/admin/settings.php',
             ['section' => 'local_coursetransfer']
         ))->out(false);
-        $data->url_postinstall = (new moodle_url('/local/coursetransfer/postinstall.php'))->out(false);
+        // Repair runs on a sesskey-protected URL (LCT-030).
+        $data->url_postinstall = (new moodle_url('/local/coursetransfer/postinstall.php', ['sesskey' => sesskey()]))->out(false);
         $data->url_platforms = (new moodle_url('/local/coursetransfer/sites.php'))->out(false);
         $data->url_logs = (new moodle_url('/local/coursetransfer/logs.php'))->out(false);
 
@@ -155,7 +158,8 @@ class index_page implements renderable, templatable {
             $sysctx = \context_system::instance();
             $capsok = has_capability('webservice/rest:use', $sysctx, $user)
                     && has_capability('moodle/backup:backupcourse', $sysctx, $user)
-                    && has_capability('moodle/restore:restorecourse', $sysctx, $user);
+                    && has_capability('moodle/restore:restorecourse', $sysctx, $user)
+                    && has_capability('local/coursetransfer:webservice', $sysctx, $user);
         }
 
         // Cron recency: deferred/async restores and deletions run through cron.
@@ -171,6 +175,18 @@ class index_page implements renderable, templatable {
         $cronago = $lastcron > 0 ? format_time(time() - $lastcron) : '';
 
         $repair = get_string('idx_fix', 'local_coursetransfer');
+        [$binstate, $binstatus] = $this->recyclebin_status();
+
+        // Peers still calling with a user without the capability (accepted in 2.2 only, Decision 4).
+        $legacy = backend_api::get_legacy_use();
+        $legacystatus = get_string('idx_check_legacyws_ok', 'local_coursetransfer');
+        if ($legacy) {
+            $legacyuser = \core_user::get_user((int)$legacy['userid']);
+            $legacystatus = get_string('idx_check_legacyws_ko', 'local_coursetransfer', (object)[
+                'user' => $legacyuser ? fullname($legacyuser) . ' (' . $legacyuser->username . ')' : '#' . $legacy['userid'],
+                'time' => userdate((int)$legacy['time'], get_string('strftimedatetimeshort', 'langconfig')),
+            ]);
+        }
         $urltasks = (new moodle_url('/admin/tool/task/scheduledtasks.php'))->out(false);
 
         $data->checks = [
@@ -240,6 +256,22 @@ class index_page implements renderable, templatable {
                 get_string('platforms_link', 'local_coursetransfer'),
                 $data->url_platforms
             ),
+            $this->check(
+                'fa-recycle',
+                get_string('idx_check_recyclebin', 'local_coursetransfer'),
+                $binstate,
+                $binstatus,
+                $binstate === 'ok' ? '' : get_string('config', 'local_coursetransfer'),
+                $binstate === 'ok' ? '' : (new moodle_url('/admin/settings.php', ['section' => 'tool_recyclebin']))->out(false)
+            ),
+            $this->check(
+                'fa-exchange',
+                get_string('idx_check_legacyws', 'local_coursetransfer'),
+                $legacy ? 'warn' : 'ok',
+                $legacystatus,
+                $legacy ? $repair : '',
+                $legacy ? $data->url_postinstall : ''
+            ),
         ];
 
         // Quick links.
@@ -291,6 +323,31 @@ class index_page implements renderable, templatable {
         ];
 
         return $data;
+    }
+
+    /**
+     * State of the recycle bin that keeps the courses removed at the request of another platform.
+     *
+     * Those courses go to the category recycle bin of tool_recyclebin, which empties it on its own
+     * (categorybinexpiry): recyclebinretentiondays never keeps them longer.
+     *
+     * @return array [state ok|warn, status text]
+     */
+    protected function recyclebin_status(): array {
+        $retention = coursetransfer_remove::get_recyclebin_retention();
+        $days = (int)round($retention / DAYSECS);
+        $enabled = get_config('tool_recyclebin', 'categorybinenable');
+        if ($enabled !== false && !(bool)$enabled) {
+            return ['warn', get_string('idx_check_recyclebin_off', 'local_coursetransfer', $days)];
+        }
+        $expiry = (int)get_config('tool_recyclebin', 'categorybinexpiry');
+        if ($expiry > 0 && $expiry < $retention) {
+            return ['warn', get_string('idx_check_recyclebin_short', 'local_coursetransfer', (object)[
+                'core' => round($expiry / DAYSECS, 1),
+                'plugin' => $days,
+            ])];
+        }
+        return ['ok', get_string('idx_check_recyclebin_ok', 'local_coursetransfer', $days)];
     }
 
     /**

@@ -35,6 +35,7 @@
 namespace local_coursetransfer\external\frontend;
 
 use coding_exception;
+use context_system;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
@@ -45,6 +46,7 @@ use invalid_parameter_exception;
 use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_sites;
+use local_coursetransfer\external\backend\backend_api;
 use moodle_exception;
 use stdClass;
 
@@ -60,6 +62,9 @@ require_once($CFG->dirroot . '/group/lib.php');
  * @package local_coursetransfer\external\frontend
  */
 class sites_external extends external_api {
+    /** @var string Deprecation code: the peer's user lacks local/coursetransfer:webservice (removed in 2.3). */
+    const DEPRECATED_WSUSER = 'deprecated_wsuser';
+
     /**
      * Site add parameters.
      *
@@ -98,6 +103,7 @@ class sites_external extends external_api {
                 'name' => $name,
             ]
         );
+        self::validate_admin();
 
         $type = $params['type'];
         $host = trim($params['host']);
@@ -164,19 +170,50 @@ class sites_external extends external_api {
     }
 
     /**
-     * Validate that a value is a syntactically correct HTTP/HTTPS URL.
+     * Require the caller to administer the site: registering a host sends it this site's tokens.
+     *
+     * @throws \required_capability_exception
+     */
+    protected static function validate_admin(): void {
+        $context = context_system::instance();
+        self::validate_context($context);
+        require_capability('moodle/site:config', $context);
+    }
+
+    /**
+     * Validate a platform base URL: http(s)://host[:port][/path], nothing else.
+     *
+     * Query, fragment, credentials and whitespace are rejected: the token and the web service
+     * path are appended to this URL, so anything extra could change where they go.
      *
      * @param string $url
      * @return bool
      */
     protected static function is_valid_url(string $url): bool {
-        if ($url === '') {
-            return false;
+        $hostpattern = '[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*';
+        $pattern = '#^https?://' . $hostpattern . '(?::[0-9]{1,5})?(?:/[a-z0-9._~%/-]*)?$#iD';
+        return strlen($url) <= 255 && preg_match($pattern, $url) === 1;
+    }
+
+    /**
+     * Keep only a bounded diagnosis of a remote answer: never the body of an arbitrary host.
+     *
+     * @param array $errors errors of a {@see request} response
+     * @return array
+     */
+    protected static function bounded_errors(array $errors): array {
+        $res = [];
+        foreach ($errors as $err) {
+            $code = clean_param(isset($err->code) ? (string) $err->code : '', PARAM_ALPHANUMEXT);
+            if (in_array($code, [request::ERROR_DECODE, request::ERROR_UNEXPECTED], true)) {
+                // These carry what the host answered (a body snippet, its exception and debuginfo).
+                $msg = get_string('error_not_controlled', 'local_coursetransfer');
+            } else {
+                $msg = shorten_text(clean_param(isset($err->msg) ? (string) $err->msg : '', PARAM_TEXT), 255);
+            }
+            $res[] = ['code' => substr($code, 0, 10), 'msg' => $msg];
         }
-        if (!preg_match('#^https?://#i', $url)) {
-            return false;
-        }
-        return filter_var($url, FILTER_VALIDATE_URL) !== false;
+        return $res;
     }
 
     /**
@@ -214,7 +251,7 @@ class sites_external extends external_api {
                     'type' => new external_value(PARAM_TEXT, 'Type: target or origin'),
                     'id' => new external_value(PARAM_INT, 'Host ID'),
                     'host' => new external_value(PARAM_RAW, 'Host Url'),
-                    'token' => new external_value(PARAM_RAW, 'Host Token'),
+                    'token' => new external_value(PARAM_RAW, 'Host Token (empty: keep the current one, same host only)'),
                     'name' => new external_value(PARAM_TEXT, 'Platform name', VALUE_DEFAULT, ''),
                 ]
         );
@@ -244,6 +281,7 @@ class sites_external extends external_api {
                 'name' => $name,
             ]
         );
+        self::validate_admin();
 
         $type = $params['type'];
         $id = $params['id'];
@@ -261,7 +299,7 @@ class sites_external extends external_api {
                 'code' => '18032',
                 'msg' => get_string('type_invalid', 'local_coursetransfer'),
             ];
-        } else if ($host === '' || $token === '') {
+        } else if ($host === '') {
             $errors[] = [
                 'code' => '18043',
                 'msg' => get_string('host_token_empty', 'local_coursetransfer'),
@@ -271,10 +309,16 @@ class sites_external extends external_api {
                 'code' => '18045',
                 'msg' => get_string('host_url_invalid', 'local_coursetransfer'),
             ];
-        } else if (!$DB->record_exists('local_coursetransfer_' . $type, ['id' => $id])) {
+        } else if (!($current = $DB->get_record('local_coursetransfer_' . $type, ['id' => $id]))) {
             $errors[] = [
                 'code' => '18033',
                 'msg' => get_string('site_not_found', 'local_coursetransfer'),
+            ];
+        } else if ($token === '' && coursetransfer_sites::clean_host($host) !== $current->host) {
+            // Empty token keeps the stored one, but never for a new host: it would receive it.
+            $errors[] = [
+                'code' => '18043',
+                'msg' => get_string('host_token_empty', 'local_coursetransfer'),
             ];
         } else {
             try {
@@ -282,7 +326,7 @@ class sites_external extends external_api {
                 $object->id = $id;
                 $object->name = $name;
                 $object->host = coursetransfer_sites::clean_host($host);
-                $object->token = $token;
+                $object->token = $token !== '' ? $token : $current->token;
                 $object->userid = $USER->id;
                 $object->timemodified = time();
                 $recordselect = $DB->get_record_select(
@@ -371,6 +415,7 @@ class sites_external extends external_api {
                 'id' => $id,
             ]
         );
+        self::validate_admin();
 
         $type = $params['type'];
         $id = $params['id'];
@@ -474,6 +519,7 @@ class sites_external extends external_api {
                 'id' => $id,
             ]
         );
+        self::validate_admin();
 
         $type = $params['type'];
         $id = $params['id'];
@@ -499,13 +545,12 @@ class sites_external extends external_api {
                     : $request->site_target_test($USER);
                 if ($res->success) {
                     $success = true;
-                } else {
-                    foreach ((array)$res->errors as $err) {
-                        $errors[] = [
-                            'code' => isset($err->code) ? (string)$err->code : '',
-                            'msg' => isset($err->msg) ? (string)$err->msg : '',
-                        ];
+                    $codes = array_column(array_map(fn($d) => (array)$d, (array)($res->deprecations ?? [])), 'code');
+                    if (in_array(self::DEPRECATED_WSUSER, $codes, true)) {
+                        $warning = get_string('platform_warn_legacyws', 'local_coursetransfer');
                     }
+                } else {
+                    $errors = self::bounded_errors((array) $res->errors);
                     if (empty($errors)) {
                         $errors[] = [
                             'code' => '18012',
@@ -525,7 +570,7 @@ class sites_external extends external_api {
 
         if ($sitefound) {
             // Persist the outcome so the platforms page can show the last test result.
-            $errormsg = $success ? '' : trim($primary['code'] . ': ' . $primary['msg'], ': ');
+            $errormsg = $success ? ($warning ?? '') : trim($primary['code'] . ': ' . $primary['msg'], ': ');
             coursetransfer_sites::save_test_result($type, $id, $success, $errormsg);
         }
 
@@ -605,6 +650,7 @@ class sites_external extends external_api {
                 'token' => $token,
             ]
         );
+        self::validate_admin();
 
         $type = $params['type'];
         $host = trim($params['host']);
@@ -634,13 +680,12 @@ class sites_external extends external_api {
                     : $request->site_target_test($USER);
                 if ($res->success) {
                     $success = true;
-                } else {
-                    foreach ((array)$res->errors as $err) {
-                        $errors[] = [
-                            'code' => isset($err->code) ? (string)$err->code : '',
-                            'msg' => isset($err->msg) ? (string)$err->msg : '',
-                        ];
+                    $codes = array_column(array_map(fn($d) => (array)$d, (array)($res->deprecations ?? [])), 'code');
+                    if (in_array(self::DEPRECATED_WSUSER, $codes, true)) {
+                        $warning = get_string('platform_warn_legacyws', 'local_coursetransfer');
                     }
+                } else {
+                    $errors = self::bounded_errors((array) $res->errors);
                     if (empty($errors)) {
                         $errors[] = [
                             'code' => '18012',
@@ -715,6 +760,7 @@ class sites_external extends external_api {
                 'targetsite' => $targetsite,
             ]
         );
+        $legacy = backend_api::validate_service_user();
 
         $field = $params['field'];
         $value = $params['value'];
@@ -757,6 +803,7 @@ class sites_external extends external_api {
                 'success' => $success,
                 'errors' => $errors,
                 'data' => $data,
+                'deprecations' => self::deprecations($legacy),
         ];
     }
 
@@ -774,9 +821,15 @@ class sites_external extends external_api {
                             'code' => new external_value(PARAM_TEXT, 'Code'),
                             'msg' => new external_value(PARAM_TEXT, 'Message'),
                         ],
-                    PARAM_TEXT,
-                    'Errors'
+                    'Errors',
+                    VALUE_OPTIONAL
                 )),
+                'deprecations' => new external_multiple_structure(new external_single_structure(
+                    [
+                        'code' => new external_value(PARAM_ALPHANUMEXT, 'Code'),
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ]
+                ), 'Deprecated ways this call used (2.2)', VALUE_OPTIONAL),
             ]
         );
     }
@@ -814,6 +867,7 @@ class sites_external extends external_api {
                 'value' => $value,
             ]
         );
+        $legacy = backend_api::validate_service_user();
 
         $field = $params['field'];
         $value = $params['value'];
@@ -841,7 +895,19 @@ class sites_external extends external_api {
                 'success' => $success,
                 'errors' => $errors,
                 'data' => $data,
+                'deprecations' => self::deprecations($legacy),
         ];
+    }
+
+    /**
+     * Deprecated ways the caller used, told back to it so its connection test shows them (Decision 4).
+     *
+     * @param bool $legacy Whether the caller's user lacks local/coursetransfer:webservice.
+     * @return array
+     */
+    protected static function deprecations(bool $legacy): array {
+        return $legacy ? [['code' => self::DEPRECATED_WSUSER, 'msg' => 'The user of this token lacks '
+            . 'local/coursetransfer:webservice: accepted until 2.2, rejected from 2.3.']] : [];
     }
 
     /**
@@ -858,9 +924,15 @@ class sites_external extends external_api {
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
                     ],
-                    PARAM_TEXT,
-                    'Errors'
+                    'Errors',
+                    VALUE_OPTIONAL
                 )),
+                'deprecations' => new external_multiple_structure(new external_single_structure(
+                    [
+                        'code' => new external_value(PARAM_ALPHANUMEXT, 'Code'),
+                        'msg' => new external_value(PARAM_TEXT, 'Message'),
+                    ]
+                ), 'Deprecated ways this call used (2.2)', VALUE_OPTIONAL),
             ]
         );
     }

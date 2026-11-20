@@ -165,6 +165,8 @@ final class coursetransfer_restore_course_merge_test extends advanced_testcase {
      */
     protected function setup_config() {
         global $CFG;
+        // Registering sites requires moodle/site:config (TIPCOUTRAN-10).
+        $this->setAdminUser();
         $token = coursetransfer::postinstall();
         $this->user = core_user::get_user_by_username(user::USERNAME_WS);
         $ressiteorigin = sites_external::site_add('origin', $CFG->wwwroot, $token);
@@ -343,7 +345,15 @@ final class coursetransfer_restore_course_merge_test extends advanced_testcase {
             $value,
             $requesttarget->id,
             $file->get_filesize(),
-            $file->get_filepath()
+            // The callback only accepts a web service file URL of the origin, as the origin builds it.
+            \moodle_url::make_webservice_pluginfile_url(
+                $file->get_contextid(),
+                $file->get_component(),
+                $file->get_filearea(),
+                $file->get_itemid(),
+                $file->get_filepath(),
+                $file->get_filename()
+            )->out(false)
         );
         return $file;
     }

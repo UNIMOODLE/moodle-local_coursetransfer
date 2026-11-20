@@ -165,7 +165,8 @@ class detail_page implements renderable, templatable {
             }
             $data->erraction = get_string('platform_error_action', 'local_coursetransfer');
             $data->errcode = $r->error_code;
-            $data->canretry = $type === coursetransfer_request::TYPE_COURSE;
+            $data->canretry = $type === coursetransfer_request::TYPE_COURSE
+                && has_capability('local/coursetransfer:manage_requests', \context_system::instance());
             $data->retryurl = (new moodle_url('/local/coursetransfer/retry.php', ['id' => $r->id]))->out(false);
         }
 

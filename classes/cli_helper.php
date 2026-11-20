@@ -126,4 +126,14 @@ class cli_helper {
         }
         return $wsuser;
     }
+
+    /**
+     * Hide the web service token of a URL before printing it (TIPCOUTRAN-10, H4).
+     *
+     * @param string $text
+     * @return string
+     */
+    public static function mask_token(string $text): string {
+        return preg_replace('/([?&](?:ws)?token=)[^&#\s]+/i', '$1***', $text);
+    }
 }

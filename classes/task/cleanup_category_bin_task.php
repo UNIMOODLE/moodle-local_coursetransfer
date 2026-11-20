@@ -34,8 +34,10 @@
 
 namespace local_coursetransfer\task;
 
+use core\task\manager;
 use local_coursetransfer\coursetransfer;
-use moodle_exception;
+use local_coursetransfer\coursetransfer_remove;
+use Throwable;
 
 
 /**
@@ -56,14 +58,26 @@ class cleanup_category_bin_task extends \core\task\adhoc_task {
      *
      */
     public function execute(): void {
+        $this->log_start("Cleanup category bin - Starting...");
         try {
-            $this->log_start("Cleanup category bin - Starting...");
-            $categoryid = $this->get_custom_data()->categoryid;
-            coursetransfer::cleanup_category_bin($categoryid);
-        } catch (moodle_exception $e) {
+            $data = $this->get_custom_data();
+            $retention = coursetransfer_remove::get_recyclebin_retention();
+            if (empty($data->timeremoved) || time() < (int)$data->timeremoved + $retention) {
+                // Tasks queued by 2.1 carry no removal time: they start the retention now.
+                $data->timeremoved = (int)($data->timeremoved ?? time());
+                $task = new self();
+                $task->set_custom_data($data);
+                $task->set_next_run_time($data->timeremoved + $retention);
+                manager::queue_adhoc_task($task);
+                $this->log('Recycle bin retention not reached: purge queued again.');
+                return;
+            }
+            coursetransfer::cleanup_category_bin((int)$data->categoryid);
+        } catch (Throwable $e) {
             mtrace('Cleanup category bin - ERROR: ' . $e->getMessage());
             $this->log($e->getMessage());
+        } finally {
+            $this->log_finish("Cleanup category bin - Finishing...");
         }
-        $this->log_finish("Cleanup category bin - Finishing...");
     }
 }

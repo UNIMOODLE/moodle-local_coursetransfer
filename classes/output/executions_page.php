@@ -131,6 +131,8 @@ class executions_page implements renderable, templatable {
         $data->exporturl = (new moodle_url('/local/coursetransfer/export.php'))->out(false);
         $data->back = (new moodle_url('/admin/settings.php', ['section' => 'local_coursetransfer']))->out(false);
         $data->summary = (new moodle_url('/local/coursetransfer/index.php'))->out(false);
+        // Deleting a log writes: it needs manage_requests, not view_logs.
+        $data->candelete = has_capability('local/coursetransfer:manage_requests', \context_system::instance());
 
         $data->active = [];
         foreach ($this->active as $request) {
@@ -258,7 +260,8 @@ class executions_page implements renderable, templatable {
                 'local_coursetransfer'
             );
             // Retry is only implemented for course restores (LCT-023).
-            $item->canretry = (int)$request->type === coursetransfer_request::TYPE_COURSE;
+            $item->canretry = (int)$request->type === coursetransfer_request::TYPE_COURSE
+                && has_capability('local/coursetransfer:manage_requests', \context_system::instance());
             $item->retryurl = (new moodle_url(
                 '/local/coursetransfer/retry.php',
                 ['id' => $request->id]

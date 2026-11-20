@@ -60,6 +60,7 @@ class configuration_course extends configuration {
      * @param bool $originremovecourse
      * @param int|null $nextruntime
      * @param string $targetnotremoveactivities
+     * @param bool $keepsafetycopy Keep the backup until the origin is removed plus its retention.
      */
     public function __construct(
         int $targettarget,
@@ -68,7 +69,8 @@ class configuration_course extends configuration {
         bool $originenrolusers = false,
         bool $originremovecourse = false,
         ?int $nextruntime = null,
-        string $targetnotremoveactivities = ''
+        string $targetnotremoveactivities = '',
+        bool $keepsafetycopy = false
     ) {
         parent::__construct(
             $targettarget,
@@ -79,6 +81,7 @@ class configuration_course extends configuration {
         );
         $this->set_origin_remove_course($originremovecourse);
         $this->set_target_notremove_activities($targetnotremoveactivities);
+        $this->set_keep_safety_copy($keepsafetycopy);
     }
 
     /**

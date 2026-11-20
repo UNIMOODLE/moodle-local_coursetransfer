@@ -39,7 +39,6 @@ use context_course;
 use context_system;
 use core_course_category;
 use dml_exception;
-use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
 use core_external\external_single_structure;
@@ -61,7 +60,7 @@ require_once($CFG->dirroot . '/webservice/lib.php');
  *
  * @package local_coursetransfer\external\backend
  */
-class remove_external extends external_api {
+class remove_external extends backend_api {
     /**
      * Origin remove course parameters.
      *
@@ -112,6 +111,7 @@ class remove_external extends external_api {
                 'nextruntime' => $nextruntime,
             ]
         );
+        self::validate_service_user();
 
         $field = $params['field'];
         $value = $params['value'];
@@ -241,8 +241,8 @@ class remove_external extends external_api {
                                 'code' => new external_value(PARAM_TEXT, 'Code'),
                                 'msg' => new external_value(PARAM_TEXT, 'Message'),
                         ],
-                    PARAM_TEXT,
-                    'Errors'
+                    'Errors',
+                    VALUE_OPTIONAL
                 )),
                 'data' => new external_single_structure(
                     [
@@ -255,8 +255,8 @@ class remove_external extends external_api {
                         'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
                         'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
                     ],
-                    PARAM_TEXT,
-                    'Data'
+                    'Data',
+                    VALUE_OPTIONAL
                 ),
                 ]
         );
@@ -312,6 +312,7 @@ class remove_external extends external_api {
                 'nextruntime' => $nextruntime,
             ]
         );
+        self::validate_service_user();
 
         $field = $params['field'];
         $value = $params['value'];
@@ -434,8 +435,8 @@ class remove_external extends external_api {
                                         'code' => new external_value(PARAM_TEXT, 'Code'),
                                         'msg' => new external_value(PARAM_TEXT, 'Message'),
                                 ],
-                            PARAM_TEXT,
-                            'Errors'
+                            'Errors',
+                            VALUE_OPTIONAL
                         )),
                         'data' => new external_single_structure(
                             [
@@ -445,8 +446,8 @@ class remove_external extends external_api {
                                 'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
                                 'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
                             ],
-                            PARAM_TEXT,
-                            'Data'
+                            'Data',
+                            VALUE_OPTIONAL
                         ),
                 ]
         );
