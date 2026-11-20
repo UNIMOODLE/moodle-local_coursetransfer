@@ -1,0 +1,298 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Contract tests for the restore wizard services that read the origin or delete a request.
+ *
+ * @package    local_coursetransfer
+ * @copyright  2026 3ipunt <https://www.tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace local_coursetransfer\external;
+
+use advanced_testcase;
+use core\task\manager;
+use core_external\external_api;
+use local_coursetransfer\coursetransfer_request;
+use local_coursetransfer\external\frontend\restore_wizard_external;
+use local_coursetransfer\task\download_file_course_task;
+use required_capability_exception;
+use stdClass;
+
+/**
+ * Contract tests for restore_wizard_list_origin, _get_sections, _get_category_tree and _delete_request.
+ *
+ * The origin is answered through Moodle's curl mock: no request leaves the test, and every test
+ * checks that the mocked responses were consumed.
+ *
+ * @package    local_coursetransfer
+ * @copyright  2026 3ipunt <https://www.tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @group      local_coursetransfer
+ * @covers     \local_coursetransfer\external\frontend\restore_wizard_external
+ */
+final class restore_wizard_remote_test extends advanced_testcase {
+    /** @var stdClass Origin site registered on this target. */
+    private $site;
+
+    /**
+     * Register one origin site as admin.
+     */
+    protected function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $this->site = $this->getDataGenerator()->get_plugin_generator('local_coursetransfer')
+            ->create_site('origin', ['host' => 'https://origin.example.com']);
+    }
+
+    /**
+     * No mocked response may be left behind (it would leak into another test).
+     */
+    protected function tearDown(): void {
+        $property = new \ReflectionProperty(\curl::class, 'mockresponses');
+        $this->assertSame([], $property->getValue(), 'Every mocked remote response must be consumed');
+        parent::tearDown();
+    }
+
+    /**
+     * Queue the JSON envelope the origin answers with.
+     *
+     * @param bool $success
+     * @param mixed $data
+     * @param array $errors
+     * @param array|null $paging
+     */
+    private function mock_origin(bool $success, $data, array $errors = [], ?array $paging = null): void {
+        $envelope = ['success' => $success, 'errors' => $errors, 'data' => $data];
+        if ($paging !== null) {
+            $envelope['paging'] = $paging;
+        }
+        \curl::mock_response(json_encode($envelope));
+    }
+
+    /**
+     * A user without any role.
+     */
+    private function set_unprivileged_user(): void {
+        $this->setUser($this->getDataGenerator()->create_user());
+    }
+
+    /**
+     * list_origin maps the origin courses to wizard items and computes the pages.
+     */
+    public function test_list_origin_courses(): void {
+        $this->mock_origin(true, [
+            ['id' => 11, 'fullname' => 'Maths', 'shortname' => 'M1', 'idnumber' => 'M-1', 'categoryid' => 3,
+                'categoryname' => 'Year 2026', 'backupsizeestimated' => '2048'],
+        ], [], ['totalcount' => 25, 'page' => 0, 'perpage' => 10]);
+
+        $res = restore_wizard_external::list_origin((int) $this->site->id, 'course', 0, 10, 'math');
+        $res = external_api::clean_returnvalue(restore_wizard_external::list_origin_returns(), $res);
+
+        $this->assertTrue($res['success']);
+        $this->assertSame(25, $res['total']);
+        $this->assertSame(3, $res['pages']);
+        $item = $res['items'][0];
+        $this->assertSame(11, $item['id']);
+        $this->assertSame('Maths', $item['name']);
+        $this->assertSame('Year 2026', $item['category']);
+        $this->assertSame('https://origin.example.com/course/view.php?id=11', $item['url']);
+    }
+
+    /**
+     * list_origin for categories counts the courses of the whole subtree.
+     */
+    public function test_list_origin_categories(): void {
+        $this->mock_origin(true, [
+            ['id' => 4, 'name' => 'Year 2026', 'idnumber' => 'Y2026', 'parentname' => 'Top', 'totalcourses' => 1,
+                'totalsubcategories' => 2, 'totalcourseschild' => 5],
+        ]);
+
+        $res = restore_wizard_external::list_origin((int) $this->site->id, 'category', 0, 10, '');
+        $res = external_api::clean_returnvalue(restore_wizard_external::list_origin_returns(), $res);
+
+        $item = $res['items'][0];
+        $this->assertSame(1, $item['rootcourses']);
+        $this->assertSame(4, $item['subcatcourses']);
+        $this->assertSame(2, $item['subcats']);
+        $this->assertSame(get_string('rw_meta_courses', 'local_coursetransfer', 5), $item['meta']);
+        $this->assertSame(1, $res['total']);
+        $this->assertSame(1, $res['pages']);
+    }
+
+    /**
+     * list_origin relays the origin errors and reports an unknown site.
+     */
+    public function test_list_origin_errors(): void {
+        $this->mock_origin(false, [], [['code' => '17002', 'msg' => 'User not found']]);
+        $res = restore_wizard_external::list_origin((int) $this->site->id, 'course', 0, 10, '');
+        $res = external_api::clean_returnvalue(restore_wizard_external::list_origin_returns(), $res);
+        $this->assertFalse($res['success']);
+        $this->assertSame([['code' => '17002', 'msg' => 'User not found']], $res['errors']);
+
+        $res = restore_wizard_external::list_origin(999999, 'course', 0, 10, '');
+        $res = external_api::clean_returnvalue(restore_wizard_external::list_origin_returns(), $res);
+        $this->assertSame('30001', $res['errors'][0]['code']);
+    }
+
+    /**
+     * list_origin requires local/coursetransfer:origin_restore.
+     */
+    public function test_list_origin_requires_capability(): void {
+        $this->set_unprivileged_user();
+        $this->expectException(required_capability_exception::class);
+        restore_wizard_external::list_origin((int) $this->site->id, 'course', 0, 10, '');
+    }
+
+    /**
+     * get_sections returns the origin course sections with their activities.
+     */
+    public function test_get_sections(): void {
+        $course = $this->getDataGenerator()->create_course();
+        $this->mock_origin(true, ['id' => 11, 'sections' => [
+            ['sectionnum' => 0, 'sectionid' => 100, 'sectionname' => 'General', 'activities' => []],
+            ['sectionnum' => 1, 'sectionid' => 101, 'sectionname' => 'Topic 1', 'activities' => [
+                ['cmid' => 7, 'name' => 'Intro', 'instance' => 3, 'modname' => 'page'],
+            ]],
+        ]]);
+
+        $res = restore_wizard_external::get_sections((int) $this->site->id, 11, (int) $course->id);
+        $res = external_api::clean_returnvalue(restore_wizard_external::get_sections_returns(), $res);
+
+        $this->assertTrue($res['success']);
+        $this->assertCount(2, $res['sections']);
+        $this->assertSame('Topic 1', $res['sections'][1]['sectionname']);
+        $this->assertSame(
+            [['cmid' => 7, 'name' => 'Intro', 'instance' => 3, 'modname' => 'page']],
+            $res['sections'][1]['activities']
+        );
+    }
+
+    /**
+     * get_sections relays origin errors.
+     */
+    public function test_get_sections_errors(): void {
+        $this->mock_origin(false, null, [['code' => '22001', 'msg' => 'Course not found']]);
+        $res = restore_wizard_external::get_sections((int) $this->site->id, 11);
+        $res = external_api::clean_returnvalue(restore_wizard_external::get_sections_returns(), $res);
+        $this->assertFalse($res['success']);
+        $this->assertSame('22001', $res['errors'][0]['code']);
+        $this->assertSame([], $res['sections']);
+    }
+
+    /**
+     * get_sections requires origin_restore_course in the target course, or origin_restore without one.
+     */
+    public function test_get_sections_requires_capability(): void {
+        $course = $this->getDataGenerator()->create_course();
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+        $this->setUser($student);
+
+        try {
+            restore_wizard_external::get_sections((int) $this->site->id, 11, (int) $course->id);
+            $this->fail('A student must not read the origin sections');
+        } catch (required_capability_exception $e) {
+            $capability = get_capability_string('local/coursetransfer:origin_restore_course');
+            $this->assertStringContainsString($capability, $e->getMessage());
+        }
+
+        $this->expectException(required_capability_exception::class);
+        restore_wizard_external::get_sections((int) $this->site->id, 11);
+    }
+
+    /**
+     * get_category_tree passes the origin JSON tree through.
+     */
+    public function test_get_category_tree(): void {
+        $tree = json_encode(['id' => 4, 'name' => 'Year 2026', 'courses' => [], 'categories' => []]);
+        $this->mock_origin(true, $tree);
+
+        $res = restore_wizard_external::get_category_tree((int) $this->site->id, 4);
+        $res = external_api::clean_returnvalue(restore_wizard_external::get_category_tree_returns(), $res);
+
+        $this->assertTrue($res['success']);
+        $this->assertSame($tree, $res['tree']);
+    }
+
+    /**
+     * get_category_tree relays origin errors and reports an unknown site.
+     */
+    public function test_get_category_tree_errors(): void {
+        $this->mock_origin(false, null, [['code' => '23001', 'msg' => 'Category not found']]);
+        $res = restore_wizard_external::get_category_tree((int) $this->site->id, 4);
+        $res = external_api::clean_returnvalue(restore_wizard_external::get_category_tree_returns(), $res);
+        $this->assertFalse($res['success']);
+        $this->assertSame('23001', $res['errors'][0]['code']);
+
+        $res = restore_wizard_external::get_category_tree(999999, 4);
+        $res = external_api::clean_returnvalue(restore_wizard_external::get_category_tree_returns(), $res);
+        $this->assertSame('30601', $res['errors'][0]['code']);
+    }
+
+    /**
+     * get_category_tree requires local/coursetransfer:origin_restore.
+     */
+    public function test_get_category_tree_requires_capability(): void {
+        $this->set_unprivileged_user();
+        $this->expectException(required_capability_exception::class);
+        restore_wizard_external::get_category_tree((int) $this->site->id, 4);
+    }
+
+    /**
+     * delete_request removes the request and its queued adhoc tasks, and nothing else.
+     */
+    public function test_delete_request(): void {
+        global $DB;
+        $generator = $this->getDataGenerator()->get_plugin_generator('local_coursetransfer');
+        $request = $generator->create_request();
+        $other = $generator->create_request();
+        $task = new download_file_course_task();
+        $task->set_custom_data(['requestid' => (int) $request->id, 'fileurl' => 'https://origin.example.com/x.mbz']);
+        manager::queue_adhoc_task($task);
+        $othertask = new download_file_course_task();
+        $othertask->set_custom_data(['requestid' => (int) $other->id, 'fileurl' => 'https://origin.example.com/y.mbz']);
+        manager::queue_adhoc_task($othertask);
+
+        $res = restore_wizard_external::delete_request((int) $request->id);
+        $res = external_api::clean_returnvalue(restore_wizard_external::delete_request_returns(), $res);
+
+        $this->assertTrue($res['success']);
+        $this->assertFalse($DB->record_exists(coursetransfer_request::TABLE, ['id' => $request->id]));
+        $this->assertTrue($DB->record_exists(coursetransfer_request::TABLE, ['id' => $other->id]));
+        $tasks = manager::get_adhoc_tasks(download_file_course_task::class);
+        $this->assertCount(1, $tasks);
+        $this->assertEquals($other->id, reset($tasks)->get_custom_data()->requestid);
+    }
+
+    /**
+     * delete_request requires local/coursetransfer:view_logs.
+     */
+    public function test_delete_request_requires_capability(): void {
+        global $DB;
+        $request = $this->getDataGenerator()->get_plugin_generator('local_coursetransfer')->create_request();
+        $this->set_unprivileged_user();
+
+        try {
+            restore_wizard_external::delete_request((int) $request->id);
+            $this->fail('A user without view_logs must not delete requests');
+        } catch (required_capability_exception $e) {
+            $this->assertTrue($DB->record_exists(coursetransfer_request::TABLE, ['id' => $request->id]));
+        }
+    }
+}

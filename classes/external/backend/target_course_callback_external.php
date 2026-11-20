@@ -34,7 +34,6 @@
 
 namespace local_coursetransfer\external\backend;
 
-use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
 use core_external\external_single_structure;
@@ -58,9 +57,135 @@ require_once($CFG->dirroot . '/local/coursetransfer/classes/task/download_file_c
 /**
  * Class target_course_callback_external
  *
+ * Status callbacks the origin sends to the target once it has run the backup or the removal
+ * the target asked for. Each callback only applies to a request made from this site
+ * (direction request) of its own type, and only from the statuses where the transition
+ * makes sense. A repeated call (network retry, origin task run twice) does not queue the
+ * download again nor overwrite the result already recorded.
+ *
+ * Allowed transitions (request statuses as in coursetransfer_request::STATUS_*):
+ *
+ * - target_backup_course_completed, on a course request:
+ *   not started / in progress -> backup, and the download is queued, only when fileurl has the
+ *   path of a backup served by this plugin; it is rebuilt on the registered host of the origin
+ *   (else rejected with 10303, see origin_backup_url());
+ *   backup / download / downloaded / restore / completed -> success, nothing changes;
+ *   error or anything else -> rejected with 10302.
+ * - target_backup_course_error, on a course request:
+ *   not started / in progress -> error, with the origin's code and message;
+ *   error -> success, the error already recorded is kept;
+ *   backup and later -> rejected with 14003.
+ * - target_remove_course_completed, on a remove course or remove category request:
+ *   not started / in progress -> completed, the owner is notified and request_completed fired;
+ *   completed / error (*) -> success, nothing changes;
+ *   anything else -> rejected with 14023.
+ * - target_remove_course_error, on a remove course or remove category request:
+ *   not started / in progress -> error, with the origin's code and message;
+ *   error -> success, the error already recorded is kept;
+ *   completed -> rejected with 14013.
+ *
+ * A wrong type or direction is rejected with the same code. The origin stores a rejection as
+ * an error on its own request. (*) When the remove completed callback arrives, the origin has
+ * already deleted the course or category, whatever the target recorded (typically the response
+ * to origin_remove_* was lost and the target marked an error): an error answer would only turn
+ * the origin's completed request into an error. A backup completed on a request in error is
+ * rejected instead: that request was given up or relaunched (restore_retry), and restoring it
+ * would duplicate the restore.
+ *
  * @package local_coursetransfer\external\backend
  */
-class target_course_callback_external extends external_api {
+class target_course_callback_external extends backend_api {
+    /** @var string The callback applies: change the status. */
+    const TRANSITION_APPLY = 'apply';
+
+    /** @var string The callback repeats a result already recorded: answer success, change nothing. */
+    const TRANSITION_DUPLICATE = 'duplicate';
+
+    /** @var string The callback does not apply to the request: answer an error, change nothing. */
+    const TRANSITION_REJECT = 'reject';
+
+    /**
+     * Decide what a callback does with a request, following the table in the class docblock.
+     *
+     * @param stdClass $request
+     * @param int[] $types Request types the callback applies to.
+     * @param int[] $applyfrom Statuses the callback moves on.
+     * @param int[] $duplicatefrom Statuses where the callback is answered with success and no change.
+     * @return string One of the TRANSITION_* constants.
+     */
+    protected static function check_transition(
+        stdClass $request,
+        array $types,
+        array $applyfrom,
+        array $duplicatefrom
+    ): string {
+        if (
+            !in_array((int)$request->type, $types, true)
+                || (int)$request->direction !== coursetransfer_request::DIRECTION_REQUEST
+        ) {
+            return self::TRANSITION_REJECT;
+        }
+        $status = (int)$request->status;
+        if (in_array($status, $applyfrom, true)) {
+            return self::TRANSITION_APPLY;
+        }
+        if (in_array($status, $duplicatefrom, true)) {
+            return self::TRANSITION_DUPLICATE;
+        }
+        return self::TRANSITION_REJECT;
+    }
+
+    /**
+     * The backup URL to download: the registered host of the origin plus the file path the origin sent.
+     *
+     * The download sends the origin's token to this URL, so its host is never taken from the caller: it is
+     * the host this site registered for the origin (request siteurl). From the URL sent (built by the origin
+     * with make_webservice_pluginfile_url() from its wwwroot, which may be an alias of the registered host)
+     * only the file path is kept, and only when it is exactly /<context>/local_coursetransfer/backup/<id>/backup.mbz
+     * under /webservice/pluginfile.php: digits only, so no dot segments, encodings, query nor fragment.
+     *
+     * @param string $fileurl URL sent by the origin.
+     * @param string $siteurl Origin host stored in the request.
+     * @return string|null Null when the URL is not a backup served by this plugin (rejected with 10303).
+     */
+    protected static function origin_backup_url(string $fileurl, string $siteurl): ?string {
+        if ($fileurl === '' || strpbrk($fileurl, "?#\\ \t\r\n") !== false) {
+            return null;
+        }
+        $scheme = strtolower((string)parse_url($fileurl, PHP_URL_SCHEME));
+        $path = parse_url($fileurl, PHP_URL_PATH);
+        if (!in_array($scheme, ['http', 'https'], true) || !is_string($path)) {
+            return null;
+        }
+        $marker = '/webservice/pluginfile.php';
+        $pos = strpos($path, $marker . '/');
+        $tail = $pos === false ? '' : substr($path, $pos + strlen($marker));
+        if (!preg_match('~^/[0-9]+/local_coursetransfer/backup/[0-9]+/backup\.mbz$~D', $tail)) {
+            return null;
+        }
+        $site = coursetransfer_sites::clean_host(trim($siteurl));
+        $sitescheme = strtolower((string)parse_url($site, PHP_URL_SCHEME));
+        if (!in_array($sitescheme, ['http', 'https'], true) || (string)parse_url($site, PHP_URL_HOST) === '') {
+            return null;
+        }
+        return $site . $marker . $tail;
+    }
+
+    /**
+     * Error entry for a callback that does not apply to the request.
+     *
+     * @param string $code
+     * @param string $callback
+     * @param stdClass $request
+     * @return array
+     */
+    protected static function transition_error(string $code, string $callback, stdClass $request): array {
+        return [
+            'code' => $code,
+            'msg' => 'Request ' . $request->id . ' does not accept ' . $callback . ' (type ' . (int)$request->type
+                . ', direction ' . (int)$request->direction . ', status ' . (int)$request->status . ')',
+        ];
+    }
     /**
      * Target Backup Course Completed Parameters.
      *
@@ -109,6 +234,7 @@ class target_course_callback_external extends external_api {
                 'fileurl' => $fileurl,
             ]
         );
+        self::validate_service_user();
 
         $field = $params['field'];
         $value = $params['value'];
@@ -124,15 +250,44 @@ class target_course_callback_external extends external_api {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $request = coursetransfer_request::get($requestid);
-                if ($request) {
-                    $origin = coursetransfer_sites::get_by_host('origin', $request->siteurl);
-                    $finalurl = $fileurl . '?token=' . $origin->token;
+                $transition = $request ? self::check_transition(
+                    $request,
+                    [coursetransfer_request::TYPE_COURSE],
+                    [coursetransfer_request::STATUS_NOT_STARTED, coursetransfer_request::STATUS_IN_PROGRESS],
+                    [
+                        coursetransfer_request::STATUS_BACKUP,
+                        coursetransfer_request::STATUS_DOWNLOAD,
+                        coursetransfer_request::STATUS_DOWNLOADED,
+                        coursetransfer_request::STATUS_RESTORE,
+                        coursetransfer_request::STATUS_COMPLETED,
+                    ]
+                ) : null;
+                $safeurl = $request ? self::origin_backup_url($fileurl, (string)$request->siteurl) : null;
+                if ($transition === self::TRANSITION_DUPLICATE) {
+                    // The download is already queued or done: queuing it again would restore twice (LCT-051).
+                    $data->id = $request->id;
+                    $success = true;
+                } else if ($transition === self::TRANSITION_REJECT) {
+                    $success = false;
+                    $errors[] = self::transition_error('10302', 'target_backup_course_completed', $request);
+                } else if ($request && $safeurl === null) {
+                    // The origin's token goes with this URL: only a backup file of this plugin is accepted.
+                    $success = false;
+                    $errors[] = [
+                        'code' => '10303',
+                        'msg' => 'Backup file URL is not a web service file of the origin site of request ' . $request->id,
+                    ];
+                } else if ($request) {
+                    $fileurl = $safeurl;
+                    // The origin must be registered; its token is not stored with the URL: the download task
+                    // reads it when it runs and sends it in the body (LCT-011).
+                    coursetransfer_sites::get_by_host('origin', $request->siteurl);
                     $request->status = coursetransfer_request::STATUS_BACKUP;
                     $request->origin_backup_size = $backupsize;
                     $request->origin_backup_url = $fileurl;
-                    $request->fileurl = $finalurl;
+                    $request->fileurl = $fileurl;
                     coursetransfer_request::insert_or_update($request, $requestid);
-                    coursetransfer_download::create_task_download_course($request, $finalurl);
+                    coursetransfer_download::create_task_download_course($request, $fileurl);
                     $data->id = $request->id;
                     $success = true;
                 } else {
@@ -182,8 +337,8 @@ class target_course_callback_external extends external_api {
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
                     ],
-                    PARAM_TEXT,
-                    'Errors'
+                    'Errors',
+                    VALUE_OPTIONAL
                 )),
             ]
         );
@@ -223,6 +378,7 @@ class target_course_callback_external extends external_api {
                 'requestid' => $requestid,
             ]
         );
+        self::validate_service_user();
 
         $field = $params['field'];
         $value = $params['value'];
@@ -236,7 +392,20 @@ class target_course_callback_external extends external_api {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $request = coursetransfer_request::get($requestid);
-                if ($request) {
+                $transition = $request ? self::check_transition(
+                    $request,
+                    [coursetransfer_request::TYPE_REMOVE_COURSE, coursetransfer_request::TYPE_REMOVE_CATEGORY],
+                    [coursetransfer_request::STATUS_NOT_STARTED, coursetransfer_request::STATUS_IN_PROGRESS],
+                    [coursetransfer_request::STATUS_COMPLETED, coursetransfer_request::STATUS_ERROR]
+                ) : null;
+                if ($transition === self::TRANSITION_DUPLICATE) {
+                    // Already closed: no second notification or event, and an error is not overwritten.
+                    $data->id = $request->id;
+                    $success = true;
+                } else if ($transition === self::TRANSITION_REJECT) {
+                    $success = false;
+                    $errors[] = self::transition_error('14023', 'target_remove_course_completed', $request);
+                } else if ($request) {
                     $request->status = coursetransfer_request::STATUS_COMPLETED;
                     coursetransfer_request::insert_or_update($request, $requestid);
                     if ((int)$request->type === coursetransfer_request::TYPE_REMOVE_COURSE) {
@@ -294,8 +463,8 @@ class target_course_callback_external extends external_api {
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
                     ],
-                    PARAM_TEXT,
-                    'Errors'
+                    'Errors',
+                    VALUE_OPTIONAL
                 )),
             ]
         );
@@ -351,6 +520,7 @@ class target_course_callback_external extends external_api {
                 'errormsg' => $errormsg,
             ]
         );
+        self::validate_service_user();
 
         $field = $params['field'];
         $value = $params['value'];
@@ -367,7 +537,20 @@ class target_course_callback_external extends external_api {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $request = coursetransfer_request::get($requestid);
-                if ($request) {
+                $transition = $request ? self::check_transition(
+                    $request,
+                    [coursetransfer_request::TYPE_COURSE],
+                    [coursetransfer_request::STATUS_NOT_STARTED, coursetransfer_request::STATUS_IN_PROGRESS],
+                    [coursetransfer_request::STATUS_ERROR]
+                ) : null;
+                if ($transition === self::TRANSITION_DUPLICATE) {
+                    // Keep the error already recorded (or the relaunch note left by restore_retry).
+                    $data->id = $requestid;
+                    $success = true;
+                } else if ($transition === self::TRANSITION_REJECT) {
+                    $success = false;
+                    $errors[] = self::transition_error('14003', 'target_backup_course_error', $request);
+                } else if ($request) {
                     $request->origin_backup_size = $backupsize;
                     $request->error_code = $errorcode;
                     $request->error_message = $errormsg;
@@ -422,8 +605,8 @@ class target_course_callback_external extends external_api {
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
                     ],
-                    PARAM_TEXT,
-                    'Errors'
+                    'Errors',
+                    VALUE_OPTIONAL
                 )),
             ]
         );
@@ -475,6 +658,7 @@ class target_course_callback_external extends external_api {
                 'errormsg' => $errormsg,
             ]
         );
+        self::validate_service_user();
 
         $field = $params['field'];
         $value = $params['value'];
@@ -490,7 +674,20 @@ class target_course_callback_external extends external_api {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $request = coursetransfer_request::get($requestid);
-                if ($request) {
+                $transition = $request ? self::check_transition(
+                    $request,
+                    [coursetransfer_request::TYPE_REMOVE_COURSE, coursetransfer_request::TYPE_REMOVE_CATEGORY],
+                    [coursetransfer_request::STATUS_NOT_STARTED, coursetransfer_request::STATUS_IN_PROGRESS],
+                    [coursetransfer_request::STATUS_ERROR]
+                ) : null;
+                if ($transition === self::TRANSITION_DUPLICATE) {
+                    // Keep the error already recorded.
+                    $data->id = $requestid;
+                    $success = true;
+                } else if ($transition === self::TRANSITION_REJECT) {
+                    $success = false;
+                    $errors[] = self::transition_error('14013', 'target_remove_course_error', $request);
+                } else if ($request) {
                     $request->error_code = $errorcode;
                     $request->error_message = $errormsg;
                     $request->status = coursetransfer_request::STATUS_ERROR;
@@ -544,8 +741,8 @@ class target_course_callback_external extends external_api {
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
                     ],
-                    PARAM_TEXT,
-                    'Errors'
+                    'Errors',
+                    VALUE_OPTIONAL
                 )),
             ]
         );

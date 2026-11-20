@@ -43,7 +43,8 @@ $confirm = optional_param('confirm', 0, PARAM_INT);
 
 require_login();
 $context = context_system::instance();
-require_capability('local/coursetransfer:view_logs', $context);
+// Retrying re-runs a restore: a write, beyond view_logs.
+require_capability('local/coursetransfer:manage_requests', $context);
 
 $PAGE->set_context($context);
 $PAGE->set_url(new moodle_url('/local/coursetransfer/retry.php', ['id' => $id]));

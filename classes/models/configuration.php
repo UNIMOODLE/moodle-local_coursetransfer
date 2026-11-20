@@ -59,6 +59,9 @@ abstract class configuration {
     /** @var int|null Next Run Time TimeStamp (null = run as soon as possible). */
     public ?int $nextruntime = null;
 
+    /** @var bool Keep the safety copy of the backup on this site until the origin is removed plus its retention. */
+    public bool $keepsafetycopy = false;
+
     /**
      * constructor.
      *
@@ -116,6 +119,15 @@ abstract class configuration {
      */
     protected function set_origin_enrol_users(bool $config): void {
         $this->originenrolusers = $config;
+    }
+
+    /**
+     * Set Keep Safety Copy.
+     *
+     * @param bool $config
+     */
+    protected function set_keep_safety_copy(bool $config): void {
+        $this->keepsafetycopy = $config;
     }
 
     /**

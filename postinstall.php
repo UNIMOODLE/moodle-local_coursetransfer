@@ -33,15 +33,39 @@
  */
 
 require(__DIR__ . '/../../config.php');
-global $CFG, $DB;
+
+use core\output\notification;
 
 require_login();
+require_capability('moodle/site:config', context_system::instance());
 
-if (is_siteadmin()) {
-    try {
-        \local_coursetransfer\coursetransfer::postinstall();
-        header("Location: $CFG->wwwroot/local/coursetransfer/index.php");
-    } catch (moodle_exception $e) {
-        var_dump($e->getMessage());
-    }
+$url = new moodle_url('/local/coursetransfer/postinstall.php');
+$returnurl = new moodle_url('/local/coursetransfer/index.php');
+$PAGE->set_context(context_system::instance());
+$PAGE->set_url($url);
+$PAGE->set_title(get_string('pluginname', 'local_coursetransfer'));
+
+// It reconfigures web services and the service user: never on a bare link (CSRF, LCT-030).
+$sesskey = optional_param('sesskey', '', PARAM_RAW);
+if ($sesskey === '' || !confirm_sesskey($sesskey)) {
+    echo $OUTPUT->header();
+    echo $OUTPUT->confirm(
+        get_string('postinstall_confirm', 'local_coursetransfer'),
+        new moodle_url($url, ['sesskey' => sesskey()]),
+        $returnurl
+    );
+    echo $OUTPUT->footer();
+    die;
+}
+
+try {
+    \local_coursetransfer\coursetransfer::postinstall();
+    redirect($returnurl);
+} catch (moodle_exception $e) {
+    redirect(
+        $returnurl,
+        get_string('postinstall_error', 'local_coursetransfer', $e->getMessage()),
+        null,
+        notification::NOTIFY_ERROR
+    );
 }

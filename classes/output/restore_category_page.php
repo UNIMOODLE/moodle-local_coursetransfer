@@ -94,6 +94,8 @@ class restore_category_page implements renderable, templatable {
         $data->headerdesc = get_string('rcc_lead', 'local_coursetransfer');
 
         $data->catid = (int)$this->category->id;
+        // The server rejects user data without this capability: do not offer it (N4).
+        $data->canincludeusers = has_capability('local/coursetransfer:origin_restore_course_users', $context);
         $data->catname = format_string($this->category->name, true, ['context' => $context]);
         // The destination environment is this Moodle site (shown in the review).
         $data->localsite = format_string(get_site()->fullname);

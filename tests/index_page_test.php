@@ -133,12 +133,52 @@ final class index_page_test extends advanced_testcase {
     public function test_structure(): void {
         $data = $this->export();
 
-        $this->assertCount(8, $data->checks);
+        $this->assertCount(10, $data->checks);
         $this->assertCount(5, $data->pluginlinks);
         $this->assertCount(2, $data->moodlelinks);
         $this->assertNotEmpty($data->logourl);
         foreach ($data->checks as $check) {
             $this->assertContains($check->state, ['ok', 'warn', 'error']);
         }
+    }
+
+    /**
+     * The recycle bin check says when tool_recyclebin keeps removed courses less than recyclebinretentiondays.
+     */
+    public function test_recyclebin_check(): void {
+        set_config('recyclebinretentiondays', 30, 'local_coursetransfer');
+        set_config('categorybinenable', 1, 'tool_recyclebin');
+        set_config('categorybinexpiry', WEEKSECS, 'tool_recyclebin');
+        $checks = $this->export()->checks;
+        $check = $checks[8];
+        $this->assertSame('fa-recycle', $check->faicon);
+        $this->assertSame('warn', $check->state);
+        $this->assertStringContainsString('categorybinexpiry', $check->status);
+
+        set_config('categorybinexpiry', 60 * DAYSECS, 'tool_recyclebin');
+        $this->assertSame('ok', $this->checks_by_icon($this->export())['fa-recycle']);
+        set_config('categorybinexpiry', 0, 'tool_recyclebin');
+        $this->assertSame('ok', $this->checks_by_icon($this->export())['fa-recycle'], 'No expiry: kept until purged');
+
+        set_config('categorybinenable', 0, 'tool_recyclebin');
+        $data = $this->export();
+        $this->assertSame('warn', $this->checks_by_icon($data)['fa-recycle']);
+        $this->assertStringContainsString('categorybinenable', $data->checks[8]->status);
+    }
+
+    /**
+     * A peer that called with a user lacking the webservice capability is shown, with Repair.
+     */
+    public function test_legacy_ws_user_check(): void {
+        $this->assertSame('ok', $this->checks_by_icon($this->export())['fa-exchange']);
+
+        $user = $this->getDataGenerator()->create_user(['username' => 'oldpeer']);
+        \local_coursetransfer\external\backend\backend_api::record_legacy_use((int) $user->id);
+        $data = $this->export();
+        $check = $data->checks[9];
+        $this->assertSame('warn', $check->state);
+        $this->assertStringContainsString('oldpeer', $check->status);
+        $this->assertStringContainsString('2.3', $check->status);
+        $this->assertNotEmpty($check->actionurl);
     }
 }

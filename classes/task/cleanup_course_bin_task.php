@@ -34,8 +34,11 @@
 
 namespace local_coursetransfer\task;
 
+use core\task\manager;
 use local_coursetransfer\coursetransfer;
-use moodle_exception;
+use local_coursetransfer\coursetransfer_remove;
+use stdClass;
+use Throwable;
 
 
 /**
@@ -56,15 +59,45 @@ class cleanup_course_bin_task extends \core\task\adhoc_task {
      *
      */
     public function execute(): void {
+        $this->log_start("Cleanup course bin - Starting...");
         try {
-            $this->log_start("Cleanup course bin - Starting...");
-            $courseid = $this->get_custom_data()->courseid;
-            $shortname = $this->get_custom_data()->shortname;
-            coursetransfer::cleanup_course_bin($courseid, $shortname);
-        } catch (moodle_exception $e) {
+            $data = $this->get_custom_data();
+            if (!$this->retention_passed($data)) {
+                return;
+            }
+            coursetransfer::cleanup_course_bin(
+                (int)$data->courseid,
+                (string)$data->shortname,
+                isset($data->categoryid) ? (int)$data->categoryid : null,
+                (int)$data->timeremoved
+            );
+        } catch (Throwable $e) {
             mtrace('Cleanup course bin - ERROR: ' . $e->getMessage());
             $this->log($e->getMessage());
+        } finally {
+            $this->log_finish("Cleanup course bin - Finishing...");
         }
-        $this->log_finish("Cleanup course bin - Finishing...");
+    }
+
+    /**
+     * Whether the removed course has spent the retention in the recycle bin; if not, queue the purge again.
+     *
+     * Tasks queued by 2.1 (240 s after the removal) carry no removal time: they start the retention now.
+     *
+     * @param stdClass $data
+     * @return bool
+     */
+    protected function retention_passed(stdClass $data): bool {
+        $retention = coursetransfer_remove::get_recyclebin_retention();
+        if (!empty($data->timeremoved) && time() >= (int)$data->timeremoved + $retention) {
+            return true;
+        }
+        $data->timeremoved = (int)($data->timeremoved ?? time());
+        $task = new self();
+        $task->set_custom_data($data);
+        $task->set_next_run_time($data->timeremoved + $retention);
+        manager::queue_adhoc_task($task);
+        $this->log('Recycle bin retention not reached: purge queued again.');
+        return false;
     }
 }
