@@ -2,10 +2,9 @@
 
 ## Summary
 
-Version 2.2.0 of the Course Transfer plugin adds compatibility with Moodle 5.3 and is a
-security and data-safety release: it closes access problems in the cross-platform web
-services, protects the token shared between platforms and makes sure that nothing is removed
-from the origin unless the copy in the target is complete and verified.
+Version 2.2.0 of the Course Transfer plugin adds compatibility with Moodle 5.3, makes the
+communication between platforms more robust and makes sure that nothing is removed from
+the origin unless the copy in the target is complete and verified.
 
 ## Main changes
 

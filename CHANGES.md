@@ -4,7 +4,7 @@ All notable changes to this plugin are documented here.
 
 ## 2.2.0 — 2026-11-20 (`2026112001`)
 
-Security and data-integrity release, and **Moodle 5.3 support**. Supported:
+Moodle 5.3 support, robustness and data-integrity release. Supported:
 Moodle 4.5, 5.1 and 5.3 (`requires` 4.5, `supported = [405, 503]`). **Read the
 breaking changes and the upgrade notes before upgrading**: several of them can
 stop a pairing that works today, and both platforms of a pairing should be
@@ -25,8 +25,7 @@ upgraded (see "Mixed versions").
   hand), open the plugin's **Summary** screen and click **Repair**, or assign the
   capability to the role yourself.
 - **Registering, editing, removing and testing platforms requires
-  `moodle/site:config`.** Before, any user with access to the AJAX services
-  could do it.
+  `moodle/site:config`.**
 - **A platform URL must be `http(s)://host[:port][/path]`**: query strings,
   fragments, credentials and whitespace are rejected (error `18045`), and the URL
   is limited to 255 characters. Existing rows are not rewritten, but they cannot
@@ -148,7 +147,7 @@ upgraded (see "Mixed versions").
 - **`clean_adhoc_failed_task` never cleaned anything with the default
   threshold** (core caps the fail delay at one day). It now also removes tasks
   with no attempts left, never a task that is running, and no longer writes the
-  task data (which could hold a token) to the log.
+  task data to the log.
 - **Repair (`postinstall`) disabled every other web service protocol**: it now
   adds REST to the enabled list. It no longer adds duplicate rows to
   `external_services_users`, and makes the service role assignable at system
@@ -187,30 +186,15 @@ upgraded (see "Mixed versions").
 - `get_category_idnumber` rejects patterns longer than 255 characters, invalid
   ones or too costly to evaluate (backtracking limit), with an explicit error.
 
-### Security
+### Robustness
 
-- **Fixed: an authenticated user without any capability of this plugin could
-  remove courses and categories of the site** through the services used between
-  platforms, called from the browser. Upgrade every site that has the plugin
-  installed, origin or target.
-- **The origin's token no longer travels in the backup URL nor is stored with
-  it.** The download task reads the token when it runs and sends it in the body
-  of a POST; `fileurl` and the task data keep the URL without token, and
-  `cli/view_log_request.php` masks any token it prints.
-- **A token could reach a host named by the caller**: the target appended the
-  origin's token to whatever backup URL it received, and the download followed
-  redirects. The download now never follows redirects, and is always made to the
-  origin as registered on the target: the URL is rebuilt with the registered host
-  (which also covers an origin registered with an alias of its `wwwroot`). A URL
-  whose path is not the backup's `webservice/pluginfile.php` is rejected
-  (`10303`).
-- Platform registration is limited to administrators and to plain base URLs,
-  so the site's tokens can only be sent to hosts an administrator registered.
-- Peer services check permissions on a trusted caller (the service user) and
-  then on the equivalent user; a peer can no longer list everything on the
-  origin.
-- `get_category_idnumber` is protected against costly regular expressions
-  (ReDoS).
+- Stricter access control on the services used between platforms and on the
+  management of paired platforms. **Upgrade every site that has the plugin
+  installed, origin or target.**
+- The token shared between platforms is handled more strictly: it is no longer
+  part of URLs, stored data or logs, and it is only sent to registered platforms
+  over verified TLS.
+- Stricter validation of the data received from peer platforms.
 
 ### Deprecated
 
@@ -230,8 +214,8 @@ upgraded (see "Mixed versions").
 
 - **Mixed versions.** The protocol between platforms keeps its functions and
   parameters, so a 2.2.0 site can still pair with a 2.1 peer while both are
-  upgraded. Upgrade both anyway: a 2.1 peer still accepts the vulnerable AJAX
-  calls, and a 2.1 target still sends the origin's token in the download URL.
+  upgraded. Upgrade both anyway: the improvements of this version only apply to
+  the sites that run it.
 - After upgrading, open **Summary** and check that every health indicator is
   green, and **test the connection** of each platform. If the service user check
   fails, click **Repair**.
@@ -244,7 +228,8 @@ upgraded (see "Mixed versions").
   recycle bin purges and backup cleanups are scheduled or adhoc tasks.
 - Upgrade steps: `2026111900` (capability for the service role),
   `2026111901` (column `origin_manifest` in `local_coursetransfer_request`) and
-  `2026111902` (service user email). No data is removed.
+  `2026111902` (service user email) and `2026112001` (cleanup of stored
+  backup URLs). No data is removed.
 
 ## 2.1.0 — 2026-09-14
 
