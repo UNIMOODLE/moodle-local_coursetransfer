@@ -39,7 +39,6 @@ use dml_exception;
 use local_coursetransfer\factory\user;
 use stdClass;
 
-
 /**
  * Shared helpers for the plugin CLI scripts.
  *

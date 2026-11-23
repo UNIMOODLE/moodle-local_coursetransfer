@@ -209,6 +209,13 @@ if ($hassiteconfig) {
         1
     ));
 
+    $settings->add(new admin_setting_configcheckbox(
+        'local_coursetransfer/transferlogs',
+        get_string('transferlogs', 'local_coursetransfer'),
+        get_string('transferlogs_desc', 'local_coursetransfer'),
+        1
+    ));
+
     $settings->add(new admin_setting_configtext(
         'local_coursetransfer/recyclebinretentiondays',
         get_string('recyclebinretentiondays', 'local_coursetransfer'),

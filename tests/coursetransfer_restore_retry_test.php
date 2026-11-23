@@ -114,4 +114,98 @@ final class coursetransfer_restore_retry_test extends advanced_testcase {
         $this->assertFalse($DB->record_exists('task_adhoc', ['id' => $taskid]));
         $this->assertCount(1, manager::get_adhoc_tasks(restore_course_task::class));
     }
+
+    /**
+     * A request still moving is not relaunched; once stopped for over an hour it is (#45).
+     */
+    public function test_retry_stalled_request(): void {
+        global $DB;
+        [$request, $file] = $this->downloaded_request();
+        $this->assertFalse(coursetransfer::can_retry($request));
+
+        $res = coursetransfer::restore_retry($request);
+        $this->assertFalse($res['success']);
+        $this->assertSame('10024', $res['errors'][0]['code']);
+        $this->assertCount(0, manager::get_adhoc_tasks(restore_course_task::class));
+
+        $DB->set_field('local_coursetransfer_request', 'timemodified', time() - HOURSECS - 60, ['id' => $request->id]);
+        $request = coursetransfer_request::get((int) $request->id);
+        $this->assertTrue(coursetransfer::can_retry($request));
+
+        $res = coursetransfer::restore_retry($request);
+        $this->assertTrue($res['success']);
+        $this->assertSame('rerestore', $res['mode']);
+        $this->assertCount(1, manager::get_adhoc_tasks(restore_course_task::class));
+    }
+
+    /**
+     * Requests in error can always be retried; completed ones and other types never.
+     */
+    public function test_can_retry(): void {
+        $error = (object) ['type' => coursetransfer_request::TYPE_COURSE, 'direction' => coursetransfer_request::DIRECTION_REQUEST,
+            'status' => coursetransfer_request::STATUS_ERROR, 'timemodified' => time()];
+        $this->assertTrue(coursetransfer::can_retry($error));
+        $this->assertFalse(coursetransfer::can_retry((object) (['status' => coursetransfer_request::STATUS_COMPLETED,
+            'timemodified' => 0] + (array) $error)));
+        $category = (object) (['type' => coursetransfer_request::TYPE_CATEGORY] + (array) $error);
+        $this->assertFalse(coursetransfer::can_retry($category));
+    }
+
+    /**
+     * Scheduled requests, the wait for the origin backup and courses of a category restore (A5, A6).
+     */
+    public function test_can_retry_waits(): void {
+        $base = ['type' => coursetransfer_request::TYPE_COURSE, 'direction' => coursetransfer_request::DIRECTION_REQUEST];
+        $old = time() - 2 * HOURSECS;
+        $waiting = (object) (['status' => coursetransfer_request::STATUS_IN_PROGRESS, 'timemodified' => $old] + $base);
+        $this->assertFalse(coursetransfer::can_retry($waiting), 'The origin may still be making its backup');
+        $waiting->timemodified = time() - 7 * HOURSECS;
+        $this->assertTrue(coursetransfer::can_retry($waiting));
+        $waiting->origin_schedule_datetime = time() + DAYSECS;
+        $this->assertFalse(coursetransfer::can_retry($waiting), 'Scheduled for tomorrow');
+        $waiting->origin_schedule_datetime = (time() + DAYSECS) * 1000;
+        $this->assertFalse(coursetransfer::can_retry($waiting), 'Scheduled, stored in milliseconds');
+
+        $child = (object) (['status' => coursetransfer_request::STATUS_ERROR, 'timemodified' => $old,
+            'request_category_id' => 5] + $base);
+        $this->assertFalse(coursetransfer::can_retry($child), 'Would be relaunched outside its category');
+        $child->status = coursetransfer_request::STATUS_DOWNLOADED;
+        $this->assertTrue(coursetransfer::can_retry($child), 'Its downloaded backup can be restored again');
+    }
+
+    /**
+     * A retry already running for the request blocks a second one (B3).
+     */
+    public function test_retry_locked(): void {
+        global $CFG;
+        // File locks: the database ones let the same process take its own lock again.
+        $CFG->lock_factory = '\\core\\lock\\file_lock_factory';
+        [$request] = $this->downloaded_request();
+        $lock = \core\lock\lock_config::get_lock_factory('local_coursetransfer')->get_lock('retry_' . $request->id, 0);
+        $this->assertNotFalse($lock);
+        try {
+            $res = coursetransfer::restore_retry($request);
+        } finally {
+            $lock->release();
+        }
+        $this->assertFalse($res['success']);
+        $this->assertSame('10026', $res['errors'][0]['code']);
+    }
+
+    /**
+     * A completed request whose origin was kept says so; one without a removal asked for has warnings (B1).
+     */
+    public function test_origin_kept_action(): void {
+        $request = (object) ['status' => coursetransfer_request::STATUS_COMPLETED, 'origin_remove_course' => 1,
+            'error_code' => coursetransfer_request::CODE_MANIFEST_MISMATCH];
+        $this->assertSame(['exec_kept_title', 'exec_kept_action_manifest'], coursetransfer_request::origin_kept_action($request));
+        $request->origin_remove_course = 0;
+        $request->error_code = coursetransfer_request::CODE_RESTORE_WITH_ISSUES;
+        $this->assertSame(['exec_issues_title', 'exec_kept_action_issues'], coursetransfer_request::origin_kept_action($request));
+        $request->error_code = null;
+        $this->assertNull(coursetransfer_request::origin_kept_action($request));
+        $request->status = coursetransfer_request::STATUS_ERROR;
+        $request->error_code = coursetransfer_request::CODE_MANIFEST_MISMATCH;
+        $this->assertNull(coursetransfer_request::origin_kept_action($request));
+    }
 }

@@ -668,13 +668,25 @@ class restore_wizard_external extends external_api {
         $errors = [];
         $success = false;
         try {
-            // Remove any queued adhoc task tied to this request so it does not run
-            // orphaned after the request record is gone.
-            foreach (coursetransfer_request::get_related_adhoc_tasks($requestid) as $task) {
-                $DB->delete_records('task_adhoc', ['id' => $task->id]);
+            $request = coursetransfer_request::get($requestid);
+            if (!$request) {
+                $errors[] = ['code' => '30702', 'msg' => get_string('request_not_found', 'local_coursetransfer')];
+            } else if (!coursetransfer_request::can_delete($request)) {
+                // A request still running or protecting a copy would leave a removal hanging or a backup purged (R4).
+                $errors[] = ['code' => '30703', 'msg' => get_string('exec_delete_not_final', 'local_coursetransfer')];
+            } else {
+                $DB->delete_records(coursetransfer_request::TABLE, ['id' => $requestid]);
+                \local_coursetransfer\event\request_deleted::create([
+                    'objectid' => $requestid,
+                    'context' => $context,
+                    'other' => [
+                        'type' => (int)$request->type,
+                        'direction' => (int)$request->direction,
+                        'status' => (int)$request->status,
+                    ],
+                ])->trigger();
+                $success = true;
             }
-            $DB->delete_records(coursetransfer_request::TABLE, ['id' => $requestid]);
-            $success = true;
         } catch (moodle_exception $e) {
             $errors[] = ['code' => '30701', 'msg' => $e->getMessage()];
         }
@@ -702,6 +714,65 @@ class restore_wizard_external extends external_api {
                 )),
             ]
         );
+    }
+
+    /**
+     * Errors of a schedule out of the allowed window (R5): in the past or beyond the CLI limit.
+     *
+     * A schedule that is not valid used to run at once, which for a removal means removing before the chosen date.
+     *
+     * @param int $schedule Timestamp in ms; 0 = now.
+     * @return array[] Errors (code, msg); empty when valid.
+     */
+    private static function schedule_errors(int $schedule): array {
+        if ($schedule <= 0 || \local_coursetransfer\cli_helper::schedule_is_valid(intdiv($schedule, 1000))) {
+            return [];
+        }
+        $maxdays = \local_coursetransfer\cli_helper::SCHEDULE_MAX_DAYS;
+        return [['code' => '10031', 'msg' => get_string('rw_schedule_invalid', 'local_coursetransfer', $maxdays)]];
+    }
+
+    /**
+     * Errors of existing target courses that a replace would empty twice (R2).
+     *
+     * Two origins into the same course with one of them replacing, or a replace over a course with a restore still
+     * running: the second empties the course and what the first restored is lost (its origin may be removed already).
+     *
+     * @param array $courses Selections with targetid and mode.
+     * @return array[] Errors (code, msg); empty when none.
+     */
+    private static function replace_target_errors(array $courses): array {
+        global $DB;
+        $bytarget = [];
+        foreach ($courses as $c) {
+            $targetid = (int)($c['targetid'] ?? 0);
+            if ($targetid > 0) {
+                $bytarget[$targetid][] = ($c['mode'] ?? 'merge') === 'replace';
+            }
+        }
+        $errors = [];
+        foreach ($bytarget as $targetid => $modes) {
+            if (!in_array(true, $modes, true)) {
+                continue;
+            }
+            $final = [coursetransfer_request::STATUS_COMPLETED, coursetransfer_request::STATUS_ERROR,
+                coursetransfer_request::STATUS_INCOMPLETED];
+            [$insql, $inparams] = $DB->get_in_or_equal($final, SQL_PARAMS_NAMED, 'st', false);
+            $running = $DB->record_exists_select(
+                coursetransfer_request::TABLE,
+                "type = :type AND direction = :direction AND target_course_id = :target AND status $insql",
+                [
+                    'type' => coursetransfer_request::TYPE_COURSE,
+                    'direction' => coursetransfer_request::DIRECTION_REQUEST,
+                    'target' => $targetid,
+                ] + $inparams
+            );
+            if (count($modes) > 1 || $running) {
+                $name = format_string($DB->get_field('course', 'fullname', ['id' => $targetid]) ?: '#' . $targetid);
+                $errors[] = ['code' => '10030', 'msg' => get_string('rw_duplicate_replace_target', 'local_coursetransfer', $name)];
+            }
+        }
+        return $errors;
     }
 
     /**
@@ -868,7 +939,11 @@ class restore_wizard_external extends external_api {
         $errors = [];
         $requestids = [];
 
-        if (($type === 'category' && empty($catids)) || ($type !== 'category' && empty($courses))) {
+        $blocked = array_merge(self::schedule_errors($schedule), $type === 'category' ? [] : self::replace_target_errors($courses));
+        if ($blocked) {
+            $success = false;
+            $errors = $blocked;
+        } else if (($type === 'category' && empty($catids)) || ($type !== 'category' && empty($courses))) {
             $success = false;
             $errors[] = [
                 'code' => '30502',
@@ -1010,7 +1085,7 @@ class restore_wizard_external extends external_api {
         if ($type === 'category') {
             $nexturl = new moodle_url(
                 '/local/coursetransfer/logs.php',
-                ['type' => coursetransfer_request::TYPE_CATEGORY]
+                ['ftipo' => coursetransfer_request::TYPE_CATEGORY]
             );
         } else {
             $nexturl = new moodle_url('/local/coursetransfer/logs.php');
@@ -1152,51 +1227,56 @@ class restore_wizard_external extends external_api {
         $errors = [];
         $requestids = [];
 
-        try {
-            // Enforce the capability that matches the requested mode, mirroring
-            // the legacy flow (merge vs empty-and-restore are separate rights).
-            if ($mode === 'replace') {
-                if (!coursetransfer::can_target_restore_content_remove($USER, $context)) {
-                    require_capability('local/coursetransfer:target_restore_content_remove', $context);
-                }
-                $targettarget = backup::TARGET_EXISTING_DELETING;
-            } else {
-                if (!coursetransfer::can_target_restore_merge($USER, $context)) {
-                    require_capability('local/coursetransfer:target_restore_merge', $context);
-                }
-                $targettarget = backup::TARGET_EXISTING_ADDING;
-            }
-
-            $site = coursetransfer::get_site_by_position($siteid);
-            $config = new configuration_course(
-                $targettarget,
-                false,
-                false,
-                $includeusers,
-                false,
-                null
-            );
-            $res = coursetransfer::restore_course(
-                $USER,
-                $site,
-                $targetcourseid,
-                $origincourseid,
-                $config,
-                $sections
-            );
-            $success = (bool)$res['success'];
-            if (!empty($res['errors'])) {
-                $errors = array_merge($errors, $res['errors']);
-            }
-            if (isset($res['data']['requestid'])) {
-                $requestids[] = (int)$res['data']['requestid'];
-            }
-        } catch (moodle_exception $e) {
+        $errors = $mode === 'replace' ? self::replace_target_errors([['targetid' => $targetcourseid, 'mode' => 'replace']]) : [];
+        if ($errors) {
             $success = false;
-            $errors[] = [
-                'code' => '30601',
-                'msg' => $e->getMessage(),
-            ];
+        } else {
+            try {
+                // Enforce the capability that matches the requested mode, mirroring
+                // the legacy flow (merge vs empty-and-restore are separate rights).
+                if ($mode === 'replace') {
+                    if (!coursetransfer::can_target_restore_content_remove($USER, $context)) {
+                        require_capability('local/coursetransfer:target_restore_content_remove', $context);
+                    }
+                    $targettarget = backup::TARGET_EXISTING_DELETING;
+                } else {
+                    if (!coursetransfer::can_target_restore_merge($USER, $context)) {
+                        require_capability('local/coursetransfer:target_restore_merge', $context);
+                    }
+                    $targettarget = backup::TARGET_EXISTING_ADDING;
+                }
+
+                $site = coursetransfer::get_site_by_position($siteid);
+                $config = new configuration_course(
+                    $targettarget,
+                    false,
+                    false,
+                    $includeusers,
+                    false,
+                    null
+                );
+                $res = coursetransfer::restore_course(
+                    $USER,
+                    $site,
+                    $targetcourseid,
+                    $origincourseid,
+                    $config,
+                    $sections
+                );
+                $success = (bool)$res['success'];
+                if (!empty($res['errors'])) {
+                    $errors = array_merge($errors, $res['errors']);
+                }
+                if (isset($res['data']['requestid'])) {
+                    $requestids[] = (int)$res['data']['requestid'];
+                }
+            } catch (moodle_exception $e) {
+                $success = false;
+                $errors[] = [
+                    'code' => '30601',
+                    'msg' => $e->getMessage(),
+                ];
+            }
         }
 
         $nexturl = new moodle_url('/local/coursetransfer/origin_restore_course.php', ['id' => $targetcourseid]);
@@ -1307,31 +1387,36 @@ class restore_wizard_external extends external_api {
         $errors = [];
         $requestids = [];
 
-        try {
-            $site = coursetransfer::get_site_by_position($siteid);
-            $config = new configuration_category(
-                backup::TARGET_NEW_COURSE,
-                false,
-                false,
-                $includeusers,
-                $removeorigin,
-                $nextruntime
-            );
-            // Preserve the origin subcategory hierarchy on the target.
-            $res = coursetransfer::restore_category_tree($USER, $site, $targetcatid, $origincatid, $config);
-            $success = (bool)$res['success'];
-            if (!empty($res['errors'])) {
-                $errors = array_merge($errors, $res['errors']);
-            }
-            if (isset($res['data']['requestid'])) {
-                $requestids[] = (int)$res['data']['requestid'];
-            }
-        } catch (moodle_exception $e) {
+        $errors = self::schedule_errors($schedule);
+        if ($errors) {
             $success = false;
-            $errors[] = [
-                'code' => '30701',
-                'msg' => $e->getMessage(),
-            ];
+        } else {
+            try {
+                $site = coursetransfer::get_site_by_position($siteid);
+                $config = new configuration_category(
+                    backup::TARGET_NEW_COURSE,
+                    false,
+                    false,
+                    $includeusers,
+                    $removeorigin,
+                    $nextruntime
+                );
+                // Preserve the origin subcategory hierarchy on the target.
+                $res = coursetransfer::restore_category_tree($USER, $site, $targetcatid, $origincatid, $config);
+                $success = (bool)$res['success'];
+                if (!empty($res['errors'])) {
+                    $errors = array_merge($errors, $res['errors']);
+                }
+                if (isset($res['data']['requestid'])) {
+                    $requestids[] = (int)$res['data']['requestid'];
+                }
+            } catch (moodle_exception $e) {
+                $success = false;
+                $errors[] = [
+                    'code' => '30701',
+                    'msg' => $e->getMessage(),
+                ];
+            }
         }
 
         $nexturl = new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $targetcatid]);
@@ -1426,7 +1511,11 @@ class restore_wizard_external extends external_api {
         $errors = [];
         $requestids = [];
 
-        if (empty($ids)) {
+        $blocked = self::schedule_errors($schedule);
+        if ($blocked) {
+            $success = false;
+            $errors = $blocked;
+        } else if (empty($ids)) {
             $success = false;
             $errors[] = [
                 'code' => '30801',
@@ -1467,7 +1556,7 @@ class restore_wizard_external extends external_api {
         }
 
         $nexturl = new moodle_url('/local/coursetransfer/logs.php', [
-            'type' => ($type === 'category')
+            'ftipo' => ($type === 'category')
                     ? coursetransfer_request::TYPE_REMOVE_CATEGORY
                     : coursetransfer_request::TYPE_REMOVE_COURSE,
         ]);

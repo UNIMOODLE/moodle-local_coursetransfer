@@ -35,6 +35,7 @@
 namespace local_coursetransfer\output;
 
 use dml_exception;
+use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_remove;
 use local_coursetransfer\coursetransfer_sites;
 use local_coursetransfer\external\backend\backend_api;
@@ -162,6 +163,22 @@ class index_page implements renderable, templatable {
                     && has_capability('local/coursetransfer:webservice', $sysctx, $user);
         }
 
+        // Site policies accepted by the service user: a new policy version resets the acceptance of every
+        // user and other platforms then fail with 'sitepolicynotagreed' (LCT-074).
+        $policystate = 'error';
+        $policystatus = get_string('idx_check_user_ko', 'local_coursetransfer');
+        if ($user) {
+            if (coursetransfer::site_policies_block($user)) {
+                $policystatus = get_string('idx_check_policies_ko', 'local_coursetransfer');
+            } else if (coursetransfer::pending_site_policies((int)$user->id)) {
+                $policystate = 'warn';
+                $policystatus = get_string('idx_check_policies_pending', 'local_coursetransfer');
+            } else {
+                $policystate = 'ok';
+                $policystatus = get_string('idx_check_policies_ok', 'local_coursetransfer');
+            }
+        }
+
         // Cron recency: deferred/async restores and deletions run through cron.
         $lastcron = 0;
         try {
@@ -271,6 +288,14 @@ class index_page implements renderable, templatable {
                 $legacystatus,
                 $legacy ? $repair : '',
                 $legacy ? $data->url_postinstall : ''
+            ),
+            $this->check(
+                'fa-file-text-o',
+                get_string('idx_check_policies', 'local_coursetransfer'),
+                $policystate,
+                $policystatus,
+                $policystate === 'ok' ? '' : $repair,
+                $policystate === 'ok' ? '' : $data->url_postinstall
             ),
         ];
 

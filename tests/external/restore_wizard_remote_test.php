@@ -260,24 +260,26 @@ final class restore_wizard_remote_test extends advanced_testcase {
     public function test_delete_request(): void {
         global $DB;
         $generator = $this->getDataGenerator()->get_plugin_generator('local_coursetransfer');
-        $request = $generator->create_request();
-        $other = $generator->create_request();
+        // A request with a task still queued is not deleted: its task would run orphaned or be lost (R4).
+        $running = $generator->create_request(['status' => coursetransfer_request::STATUS_ERROR]);
         $task = new download_file_course_task();
-        $task->set_custom_data(['requestid' => (int) $request->id, 'fileurl' => 'https://origin.example.com/x.mbz']);
+        $task->set_custom_data(['requestid' => (int) $running->id, 'fileurl' => 'https://origin.example.com/x.mbz']);
         manager::queue_adhoc_task($task);
-        $othertask = new download_file_course_task();
-        $othertask->set_custom_data(['requestid' => (int) $other->id, 'fileurl' => 'https://origin.example.com/y.mbz']);
-        manager::queue_adhoc_task($othertask);
+        $res = restore_wizard_external::delete_request((int) $running->id);
+        $res = external_api::clean_returnvalue(restore_wizard_external::delete_request_returns(), $res);
+        $this->assertFalse($res['success']);
+        $this->assertSame('30703', $res['errors'][0]['code']);
+        $this->assertTrue($DB->record_exists(coursetransfer_request::TABLE, ['id' => $running->id]));
+        $this->assertCount(1, manager::get_adhoc_tasks(download_file_course_task::class));
 
+        // A finished one is deleted, and only that one.
+        $request = $generator->create_request(['status' => coursetransfer_request::STATUS_COMPLETED]);
+        $other = $generator->create_request(['status' => coursetransfer_request::STATUS_COMPLETED]);
         $res = restore_wizard_external::delete_request((int) $request->id);
         $res = external_api::clean_returnvalue(restore_wizard_external::delete_request_returns(), $res);
-
         $this->assertTrue($res['success']);
         $this->assertFalse($DB->record_exists(coursetransfer_request::TABLE, ['id' => $request->id]));
         $this->assertTrue($DB->record_exists(coursetransfer_request::TABLE, ['id' => $other->id]));
-        $tasks = manager::get_adhoc_tasks(download_file_course_task::class);
-        $this->assertCount(1, $tasks);
-        $this->assertEquals($other->id, reset($tasks)->get_custom_data()->requestid);
     }
 
     /**

@@ -41,8 +41,9 @@ define([
     'jquery',
     'core/ajax',
     'core/str',
-    'local_coursetransfer/category_tree'
-], function($, Ajax, Str, CategoryTree) {
+    'local_coursetransfer/category_tree',
+    'local_coursetransfer/wizard_feedback'
+], function($, Ajax, Str, CategoryTree, Feedback) {
     "use strict";
 
     var PERPAGE = 5;
@@ -51,7 +52,7 @@ define([
 
     var STRINGKEYS = [
         'rw_loading', 'rw_cancel', 'rw_back', 'rw_next', 'rw_clear', 'rw_selectall',
-        'rw_noresults', 'rw_pageinfo', 'rw_step_of', 'rw_submit_error', 'rw_results',
+        'rw_noresults', 'rw_pageinfo', 'rw_step_of', 'rw_results',
         'rw_results_note', 'rw_courses_pl', 'rw_categories_pl', 'rw_lbl_idnumber',
         'rw_lbl_category', 'rw_lbl_subcats', 'rw_cat_root', 'rw_cat_insub', 'rw_cat_breakdown',
         'rw_col_size', 'rw_col_import',
@@ -107,6 +108,12 @@ define([
             var kind = 'course';
             if (!this.cancourse && this.cancategory) {
                 kind = 'category';
+            }
+            // Submit guard: '' | 'sending' (request in flight) | 'locked'
+            // (partial or unconfirmed result: running again could duplicate).
+            // A request in flight is never forgotten, not even by "cancel".
+            if (this.submitstate !== 'sending') {
+                this.submitstate = '';
             }
             this.state = {
                 view: 'landing',
@@ -207,13 +214,18 @@ define([
             $root.on('click', '[data-action="toggle-schedule"]', function() {
                 self.state.scheduleon = !self.state.scheduleon;
                 $(this).attr('aria-checked', self.state.scheduleon ? 'true' : 'false');
-                self.region('schedule-date').prop('hidden', !self.state.scheduleon);
-                if (!self.state.scheduleon) {
+                var $date = self.region('schedule-date').prop('hidden', !self.state.scheduleon);
+                if (self.state.scheduleon) {
+                    Feedback.scheduleBounds($date);
+                    self.state.scheduledate = $date.val() || '';
+                } else {
                     self.state.scheduledate = '';
                 }
+                self.refreshFooter();
             });
             $root.on('change input', '[data-action="schedule-date"]', function() {
                 self.state.scheduledate = $(this).val() || '';
+                self.refreshFooter();
             });
             $root.on('click', '[data-action="toggle-confirm"]', function() {
                 self.state.confirm = !self.state.confirm;
@@ -251,6 +263,7 @@ define([
          */
         start: function() {
             this.resetState();
+            this.region('submit-error').prop('hidden', true).empty();
             this.showView('wizard');
             this.goStep(0);
             if (!this.sites.length) {
@@ -317,7 +330,8 @@ define([
         refreshFooter: function() {
             var step = this.state.step;
             var self = this;
-            this.$root.find('[data-action="back"]').prop('disabled', step === 0);
+            this.$root.find('[data-action="back"]').prop('disabled', step === 0 || this.submitstate === 'sending');
+            this.renderScheduleWarn();
 
             var $primary = this.$root.find('[data-action="primary"]');
             var islast = step === TOTALSTEPS - 1;
@@ -346,6 +360,9 @@ define([
          */
         canProceed: function() {
             var s = this.state;
+            if (this.submitstate) {
+                return false;
+            }
             if (s.step === 0) {
                 return !!s.siteid && !!s.kind;
             }
@@ -353,9 +370,20 @@ define([
                 return this.selectedIds().length > 0;
             }
             if (s.step === 2) {
-                return !!s.confirm;
+                // "Schedule" on needs a valid date: never delete right away by mistake.
+                return !!s.confirm && Feedback.scheduleCheck(s.scheduleon, s.scheduledate).valid;
             }
             return true;
+        },
+
+        /**
+         * Show the "invalid date" warning when "schedule" is on without a
+         * valid future date.
+         */
+        renderScheduleWarn: function() {
+            var s = this.state;
+            var bad = s.scheduleon && !Feedback.scheduleCheck(true, s.scheduledate).valid;
+            this.region('schedule-warn').prop('hidden', !bad);
         },
 
         /**
@@ -363,6 +391,8 @@ define([
          */
         primary: function() {
             if (!this.canProceed()) {
+                // The date may have expired since the button was enabled.
+                this.refreshFooter();
                 return;
             }
             if (this.state.step === TOTALSTEPS - 1) {
@@ -388,15 +418,18 @@ define([
          */
         loadSites: function() {
             var self = this;
+            this.region('sites').empty().append(
+                $('<div>').addClass('ct-selempty').text(this.S.rw_loading || '…'));
             Ajax.call([{
                 methodname: 'local_coursetransfer_restore_wizard_get_sites',
                 args: {}
             }])[0].then(function(resp) {
                 self.sites = resp.sites || [];
                 return self.renderSites();
-            }).catch(function() {
-                self.region('sites').empty().append(
-                    $('<div>').addClass('ct-selempty').text(self.S.rw_submit_error || 'Error'));
+            }).catch(function(ex) {
+                Feedback.showLoadError(self.region('sites'), ex, function() {
+                    self.loadSites();
+                });
             });
         },
 
@@ -513,14 +546,34 @@ define([
                     query: this.state.search
                 }
             }])[0].then(function(resp) {
+                if (!resp || !resp.success) {
+                    // An origin error is not "no results": say what failed.
+                    self.listFailed(resp);
+                    return resp;
+                }
                 self.items = resp.items || [];
                 self.state.total = resp.total || 0;
                 self.state.pages = resp.pages || 1;
                 self.state.page = resp.page || 0;
                 return self.renderRows();
-            }).catch(function() {
-                self.region('rows').empty().append(
-                    $('<div>').addClass('ct-selempty').text(self.S.rw_submit_error || 'Error'));
+            }).catch(function(ex) {
+                self.listFailed(ex);
+            });
+        },
+
+        /**
+         * Show a listing failure (code, hint, retry) instead of an empty list.
+         *
+         * @param {Object} failure WS response or exception.
+         */
+        listFailed: function(failure) {
+            var self = this;
+            this.items = [];
+            this.state.total = 0;
+            this.state.pages = 1;
+            this.renderRows();
+            Feedback.showLoadError(this.region('rows'), failure, function() {
+                self.loadList();
             });
         },
 
@@ -876,10 +929,21 @@ define([
         submit: function() {
             var self = this;
             var s = this.state;
-            var $primary = this.$root.find('[data-action="primary"]');
-            $primary.prop('disabled', true);
+            if (this.submitstate) {
+                return;
+            }
+            // Never send "now" (0) with "schedule" on: that would delete at once.
+            var sched = Feedback.scheduleCheck(s.scheduleon, s.scheduledate);
+            if (!sched.valid) {
+                this.refreshFooter();
+                return;
+            }
+            this.submitstate = 'sending';
+            this.region('submit-error').prop('hidden', true).empty();
+            this.refreshFooter();
 
-            var schedule = (s.scheduleon && s.scheduledate) ? (Date.parse(s.scheduledate) || 0) : 0;
+            // The WS expects an epoch in milliseconds (0 = now).
+            var schedule = sched.ts;
 
             Ajax.call([{
                 methodname: 'local_coursetransfer_restore_wizard_remove_submit',
@@ -890,33 +954,38 @@ define([
                     schedule: schedule
                 }
             }])[0].then(function(resp) {
-                if (resp && resp.success) {
+                var kind = Feedback.outcome(resp);
+                if (kind === 'done') {
+                    self.submitstate = '';
                     if (resp.data && resp.data.nexturl && resp.data.nexturl !== '#') {
                         self.region('done-log').attr('href', resp.data.nexturl);
                     }
                     self.showView('done');
                 } else {
-                    self.submitError(resp);
+                    self.submitFailed(resp, kind);
                 }
                 return resp;
-            }).catch(function() {
-                self.submitError(null);
+            }).catch(function(ex) {
+                // No answer (timeout, 504, session): deletions may be queued.
+                self.submitFailed(ex, 'unconfirmed');
             });
         },
 
         /**
-         * Report a submit failure inline on the confirm step.
+         * Report a submit that did not fully succeed on the confirm step. Only
+         * a plain failure (nothing created) lets the user run it again.
          *
-         * @param {Object|null} resp
+         * @param {Object|null} failure WS response or exception.
+         * @param {String} kind failed|partial|unconfirmed
          */
-        submitError: function(resp) {
-            var msg = this.S.rw_submit_error || 'Error';
-            if (resp && resp.errors && resp.errors.length && resp.errors[0].msg) {
-                msg = resp.errors[0].msg;
+        submitFailed: function(failure, kind) {
+            var url = this.logurl;
+            if (failure && failure.data && failure.data.nexturl && failure.data.nexturl !== '#') {
+                url = failure.data.nexturl;
             }
-            this.region('submit-error').prop('hidden', false);
-            this.region('submit-error-text').text(msg);
-            this.$root.find('[data-action="primary"]').prop('disabled', false);
+            this.submitstate = (kind === 'failed') ? '' : 'locked';
+            Feedback.showSubmitFailure(this.region('submit-error'), failure, kind, url);
+            this.refreshFooter();
         }
     };
 

@@ -58,3 +58,41 @@ function local_coursetransfer_strip_token(string $url): string {
     $kept = array_filter(explode('&', $query), fn($p) => $p !== '' && strtolower((string)strtok($p, '=')) !== 'token');
     return $parts[0] . ($kept ? '?' . implode('&', $kept) : '') . ($fragment !== null ? '#' . $fragment : '');
 }
+
+/**
+ * Accept the current site policies for the plugin's service user, if it exists (LCT-074).
+ *
+ * Runs as the user who upgrades (an admin), with the same rules as Repair: see
+ * \local_coursetransfer\coursetransfer::accept_site_policies(). It never fails the upgrade.
+ *
+ * @return bool Whether the service user exists and the site policies no longer block it.
+ */
+function local_coursetransfer_accept_ws_site_policies(): bool {
+    global $CFG, $DB;
+    $userid = $DB->get_field('user', 'id', [
+        'username' => 'local_coursetransfer_ws',
+        'mnethostid' => $CFG->mnet_localhost_id,
+        'deleted' => 0,
+    ]);
+    if (!$userid) {
+        return false;
+    }
+    return \local_coursetransfer\coursetransfer::accept_site_policies((int)$userid);
+}
+
+/**
+ * Let the service user role see hidden categories, as a new installation does (LCT-068).
+ *
+ * Sites upgraded from 1.x kept a role without moodle/category:viewhiddencategories until Repair.
+ *
+ * @return bool Whether the role exists.
+ */
+function local_coursetransfer_allow_hidden_categories(): bool {
+    global $DB;
+    $roleid = $DB->get_field('role', 'id', ['shortname' => 'local_coursetransfer_ws']);
+    if (!$roleid) {
+        return false;
+    }
+    assign_capability('moodle/category:viewhiddencategories', CAP_ALLOW, $roleid, context_system::instance(), true);
+    return true;
+}

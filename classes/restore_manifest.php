@@ -65,13 +65,167 @@ class restore_manifest {
         }
         ksort($activities);
         $manifest = ['sections' => count($info->sections ?? []), 'activities' => $activities, 'enrolments' => null];
-        if (!empty($info->root_settings['users'])) {
-            $file = make_backup_temp_directory('', false) . '/' . $tempdir . '/course/enrolments.xml';
-            $xml = is_readable($file) ? (string)file_get_contents($file) : '';
+        $dir = make_backup_temp_directory('', false) . '/' . $tempdir;
+        $users = !empty($info->root_settings['users']);
+        // What a transfer must carry (LCT-063): a backup made by a peer that still follows its general backup
+        // defaults may lack part of the course. Logs and grade history are left out: they depend on a setting.
+        $missing = [];
+        $required = coursetransfer_backup::root_settings($users ? 1 : 0);
+        // Badges and competencies are left out too: a site may have them disabled.
+        foreach (['logs', 'grade_histories', 'permissions', 'anonymize', 'badges', 'competencies'] as $name) {
+            unset($required[$name]);
+        }
+        foreach ($required as $name => $value) {
+            // A setting the backup does not carry does not exist in the Moodle of the origin (e.g. questionbank
+            // since 5.0, where question banks are activities): only an existing setting left off is missing.
+            if ($value && array_key_exists($name, $info->root_settings ?? []) && empty($info->root_settings[$name])) {
+                $missing[] = $name;
+            }
+        }
+        $manifest['settings_missing'] = $missing;
+        if ($users) {
+            $xml = self::read($dir . '/course/enrolments.xml');
             preg_match_all('~<userid>(\d+)</userid>~', $xml, $m);
             $manifest['enrolments'] = count(array_unique($m[1]));
+            // Every included activity carries its user data (LCT-033), whatever the module.
+            $without = [];
+            foreach ($info->activities ?? [] as $key => $activity) {
+                $settings = $activity->settings ?? [];
+                if (!empty($settings[$key . '_included']) && empty($settings[$key . '_userinfo'])) {
+                    $without[] = $key;
+                }
+            }
+            $manifest['userinfo_missing'] = $without;
+            $manifest['userdata'] = self::userdata_of_backup($dir, $info);
         }
         return $manifest;
+    }
+
+    /**
+     * Read a file of the extracted backup ('' when it is not there).
+     *
+     * @param string $file
+     * @return string
+     */
+    private static function read(string $file): string {
+        return is_readable($file) ? (string)file_get_contents($file) : '';
+    }
+
+    /**
+     * User data carried by the backup, counted the same way for every module (LCT-063).
+     *
+     * Grades (course and activities), activity completion states and files of the course and its activities
+     * and blocks (submissions, attachments, feedback…), per component. Question files are left out: they may
+     * belong to banks outside the course.
+     *
+     * @param string $dir Extracted backup folder.
+     * @param \stdClass $info Backup information.
+     * @return array
+     */
+    private static function userdata_of_backup(string $dir, \stdClass $info): array {
+        $grades = substr_count(self::read($dir . '/gradebook.xml'), '<grade_grade ');
+        $completion = 0;
+        foreach ($info->activities ?? [] as $activity) {
+            $path = $dir . '/' . $activity->directory;
+            $grades += substr_count(self::read($path . '/grades.xml'), '<grade_grade ');
+            $completion += substr_count(self::read($path . '/completion.xml'), '<completion ');
+        }
+        $files = [];
+        $reader = new \XMLReader();
+        if (is_readable($dir . '/files.xml') && $reader->open($dir . '/files.xml')) {
+            while ($reader->read()) {
+                if ($reader->nodeType !== \XMLReader::ELEMENT || $reader->name !== 'file') {
+                    continue;
+                }
+                $file = simplexml_load_string($reader->readOuterXml());
+                $component = (string)($file->component ?? '');
+                if ((string)($file->filename ?? '.') === '.' || !self::counted_component($component)) {
+                    continue;
+                }
+                $files[$component] = ($files[$component] ?? 0) + 1;
+            }
+            $reader->close();
+        }
+        ksort($files);
+        return ['grades' => $grades, 'completion' => $completion, 'files' => $files];
+    }
+
+    /**
+     * Whether files of this component are compared (those restored inside the course).
+     *
+     * @param string $component
+     * @return bool
+     */
+    private static function counted_component(string $component): bool {
+        if ($component === '' || in_array($component, ['user', 'backup', 'question'], true)) {
+            return false;
+        }
+        return !preg_match('~^(qtype|qbank|qformat)_~', $component);
+    }
+
+    /**
+     * What of the user data of the backup this restore can bring, so a hold is never a false alarm (A4).
+     *
+     * Into an existing course the course settings are not overwritten, so its summary and overview files are
+     * not restored; badge files depend on badges being enabled; completion states on completion being enabled.
+     *
+     * @param array $userdata From userdata_of_backup().
+     * @param int $target backup::TARGET_* asked for.
+     * @return array
+     */
+    public static function restorable_userdata(array $userdata, int $target): array {
+        global $CFG;
+        require_once($CFG->dirroot . '/backup/backup.class.php');
+        unset($userdata['files']['badges']);
+        if ($target !== \backup::TARGET_NEW_COURSE) {
+            unset($userdata['files']['course']);
+        }
+        if (empty($CFG->enablecompletion)) {
+            $userdata['completion'] = 0;
+        }
+        return $userdata;
+    }
+
+    /**
+     * User data of a course of this site, counted as userdata_of_backup() does.
+     *
+     * @param int $courseid
+     * @return array
+     */
+    public static function userdata_of_course(int $courseid): array {
+        global $DB;
+        $grades = $DB->count_records_sql(
+            'SELECT COUNT(gg.id)
+               FROM {grade_grades} gg
+               JOIN {grade_items} gi ON gi.id = gg.itemid
+              WHERE gi.courseid = :course',
+            ['course' => $courseid]
+        );
+        $completion = $DB->count_records_sql(
+            'SELECT COUNT(cmc.id)
+               FROM {course_modules_completion} cmc
+               JOIN {course_modules} cm ON cm.id = cmc.coursemoduleid
+              WHERE cm.course = :course',
+            ['course' => $courseid]
+        );
+        $context = \context_course::instance($courseid);
+        $rows = $DB->get_records_sql_menu(
+            "SELECT f.component, COUNT(f.id)
+               FROM {files} f
+               JOIN {context} ctx ON ctx.id = f.contextid
+              WHERE (ctx.id = :ctxid OR " . $DB->sql_like('ctx.path', ':path') . ")
+                AND f.filename <> '.'
+           GROUP BY f.component",
+            ['ctxid' => $context->id, 'path' => $context->path . '/%']
+        );
+        $files = [];
+        foreach ($rows as $component => $count) {
+            if (self::counted_component((string)$component)) {
+                $files[$component] = (int)$count;
+            }
+        }
+        ksort($files);
+        return ['grades' => (int)$grades, 'completion' => (int)$completion, 'files' => $files];
     }
 
     /**
@@ -158,6 +312,30 @@ class restore_manifest {
         if (isset($expected['enrolments']) && (int)$actual['enrolments'] < (int)$expected['enrolments']) {
             $issues[] = 'enrolled users ' . $actual['enrolments'] . '/' . $expected['enrolments'];
         }
+        if (!empty($expected['backup_unread'])) {
+            $issues[] = 'backup manifest not read';
+        }
+        // The backup itself lacked part of the course or of the user data (LCT-033, LCT-063).
+        if (!empty($expected['settings_missing'])) {
+            $issues[] = 'backup without: ' . implode(', ', $expected['settings_missing']);
+        }
+        if (!empty($expected['userinfo_missing'])) {
+            $issues[] = 'activities without user data in the backup: ' . implode(', ', $expected['userinfo_missing']);
+        }
+        if (isset($expected['userdata'])) {
+            $have = $actual['userdata'] ?? ['grades' => 0, 'completion' => 0, 'files' => []];
+            foreach (['grades', 'completion'] as $key) {
+                if ((int)$have[$key] < (int)$expected['userdata'][$key]) {
+                    $issues[] = $key . ' ' . $have[$key] . '/' . $expected['userdata'][$key];
+                }
+            }
+            foreach ($expected['userdata']['files'] as $component => $count) {
+                $got = (int)($have['files'][$component] ?? 0);
+                if ($got < $count) {
+                    $issues[] = 'files ' . $component . ' ' . $got . '/' . $count;
+                }
+            }
+        }
         return $issues;
     }
 
@@ -191,7 +369,17 @@ class restore_manifest {
             $issues = ['origin manifest not available: ' . $origin];
         } else {
             $expected = $origin;
-            $expected['enrolments'] = $stored['backup']['enrolments'] ?? null;
+            if (!isset($stored['backup'])) {
+                // Without what the backup carried nothing about user data can be checked: keep the origin (A3).
+                $expected['backup_unread'] = true;
+            }
+            foreach (['enrolments', 'settings_missing', 'userinfo_missing', 'userdata'] as $key) {
+                $expected[$key] = $stored['backup'][$key] ?? null;
+            }
+            if (isset($expected['userdata'])) {
+                $expected['userdata'] = self::restorable_userdata($expected['userdata'], (int)($request->target_target ?? 0));
+                $actual['userdata'] = self::userdata_of_course((int)$request->target_course_id);
+            }
             $issues = self::compare($expected, $actual);
             $stored['origin'] = $origin;
         }

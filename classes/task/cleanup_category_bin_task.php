@@ -39,7 +39,6 @@ use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_remove;
 use Throwable;
 
-
 /**
  * cleanup category bin task
  *

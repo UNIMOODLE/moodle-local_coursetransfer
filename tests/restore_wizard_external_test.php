@@ -38,7 +38,6 @@ use advanced_testcase;
 use local_coursetransfer\external\frontend\restore_wizard_external;
 use local_coursetransfer\external\frontend\sites_external;
 
-
 /**
  * Tests for the restore/remove wizard web services: get_sites happy path and
  * the per-context capability gates that guard every submit endpoint (LCT-012).

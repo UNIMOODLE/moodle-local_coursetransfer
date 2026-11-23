@@ -40,7 +40,6 @@ use local_coursetransfer\coursetransfer_remove;
 use stdClass;
 use Throwable;
 
-
 /**
  * cleanup course bin task
  *

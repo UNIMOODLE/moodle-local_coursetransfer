@@ -540,6 +540,27 @@
     color: var(--danger-500);
 }
 
+.local-coursetransfer .ct-error-block .ct-error-content {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+}
+
+.local-coursetransfer .ct-error-block .ct-error-list {
+    margin: 0 0 8px;
+    padding-left: 18px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--neutral-700);
+    overflow-wrap: anywhere;
+}
+
+.local-coursetransfer .ct-error-block .ct-error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
 /* ---- Utilities ---- */
 .local-coursetransfer .ct-mt {
     margin-top: 14px;
@@ -1830,6 +1851,12 @@
 
 .local-coursetransfer .ct-log-error-toggle [data-region="chevron"] {
     transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.local-coursetransfer .ct-log-error--kept .ct-log-error-toggle,
+.local-coursetransfer .ct-log-error--kept .ct-log-error-body {
+    background: var(--warning-50);
+    color: var(--warning-700);
 }
 
 .local-coursetransfer .ct-log-error-body {
@@ -3599,6 +3626,11 @@
 
 .local-coursetransfer .ct-destcard--danger {
     border-color: var(--magenta-border);
+}
+
+/* Same existing target chosen twice with "replace": blocks the step. */
+.local-coursetransfer .ct-destcard-dupwarn {
+    padding: 0 16px 10px;
 }
 
 .local-coursetransfer .ct-destcard-head {
@@ -5443,4 +5475,9 @@ div.local_coursetransfer div[data-region="stepbystep"] ul.stepbystep li.line {
     margin-bottom: 10px;
     margin-top: 5px;
     color: orange;
+}
+
+.local-coursetransfer .ct-detail-error--kept {
+    background: var(--warning-50);
+    border-color: var(--warning-700);
 }

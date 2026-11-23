@@ -150,6 +150,10 @@ final class coursetransfer_verify_category_restore_test extends advanced_testcas
         $completed = coursetransfer_request::STATUS_COMPLETED;
         $reqcat = $this->category([[$completed, null, null], [$completed, null, null]], 2);
         $children = json_decode($reqcat->origin_category_requests);
+        foreach ($children as $childid) {
+            // As after a real restore: the manifest of the backup was read (A3).
+            restore_manifest::save_backup((int) $childid, ['sections' => 1, 'activities' => [], 'enrolments' => null]);
+        }
         $detail = fn(array $activities) => json_encode(['success' => true, 'errors' => [], 'data' => [
             'id' => 1, 'fullname' => 'O', 'shortname' => 'C', 'sections' => [['activities' => $activities]],
         ]]);

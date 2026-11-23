@@ -132,6 +132,11 @@ final class origin_category_external_test extends advanced_testcase {
         $generator->create_course(['shortname' => 'H1', 'category' => $hidden->id]);
         $teacher = $generator->create_user();
         $generator->role_assign('editingteacher', $teacher->id, \context_coursecat::instance($this->parent->id));
+        // As in Moodle's manual backup, a course is only offered with an active enrolment or access to it (#60).
+        global $DB;
+        foreach (['P1', 'C1'] as $shortname) {
+            $generator->enrol_user($teacher->id, $DB->get_field('course', 'id', ['shortname' => $shortname]), 'editingteacher');
+        }
 
         $res = origin_category_external::origin_get_category_detail('username', $teacher->username, (int) $this->parent->id);
         $res = external_api::clean_returnvalue($this->returns('origin_get_category_detail'), $res);
