@@ -2,6 +2,19 @@
 
 All notable changes to this plugin are documented here.
 
+## 2.2.2 — 2026-11-23 (`2026112300`)
+
+Maintenance release. Supported: Moodle 4.5, 5.1 and 5.3. The protocol does not change.
+
+### Fixed
+
+- When user data is asked for but the backup of the origin arrives without it (the requester
+  cannot back up user data there, or its administrator locked it) or anonymised, the origin
+  is no longer removed: the removal is held and the reason is recorded.
+- A check of the restored course that could not be made (the origin did not answer, or
+  refused the requester) is no longer stored as a mismatch that held the removal of the
+  origin category for good: it is checked again next time.
+
 ## 2.2.1 — 2026-11-20 (`2026112002`)
 
 Maintenance release: complete course transfers and fixes reported on GitHub. Supported:

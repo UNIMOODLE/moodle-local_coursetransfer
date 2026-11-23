@@ -83,6 +83,10 @@ class restore_manifest {
             }
         }
         $manifest['settings_missing'] = $missing;
+        // What the backup carries of the users, to compare with what was asked for (B2): the origin may leave them
+        // out (no moodle/backup:userinfo, locked by its administrator) or anonymise them.
+        $manifest['users'] = $users;
+        $manifest['anonymized'] = !empty($info->root_settings['anonymize']);
         if ($users) {
             $xml = self::read($dir . '/course/enrolments.xml');
             preg_match_all('~<userid>(\d+)</userid>~', $xml, $m);
@@ -315,6 +319,12 @@ class restore_manifest {
         if (!empty($expected['backup_unread'])) {
             $issues[] = 'backup manifest not read';
         }
+        if (!empty($expected['users_missing'])) {
+            $issues[] = 'user data asked for, but the backup has none';
+        }
+        if (!empty($expected['users_anonymized'])) {
+            $issues[] = 'user data asked for, but the backup is anonymised';
+        }
         // The backup itself lacked part of the course or of the user data (LCT-033, LCT-063).
         if (!empty($expected['settings_missing'])) {
             $issues[] = 'backup without: ' . implode(', ', $expected['settings_missing']);
@@ -337,6 +347,25 @@ class restore_manifest {
             }
         }
         return $issues;
+    }
+
+    /**
+     * Whether the issues only say the check could not be made (origin unreachable, requester refused, error), not
+     * that the restore does not match: such a hold must not be stored as a final result (A1).
+     *
+     * @param string[] $issues
+     * @return bool
+     */
+    public static function is_inconclusive(array $issues): bool {
+        if (!$issues) {
+            return false;
+        }
+        foreach ($issues as $issue) {
+            if (!preg_match('~^(origin manifest not available|manifest not checked|requester not found)~', (string)$issue)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -366,7 +395,9 @@ class restore_manifest {
         $origin = self::from_origin($site, (int)$request->origin_course_id, $user);
         $actual = self::of_course((int)$request->target_course_id);
         if (is_string($origin)) {
-            $issues = ['origin manifest not available: ' . $origin];
+            // Not a result: the origin did not answer or refused the requester. Nothing is stored, so a later check
+            // can still pass once the origin or the account is fixed (A1).
+            return ['origin manifest not available: ' . $origin];
         } else {
             $expected = $origin;
             if (!isset($stored['backup'])) {
@@ -375,6 +406,13 @@ class restore_manifest {
             }
             foreach (['enrolments', 'settings_missing', 'userinfo_missing', 'userdata'] as $key) {
                 $expected[$key] = $stored['backup'][$key] ?? null;
+            }
+            if (!empty($request->origin_enrolusers) && isset($stored['backup'])) {
+                // User data was asked for: a backup without it (or anonymised) would lose the work of the students (B2).
+                $backup = $stored['backup'];
+                $nousers = array_key_exists('users', $backup) ? empty($backup['users']) : !isset($backup['enrolments']);
+                $expected['users_missing'] = $nousers;
+                $expected['users_anonymized'] = !$nousers && !empty($backup['anonymized']);
             }
             if (isset($expected['userdata'])) {
                 $expected['userdata'] = self::restorable_userdata($expected['userdata'], (int)($request->target_target ?? 0));

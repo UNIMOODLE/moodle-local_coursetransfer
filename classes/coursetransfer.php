@@ -1238,7 +1238,8 @@ class coursetransfer {
         } catch (Throwable $e) {
             $issues = ['manifest not checked: ' . $e->getMessage()];
         }
-        if ($issues && empty($child->error_code)) {
+        if ($issues && empty($child->error_code) && !restore_manifest::is_inconclusive($issues)) {
+            // An inconclusive check (origin down, requester refused) is not stored: it is retried next time (A1).
             $previous = trim((string)$child->error_message);
             $message = 'Manifest mismatch: ' . implode(', ', $issues);
             coursetransfer_request::update_fields((int)$child->id, [

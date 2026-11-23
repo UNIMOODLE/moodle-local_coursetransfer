@@ -34,9 +34,9 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2026112002;
+$plugin->version   = 2026112300;
 $plugin->requires  = 2024100700;
 $plugin->component = 'local_coursetransfer';
-$plugin->release   = '2.2.1';
+$plugin->release   = '2.2.2';
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->supported = [405, 503];

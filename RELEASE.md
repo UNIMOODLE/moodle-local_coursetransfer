@@ -1,4 +1,8 @@
-# Release 2.2.1
+# Release 2.2.2
+
+2.2.2 adds two data-safety fixes to 2.2.1: the origin is not removed when user data was asked for and the backup arrived without it, and a check that could not be made (origin unreachable) no longer holds a removal for good. The notes of 2.2.1 below still apply.
+
+## 2.2.1
 
 ## Summary
 

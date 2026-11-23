@@ -180,4 +180,63 @@ final class coursetransfer_verify_category_restore_test extends advanced_testcas
         $this->assertFalse(coursetransfer::verify_category_restore((int) $request->id)->ok);
         $this->assertFalse(coursetransfer::verify_category_restore(999999)->ok);
     }
+
+    /**
+     * An origin that does not answer is not stored as a mismatch: the next check can still pass (A1).
+     */
+    public function test_inconclusive_check_is_not_stored(): void {
+        $completed = coursetransfer_request::STATUS_COMPLETED;
+        $reqcat = $this->category([[$completed, null, null]], 1);
+        $childid = (int) json_decode($reqcat->origin_category_requests)[0];
+        restore_manifest::save_backup($childid, ['sections' => 1, 'activities' => [], 'enrolments' => null]);
+        $refused = ['success' => false, 'errors' => [['code' => '17005', 'msg' => 'Suspended']], 'data' => new \stdClass()];
+        \curl::mock_response(json_encode($refused));
+
+        $res = coursetransfer::verify_category_restore((int) $reqcat->id);
+
+        $this->assertFalse($res->ok);
+        $this->assertStringContainsString('origin manifest not available', $res->issues[0]);
+        $child = coursetransfer_request::get($childid);
+        $this->assertEmpty($child->error_code);
+        $this->assertArrayNotHasKey('verified', json_decode($child->origin_manifest, true));
+
+        $detail = json_encode(['success' => true, 'errors' => [], 'data' => [
+            'id' => 1, 'fullname' => 'O', 'shortname' => 'C', 'sections' => [['activities' => []]],
+        ]]);
+        \curl::mock_response($detail);
+        $this->assertTrue(coursetransfer::verify_category_restore((int) $reqcat->id)->ok, 'Passes once the origin answers');
+    }
+
+    /**
+     * User data asked for but missing or anonymised in the backup holds the removal (B2).
+     */
+    public function test_users_asked_but_missing(): void {
+        $expected = ['sections' => 1, 'activities' => [], 'enrolments' => null];
+        $missing = restore_manifest::compare(['users_missing' => true] + $expected, $expected);
+        $this->assertSame(['user data asked for, but the backup has none'], $missing);
+        $anonymised = restore_manifest::compare(['users_anonymized' => true] + $expected, $expected);
+        $this->assertSame(['user data asked for, but the backup is anonymised'], $anonymised);
+        $this->assertTrue(restore_manifest::is_inconclusive(['origin manifest not available: 17005: x']));
+        $this->assertFalse(restore_manifest::is_inconclusive(['origin manifest not available: x', 'mod_forum 0/1']));
+    }
+
+    /**
+     * A course restored without the user data its request asked for is not removable from the origin (B2).
+     */
+    public function test_users_asked_but_backup_without_users(): void {
+        $completed = coursetransfer_request::STATUS_COMPLETED;
+        $reqcat = $this->category([[$completed, null, null]], 1);
+        $childid = (int) json_decode($reqcat->origin_category_requests)[0];
+        coursetransfer_request::update_fields($childid, ['origin_enrolusers' => 1]);
+        restore_manifest::save_backup($childid, ['sections' => 1, 'activities' => [], 'enrolments' => null, 'users' => false]);
+        $detail = json_encode(['success' => true, 'errors' => [], 'data' => [
+            'id' => 1, 'fullname' => 'O', 'shortname' => 'C', 'sections' => [['activities' => []]],
+        ]]);
+        \curl::mock_response($detail);
+
+        $res = coursetransfer::verify_category_restore((int) $reqcat->id);
+
+        $this->assertFalse($res->ok);
+        $this->assertStringContainsString('user data asked for, but the backup has none', $res->issues[0]);
+    }
 }
