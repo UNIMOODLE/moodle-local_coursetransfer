@@ -35,7 +35,6 @@ namespace local_coursetransfer;
 use core\progress\base;
 use dml_exception;
 
-
 /**
  * Progress reporter that writes the live restore percentage (0-100) into the
  * request row, so the logs page can show how far the restore has advanced

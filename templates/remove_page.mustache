@@ -263,6 +263,10 @@
                         <span class="ct-rolecard-title">{{#str}} rw_schedule, local_coursetransfer {{/str}}</span>
                         <span class="ct-rolecard-desc">{{#str}} rw_schedule_desc, local_coursetransfer {{/str}}</span>
                         <input type="datetime-local" class="ct-input ct-schedule-input ct-mt" data-action="schedule-date" data-region="schedule-date" hidden>
+                        <span class="ct-pick-warn" data-region="schedule-warn" hidden>
+                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                            {{#str}} rw_schedule_invalid, local_coursetransfer, 30 {{/str}}
+                        </span>
                     </div>
                     <button type="button" class="ct-switch" data-action="toggle-schedule" role="switch" aria-checked="false"></button>
                 </div>
@@ -275,10 +279,8 @@
                     </button>
                 </div>
 
-                <div class="ct-alert ct-alert--danger ct-mt" data-region="submit-error" hidden>
-                    <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
-                    <p data-region="submit-error-text"></p>
-                </div>
+                {{! Filled by local_coursetransfer/wizard_feedback when a submit does not fully succeed. }}
+                <div class="ct-mt" data-region="submit-error" aria-live="polite" hidden></div>
             </div>
 
         </div>

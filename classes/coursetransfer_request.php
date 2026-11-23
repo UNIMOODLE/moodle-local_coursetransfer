@@ -111,6 +111,33 @@ class coursetransfer_request {
     const CODE_MANIFEST_MISMATCH = 10412;
 
     /**
+     * The string with what to do about a completed request whose origin was kept, or null (B1).
+     *
+     * A completed restore asked to remove its origin may have kept it on purpose (incomplete restore, manifest
+     * mismatch, removal skipped): shown as a plain "completed", the origin looked removed when it was not.
+     *
+     * @param stdClass $request
+     * @return string[]|null Identifiers of the title and the action strings.
+     */
+    public static function origin_kept_action(stdClass $request): ?array {
+        if ((int)$request->status !== self::STATUS_COMPLETED) {
+            return null;
+        }
+        $actions = [
+            self::CODE_RESTORE_WITH_ISSUES => 'exec_kept_action_issues',
+            self::CODE_ORIGIN_NOT_REMOVED => 'exec_kept_action_notremoved',
+            self::CODE_MANIFEST_MISMATCH => 'exec_kept_action_manifest',
+        ];
+        $action = $actions[(int)($request->error_code ?? 0)] ?? null;
+        if ($action === null) {
+            return null;
+        }
+        // Without a removal asked for, nothing was kept: the restore just has warnings.
+        $title = empty($request->origin_remove_course) ? 'exec_issues_title' : 'exec_kept_title';
+        return [$title, $action];
+    }
+
+    /**
      * Get.
      *
      * @param int $requestid
@@ -687,11 +714,25 @@ class coursetransfer_request {
     }
 
     /**
-     * Whether a restore request (or its category request) asked to keep the safety copy of its backup.
+     * Whether a request can be deleted from the history (R4): finished, without live tasks nor a kept safety copy.
      *
-     * Stored in origin_manifest as keepsafetycopy: no column of its own.
+     * @param stdClass $request
+     * @return bool
+     */
+    public static function can_delete(stdClass $request): bool {
+        $final = [self::STATUS_COMPLETED, self::STATUS_ERROR, self::STATUS_INCOMPLETED];
+        if (!in_array((int)$request->status, $final, true)) {
+            return false;
+        }
+        // Its tasks or its safety copy may still be needed: a removal waiting to run, a backup kept until the origin
+        // is removed (the cleanup would take the copy as orphaned).
+        return empty(self::get_related_adhoc_tasks((int)$request->id)) && !self::keeps_safety_copy($request);
+    }
+
+    /**
+     * Whether a request keeps a safety copy of its backup.
      *
-     * @param stdClass $request Course or category request.
+     * @param stdClass $request
      * @return bool
      */
     public static function keeps_safety_copy(stdClass $request): bool {
@@ -884,7 +925,9 @@ class coursetransfer_request {
     ): stdClass {
         global $USER;
         $user = is_null($user) ? $USER : $user;
-        $origincat = core_course_category::get($origincourse->category, MUST_EXIST);
+        // Category data is informative and the requester's permission is checked by the caller: resolve it
+        // even if the service user does not see hidden categories, and do not fail without it (LCT-068).
+        $origincat = core_course_category::get($origincourse->category, IGNORE_MISSING, true);
 
         $object = new stdClass();
         $object->type = self::TYPE_COURSE;
@@ -897,8 +940,8 @@ class coursetransfer_request {
         $object->origin_course_shortname = $origincourse->shortname;
         $object->origin_course_idnumber = $origincourse->idnumber;
         $object->origin_category_id = $origincourse->category;
-        $object->origin_category_idnumber = $origincat->idnumber;
-        $object->origin_category_name = $origincat->name;
+        $object->origin_category_idnumber = $origincat ? $origincat->idnumber : null;
+        $object->origin_category_name = $origincat ? $origincat->name : null;
         $object->origin_enrolusers = $configuration->originenrolusers;
         $object->origin_remove_course = $configuration->originremovecourse;
         $object->origin_remove_category = null;

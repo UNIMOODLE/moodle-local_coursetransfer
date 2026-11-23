@@ -155,8 +155,10 @@ final class remove_category_task_test extends advanced_testcase {
         $this->run_removal((int) $this->category->id);
 
         $request = coursetransfer_request::get($this->request->id);
-        $this->assertEquals(coursetransfer_request::STATUS_ERROR, $request->status);
-        $this->assertSame('14022', $request->error_code);
+        // Removed: a failed notice to the target is a note on a completed request, not an error (C3).
+        $this->assertEquals(coursetransfer_request::STATUS_COMPLETED, $request->status);
+        $this->assertSame('15010', $request->error_code);
+        $this->assertStringContainsString('14022 Request id not found', $request->error_message);
     }
 
     /**

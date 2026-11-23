@@ -45,7 +45,10 @@ final class manage_requests_test extends advanced_testcase {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
-        $request = $this->getDataGenerator()->get_plugin_generator('local_coursetransfer')->create_request();
+        // Finished: only those can be deleted (R4).
+        $request = $this->getDataGenerator()->get_plugin_generator('local_coursetransfer')->create_request(
+            ['status' => coursetransfer_request::STATUS_COMPLETED]
+        );
         $syscontext = \context_system::instance();
 
         $viewer = $this->getDataGenerator()->create_user();

@@ -38,7 +38,6 @@ use advanced_testcase;
 use local_coursetransfer\external\frontend\token_external;
 use local_coursetransfer\factory\user;
 
-
 /**
  * Tests for the token lifecycle web services of the summary screen.
  *

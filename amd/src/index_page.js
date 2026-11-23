@@ -39,7 +39,7 @@ define([
     "use strict";
 
     var STRINGKEYS = [
-        'idx_copy', 'idx_copied', 'rw_submit_error', 'idx_show', 'idx_hide',
+        'idx_copy', 'idx_copied', 'unknown_error', 'idx_show', 'idx_hide',
         'idx_regen_title', 'idx_regen_body', 'idx_regen_note', 'idx_regenerate',
         'idx_revoke_title', 'idx_revoke_body', 'idx_revoke_note', 'idx_revoke_confirm'
     ];
@@ -278,7 +278,8 @@ define([
          * @param {Object|null} resp
          */
         error: function(resp) {
-            var msg = this.S.rw_submit_error || 'Error';
+            // Token actions: not the wizard "check the log" text.
+            var msg = this.S.unknown_error || 'Error';
             if (resp && resp.errors && resp.errors.length && resp.errors[0].msg) {
                 msg = resp.errors[0].msg;
             }

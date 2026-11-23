@@ -39,7 +39,9 @@ use coding_exception;
 use context;
 use context_course;
 use context_module;
+use context_system;
 use core_course_category;
+use core_privacy\local\sitepolicy\manager as sitepolicy_manager;
 use core_user;
 use course_modinfo;
 use dml_exception;
@@ -57,6 +59,7 @@ use stdClass;
 use stored_file;
 use Throwable;
 use tool_policy\api as policyapi;
+use tool_policy\policy_version;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -213,7 +216,38 @@ class coursetransfer {
         }
         // The 'userid' field exposed in the UI maps to the 'id' column in the user table.
         $column = ($field === 'userid') ? 'id' : $field;
-        $res = $DB->get_record('user', [$column => $value]);
+        // Only a live local account: a deleted, remote or duplicated one would act as somebody else (B2).
+        global $CFG;
+        $found = $DB->get_records(
+            'user',
+            [$column => $value, 'deleted' => 0, 'mnethostid' => $CFG->mnet_localhost_id],
+            'id',
+            '*',
+            0,
+            2
+        );
+        if (count($found) > 1) {
+            return [
+                'success' => false,
+                'data' => new stdClass(),
+                'error' => [
+                    'code' => '17004',
+                    'msg' => get_string('user_not_unique', 'local_coursetransfer', $field),
+                ],
+            ];
+        }
+        $res = reset($found);
+        if ($res && (!empty($res->suspended) || $res->auth === 'nologin')) {
+            // A suspended account can not log in here: it can not back up or remove courses from a peer either.
+            return [
+                'success' => false,
+                'data' => new stdClass(),
+                'error' => [
+                    'code' => '17005',
+                    'msg' => get_string('user_not_active', 'local_coursetransfer'),
+                ],
+            ];
+        }
         if (!$res) {
             return [
                 'success' => false,
@@ -438,7 +472,8 @@ class coursetransfer {
             $success = true;
             $url = $fileurl->out(true);
             $sizeconfig = (int)get_config('local_coursetransfer', 'target_restore_course_max_size');
-            if ($filesize > ($sizeconfig * 1000000)) {
+            // 0 (or empty) is no limit, as the target reads it: it rejected every backup here.
+            if ($sizeconfig > 0 && $filesize > ($sizeconfig * 1000000)) {
                 $success = false;
                 $error = get_string('backupsize_larger', 'local_coursetransfer');
                 $error .= ': (' . ($filesize / 1000000) . ' MB) > ' . $sizeconfig . ' MB';
@@ -494,6 +529,60 @@ class coursetransfer {
         }
     }
 
+    /** @var int Seconds without movement after which a course request in progress may be retried (#45). */
+    const RETRY_STALLED_AFTER = HOURSECS;
+
+    /** @var int The same while the request waits for the backup of the origin, which may take hours (A5). */
+    const RETRY_STALLED_ORIGIN_AFTER = 6 * HOURSECS;
+
+    /**
+     * Whether Retry applies to a course request of this site: in error, incomplete or stalled.
+     *
+     * A request still moving is left alone. One without changes for RETRY_STALLED_AFTER is offered too: the
+     * origin may still be busy with its backup, but its late answer is ignored once the request is relaunched.
+     *
+     * @param stdClass $request
+     * @return bool
+     */
+    public static function can_retry(stdClass $request): bool {
+        if (
+            (int)$request->type !== coursetransfer_request::TYPE_COURSE
+                || (int)$request->direction !== coursetransfer_request::DIRECTION_REQUEST
+        ) {
+            return false;
+        }
+        $status = (int)$request->status;
+        if ($status === coursetransfer_request::STATUS_COMPLETED) {
+            return false;
+        }
+        // A course of a category restore is relaunched as a loose request and its category would never close:
+        // only the re-restore of its downloaded backup applies to it (A6).
+        $downloaded = in_array($status, [coursetransfer_request::STATUS_DOWNLOADED, coursetransfer_request::STATUS_RESTORE], true);
+        if (!empty($request->request_category_id) && !$downloaded) {
+            return false;
+        }
+        if (in_array($status, [coursetransfer_request::STATUS_ERROR, coursetransfer_request::STATUS_INCOMPLETED], true)) {
+            return true;
+        }
+        // Stalled: counted from the scheduled time when there is one, and longer while the origin makes its backup,
+        // which has no progress to report (A5).
+        $since = max((int)$request->timemodified, self::schedule_seconds($request));
+        $waitingorigin = in_array($status, [coursetransfer_request::STATUS_NOT_STARTED,
+            coursetransfer_request::STATUS_IN_PROGRESS], true);
+        return time() - $since > ($waitingorigin ? self::RETRY_STALLED_ORIGIN_AFTER : self::RETRY_STALLED_AFTER);
+    }
+
+    /**
+     * Scheduled time of a request in seconds (0 when not scheduled); older requests stored milliseconds.
+     *
+     * @param stdClass $request
+     * @return int
+     */
+    public static function schedule_seconds(stdClass $request): int {
+        $value = (int)($request->origin_schedule_datetime ?? 0);
+        return $value > 100000000000 ? intdiv($value, 1000) : $value;
+    }
+
     /**
      * Retry ("refresh") a non-completed course restore request.
      *
@@ -510,6 +599,29 @@ class coursetransfer {
      * @throws moodle_exception
      */
     public static function restore_retry(stdClass $request): array {
+        // One retry at a time per request: a double click or two administrators would relaunch twice (B3).
+        $lock = \core\lock\lock_config::get_lock_factory('local_coursetransfer')->get_lock('retry_' . (int)$request->id, 0);
+        if (!$lock) {
+            return ['success' => false, 'errors' => [
+                    ['code' => '10026', 'msg' => get_string('retry_in_progress', 'local_coursetransfer')]]];
+        }
+        try {
+            // Decided on the stored request, not on the copy the page loaded before the confirmation.
+            $current = coursetransfer_request::get((int)$request->id);
+            return $current ? self::restore_retry_locked($current) : ['success' => false, 'errors' => [
+                    ['code' => '10022', 'msg' => get_string('request_not_found', 'local_coursetransfer')]]];
+        } finally {
+            $lock->release();
+        }
+    }
+
+    /**
+     * Retry a request, holding its retry lock.
+     *
+     * @param stdClass $request
+     * @return array
+     */
+    private static function restore_retry_locked(stdClass $request): array {
         if (
             (int)$request->type !== coursetransfer_request::TYPE_COURSE
                 || (int)$request->direction !== coursetransfer_request::DIRECTION_REQUEST
@@ -538,6 +650,12 @@ class coursetransfer {
             }
             $stucktaskids[] = $task->id;
         }
+        if (empty($stucktaskids) && !self::can_retry($request)) {
+            // A request still moving (no failing task, recent changes) is not relaunched: it would run the
+            // same transfer twice (#45).
+            return ['success' => false, 'errors' => [
+                    ['code' => '10024', 'msg' => get_string('retry_not_stalled', 'local_coursetransfer')]]];
+        }
         if (!empty($stucktaskids)) {
             $DB->delete_records_list('task_adhoc', 'id', $stucktaskids);
         }
@@ -561,7 +679,11 @@ class coursetransfer {
             }
         }
 
-        // 2. Full relaunch from the stored parameters.
+        // 2. Full relaunch from the stored parameters: not for a course of a category restore (A6).
+        if (!empty($request->request_category_id)) {
+            return ['success' => false, 'errors' => [
+                    ['code' => '10025', 'msg' => get_string('retry_category_course', 'local_coursetransfer')]]];
+        }
         $user = core_user::get_user((int)$request->userid);
         if (!$user) {
             return ['success' => false, 'errors' => [
@@ -579,6 +701,11 @@ class coursetransfer {
             coursetransfer_request::keeps_safety_copy($request)
         );
         $sections = !empty($request->origin_activities) ? (array) json_decode($request->origin_activities, true) : [];
+        // Superseded before relaunching: a late answer of the origin for it is then ignored (B3).
+        $request->status = coursetransfer_request::STATUS_ERROR;
+        $request->error_code = null;
+        $request->error_message = 'Relaunching';
+        coursetransfer_request::insert_or_update($request, $request->id);
         $res = self::restore_course(
             $user,
             $site,
@@ -588,13 +715,14 @@ class coursetransfer {
             $sections
         );
         if (!empty($res['success'])) {
-            // Mark the old request as superseded by the new one.
             $newid = $res['data']['requestid'] ?? '';
-            $request->status = coursetransfer_request::STATUS_ERROR;
-            $request->error_code = null;
-            $request->error_message = 'Relaunched as request #' . $newid;
-            coursetransfer_request::insert_or_update($request, $request->id);
+            coursetransfer_request::update_fields((int)$request->id, ['error_message' => 'Relaunched as request #' . $newid]);
             $res['mode'] = 'relaunch';
+        } else {
+            // Not relaunched: the request keeps its error, with why the relaunch failed, and can be retried again.
+            $first = $res['errors'][0] ?? [];
+            $why = is_array($first) ? trim(($first['code'] ?? '') . ' ' . ($first['msg'] ?? '')) : '';
+            coursetransfer_request::update_fields((int)$request->id, ['error_message' => 'Relaunch failed: ' . $why]);
         }
         return $res;
     }
@@ -1471,23 +1599,101 @@ class coursetransfer {
     }
 
     /**
-     * Accept the current site policies (tool_policy) on behalf of the WS user.
+     * Accept the current site policies on behalf of the WS user (LLAOMW-107, LCT-074).
      *
-     * No-op if the site policy tool is not present or no policies are defined.
+     * It runs as the user who installs, repairs or upgrades the plugin, and only with that user's permissions:
+     * tool_policy versions go through its API, which requires tool/policy:acceptbehalf; the core site policy
+     * ($CFG->sitepolicy) has no acceptance records, its acceptance is the user's policyagreed flag (as in the
+     * core default handler), set only by a user with moodle/site:config. Policies published later reset that
+     * flag for every user, so the status page checks it and Repair calls this again.
      *
      * @param int $userid WS user id.
+     * @return bool Whether the site policies no longer block the user.
      */
-    private static function accept_site_policies(int $userid): void {
-        if (!class_exists(policyapi::class)) {
-            return;
-        }
+    public static function accept_site_policies(int $userid): bool {
+        global $DB;
         try {
-            $versionids = policyapi::get_current_versions_ids();
-            if (!empty($versionids)) {
-                policyapi::accept_policies(array_values($versionids), $userid);
+            if (class_exists(policyapi::class)) {
+                $versionids = policyapi::get_current_versions_ids();
+                if (!empty($versionids)) {
+                    policyapi::accept_policies(array_values($versionids), $userid);
+                }
             }
+            $user = $DB->get_record('user', ['id' => $userid, 'deleted' => 0], 'id, auth, policyagreed', MUST_EXIST);
+            if (
+                self::site_policies_block($user) && !self::pending_site_policies($userid)
+                && has_capability('moodle/site:config', context_system::instance())
+            ) {
+                $DB->set_field('user', 'policyagreed', 1, ['id' => $userid]);
+                $user->policyagreed = 1;
+            }
+            return !self::site_policies_block($user) && !self::pending_site_policies($userid);
         } catch (Throwable $e) {
             debugging('local_coursetransfer: could not accept site policies for the WS user: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Whether the site policies stop the user from using this site, with the same rule as require_login().
+     *
+     * Then other platforms get 'sitepolicynotagreed' when they download a backup or call a service (LCT-074).
+     *
+     * @param stdClass $user User record with id, auth and policyagreed.
+     * @return bool
+     */
+    public static function site_policies_block(stdClass $user): bool {
+        if (!empty($user->policyagreed) || ($user->auth ?? '') === 'webservice' || is_siteadmin($user)) {
+            return false;
+        }
+        return (bool)(new sitepolicy_manager())->is_defined(false);
+    }
+
+    /**
+     * Current tool_policy versions the user still has to accept (LCT-074).
+     *
+     * Same rule as tool_policy\api::update_policyagreed(): compulsory versions not accepted and optional
+     * versions not answered, for logged-in users. Empty when tool_policy is not the site policy handler.
+     *
+     * @param int $userid
+     * @return int[] Policy version ids.
+     */
+    public static function pending_site_policies(int $userid): array {
+        global $CFG, $DB;
+        if (!class_exists(policyapi::class) || ($CFG->sitepolicyhandler ?? '') !== 'tool_policy') {
+            return [];
+        }
+        $sql = "SELECT v.id
+                  FROM {tool_policy} d
+                  JOIN {tool_policy_versions} v ON v.id = d.currentversionid
+             LEFT JOIN {tool_policy_acceptances} a ON a.policyversionid = v.id AND a.userid = :userid
+                 WHERE v.audience IN (:loggedin, :all)
+                       AND (a.id IS NULL OR (a.status = 0 AND v.optional = :compulsory))";
+        return array_map('intval', $DB->get_fieldset_sql($sql, [
+            'userid' => $userid,
+            'loggedin' => policy_version::AUDIENCE_LOGGEDIN,
+            'all' => policy_version::AUDIENCE_ALL,
+            'compulsory' => policy_version::AGREEMENT_COMPULSORY,
+        ]));
+    }
+
+    /**
+     * Stop with a clear error when the site policies block the user of a request without session (LCT-074).
+     *
+     * Peer services (webservice/rest/server.php) and backup downloads (webservice/pluginfile.php) authenticate by
+     * token, without session cookies, and would otherwise fail in require_login() with 'sitepolicynotagreed',
+     * which does not say that the fix is Repair on this site. The message names no user nor policy. Browser
+     * sessions keep the core behaviour (redirect to the policies).
+     *
+     * @throws moodle_exception
+     */
+    public static function require_site_policies_agreed(): void {
+        global $USER;
+        if (!defined('NO_MOODLE_COOKIES') || !NO_MOODLE_COOKIES) {
+            return;
+        }
+        if (isloggedin() && !isguestuser() && self::site_policies_block($USER)) {
+            throw new moodle_exception('error_wspolicynotagreed', 'local_coursetransfer');
         }
     }
 
@@ -1499,15 +1705,18 @@ class coursetransfer {
      * @throws coding_exception
      */
     public static function has_course(stdClass $user): bool {
+        global $DB;
+        // Read from the database: get_courses() lists only what the user of the session may see (on 5.x, none
+        // in a web service call), not what this user may back up.
         $hascourse = false;
-        $cs = get_courses();
-        foreach ($cs as $course) {
-            $context = context_course::instance($course->id);
-            if (has_capability('moodle/backup:backupcourse', $context, $user->id) && (int)$course->id !== 1) {
+        $rs = $DB->get_recordset_select('course', 'id <> :siteid', ['siteid' => SITEID], 'id', 'id, visible');
+        foreach ($rs as $course) {
+            if (self::can_backup_course($course, $user)) {
                 $hascourse = true;
                 break;
             }
         }
+        $rs->close();
         return $hascourse;
     }
 
@@ -1640,7 +1849,13 @@ class coursetransfer {
      */
     public static function can_backup_course(stdClass $course, stdClass $user): bool {
         $context = context_course::instance($course->id);
-        if ((int) $course->id === SITEID || !has_capability('moodle/backup:backupcourse', $context, $user->id)) {
+        // SITEID may be a string (it comes from the database): compare as integers, or the front page is offered.
+        if ((int) $course->id === (int) SITEID || !has_capability('moodle/backup:backupcourse', $context, $user->id)) {
+            return false;
+        }
+        // As require_login() does for the manual backup: an active enrolment or access without one
+        // (managers, admins). A suspended teacher keeps the role, so the capability alone was not enough (#60).
+        if (!is_enrolled($context, $user, '', true) && !is_viewing($context, $user)) {
             return false;
         }
         return !empty($course->visible) || has_capability('moodle/course:viewhiddencourses', $context, $user->id);

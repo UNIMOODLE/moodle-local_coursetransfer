@@ -40,7 +40,7 @@
         data-courseid="{{ courseid }}"
         data-canmerge="{{#canmerge}}1{{/canmerge}}{{^canmerge}}0{{/canmerge}}"
         data-canreplace="{{#canreplace}}1{{/canreplace}}{{^canreplace}}0{{/canreplace}}"
-        data-courseurl="{{ courseurl }}" data-pagesize="{{ pagesize }}">
+        data-courseurl="{{ courseurl }}" data-logurl="{{ logurl }}" data-pagesize="{{ pagesize }}">
 
     <div class="ct-hero">
         {{> local_coursetransfer/components/page_header }}
@@ -252,10 +252,8 @@
                     <i class="fa fa-clock-o ct-alert-icon" aria-hidden="true"></i>
                     <p>{{#str}} rct_async, local_coursetransfer {{/str}}</p>
                 </div>
-                <div class="ct-alert ct-alert--danger ct-mt" data-region="submit-error" hidden>
-                    <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
-                    <p data-region="submit-error-text"></p>
-                </div>
+                {{! Filled by local_coursetransfer/wizard_feedback when a submit does not fully succeed. }}
+                <div class="ct-mt" data-region="submit-error" aria-live="polite" hidden></div>
             </div>
 
         </div>

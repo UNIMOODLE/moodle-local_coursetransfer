@@ -265,6 +265,22 @@ final class download_file_course_task_test extends advanced_testcase {
     }
 
     /**
+     * An origin up to 2.2.0 whose service user is blocked by its site policies: the error says to press Repair there (LCT-074).
+     */
+    public function test_download_origin_policy_not_agreed(): void {
+        $request = $this->backup_request();
+        $body = json_encode(['error' => 'Site policy not agreed', 'errorcode' => 'sitepolicynotagreed']);
+
+        $this->run_fake($request, 'https://origin.example.com/webservice/pluginfile.php/5/x/backup.mbz', $body);
+
+        $request = coursetransfer_request::get($request->id);
+        $this->assertEquals(coursetransfer_request::STATUS_ERROR, $request->status);
+        $this->assertSame('13002', $request->error_code);
+        $this->assertStringStartsWith('sitepolicynotagreed: ', $request->error_message);
+        $this->assertStringContainsString(get_string('error_wspolicynotagreed', 'local_coursetransfer'), $request->error_message);
+    }
+
+    /**
      * The target's own size limit applies to the download.
      */
     public function test_download_too_large(): void {

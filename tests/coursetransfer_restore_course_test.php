@@ -442,7 +442,8 @@ final class coursetransfer_restore_course_test extends advanced_testcase {
         // 1. Test New Course. Without Users.
         $this->validate_course_equals($this->targetnewcourse1, $this->origincourse);
         $this->review_modules($this->targetnewcourse1);
-        $this->review_enrols($this->targetnewcourse1, 0, 0, []);
+        // Without users the groups (empty) are still restored: they are course content (LCT-063).
+        $this->review_enrols($this->targetnewcourse1, 0, 2, []);
         // 2. Test in Target Course. With Users and Groups.
         // targetcourse2 already had 1 group (group4) before the restore, so after
         // restoring the origin's 2 groups the total is 3.
@@ -453,7 +454,8 @@ final class coursetransfer_restore_course_test extends advanced_testcase {
         // 3. Test in Target Course. Without Users. Delete Content and Users and Groups.
         $this->validate_course_not_equals($this->targetcourse3, $this->origincourse);
         $this->validate_request_completed($requesttarget3);
-        $this->review_enrols($this->targetcourse3, 0, 0, []);
+        // Its groups were removed; the origin's groups (empty, no users) arrive as course content (LCT-063).
+        $this->review_enrols($this->targetcourse3, 0, 2, []);
         $this->review_modules3($this->targetcourse3);
         // 5. Test in Target Course.
         $this->validate_course_not_equals($this->targetcourse5, $this->origincourse2);

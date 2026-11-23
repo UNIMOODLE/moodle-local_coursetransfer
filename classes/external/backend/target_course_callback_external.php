@@ -76,8 +76,9 @@ require_once($CFG->dirroot . '/local/coursetransfer/classes/task/download_file_c
  *   error -> success, the error already recorded is kept;
  *   backup and later -> rejected with 14003.
  * - target_remove_course_completed, on a remove course or remove category request:
- *   not started / in progress -> completed, the owner is notified and request_completed fired;
- *   completed / error (*) -> success, nothing changes;
+ *   not started / in progress / error (*) -> completed, the owner is notified and request_completed fired
+ *   (from error, the earlier error is kept as a note);
+ *   completed -> success, nothing changes;
  *   anything else -> rejected with 14023.
  * - target_remove_course_error, on a remove course or remove category request:
  *   not started / in progress -> error, with the origin's code and message;
@@ -398,14 +399,22 @@ class target_course_callback_external extends backend_api {
                     [coursetransfer_request::STATUS_NOT_STARTED, coursetransfer_request::STATUS_IN_PROGRESS],
                     [coursetransfer_request::STATUS_COMPLETED, coursetransfer_request::STATUS_ERROR]
                 ) : null;
-                if ($transition === self::TRANSITION_DUPLICATE) {
-                    // Already closed: no second notification or event, and an error is not overwritten.
+                $recordederror = $request && (int)$request->status === coursetransfer_request::STATUS_ERROR;
+                if ($transition === self::TRANSITION_DUPLICATE && !$recordederror) {
+                    // Already completed: no second notification or event.
                     $data->id = $request->id;
                     $success = true;
                 } else if ($transition === self::TRANSITION_REJECT) {
                     $success = false;
                     $errors[] = self::transition_error('14023', 'target_remove_course_completed', $request);
                 } else if ($request) {
+                    if ($recordederror) {
+                        // The origin did remove it (its answer was lost and this site recorded an error): record what
+                        // happened, keeping the earlier error as a note (C3).
+                        $request->error_message = 'Removed by the origin after an earlier error: '
+                            . trim(($request->error_code ?? '') . ' ' . ($request->error_message ?? ''));
+                        $request->error_code = null;
+                    }
                     $request->status = coursetransfer_request::STATUS_COMPLETED;
                     coursetransfer_request::insert_or_update($request, $requestid);
                     if ((int)$request->type === coursetransfer_request::TYPE_REMOVE_COURSE) {

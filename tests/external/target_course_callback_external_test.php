@@ -317,14 +317,21 @@ final class target_course_callback_external_test extends advanced_testcase {
         $this->assertTrue($res['success']);
         $this->assertEquals(coursetransfer_request::STATUS_COMPLETED, coursetransfer_request::get($request->id)->status);
 
+        $this->assertCount(0, $messages->get_messages());
+        $this->assertCount(0, array_filter($events->get_events(), fn($e) => $e instanceof request_completed));
+
+        // Recorded as an error here but removed by the origin: it becomes completed, the error kept as a note (C3).
         $failed = $this->create_request(coursetransfer_request::TYPE_REMOVE_COURSE, coursetransfer_request::STATUS_ERROR);
+        coursetransfer_request::update_fields((int) $failed->id, ['error_code' => '15000', 'error_message' => 'Timeout']);
         $res = target_course_callback_external::target_remove_course_completed('username', 'admin', (int) $failed->id);
         $res = external_api::clean_returnvalue($this->returns('target_remove_course_completed'), $res);
         $this->assertTrue($res['success']);
-        $this->assertEquals($failed, coursetransfer_request::get($failed->id));
-
-        $this->assertCount(0, $messages->get_messages());
-        $this->assertCount(0, array_filter($events->get_events(), fn($e) => $e instanceof request_completed));
+        $stored = coursetransfer_request::get($failed->id);
+        $this->assertEquals(coursetransfer_request::STATUS_COMPLETED, $stored->status);
+        $this->assertEmpty($stored->error_code);
+        $this->assertStringContainsString('15000 Timeout', $stored->error_message);
+        $this->assertCount(1, $messages->get_messages());
+        $this->assertCount(1, array_filter($events->get_events(), fn($e) => $e instanceof request_completed));
 
         $course = $this->create_request(coursetransfer_request::TYPE_COURSE);
         $res = target_course_callback_external::target_remove_course_completed('username', 'admin', (int) $course->id);

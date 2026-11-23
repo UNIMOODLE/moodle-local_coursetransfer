@@ -34,7 +34,6 @@
 
 namespace local_coursetransfer\task;
 
-
 use coding_exception;
 use dml_exception;
 use local_coursetransfer\coursetransfer_request;

@@ -35,7 +35,7 @@ global $CFG;
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
 /**
- * The backup only includes user data when the requesting user may back it up (N4).
+ * The backup only includes user data when the requesting user may back it up (N4), in every selected section.
  *
  * @package    local_coursetransfer
  * @copyright  2026 3ipunt <https://www.tresipunt.com>
@@ -83,5 +83,50 @@ final class coursetransfer_backup_users_test extends advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
 
         $this->assertTrue($this->users_setting((int) $course->id, (int) get_admin()->id));
+    }
+
+    /**
+     * With user data, every selected section and activity keeps its user data, not only the first (LCT-033).
+     */
+    public function test_userinfo_in_every_selected_section(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $gen = $this->getDataGenerator();
+        $course = $gen->create_course(['numsections' => 4]);
+        $cms = [];
+        foreach ([1, 2, 3, 4] as $sectionnum) {
+            $cms[$sectionnum] = $gen->create_module('assign', ['course' => $course->id, 'section' => $sectionnum]);
+        }
+        $modinfo = get_fast_modinfo($course);
+        $sections = [];
+        foreach ($modinfo->get_section_info_all() as $section) {
+            // Section 2 is left out: the ones after it must still carry their user data.
+            $selected = ((int) $section->section === 2) ? 0 : 1;
+            $activities = [];
+            foreach ($modinfo->sections[$section->section] ?? [] as $cmid) {
+                $activities[] = ['cmid' => $cmid, 'selected' => $selected];
+            }
+            $sections[] = ['sectionid' => $section->id, 'selected' => $selected, 'activities' => $activities];
+        }
+
+        $site = $gen->get_plugin_generator('local_coursetransfer')->create_site('target');
+        $adminid = (int) get_admin()->id;
+        $this->assertTrue(coursetransfer_backup::create_task_backup_course((int) $course->id, $adminid, $site, 1, 1, $sections, 1));
+        $tasks = manager::get_adhoc_tasks(create_backup_course_task::class);
+        $bc = backup_controller::load_controller(end($tasks)->get_custom_data()->backupid);
+        $plan = $bc->get_plan();
+        foreach ($modinfo->get_section_info_all() as $section) {
+            $expected = ((int) $section->section === 2) ? 0 : 1;
+            $this->assertSame($expected, (int) $plan->get_setting('section_' . $section->id . '_included')->get_value());
+            $userinfo = (int) $plan->get_setting('section_' . $section->id . '_userinfo')->get_value();
+            $this->assertSame($expected, $userinfo, 'section ' . $section->section);
+        }
+        foreach ($cms as $sectionnum => $module) {
+            $expected = ($sectionnum === 2) ? 0 : 1;
+            $this->assertSame($expected, (int) $plan->get_setting('assign_' . $module->cmid . '_included')->get_value());
+            $userinfo = (int) $plan->get_setting('assign_' . $module->cmid . '_userinfo')->get_value();
+            $this->assertSame($expected, $userinfo, 'activity in section ' . $sectionnum);
+        }
+        $bc->destroy();
     }
 }

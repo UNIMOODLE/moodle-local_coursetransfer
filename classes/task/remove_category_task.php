@@ -117,14 +117,21 @@ class remove_category_task extends \core\task\adhoc_task {
             coursetransfer_remove::create_cleanup_category_bin_task($catid);
 
             if ($request) {
-                $res = $request->target_remove_course_completed($requestdestid, $user);
-                if (!$res->success) {
+                // The category is removed whatever the target answers: a failed notice is a note on a completed
+                // request, never an error that would say the removal did not happen (C3).
+                try {
+                    $res = $request->target_remove_course_completed($requestdestid, $user);
+                    $why = $res->success ? '' : ($res->errors[0]->code ?? '') . ' ' . ($res->errors[0]->msg ?? '');
+                } catch (Throwable $e) {
+                    $res = null;
+                    $why = $e->getMessage();
+                }
+                if ($why !== '') {
                     coursetransfer_request::update_fields($requestoriginid, [
-                        'status' => coursetransfer_request::STATUS_ERROR,
-                        'error_code' => $res->errors[0]->code,
-                        'error_message' => $res->errors[0]->msg,
+                        'error_code' => '15010',
+                        'error_message' => 'Removed; the target was not told: ' . trim($why),
                     ]);
-                    mtrace('Remove Course Remote in Completed Callback ERROR: ' . $res->errors[0]->msg);
+                    mtrace('Remove Category Remote: removed, but the completed callback failed: ' . trim($why));
                     $this->log(json_encode($res));
                 }
             }

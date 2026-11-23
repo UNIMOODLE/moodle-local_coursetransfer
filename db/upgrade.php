@@ -286,5 +286,15 @@ function xmldb_local_coursetransfer_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026112001, 'local', 'coursetransfer');
     }
 
+    if ($oldversion < 2026112002) {
+        // A new site policy version, or policies created after installing, leave the service user blocked
+        // ('sitepolicynotagreed' on the peers) until Repair: accept them now (LCT-074). And let its role see
+        // hidden categories, which sites upgraded from 1.x lacked (LCT-068).
+        require_once(__DIR__ . '/upgradelib.php');
+        local_coursetransfer_accept_ws_site_policies();
+        local_coursetransfer_allow_hidden_categories();
+        upgrade_plugin_savepoint(true, 2026112002, 'local', 'coursetransfer');
+    }
+
     return true;
 }

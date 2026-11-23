@@ -405,8 +405,9 @@ class origin_course_external extends backend_api {
                     $item->idnumber = $course->idnumber;
                     $item->categoryid = $course->category;
                     $item->backupsizeestimated = coursetransfer::get_backup_size_estimated($course->id);
-                    $category = core_course_category::get($item->categoryid);
-                    $item->categoryname = $category->name;
+                    // Informative only, whether or not the service user sees hidden categories (LCT-068).
+                    $category = core_course_category::get($item->categoryid, IGNORE_MISSING, true);
+                    $item->categoryname = $category ? $category->name : '';
                     $data[] = $item;
                 }
                 $perpage = 0;

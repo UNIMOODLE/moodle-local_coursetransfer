@@ -140,9 +140,10 @@ final class remove_course_task_test extends advanced_testcase {
 
         $this->assertFalse($DB->record_exists('course', ['id' => $this->course->id]));
         $request = coursetransfer_request::get($this->request->id);
-        $this->assertEquals(coursetransfer_request::STATUS_ERROR, $request->status);
-        $this->assertSame('14022', $request->error_code);
-        $this->assertSame('Request id not found', $request->error_message);
+        // Removed: a failed notice to the target is a note on a completed request, not an error (C3).
+        $this->assertEquals(coursetransfer_request::STATUS_COMPLETED, $request->status);
+        $this->assertSame('15010', $request->error_code);
+        $this->assertStringContainsString('14022 Request id not found', $request->error_message);
     }
 
     /**
