@@ -38,7 +38,6 @@ use advanced_testcase;
 use local_coursetransfer\factory\user;
 use local_coursetransfer\output\index_page;
 
-
 /**
  * Tests for the summary screen renderable (integration status checks).
  *
@@ -133,7 +132,7 @@ final class index_page_test extends advanced_testcase {
     public function test_structure(): void {
         $data = $this->export();
 
-        $this->assertCount(10, $data->checks);
+        $this->assertCount(11, $data->checks);
         $this->assertCount(5, $data->pluginlinks);
         $this->assertCount(2, $data->moodlelinks);
         $this->assertNotEmpty($data->logourl);

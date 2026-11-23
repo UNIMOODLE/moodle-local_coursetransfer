@@ -34,7 +34,6 @@
 
 namespace local_coursetransfer\external\backend;
 
-use context_course;
 use core_course_category;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
@@ -190,7 +189,8 @@ class origin_course_backup_external extends backend_api {
                 $verifytarget = coursetransfer::verify_target_site($targetsite);
                 $user = $authres['data'];
                 if ($verifytarget['success']) {
-                    if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id), $user)) {
+                    // Same rule as listing the course: capability, active enrolment (or access) and visibility (#60).
+                    if (coursetransfer::can_backup_course($course, $user)) {
                         $nextruntime = empty($configuration['nextruntime']) ? null : $configuration['nextruntime'];
                         $config = new configuration_course(
                             $configuration['target_target'],

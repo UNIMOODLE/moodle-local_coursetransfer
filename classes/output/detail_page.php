@@ -170,6 +170,17 @@ class detail_page implements renderable, templatable {
             $data->retryurl = (new moodle_url('/local/coursetransfer/retry.php', ['id' => $r->id]))->out(false);
         }
 
+        // Completed, but the origin was kept on purpose: say so, why and what to do (B1).
+        $keptaction = coursetransfer_request::origin_kept_action($r);
+        $data->iskept = $keptaction !== null;
+        if ($data->iskept) {
+            $data->keptcause = trim((string)$r->error_message) !== '' ? (string)$r->error_message
+                : get_string('exec_err_nomessage', 'local_coursetransfer');
+            $data->kepttitle = get_string($keptaction[0], 'local_coursetransfer');
+            $data->keptaction = get_string($keptaction[1], 'local_coursetransfer');
+            $data->keptcode = $r->error_code;
+        }
+
         // Request content (sections + activities).
         $data->sections = $this->build_sections($r);
         $data->hassections = !empty($data->sections);
@@ -199,6 +210,10 @@ class detail_page implements renderable, templatable {
                 'idle' => format_time($idle),
             ]);
             $data->stalled = $idle > HOURSECS;
+            // Stopped for long enough: offer Retry as for a request in error (#45).
+            $data->canretrystalled = $data->stalled && coursetransfer::can_retry($r)
+                && has_capability('local/coursetransfer:manage_requests', \context_system::instance());
+            $data->retryurl = (new moodle_url('/local/coursetransfer/retry.php', ['id' => $r->id]))->out(false);
         }
 
         // Cross-site correlation: the ids needed to find the same operation on the

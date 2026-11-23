@@ -41,8 +41,9 @@
 define([
     'jquery',
     'core/ajax',
-    'core/str'
-], function($, Ajax, Str) {
+    'core/str',
+    'local_coursetransfer/wizard_feedback'
+], function($, Ajax, Str, Feedback) {
     "use strict";
 
     var PERPAGE = 10;
@@ -61,7 +62,7 @@ define([
 
     var STRINGKEYS = [
         'rw_loading', 'rw_cancel', 'rw_back', 'rw_next', 'rw_run', 'rw_clear',
-        'rw_noresults', 'rw_pageinfo', 'rw_step_of', 'rw_submit_error',
+        'rw_noresults', 'rw_pageinfo', 'rw_step_of',
         'rw_results', 'rw_results_note', 'rw_courses_pl', 'rw_recommended', 'rw_destructive',
         'rw_lbl_idnumber', 'rw_lbl_category', 'rw_users_on', 'rw_users_off',
         'rct_q_course_desc', 'rct_stat_sections', 'rct_stat_activities', 'rct_stat_size',
@@ -89,6 +90,7 @@ define([
             this.canmerge = this.$root.attr('data-canmerge') === '1';
             this.canreplace = this.$root.attr('data-canreplace') === '1';
             this.courseurl = this.$root.attr('data-courseurl') || '#';
+            this.logurl = this.$root.attr('data-logurl') || '#';
             // Search page size from the plugin setting (default 5).
             this.perpage = parseInt(this.$root.attr('data-pagesize'), 10) || PERPAGE;
             this.S = {};
@@ -120,6 +122,12 @@ define([
             } else if (this.canreplace) {
                 mode = 'replace';
             }
+            // Submit guard: '' | 'sending' (request in flight) | 'locked'
+            // (partial or unconfirmed result: running again could duplicate).
+            // A request in flight is never forgotten, not even by "cancel".
+            if (this.submitstate !== 'sending') {
+                this.submitstate = '';
+            }
             this.state = {
                 view: 'landing',
                 step: 0,
@@ -137,6 +145,8 @@ define([
                 sections: [],
                 sectionsloaded: false,
                 sectionsloading: false,
+                // Last get_sections failure (WS response or exception), or null.
+                sectionserror: null,
                 checked: {},
                 // Sections with no activities are selected on their own (their
                 // structure/summary is brought), keyed by section index.
@@ -267,6 +277,7 @@ define([
          */
         start: function() {
             this.resetState();
+            this.region('submit-error').prop('hidden', true).empty();
             this.showView('wizard');
             this.goStep(0);
             if (!this.sites.length) {
@@ -345,7 +356,7 @@ define([
         refreshFooter: function() {
             var step = this.state.step;
             var self = this;
-            this.$root.find('[data-action="back"]').prop('disabled', step === 0);
+            this.$root.find('[data-action="back"]').prop('disabled', step === 0 || this.submitstate === 'sending');
 
             var $primary = this.$root.find('[data-action="primary"]');
             var islast = step === TOTALSTEPS - 1;
@@ -374,6 +385,10 @@ define([
          */
         canProceed: function() {
             var s = this.state;
+            // Also covers the deferred re-check in refreshFooter().
+            if (this.submitstate) {
+                return false;
+            }
             if (s.step === 0) {
                 return !!s.siteid;
             }
@@ -425,15 +440,18 @@ define([
          */
         loadSites: function() {
             var self = this;
+            this.region('sites').empty().append(
+                $('<div>').addClass('ct-selempty').text(this.S.rw_loading || '…'));
             Ajax.call([{
                 methodname: 'local_coursetransfer_restore_wizard_get_sites',
                 args: {}
             }])[0].then(function(resp) {
                 self.sites = resp.sites || [];
                 return self.renderSites();
-            }).catch(function() {
-                self.region('sites').empty().append(
-                    $('<div>').addClass('ct-selempty').text(self.S.rw_submit_error || 'Error'));
+            }).catch(function(ex) {
+                Feedback.showLoadError(self.region('sites'), ex, function() {
+                    self.loadSites();
+                });
             });
         },
 
@@ -527,14 +545,34 @@ define([
                     query: this.state.search
                 }
             }])[0].then(function(resp) {
+                if (!resp || !resp.success) {
+                    // An origin error is not "no results": say what failed.
+                    self.listFailed(resp);
+                    return resp;
+                }
                 self.items = resp.items || [];
                 self.state.total = resp.total || 0;
                 self.state.pages = resp.pages || 1;
                 self.state.page = resp.page || 0;
                 return self.renderRows();
-            }).catch(function() {
-                self.region('rows').empty().append(
-                    $('<div>').addClass('ct-selempty').text(self.S.rw_submit_error || 'Error'));
+            }).catch(function(ex) {
+                self.listFailed(ex);
+            });
+        },
+
+        /**
+         * Show a listing failure (code, hint, retry) instead of an empty list.
+         *
+         * @param {Object} failure WS response or exception.
+         */
+        listFailed: function(failure) {
+            var self = this;
+            this.items = [];
+            this.state.total = 0;
+            this.state.pages = 1;
+            this.renderRows();
+            Feedback.showLoadError(this.region('rows'), failure, function() {
+                self.loadList();
             });
         },
 
@@ -646,6 +684,7 @@ define([
                 return;
             }
             this.state.sectionsloading = true;
+            this.state.sectionserror = null;
             Ajax.call([{
                 methodname: 'local_coursetransfer_restore_wizard_get_sections',
                 args: {
@@ -654,7 +693,12 @@ define([
                     targetcourseid: this.courseid
                 }
             }])[0].then(function(resp) {
-                self.state.sections = (resp && resp.sections) ? resp.sections : [];
+                if (!resp || !resp.success) {
+                    // Not "a course with 0 sections": keep the step blocked and say why.
+                    self.sectionsFailed(resp);
+                    return resp;
+                }
+                self.state.sections = resp.sections || [];
                 self.state.sectionsloaded = true;
                 self.state.sectionsloading = false;
                 // Default: bring the whole course (all activities checked, and
@@ -677,11 +721,25 @@ define([
                     self.renderReview();
                 }
                 return resp;
-            }).catch(function() {
-                self.state.sectionsloaded = false;
-                self.state.sectionsloading = false;
-                self.refreshFooter();
+            }).catch(function(ex) {
+                self.sectionsFailed(ex);
             });
+        },
+
+        /**
+         * Record a get_sections failure: the review step shows it with a retry.
+         *
+         * @param {Object} failure WS response or exception.
+         */
+        sectionsFailed: function(failure) {
+            this.state.sections = [];
+            this.state.sectionsloaded = false;
+            this.state.sectionsloading = false;
+            this.state.sectionserror = failure || {};
+            this.refreshFooter();
+            if (this.state.step === 2) {
+                this.renderReview();
+            }
         },
 
         /**
@@ -770,6 +828,16 @@ define([
             $stats.append(stat(this.totalActs(), this.S.rct_stat_activities || 'Activities'));
             $stats.append(stat(s.coursemeta || '—', this.S.rct_stat_size || 'Size'));
             $review.append($stats);
+
+            if (s.sectionserror) {
+                var self = this;
+                var $err = $('<div>').addClass('ct-mt');
+                $review.append($err);
+                Feedback.showLoadError($err, s.sectionserror, function() {
+                    self.loadSections();
+                    self.renderReview();
+                });
+            }
         },
 
         // ---- Step 3: options ------------------------------------------
@@ -1091,9 +1159,12 @@ define([
         submit: function() {
             var self = this;
             var s = this.state;
-            var $primary = this.$root.find('[data-action="primary"]');
-            $primary.prop('disabled', true);
-            this.region('submit-error').prop('hidden', true);
+            if (this.submitstate) {
+                return;
+            }
+            this.submitstate = 'sending';
+            this.region('submit-error').prop('hidden', true).empty();
+            this.refreshFooter();
 
             var sections = s.sections.map(function(sec, i) {
                 var acts = (sec.activities || []).map(function(act) {
@@ -1132,30 +1203,35 @@ define([
                     sections: sections
                 }
             }])[0].then(function(resp) {
-                if (resp && resp.success) {
+                var kind = Feedback.outcome(resp);
+                if (kind === 'done') {
+                    self.submitstate = '';
                     self.showView('done');
                 } else {
-                    self.submitError(resp);
+                    self.submitFailed(resp, kind);
                 }
                 return resp;
-            }).catch(function() {
-                self.submitError(null);
+            }).catch(function(ex) {
+                // No answer (timeout, 504, session): the request may exist.
+                self.submitFailed(ex, 'unconfirmed');
             });
         },
 
         /**
-         * Report a submit failure inline on the content step.
+         * Report a submit that did not fully succeed on the content step. Only
+         * a plain failure (nothing created) lets the user run it again.
          *
-         * @param {Object|null} resp
+         * @param {Object|null} failure WS response or exception.
+         * @param {String} kind failed|partial|unconfirmed
          */
-        submitError: function(resp) {
-            var msg = this.S.rw_submit_error || 'Error';
-            if (resp && resp.errors && resp.errors.length && resp.errors[0].msg) {
-                msg = resp.errors[0].msg;
+        submitFailed: function(failure, kind) {
+            var url = this.logurl;
+            if (failure && failure.data && failure.data.nexturl && failure.data.nexturl !== '#') {
+                url = failure.data.nexturl;
             }
-            this.region('submit-error').prop('hidden', false);
-            this.region('submit-error-text').text(msg);
-            this.$root.find('[data-action="primary"]').prop('disabled', false);
+            this.submitstate = (kind === 'failed') ? '' : 'locked';
+            Feedback.showSubmitFailure(this.region('submit-error'), failure, kind, url);
+            this.refreshFooter();
         }
     };
 

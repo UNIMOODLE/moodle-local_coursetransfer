@@ -34,7 +34,6 @@
 
 namespace local_coursetransfer\event;
 
-
 /**
  * Fired when a course transfer request (restore or remove, course or category)
  * reaches the COMPLETED status. Carries the request id, plus its type and

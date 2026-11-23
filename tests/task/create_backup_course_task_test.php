@@ -115,8 +115,13 @@ final class create_backup_course_task_test extends advanced_testcase {
      * If the backup file cannot be published, the origin request fails even though the target was told (LCT-049).
      */
     public function test_backup_file_rejected_marks_error(): void {
-        set_config('target_restore_course_max_size', 0, 'local_coursetransfer');
+        // A backup over the limit (0 is no limit): 2 MB of incompressible content against a 1 MB limit.
+        set_config('target_restore_course_max_size', 1, 'local_coursetransfer');
         $request = $this->create_request();
+        get_file_storage()->create_file_from_string([
+            'contextid' => \context_course::instance((int) $request->origin_course_id)->id, 'component' => 'course',
+            'filearea' => 'summary', 'itemid' => 0, 'filepath' => '/', 'filename' => 'big.bin',
+        ], random_bytes(2 * 1024 * 1024));
         \curl::mock_response(json_encode(['success' => true, 'errors' => [], 'data' => ['id' => 77]]));
 
         $this->run_backup((int) $request->id);

@@ -31,11 +31,12 @@
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2026112001;
+$plugin->version   = 2026112002;
 $plugin->requires  = 2024100700;
 $plugin->component = 'local_coursetransfer';
-$plugin->release   = '2.2.0';
+$plugin->release   = '2.2.1';
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->supported = [405, 503];

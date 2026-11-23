@@ -2,6 +2,98 @@
 
 All notable changes to this plugin are documented here.
 
+## 2.2.1 — 2026-11-20 (`2026112002`)
+
+Maintenance release: complete course transfers and fixes reported on GitHub. Supported:
+Moodle 4.5, 5.1 and 5.3. Upgrade both platforms; the protocol does not change.
+
+### Changed
+
+- **A transfer carries the whole course, whatever the general backup and restore defaults
+  of each site.** With user data, the backup includes everything the backup form includes
+  with every option ticked (submissions, posts, attempts, grades and their history,
+  completion, comments, role assignments, logs…); without user data, all the course content.
+  New setting `transferlogs` (on by default) to leave the logs out. Groups and groupings are
+  now restored also without user data (empty), as course content. Every section and activity
+  carries its user data too, not only the course-level settings. Privacy decisions locked by
+  the administrator of the origin (user data off, anonymisation) are kept.
+- **Enrolments of the origin are restored as active manual enrolments**, whatever their
+  method (database, LDAP, cohort, meta, self…), as the restore option "Restore users as
+  manual enrolments" does, while manual enrolments are enabled on the target. Methods tied to
+  the origin (self enrolment with a key, guest access) are not recreated (#43, #42).
+- **Retry is also offered for course requests that have stopped**: no changes for over an
+  hour (six while the origin makes the backup) and past their scheduled time, in the
+  executions page and in the request detail. Requests still moving cannot be relaunched
+  (error `10024`), and a course of a category restore is only restored again from its
+  downloaded backup, never relaunched apart from its category (error `10025`) (#45).
+- Origin courses follow the same access rule as Moodle's manual backup: an active enrolment
+  or access to the course without one (#60).
+
+### Fixed
+
+- With "include users" and a selection of sections, only the first section kept its user
+  data: student submissions, posts and attempts of the rest were not transferred (#42).
+- Subsections (Moodle 4.5+): the content of a subsection always follows the subsection
+  activity, as in Moodle's own backup, so no activity is restored outside its subsection (#58).
+- The service user keeps the site policies accepted: new status check "Site policies" with
+  Repair, accepted again on a web upgrade (after a CLI upgrade, use Repair on the status
+  page), support for `$CFG->sitepolicy`, and a clear error on the origin when they are
+  pending (`error_wspolicynotagreed`) (#53).
+- Restores of backups made by an origin on Moodle 5.x are no longer held for a setting that
+  does not exist there.
+- The files of every included activity are restored even when activities are off in the
+  general restore defaults of the target.
+- A course in a hidden category of the origin no longer stops its restore or the removal of
+  the origin; the upgrade grants `moodle/category:viewhiddencategories` to the service role
+  (#47, #62).
+- The category menu link no longer breaks pages of a hidden category, such as the self
+  enrolment page of a visible course in it, and is only shown to who may use it (#63).
+- On the origin, only a live local account can act for a user of the target: deleted,
+  suspended or duplicated accounts are rejected with a clear error (`17002`, `17004`,
+  `17005`).
+- Retry runs once at a time per request (`10026`), decides on the stored request and records
+  why a relaunch failed; the retry page shows any error as a message (`10027`).
+- A remote removal that was done is recorded as completed on both platforms, even when the
+  notice between them failed (`15010` note on the origin; on the target, an earlier error is
+  kept as a note).
+- A backup size limit of 0 means no limit on the origin too: it rejected every backup.
+- An existing target course chosen for more than one origin in replace mode, or with a restore
+  still running, is rejected before anything is launched (`10030`): the second replace would
+  empty what the first restored.
+- A scheduled removal or restore with a date in the past or beyond 30 days is rejected
+  (`10031`) instead of running at once.
+- Only finished requests without pending tasks nor a kept safety copy can be deleted from the
+  history (`30703`), and every deletion is logged (event `request_deleted`).
+- The remove wizard no longer says a removed category can be recovered from the recycle bin:
+  deleting a category also empties its recycle bin.
+- Wizards: when a submission only partly succeeds, or its result cannot be confirmed (timeout,
+  lost connection), they show what was launched and a link to the log, and do not offer to run
+  it again; the run button cannot be pressed twice while a submission is in progress.
+- Wizards: an error of the origin (connection, permissions, user not found…) is shown with its
+  code, what to do and a Retry button, instead of "no results" or an empty category tree.
+- Wizards: an invalid or past scheduled date is flagged before submitting, and the same
+  existing target in replace mode for two origins is flagged in the destination step.
+- The origin no longer offers its front page as a course to restore or remove.
+- Translations: four strings missing in Galician and Basque.
+
+### Data safety
+
+- A completed request whose origin was kept on purpose says so ("Completed · the origin was
+  kept"), with the reason and what to do, instead of a plain "Completed".
+- Before removing the origin, the restored course is also checked against the backup: the
+  backup carries the whole course, every included activity carries its user data, and the
+  restored course has at least the grades, activity completion states and files of the
+  backup that this kind of restore brings. Otherwise the removal is held and the reason is
+  recorded. If the backup could not be read, the removal is held too.
+
+### Upgrade notes
+
+- Backups with user data include the logs by default and can be larger: untick
+  `transferlogs` if needed.
+- A transfer from a 2.2.0 or older origin is checked against its backup: if that origin's
+  general backup defaults left something out, the removal of the origin is held. Upgrade
+  the origin.
+
 ## 2.2.0 — 2026-11-20 (`2026112001`)
 
 Moodle 5.3 support, robustness and data-integrity release. Supported:

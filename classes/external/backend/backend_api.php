@@ -18,6 +18,7 @@ namespace local_coursetransfer\external\backend;
 
 use context_system;
 use core_external\external_api;
+use local_coursetransfer\coursetransfer;
 
 /**
  * Base of the web services that only a peer platform calls, with this site's service user token.
@@ -46,10 +47,13 @@ abstract class backend_api extends external_api {
      *
      * @return bool Whether the call was accepted only through that deprecated path.
      * @throws \required_capability_exception
+     * @throws \moodle_exception When the site policies block the caller (LCT-074).
      */
     public static function validate_service_user(): bool {
         global $USER;
         $context = context_system::instance();
+        // Say that Repair on this site fixes it, instead of the generic 'sitepolicynotagreed' (LCT-074).
+        coursetransfer::require_site_policies_agreed();
         external_api::validate_context($context);
         if (has_capability(self::CAPABILITY, $context)) {
             return false;

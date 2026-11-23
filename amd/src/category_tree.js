@@ -37,8 +37,9 @@
 
 define([
     'jquery',
-    'core/ajax'
-], function($, Ajax) {
+    'core/ajax',
+    'local_coursetransfer/wizard_feedback'
+], function($, Ajax, Feedback) {
     "use strict";
 
     /**
@@ -83,17 +84,26 @@ define([
      */
     function load($body, siteid, categoryid, strings) {
         strings = strings || {};
+        var retry = function() {
+            load($body, siteid, categoryid, strings);
+        };
         $body.text(strings.loading || 'Loading…');
         Ajax.call([{
             methodname: 'local_coursetransfer_restore_wizard_get_category_tree',
             args: {siteid: siteid, categoryid: categoryid}
         }])[0].done(function(resp) {
+            // An origin error is not an empty tree: show its code and a retry.
+            if (!resp || !resp.success) {
+                Feedback.showLoadError($body, resp, retry, strings.error);
+                return;
+            }
             var node = null;
-            if (resp.success && resp.tree) {
+            if (resp.tree) {
                 try {
                     node = JSON.parse(resp.tree);
                 } catch (e) {
-                    node = null;
+                    Feedback.showLoadError($body, e, retry, strings.error);
+                    return;
                 }
             }
             if (!node) {
@@ -101,8 +111,8 @@ define([
                 return;
             }
             $body.empty().append(buildNode(node));
-        }).fail(function() {
-            $body.text(strings.error || 'Could not load the tree.');
+        }).fail(function(ex) {
+            Feedback.showLoadError($body, ex, retry, strings.error);
         });
     }
 

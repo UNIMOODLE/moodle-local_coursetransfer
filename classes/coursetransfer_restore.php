@@ -147,6 +147,14 @@ class coursetransfer_restore {
                     $plan->get_setting($option)->set_status(\base_setting::NOT_LOCKED);
                     $plan->get_setting($option)->set_value($value);
                 }
+                self::apply_transfer_settings($plan, $filepath);
+                // The core decides which files to restore from the controller stored in the database
+                // (restore_dbops::get_included_tasks): store it with these settings before the precheck, and
+                // go on with the stored one, as the restore form does (saving closes the logger in memory).
+                $rc->save_controller();
+                $rc = restore_controller::load_controller($rc->get_restoreid());
+                $rc->set_progress(new restore_progress((int)$request->id));
+                $plan = $rc->get_plan();
 
                 if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
                     $rc->convert();
@@ -298,5 +306,37 @@ class coursetransfer_restore {
             }
         }
         return array_keys($missing);
+    }
+
+    /**
+     * Restore everything the backup carries, whatever the general restore defaults of this site (LCT-063), and
+     * keep every enrolment of the origin as a manual one (LCT-064).
+     *
+     * Enrolment methods tied to the origin (database, LDAP, cohort, meta…) do not enrol anybody on another
+     * platform, so the core default (restore them with their users) left the restored course without
+     * students. ENROL_NEVER is the core option that turns each enrolment into an active manual one.
+     *
+     * @param \base_plan $plan Restore plan.
+     * @param string $filepath Backup temp dir name.
+     */
+    public static function apply_transfer_settings(\base_plan $plan, string $filepath): void {
+        $info = backup_general_helper::get_backup_information($filepath);
+        $available = $info->root_settings ?? [];
+        $rootusers = empty($available['users']) ? 0 : 1;
+        coursetransfer_backup::apply_root_settings($plan, $rootusers, $available);
+        // Each section and activity as the backup carries it, not as the restore defaults of this site say.
+        $elements = [];
+        foreach (array_merge(array_values($info->sections ?? []), array_values($info->activities ?? [])) as $element) {
+            $elements += $element->settings ?? [];
+        }
+        coursetransfer_backup::apply_element_settings($plan, $rootusers, $elements);
+        // Only while manual enrolments are enabled here: otherwise the core enrols nobody with ENROL_NEVER (A8).
+        if ($plan->setting_exists('enrolments') && enrol_is_enabled('manual')) {
+            $setting = $plan->get_setting('enrolments');
+            if ($setting->get_status() !== \base_setting::LOCKED_BY_PERMISSION) {
+                $setting->set_status(\base_setting::NOT_LOCKED);
+                $setting->set_value(backup::ENROL_NEVER);
+            }
+        }
     }
 }

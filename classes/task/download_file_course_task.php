@@ -155,10 +155,14 @@ class download_file_course_task extends \core\task\adhoc_task {
                 $body = (string) @file_get_contents($tmpfile, false, null, 0, 4096);
                 $error = json_decode($body);
                 if ($error && !empty($error->errorcode)) {
-                    // For example: "sitepolicynotagreed: No ha aceptado la política del sitio [debuginfo]".
+                    // The error code, its message and the debug information, as the origin sent them.
                     $msg = $error->errorcode . ': ' . ($error->error ?? '');
                     if (!empty($error->debuginfo)) {
                         $msg .= ' [' . $error->debuginfo . ']';
+                    }
+                    if ($error->errorcode === 'sitepolicynotagreed') {
+                        // Origin up to 2.2.0: say what fixes it there (LCT-074).
+                        $msg .= ' ' . get_string('error_wspolicynotagreed', 'local_coursetransfer');
                     }
                     $this->set_request_error($requestid, '13002', $msg);
                 } else {
