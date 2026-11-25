@@ -285,22 +285,47 @@ final class restore_wizard_remote_test extends advanced_testcase {
     }
 
     /**
-     * delete_request removes the request and its queued adhoc tasks, and nothing else.
+     * delete_request removes a request in any status, and nothing else; its queued task ends by itself (LCT-126).
      */
     public function test_delete_request(): void {
         global $DB;
         $generator = $this->getDataGenerator()->get_plugin_generator('local_coursetransfer');
-        // A request with a task still queued is not deleted: its task would run orphaned or be lost (R4).
-        $running = $generator->create_request(['status' => coursetransfer_request::STATUS_ERROR]);
+
+        // A task of the request running right now holds the deletion: it would go on writing after it.
+        $busy = $generator->create_request(['status' => coursetransfer_request::STATUS_DOWNLOAD]);
         $task = new download_file_course_task();
-        $task->set_custom_data(['requestid' => (int) $running->id, 'fileurl' => 'https://origin.example.com/x.mbz']);
-        manager::queue_adhoc_task($task);
-        $res = restore_wizard_external::delete_request((int) $running->id);
+        $task->set_custom_data(['requestid' => (int) $busy->id, 'fileurl' => 'https://origin.example.com/x.mbz']);
+        $taskid = manager::queue_adhoc_task($task);
+        $DB->set_field('task_adhoc', 'timestarted', time(), ['id' => $taskid]);
+        $res = restore_wizard_external::delete_request((int) $busy->id);
         $res = external_api::clean_returnvalue(restore_wizard_external::delete_request_returns(), $res);
         $this->assertFalse($res['success']);
         $this->assertSame('30703', $res['errors'][0]['code']);
-        $this->assertTrue($DB->record_exists(coursetransfer_request::TABLE, ['id' => $running->id]));
-        $this->assertCount(1, manager::get_adhoc_tasks(download_file_course_task::class));
+        $taskname = get_string('task_download_file_course', 'local_coursetransfer');
+        $this->assertStringContainsString($taskname, $res['errors'][0]['msg']);
+        $this->assertTrue($DB->record_exists(coursetransfer_request::TABLE, ['id' => $busy->id]));
+
+        // Once it is not running, the request in progress is deleted; its queued task ends without doing anything.
+        $DB->set_field('task_adhoc', 'timestarted', null, ['id' => $taskid]);
+        $res = restore_wizard_external::delete_request((int) $busy->id);
+        $res = external_api::clean_returnvalue(restore_wizard_external::delete_request_returns(), $res);
+        $this->assertTrue($res['success']);
+        $this->assertFalse($DB->record_exists(coursetransfer_request::TABLE, ['id' => $busy->id]));
+        ob_start();
+        $this->runAdhocTasks(download_file_course_task::class);
+        ob_end_clean();
+        $this->assertCount(0, manager::get_adhoc_tasks(download_file_course_task::class));
+
+        // A kept safety copy holds it: the cleanup would purge the copy as orphaned.
+        $kept = $generator->create_request(['status' => coursetransfer_request::STATUS_COMPLETED]);
+        get_file_storage()->create_file_from_string(['contextid' => \context_system::instance()->id,
+            'component' => 'local_coursetransfer', 'filearea' => 'safetycopy', 'itemid' => (int) $kept->id,
+            'filepath' => '/', 'filename' => 'backup.mbz'], 'copy');
+        $res = restore_wizard_external::delete_request((int) $kept->id);
+        $res = external_api::clean_returnvalue(restore_wizard_external::delete_request_returns(), $res);
+        $this->assertFalse($res['success']);
+        $this->assertSame('30704', $res['errors'][0]['code']);
+        $this->assertTrue($DB->record_exists(coursetransfer_request::TABLE, ['id' => $kept->id]));
 
         // A finished one is deleted, and only that one.
         $request = $generator->create_request(['status' => coursetransfer_request::STATUS_COMPLETED]);

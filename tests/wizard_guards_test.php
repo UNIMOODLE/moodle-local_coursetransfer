@@ -101,15 +101,14 @@ final class wizard_guards_test extends advanced_testcase {
     }
 
     /**
-     * Only finished requests can be deleted, and the deletion is logged (R4).
+     * Any request can be deleted, also one in progress, and the deletion is logged (LCT-126).
      */
     public function test_delete_request(): void {
         $generator = $this->getDataGenerator()->get_plugin_generator('local_coursetransfer');
         $running = $generator->create_request(['status' => coursetransfer_request::STATUS_IN_PROGRESS]);
         $res = restore_wizard_external::delete_request((int) $running->id);
-        $this->assertFalse($res['success']);
-        $this->assertSame('30703', $res['errors'][0]['code']);
-        $this->assertNotEmpty(coursetransfer_request::get($running->id));
+        $this->assertTrue($res['success']);
+        $this->assertEmpty(coursetransfer_request::get($running->id));
 
         $done = $generator->create_request(['status' => coursetransfer_request::STATUS_COMPLETED]);
         $sink = $this->redirectEvents();
@@ -119,5 +118,29 @@ final class wizard_guards_test extends advanced_testcase {
         $events = array_filter($sink->get_events(), fn($e) => $e instanceof request_deleted);
         $this->assertCount(1, $events);
         $this->assertEquals($done->id, reset($events)->objectid);
+    }
+
+    /**
+     * Deleting a course of a category restore in progress marks the category as failed: it is never taken as
+     * complete without that course, so the origin category is never removed because of it (LCT-126).
+     */
+    public function test_delete_course_of_a_running_category(): void {
+        $generator = $this->getDataGenerator()->get_plugin_generator('local_coursetransfer');
+        $cat = $generator->create_request(['type' => coursetransfer_request::TYPE_CATEGORY,
+            'status' => coursetransfer_request::STATUS_IN_PROGRESS, 'origin_remove_category' => 1]);
+        $first = $generator->create_request(['request_category_id' => $cat->id,
+            'status' => coursetransfer_request::STATUS_COMPLETED]);
+        $second = $generator->create_request(['request_category_id' => $cat->id,
+            'status' => coursetransfer_request::STATUS_DOWNLOAD]);
+
+        $res = restore_wizard_external::delete_request((int) $second->id);
+        $this->assertTrue($res['success']);
+
+        $reqcat = coursetransfer_request::update_status_request_cat((int) $cat->id);
+        $this->assertSame(coursetransfer_request::STATUS_INCOMPLETED, (int) $reqcat->status);
+        $this->assertFalse($reqcat->completednow);
+        $this->assertSame(11003, (int) $reqcat->error_code);
+        $this->assertStringContainsString('Course request ' . $second->id . ' deleted', $reqcat->error_message);
+        $this->assertNotEmpty(coursetransfer_request::get($first->id));
     }
 }

@@ -252,9 +252,8 @@ class executions_page implements renderable, templatable {
         $item->size = empty($request->origin_backup_size) ? '—' : display_size((int)$request->origin_backup_size);
         $isincomplete = (int)$request->status === coursetransfer_request::STATUS_INCOMPLETED;
         $item->iserror = (int)$request->status === coursetransfer_request::STATUS_ERROR || $isincomplete;
-        // Only finished requests offer Delete; the server also checks their tasks and safety copy (R4).
-        $item->candelete = $this->candelete && ($item->iserror
-            || (int)$request->status === coursetransfer_request::STATUS_COMPLETED);
+        // Any request can be deleted; the server says when it has to wait (a task running now, a kept copy).
+        $item->candelete = $this->candelete;
         if ($item->iserror) {
             $item->errcause = trim(($request->error_code ? $request->error_code . ': ' : '')
                     . (string)$request->error_message);

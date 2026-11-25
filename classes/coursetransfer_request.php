@@ -719,19 +719,67 @@ class coursetransfer_request {
     }
 
     /**
-     * Whether a request can be deleted from the history (R4): finished, without live tasks nor a kept safety copy.
+     * Whether a request can be deleted from the history now, in any status (LCT-126).
      *
      * @param stdClass $request
      * @return bool
      */
     public static function can_delete(stdClass $request): bool {
-        $final = [self::STATUS_COMPLETED, self::STATUS_ERROR, self::STATUS_INCOMPLETED];
-        if (!in_array((int)$request->status, $final, true)) {
-            return false;
+        return self::delete_blocker($request) === null;
+    }
+
+    /**
+     * Why a request cannot be deleted right now, or null when it can.
+     *
+     * Its queued tasks are not a reason: each of them ends without doing anything when its request is gone, and
+     * the cron removes it (LCT-036). Only two things wait: a task of the request running at this moment, which
+     * would go on writing after the request is gone, and a safety copy still kept, which the cleanup would
+     * purge as orphaned.
+     *
+     * @param stdClass $request
+     * @return array|null ['code' => error code, 'msg' => message], or null.
+     */
+    public static function delete_blocker(stdClass $request): ?array {
+        foreach (self::get_related_adhoc_tasks((int)$request->id) as $task) {
+            if (!empty($task->timestarted)) {
+                $name = class_exists($task->classname) ? (new $task->classname())->get_name() : $task->classname;
+                return ['code' => '30703', 'msg' => get_string('exec_delete_running', 'local_coursetransfer', $name)];
+            }
         }
-        // Its tasks or its safety copy may still be needed: a removal waiting to run, a backup kept until the origin
-        // is removed (the cleanup would take the copy as orphaned).
-        return empty(self::get_related_adhoc_tasks((int)$request->id)) && !self::keeps_safety_copy($request);
+        $copykept = !get_file_storage()->is_area_empty(
+            \context_system::instance()->id,
+            'local_coursetransfer',
+            'safetycopy',
+            (int)$request->id
+        );
+        if ($copykept) {
+            return ['code' => '30704', 'msg' => get_string('exec_delete_safetycopy', 'local_coursetransfer')];
+        }
+        return null;
+    }
+
+    /**
+     * Delete a request from the history of this site, in any status (LCT-126).
+     *
+     * Nothing else is deleted: no course on any platform, no queued task (it ends by itself). A course of a category
+     * restore that is still running leaves its category marked as failed, so the category is never taken as
+     * complete without it, and the origin category is never removed because of it.
+     *
+     * @param stdClass $request
+     * @param stdClass $user Who deletes it, for the category note.
+     */
+    public static function delete(stdClass $request, stdClass $user): void {
+        global $DB;
+        if (!empty($request->request_category_id)) {
+            $reqcat = self::get((int)$request->request_category_id);
+            if ($reqcat && (int)$reqcat->status !== self::STATUS_COMPLETED && empty($reqcat->error_code)) {
+                self::mark_category_failed((int)$reqcat->id, [[
+                    'code' => '11003',
+                    'msg' => 'Course request ' . (int)$request->id . ' deleted by ' . $user->username,
+                ]]);
+            }
+        }
+        $DB->delete_records(self::TABLE, ['id' => (int)$request->id]);
     }
 
     /**

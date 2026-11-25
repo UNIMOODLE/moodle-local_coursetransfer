@@ -2,11 +2,18 @@
 
 All notable changes to this plugin are documented here.
 
-## 2.2.3 — 2026-11-24 (`2026112400`)
+## 2.2.3 — 2026-11-25 (`2026112401`)
 
 Maintenance release. Supported: Moodle 4.5, 5.1 and 5.3. The protocol does not change: the
 category search of the origin is a new optional parameter, and an older origin is searched as
 before (this site filters its whole list).
+
+### Changed
+
+- Any request can be deleted from the history, also one in progress: it stops there, its pending tasks end
+  without doing anything, and a category restore never completes (nor removes the origin) without a course
+  whose request was deleted. Only a task of the request running at that moment, or a safety copy still kept,
+  make the deletion wait, and the message says which. No course is deleted on any platform.
 
 ### Fixed
 

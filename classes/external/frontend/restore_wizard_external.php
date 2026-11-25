@@ -659,7 +659,7 @@ class restore_wizard_external extends external_api {
      * @throws required_capability_exception
      */
     public static function delete_request(int $requestid): array {
-        global $DB;
+        global $USER;
         $params = self::validate_parameters(
             self::delete_request_parameters(),
             ['requestid' => $requestid]
@@ -676,11 +676,11 @@ class restore_wizard_external extends external_api {
             $request = coursetransfer_request::get($requestid);
             if (!$request) {
                 $errors[] = ['code' => '30702', 'msg' => get_string('request_not_found', 'local_coursetransfer')];
-            } else if (!coursetransfer_request::can_delete($request)) {
-                // A request still running or protecting a copy would leave a removal hanging or a backup purged (R4).
-                $errors[] = ['code' => '30703', 'msg' => get_string('exec_delete_not_final', 'local_coursetransfer')];
+            } else if (($blocker = coursetransfer_request::delete_blocker($request)) !== null) {
+                // A task running now would go on after the request is gone; a kept safety copy would be purged.
+                $errors[] = $blocker;
             } else {
-                $DB->delete_records(coursetransfer_request::TABLE, ['id' => $requestid]);
+                coursetransfer_request::delete($request, $USER);
                 \local_coursetransfer\event\request_deleted::create([
                     'objectid' => $requestid,
                     'context' => $context,
