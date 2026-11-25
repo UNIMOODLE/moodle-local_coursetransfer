@@ -180,13 +180,13 @@
                     {{#sections}}
                     <div class="ct-sectree-section">
                         <div class="ct-sectree-head">
-                            <span class="ct-sectree-check {{#on}}ct-sectree-check--on{{/on}}">{{#on}}<i class="fa fa-check" aria-hidden="true"></i>{{/on}}</span>
-                            <span class="ct-sectree-name {{^on}}ct-text-muted{{/on}}">{{ name }}</span>
+                            <span class="ct-sectree-check {{#on}}ct-sectree-check--on{{/on}}{{#partial}}ct-sectree-check--on{{/partial}}">{{#on}}<i class="fa fa-check" aria-hidden="true"></i>{{/on}}{{#partial}}<i class="fa fa-minus" aria-hidden="true"></i>{{/partial}}</span>
+                            <span class="ct-sectree-name {{^on}}{{^partial}}ct-text-muted{{/partial}}{{/on}}">{{ name }}</span>
                         </div>
                         {{#activities}}
                         <div class="ct-sectree-act">
-                            <span class="ct-sectree-actdot"><i class="fa fa-check" aria-hidden="true"></i></span>
-                            <span class="ct-sectree-actname">{{ name }}</span>
+                            <span class="ct-sectree-actdot">{{#on}}<i class="fa fa-check" aria-hidden="true"></i>{{/on}}</span>
+                            <span class="ct-sectree-actname {{^on}}ct-text-muted{{/on}}">{{ name }}</span>
                             {{#type}}<span class="ct-sectree-acttype">{{ type }}</span>{{/type}}
                         </div>
                         {{/activities}}

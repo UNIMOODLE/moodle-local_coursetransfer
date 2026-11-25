@@ -53,6 +53,15 @@ class cleanup_category_bin_task extends \core\task\adhoc_task {
     use \core\task\logging_trait;
 
     /**
+     * Name shown in the task lists and logs, in the language of the site (LCT-124).
+     *
+     * @return string
+     */
+    public function get_name(): string {
+        return get_string('task_cleanup_category_bin', 'local_coursetransfer');
+    }
+
+    /**
      * Execute.
      *
      */

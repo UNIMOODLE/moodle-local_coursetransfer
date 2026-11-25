@@ -291,8 +291,14 @@ define([
                 var id = self.cidOf($(this));
                 if (self.state.dest[id]) {
                     self.state.dest[id].open = true;
-                    // Load the first courses so the user sees they can search.
-                    self.doTargetSearch(id);
+                    // Load the first courses so the user sees they can search; not over a search already typed,
+                    // whose results would be replaced by an unfiltered list (LCT-120).
+                    if (!(self.state.dest[id].search || '').trim()) {
+                        self.doTargetSearch(id);
+                    } else {
+                        // Show again the results of the text already typed, without asking for them again.
+                        self.renderResults(id);
+                    }
                 }
             });
             $root.on('focusout', '[data-action="target-search"]', function() {
@@ -745,6 +751,9 @@ define([
             var $rows = this.region('rows').empty();
             $rows.append($('<div>').addClass('ct-selempty').attr('data-region', 'rows-loading')
                 .text((self.S.rw_pageinfo && '…') || '…'));
+            // Only the answer to the last search is painted: an older one may arrive later (LCT-120).
+            this.listseq = (this.listseq || 0) + 1;
+            var seq = this.listseq;
 
             Ajax.call([{
                 methodname: 'local_coursetransfer_restore_wizard_list_origin',
@@ -756,6 +765,9 @@ define([
                     query: this.state.search
                 }
             }])[0].then(function(resp) {
+                if (seq !== self.listseq) {
+                    return resp;
+                }
                 if (!resp || !resp.success) {
                     // An origin error is not "no results": say what failed.
                     self.listFailed(resp);
@@ -767,7 +779,9 @@ define([
                 self.state.page = resp.page || 0;
                 return self.renderRows();
             }).catch(function(ex) {
-                self.listFailed(ex);
+                if (seq === self.listseq) {
+                    self.listFailed(ex);
+                }
             });
         },
 
@@ -1805,15 +1819,24 @@ define([
             // Empty text is allowed: the WS returns the first courses so the
             // user sees a starting list and understands they can search.
             var text = (d.search || '').trim();
+            // Only the answer to the last search is painted: an older one may arrive later (LCT-120).
+            d.searchseq = (d.searchseq || 0) + 1;
+            var seq = d.searchseq;
             Ajax.call([{
                 methodname: 'local_coursetransfer_dest_search_course_name',
                 args: {text: text}
             }])[0].then(function(resp) {
+                if (seq !== d.searchseq) {
+                    return resp;
+                }
                 d.results = (resp && resp.data) ? resp.data : [];
                 d.open = true;
                 self.renderResults(id);
                 return resp;
             }).catch(function() {
+                if (seq !== d.searchseq) {
+                    return;
+                }
                 d.results = [];
                 self.renderResults(id);
             });

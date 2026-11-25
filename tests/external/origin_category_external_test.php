@@ -99,6 +99,57 @@ final class origin_category_external_test extends advanced_testcase {
     }
 
     /**
+     * origin_get_categories filters by name or path before paging, ignoring case (LCT-128).
+     */
+    public function test_origin_get_categories_search(): void {
+        $returns = $this->returns('origin_get_categories');
+
+        // By its own name.
+        $res = external_api::clean_returnvalue($returns, origin_category_external::origin_get_categories(
+            'username',
+            'admin',
+            0,
+            0,
+            'term'
+        ));
+        $this->assertTrue($res['success']);
+        $this->assertSame(['Y2026T1'], array_column($res['data'], 'idnumber'));
+        $this->assertSame(1, $res['paging']['totalcount']);
+
+        // By its path: the child matches its parent's name too.
+        $res = external_api::clean_returnvalue($returns, origin_category_external::origin_get_categories(
+            'username',
+            'admin',
+            0,
+            0,
+            'YEAR 2026'
+        ));
+        $this->assertEqualsCanonicalizing(['Y2026', 'Y2026T1'], array_column($res['data'], 'idnumber'));
+        $this->assertSame(2, $res['paging']['totalcount']);
+
+        // The total counts the matches, not the page.
+        $res = external_api::clean_returnvalue($returns, origin_category_external::origin_get_categories(
+            'username',
+            'admin',
+            1,
+            1,
+            'year 2026'
+        ));
+        $this->assertCount(1, $res['data']);
+        $this->assertSame(2, $res['paging']['totalcount']);
+
+        $res = external_api::clean_returnvalue($returns, origin_category_external::origin_get_categories(
+            'username',
+            'admin',
+            0,
+            0,
+            'no such category'
+        ));
+        $this->assertSame([], $res['data']);
+        $this->assertSame(0, $res['paging']['totalcount']);
+    }
+
+    /**
      * origin_get_categories rejects unknown users.
      */
     public function test_origin_get_categories_rejected(): void {

@@ -238,7 +238,12 @@ class restore_wizard_external extends external_api {
             $site = coursetransfer::get_site_by_position($siteid);
             $request = new request($site);
             if ($type === 'category') {
-                $res = $request->origin_get_categories($USER, $page, $perpage);
+                $res = $request->origin_get_categories($USER, $page, $perpage, $query);
+                $code = (string)(((array)($res->errors[0] ?? []))['code'] ?? '');
+                if (!$res->success && trim($query) !== '' && $code === request::ERROR_UNEXPECTED) {
+                    // An origin older than 2.2.3 rejects the search: list all its categories and filter here (LCT-128).
+                    $res = self::filter_origin_categories($request->origin_get_categories($USER, 0, 0), $query, $page, $perpage);
+                }
             } else {
                 $res = $request->origin_get_courses($USER, $page, $perpage, $query);
             }
@@ -1600,6 +1605,30 @@ class restore_wizard_external extends external_api {
             default:
                 return backup::TARGET_NEW_COURSE;
         }
+    }
+
+    /**
+     * Filter and page here the whole category list of an origin that cannot search (older than 2.2.3, LCT-128).
+     *
+     * @param \local_coursetransfer\api\response $res Answer of origin_get_categories without search nor paging.
+     * @param string $query Text to find in the category name or in its parent's.
+     * @param int $page
+     * @param int $perpage
+     * @return \local_coursetransfer\api\response
+     */
+    protected static function filter_origin_categories($res, string $query, int $page, int $perpage) {
+        if (!$res->success || !is_array($res->data)) {
+            return $res;
+        }
+        $needle = \core_text::strtolower(trim($query));
+        $matches = array_values(array_filter($res->data, function ($item) use ($needle) {
+            $text = \core_text::strtolower(($item->parentname ?? '') . ' / ' . ($item->name ?? ''));
+            return \core_text::strpos($text, $needle) !== false;
+        }));
+        $total = count($matches);
+        $res->data = $perpage > 0 ? array_slice($matches, $page * $perpage, $perpage) : $matches;
+        $res->paging = (object)['totalcount' => $total, 'page' => $page, 'perpage' => $perpage > 0 ? $perpage : $total];
+        return $res;
     }
 
     /**

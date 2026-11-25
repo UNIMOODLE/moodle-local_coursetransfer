@@ -69,6 +69,8 @@ class origin_category_external extends backend_api {
                 'value' => new external_value(PARAM_TEXT, 'Value'),
                 'page' => new external_value(PARAM_INT, 'Page number been requested (starts with page 0)', VALUE_DEFAULT, 0),
                 'perpage' => new external_value(PARAM_INT, 'Items per page to  (starts with page 0)', VALUE_DEFAULT, 0),
+                // Optional since 2.2.3: an older target never sends it (LCT-128).
+                'search' => new external_value(PARAM_TEXT, 'Text to find in the category name or path', VALUE_DEFAULT, ''),
             ]
         );
     }
@@ -80,12 +82,19 @@ class origin_category_external extends backend_api {
      * @param string $value
      * @param int $page
      * @param int $perpage
+     * @param string $search Text to find in the category name or path (LCT-128).
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_get_categories(string $field, string $value, int $page = 0, int $perpage = 0): array {
+    public static function origin_get_categories(
+        string $field,
+        string $value,
+        int $page = 0,
+        int $perpage = 0,
+        string $search = ''
+    ): array {
         $params = self::validate_parameters(
             self::origin_get_categories_parameters(),
             [
@@ -93,6 +102,7 @@ class origin_category_external extends backend_api {
                 'value' => $value,
                 'page' => $page,
                 'perpage' => $perpage,
+                'search' => $search,
             ]
         );
         self::validate_service_user();
@@ -100,6 +110,7 @@ class origin_category_external extends backend_api {
         $value = $params['value'];
         $perpage = $params['perpage'] ?? 0;
         $page = $perpage == 0 ? 0 : $params['page'] ?? 0;
+        $search = trim((string)$params['search']);
 
         $success = true;
         $errors = [];
@@ -110,8 +121,8 @@ class origin_category_external extends backend_api {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $user = $authres['data'];
-                $categories = coursetransfer::get_categories_user($user, $page, $perpage);
-                $totalcategories = coursetransfer::count_categories_user($user);
+                $categories = coursetransfer::get_categories_user($user, $page, $perpage, $search);
+                $totalcategories = coursetransfer::count_categories_user($user, $search);
                 foreach ($categories as $category) {
                     $item = new stdClass();
                     $item->id = $category->id;

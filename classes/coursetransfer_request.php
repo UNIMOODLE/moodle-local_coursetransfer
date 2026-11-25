@@ -464,7 +464,9 @@ class coursetransfer_request {
     /**
      * Unified executions page: one slice of the request log across all
      * types and directions, newest first. Includes the LOCAL target
-     * course fullname when it exists (targetcoursename).
+     * course fullname when it exists (targetcoursename): only for the
+     * requests made from this site, as in the others target_course_id is
+     * a course of the other platform (LCT-123).
      *
      * @param array $filters see get_executions_filter_sql()
      * @param int $page zero-based page
@@ -477,9 +479,10 @@ class coursetransfer_request {
         [$where, $params] = self::get_executions_filter_sql($filters);
         $sql = 'SELECT r.*, c.fullname AS targetcoursename
                   FROM {' . self::TABLE . '} r
-             LEFT JOIN {course} c ON c.id = r.target_course_id
+             LEFT JOIN {course} c ON c.id = r.target_course_id AND r.direction = :ctdirlocal
                  WHERE ' . $where . '
               ORDER BY r.timemodified DESC, r.id DESC';
+        $params['ctdirlocal'] = self::DIRECTION_REQUEST;
         return $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
     }
 
@@ -495,8 +498,9 @@ class coursetransfer_request {
         [$where, $params] = self::get_executions_filter_sql($filters);
         $sql = 'SELECT COUNT(1)
                   FROM {' . self::TABLE . '} r
-             LEFT JOIN {course} c ON c.id = r.target_course_id
+             LEFT JOIN {course} c ON c.id = r.target_course_id AND r.direction = :ctdirlocal
                  WHERE ' . $where;
+        $params['ctdirlocal'] = self::DIRECTION_REQUEST;
         return (int)$DB->count_records_sql($sql, $params);
     }
 
@@ -514,9 +518,10 @@ class coursetransfer_request {
         [$insql, $params] = $DB->get_in_or_equal($active, SQL_PARAMS_NAMED, 'ac');
         $sql = 'SELECT r.*, c.fullname AS targetcoursename
                   FROM {' . self::TABLE . '} r
-             LEFT JOIN {course} c ON c.id = r.target_course_id
+             LEFT JOIN {course} c ON c.id = r.target_course_id AND r.direction = :ctdirlocal
                  WHERE r.status ' . $insql . '
               ORDER BY r.timemodified DESC, r.id DESC';
+        $params['ctdirlocal'] = self::DIRECTION_REQUEST;
         return $DB->get_records_sql($sql, $params, 0, $limit);
     }
 

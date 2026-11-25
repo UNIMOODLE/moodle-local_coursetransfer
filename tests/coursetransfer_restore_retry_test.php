@@ -208,4 +208,24 @@ final class coursetransfer_restore_retry_test extends advanced_testcase {
         $request->error_code = coursetransfer_request::CODE_MANIFEST_MISMATCH;
         $this->assertNull(coursetransfer_request::origin_kept_action($request));
     }
+
+    /**
+     * A request already relaunched is not relaunched again; a course of a category gets its own reason.
+     */
+    public function test_retry_relaunched_and_category_course(): void {
+        $generator = $this->getDataGenerator()->get_plugin_generator('local_coursetransfer');
+        $relaunched = $generator->create_request(['status' => coursetransfer_request::STATUS_ERROR,
+            'error_message' => 'Relaunched as request #42']);
+        $this->assertFalse(coursetransfer::can_retry($relaunched));
+        $res = coursetransfer::restore_retry($relaunched);
+        $this->assertFalse($res['success']);
+        $this->assertSame('10028', $res['errors'][0]['code']);
+
+        $category = $generator->create_request(['type' => coursetransfer_request::TYPE_CATEGORY]);
+        $child = $generator->create_request(['status' => coursetransfer_request::STATUS_ERROR,
+            'request_category_id' => $category->id]);
+        $res = coursetransfer::restore_retry($child);
+        $this->assertFalse($res['success']);
+        $this->assertSame('10025', $res['errors'][0]['code']);
+    }
 }

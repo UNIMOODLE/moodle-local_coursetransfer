@@ -132,13 +132,65 @@ final class index_page_test extends advanced_testcase {
     public function test_structure(): void {
         $data = $this->export();
 
-        $this->assertCount(11, $data->checks);
+        // 12 fixed checks; the read-only one only appears when local_read_only is installed (LCT-125).
+        $this->assertCount(12, $data->checks);
         $this->assertCount(5, $data->pluginlinks);
         $this->assertCount(2, $data->moodlelinks);
         $this->assertNotEmpty($data->logourl);
         foreach ($data->checks as $check) {
             $this->assertContains($check->state, ['ok', 'warn', 'error']);
         }
+    }
+
+    /**
+     * The connection check warns about a long timeout and notes when the cURL security is skipped (LCT-119).
+     */
+    public function test_connection_check(): void {
+        set_config('request_timeout', 20, 'local_coursetransfer');
+        set_config('ignorecurlsecurity', 0, 'local_coursetransfer');
+        $check = $this->check_by_icon($this->export(), 'fa-hourglass-half');
+        $this->assertSame('ok', $check->state);
+        $this->assertFalse($check->hasaction);
+
+        set_config('request_timeout', 300, 'local_coursetransfer');
+        $check = $this->check_by_icon($this->export(), 'fa-hourglass-half');
+        $this->assertSame('warn', $check->state);
+        $this->assertStringContainsString('300', $check->status);
+        $this->assertTrue($check->hasaction);
+
+        // Allowing internal hosts does not change the state, but says so and links to the settings.
+        set_config('request_timeout', 20, 'local_coursetransfer');
+        set_config('ignorecurlsecurity', 1, 'local_coursetransfer');
+        $check = $this->check_by_icon($this->export(), 'fa-hourglass-half');
+        $this->assertSame('ok', $check->state);
+        $this->assertStringContainsString(get_string('idx_check_conn_ignorecurl', 'local_coursetransfer'), $check->status);
+        $this->assertTrue($check->hasaction);
+    }
+
+    /**
+     * Without local_read_only installed there is no read-only check (LCT-125).
+     */
+    public function test_no_readonly_check_without_the_plugin(): void {
+        if (\core_plugin_manager::instance()->get_plugin_info('local_read_only')) {
+            $this->markTestSkipped('local_read_only is installed on this site');
+        }
+        $this->assertArrayNotHasKey('fa-lock', $this->checks_by_icon($this->export()));
+    }
+
+    /**
+     * The integration check with the given icon.
+     *
+     * @param \stdClass $data
+     * @param string $icon
+     * @return \stdClass
+     */
+    protected function check_by_icon(\stdClass $data, string $icon): \stdClass {
+        foreach ($data->checks as $check) {
+            if ($check->faicon === $icon) {
+                return $check;
+            }
+        }
+        $this->fail('No check with icon ' . $icon);
     }
 
     /**

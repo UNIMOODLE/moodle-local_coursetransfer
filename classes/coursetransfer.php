@@ -552,7 +552,7 @@ class coursetransfer {
             return false;
         }
         $status = (int)$request->status;
-        if ($status === coursetransfer_request::STATUS_COMPLETED) {
+        if ($status === coursetransfer_request::STATUS_COMPLETED || self::was_relaunched($request)) {
             return false;
         }
         // A course of a category restore is relaunched as a loose request and its category would never close:
@@ -570,6 +570,17 @@ class coursetransfer {
         $waitingorigin = in_array($status, [coursetransfer_request::STATUS_NOT_STARTED,
             coursetransfer_request::STATUS_IN_PROGRESS], true);
         return time() - $since > ($waitingorigin ? self::RETRY_STALLED_ORIGIN_AFTER : self::RETRY_STALLED_AFTER);
+    }
+
+    /**
+     * Whether a request was already relaunched as a new one: retrying it again would run the same restore twice.
+     *
+     * @param stdClass $request
+     * @return bool
+     */
+    public static function was_relaunched(stdClass $request): bool {
+        $message = (string)($request->error_message ?? '');
+        return str_starts_with($message, 'Relaunched as request #') || $message === 'Relaunching';
     }
 
     /**
@@ -632,6 +643,18 @@ class coursetransfer {
         if ((int)$request->status === coursetransfer_request::STATUS_COMPLETED) {
             return ['success' => false, 'errors' => [
                     ['code' => '10021', 'msg' => get_string('retry_already_completed', 'local_coursetransfer')]]];
+        }
+        if (self::was_relaunched($request)) {
+            // Its relaunch is the request to follow: a second retry would restore the same course twice.
+            return ['success' => false, 'errors' => [
+                    ['code' => '10028', 'msg' => get_string('retry_already_relaunched', 'local_coursetransfer')]]];
+        }
+        $downloaded = in_array((int)$request->status, [coursetransfer_request::STATUS_DOWNLOADED,
+            coursetransfer_request::STATUS_RESTORE], true);
+        if (!empty($request->request_category_id) && !$downloaded) {
+            // Checked before can_retry(), which says no to it too, so the answer names the real reason.
+            return ['success' => false, 'errors' => [
+                    ['code' => '10025', 'msg' => get_string('retry_category_course', 'local_coursetransfer')]]];
         }
 
         // Anti-duplicate: relaunching while a healthy adhoc task is queued/running would
@@ -1799,14 +1822,33 @@ class coursetransfer {
      * Count the categories the user may back up (all of them when no user is given).
      *
      * @param stdClass|null $user
+     * @param string $search Text to find in the category name or path (LCT-128).
      * @return int
      */
-    public static function count_categories_user(?stdClass $user = null): int {
+    public static function count_categories_user(?stdClass $user = null, string $search = ''): int {
         $categories = core_course_category::get_all();
         if ($user !== null) {
             $categories = array_filter($categories, fn($category) => self::can_backup_category($category, $user));
         }
-        return count($categories);
+        return count(self::filter_categories($categories, $search));
+    }
+
+    /**
+     * Keep the categories whose name or path contains the text, ignoring case (LCT-128).
+     *
+     * @param core_course_category[] $categories
+     * @param string $search Empty keeps them all.
+     * @return core_course_category[]
+     */
+    public static function filter_categories(array $categories, string $search): array {
+        $needle = \core_text::strtolower(trim($search));
+        if ($needle === '') {
+            return $categories;
+        }
+        return array_filter($categories, function ($category) use ($needle) {
+            $path = \core_text::strtolower($category->get_nested_name(false));
+            return \core_text::strpos($path, $needle) !== false;
+        });
     }
 
     /**
@@ -1815,14 +1857,16 @@ class coursetransfer {
      * @param stdClass $user
      * @param int $page
      * @param int $perpage
+     * @param string $search Text to find in the category name or path (LCT-128).
      * @return array
      */
-    public static function get_categories_user(stdClass $user, int $page = 0, int $perpage = 0): array {
+    public static function get_categories_user(stdClass $user, int $page = 0, int $perpage = 0, string $search = ''): array {
         // Only what the user could back up by hand: a peer must not list the whole tree (LCT-010).
         $categories = array_filter(
             core_course_category::get_all(),
             fn($category) => self::can_backup_category($category, $user)
         );
+        $categories = self::filter_categories($categories, $search);
         // Categories are not sorted as are listed to user using nested name.
         if ($perpage != 0) {
             $offset = $page * $perpage;

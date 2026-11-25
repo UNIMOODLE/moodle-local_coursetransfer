@@ -89,6 +89,15 @@ class create_backup_course_task extends \core\task\asynchronous_backup_task {
     }
 
     /**
+     * Name shown in the task lists and logs, in the language of the site (LCT-124).
+     *
+     * @return string
+     */
+    public function get_name(): string {
+        return get_string('task_create_backup_course', 'local_coursetransfer');
+    }
+
+    /**
      * Execute the task.
      *
      */

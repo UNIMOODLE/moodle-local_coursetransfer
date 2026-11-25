@@ -174,11 +174,17 @@ class request {
      * @param stdClass|null $user
      * @param int|null $page
      * @param int|null $perpage
+     * @param string $search Sent only when not empty: an origin older than 2.2.3 rejects it (LCT-128).
      * @return response
      * @throws dml_exception
      */
-    public function origin_get_categories(?stdClass $user = null, ?int $page = null, ?int $perpage = null): response {
-        $params = $this->get_request_params($user, $page, $perpage);
+    public function origin_get_categories(
+        ?stdClass $user = null,
+        ?int $page = null,
+        ?int $perpage = null,
+        string $search = ''
+    ): response {
+        $params = $this->get_request_params($user, $page, $perpage, $search);
         return $this->req('local_coursetransfer_origin_get_categories', $params);
     }
 

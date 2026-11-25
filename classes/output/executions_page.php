@@ -174,12 +174,13 @@ class executions_page implements renderable, templatable {
     protected function export_active(stdClass $request): stdClass {
         $item = $this->export_common($request);
 
-        // Five phases: accepted, backup, download, restore, completed.
+        // Five phases: accepted, backup, download, restore, completed. Once accepted, the origin is making the
+        // backup; the backup status only comes with its callback, when the copy is ready to download (LCT-127).
         $status = (int)$request->status;
         $phasemap = [
             coursetransfer_request::STATUS_NOT_STARTED => 0,
-            coursetransfer_request::STATUS_IN_PROGRESS => 0,
-            coursetransfer_request::STATUS_BACKUP => 1,
+            coursetransfer_request::STATUS_IN_PROGRESS => 1,
+            coursetransfer_request::STATUS_BACKUP => 2,
             coursetransfer_request::STATUS_DOWNLOAD => 2,
             coursetransfer_request::STATUS_DOWNLOADED => 2,
             coursetransfer_request::STATUS_RESTORE => 3,

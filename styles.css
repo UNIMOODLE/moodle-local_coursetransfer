@@ -2577,7 +2577,18 @@
     color: var(--text-body);
 }
 
+.local-coursetransfer .ct-sectree-name.ct-text-muted,
+.local-coursetransfer .ct-sectree-actname.ct-text-muted {
+    /* After the tree rules, which set their own colour with the same specificity (LCT-121). */
+    color: var(--text-muted);
+}
+
 .local-coursetransfer .ct-sectree-acttype {
+    /* A long translated type («Área de texto y medios») wraps instead of squeezing the name. */
+    flex: 0 1 auto;
+    max-width: 45%;
+    overflow-wrap: anywhere;
+    text-align: right;
     font-size: 10.5px;
     font-weight: 600;
     color: var(--text-muted);

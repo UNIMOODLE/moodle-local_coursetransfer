@@ -2,6 +2,33 @@
 
 All notable changes to this plugin are documented here.
 
+## 2.2.3 — 2026-11-24 (`2026112400`)
+
+Maintenance release. Supported: Moodle 4.5, 5.1 and 5.3. The protocol does not change: the
+category search of the origin is a new optional parameter, and an older origin is searched as
+before (this site filters its whole list).
+
+### Fixed
+
+- The category search of the restore and remove wizards filters by name or path; it used to
+  return the same list whatever was typed.
+- The detail of a request marks only the activities that were selected in the wizard.
+- Seen from the origin, the log no longer shows as destination a local course that has
+  nothing to do with the request, and the detail names the other platform as the destination.
+- The phases of a transfer in progress read as they happen: «Accepted · the origin is
+  generating the backup» while the origin makes it, and «Backup ready» once it arrives.
+- A request already relaunched by Retry is not relaunched a second time (`10028`), and a
+  course of a category restore that cannot be relaunched on its own says so (`10025`).
+- `cli/restore_course.php` validates every option before creating the new course, so an
+  invalid one no longer leaves an empty course behind.
+
+### Added
+
+- The integration status warns when the read-only mode of `local_read_only` is on and the
+  service user is not a site administrator (transfers would stay «Accepted» without error),
+  and when the request timeout is above 120 s.
+- The ad hoc tasks have translated names in the task lists and logs.
+
 ## 2.2.2 — 2026-11-23 (`2026112300`)
 
 Maintenance release. Supported: Moodle 4.5, 5.1 and 5.3. The protocol does not change.

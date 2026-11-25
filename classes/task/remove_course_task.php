@@ -63,6 +63,15 @@ class remove_course_task extends \core\task\adhoc_task {
     use \core\task\logging_trait;
 
     /**
+     * Name shown in the task lists and logs, in the language of the site (LCT-124).
+     *
+     * @return string
+     */
+    public function get_name(): string {
+        return get_string('task_remove_course', 'local_coursetransfer');
+    }
+
+    /**
      * Execute.
      *
      */

@@ -74,6 +74,15 @@ class restore_course_task extends \core\task\adhoc_task {
     protected ?bool $manifestok = null;
 
     /**
+     * Name shown in the task lists and logs, in the language of the site (LCT-124).
+     *
+     * @return string
+     */
+    public function get_name(): string {
+        return get_string('task_restore_course', 'local_coursetransfer');
+    }
+
+    /**
      * Execute.
      *
      * @throws dml_exception

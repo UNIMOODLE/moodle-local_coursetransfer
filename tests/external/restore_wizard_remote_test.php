@@ -136,6 +136,36 @@ final class restore_wizard_remote_test extends advanced_testcase {
     }
 
     /**
+     * An origin older than 2.2.3 rejects the category search: the whole list is asked again and filtered and
+     * paged here (LCT-128).
+     */
+    public function test_list_origin_categories_search_old_origin(): void {
+        // Mocked answers are served last in, first out. Second call: the whole list, without search.
+        $this->mock_origin(true, [
+            ['id' => 4, 'name' => 'Year 2026', 'parentname' => 'Top', 'totalcourses' => 1],
+            ['id' => 5, 'name' => 'Term 1', 'parentname' => 'Year 2026', 'totalcourses' => 2],
+            ['id' => 6, 'name' => 'Archive', 'parentname' => 'Top', 'totalcourses' => 3],
+        ], [], ['totalcount' => 3, 'page' => 0, 'perpage' => 3]);
+        // First call: the Moodle exception an older origin answers for the unknown "search" parameter.
+        \curl::mock_response(json_encode([
+            'exception' => 'invalid_parameter_exception',
+            'errorcode' => 'invalidparameter',
+            'message' => 'Invalid parameter value detected',
+        ]));
+
+        $res = restore_wizard_external::list_origin((int) $this->site->id, 'category', 1, 1, 'YEAR 2026');
+        // The unexpected answer of the first call is logged with debugging().
+        $this->resetDebugging();
+        $res = external_api::clean_returnvalue(restore_wizard_external::list_origin_returns(), $res);
+
+        $this->assertTrue($res['success']);
+        // Both Year 2026 and its subcategory match; page 1 of 1 per page is the second match.
+        $this->assertSame(2, $res['total']);
+        $this->assertSame(2, $res['pages']);
+        $this->assertSame([5], array_column($res['items'], 'id'));
+    }
+
+    /**
      * list_origin relays the origin errors and reports an unknown site.
      */
     public function test_list_origin_errors(): void {

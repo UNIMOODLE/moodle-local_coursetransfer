@@ -523,6 +523,9 @@ define([
                 return;
             }
             this.region('rows').empty().append($('<div>').addClass('ct-selempty').text('…'));
+            // Only the answer to the last search is painted: an older one may arrive later (LCT-120).
+            this.listseq = (this.listseq || 0) + 1;
+            var seq = this.listseq;
             Ajax.call([{
                 methodname: 'local_coursetransfer_restore_wizard_list_origin',
                 args: {
@@ -533,6 +536,9 @@ define([
                     query: this.state.search
                 }
             }])[0].then(function(resp) {
+                if (seq !== self.listseq) {
+                    return resp;
+                }
                 if (!resp || !resp.success) {
                     // An origin error is not "no results": say what failed.
                     self.listFailed(resp);
@@ -544,7 +550,9 @@ define([
                 self.state.page = resp.page || 0;
                 return self.renderRows();
             }).catch(function(ex) {
-                self.listFailed(ex);
+                if (seq === self.listseq) {
+                    self.listFailed(ex);
+                }
             });
         },
 

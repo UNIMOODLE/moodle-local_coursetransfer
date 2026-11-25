@@ -65,6 +65,15 @@ class download_file_course_task extends \core\task\adhoc_task {
     const LOW_SPEED_LIMIT = 1024;
 
     /**
+     * Name shown in the task lists and logs, in the language of the site (LCT-124).
+     *
+     * @return string
+     */
+    public function get_name(): string {
+        return get_string('task_download_file_course', 'local_coursetransfer');
+    }
+
+    /**
      * Execute.
      *
      * @throws dml_exception
