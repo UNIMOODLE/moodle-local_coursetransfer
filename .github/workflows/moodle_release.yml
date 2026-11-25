@@ -1,66 +1,91 @@
-#
-# Whenever a new tag starting with "v" is pushed, add the tagged version
-# to the Moodle Plugins directory at https://moodle.org/plugins
-#
-# revision: 2021070201
-#
-name: Releasing in the Plugins directory
+name: Release plugin version to Moodle Marketplace
 
 on:
   push:
     tags:
-      - v*
-
+      - 'v*'
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to be released'
+        description: 'Tag to be released (for example, v1.0.7)'
         required: true
-
-defaults:
-  run:
-    shell: bash
+        type: string
 
 jobs:
-  release-at-moodle-org:
+  release-notes:
     runs-on: ubuntu-latest
-    env:
-      PLUGIN: local_coursetransfer
-      CURL: curl -s
-      ENDPOINT: https://moodle.org/webservice/rest/server.php
-      TOKEN: ${{ secrets.MOODLE_ORG_TOKEN }}
-      FUNCTION: local_plugins_add_version
-
+    outputs:
+      content: ${{ steps.notes.outputs.content }}
     steps:
-      - name: Call the service function
-        id: add-version
-        run: |
-          if [[ ! -z "${{ github.event.inputs.tag }}" ]]; then
-            TAGNAME="${{ github.event.inputs.tag }}"
-          elif [[ $GITHUB_REF = refs/tags/* ]]; then
-            TAGNAME="${GITHUB_REF##*/}"
-          fi
-          if [[ -z "${TAGNAME}" ]]; then
-            echo "No tag name has been provided!"
-            exit 1
-          fi
-          ZIPURL="https://api.github.com/repos/${{ github.repository }}/zipball/${TAGNAME}"
-          RESPONSE=$(${CURL} ${ENDPOINT} --data-urlencode "wstoken=${TOKEN}" \
-                                         --data-urlencode "wsfunction=${FUNCTION}" \
-                                         --data-urlencode "moodlewsrestformat=json" \
-                                         --data-urlencode "frankenstyle=${PLUGIN}" \
-                                         --data-urlencode "zipurl=${ZIPURL}" \
-                                         --data-urlencode "vcssystem=git" \
-                                         --data-urlencode "vcsrepositoryurl=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
-                                         --data-urlencode "vcstag=${TAGNAME}" \
-                                         --data-urlencode "changelogurl=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commits/${TAGNAME}" \
-                                         --data-urlencode "altdownloadurl=${ZIPURL}")
-          echo "response=${RESPONSE}" >> $GITHUB_OUTPUT
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
 
-      - name: Evaluate the response
-        id: evaluate-response
-        env:
-          RESPONSE: ${{ steps.add-version.outputs.response }}
+      - name: Read and validate release notes
+        id: notes
         run: |
-          jq <<< ${RESPONSE}
-          jq --exit-status ".id" <<< ${RESPONSE} > /dev/null
+          python3 - <<'PY'
+          import os
+          import uuid
+          from pathlib import Path
+
+          path = Path('RELEASE.md')
+          if not path.is_file():
+              raise SystemExit('RELEASE.md is required for Moodle Marketplace publication')
+
+          notes = path.read_text(encoding='utf-8').strip()
+          if not notes:
+              raise SystemExit('RELEASE.md is empty')
+          if len(notes) > 10000:
+              raise SystemExit(f'RELEASE.md has {len(notes)} characters; the Marketplace limit is 10000')
+
+          delimiter = f'RELEASE_NOTES_{uuid.uuid4().hex}'
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f'content<<{delimiter}\n{notes}\n{delimiter}\n')
+          print(f'Using {len(notes)} characters from RELEASE.md')
+          PY
+
+  release-to-marketplace:
+    needs: release-notes
+    uses: moodlehq/moodle-plugin-release/.github/workflows/moodle-release.yml@main
+    with:
+      tag: ${{ inputs.tag || github.ref_name }}
+      release_notes: ${{ needs.release-notes.outputs.content }}
+    secrets:
+      MOODLE_MARKETPLACE_TOKEN: ${{ secrets.MOODLE_MARKETPLACE_TOKEN }}
+  release-on-github:
+    name: Create GitHub Release
+    needs: release-notes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+
+      - name: Package plugin
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: git archive --format=zip --output="${GITHUB_REPOSITORY##*/}.zip" "$RELEASE_TAG"
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          repository_name="${GITHUB_REPOSITORY##*/}"
+          archive="${repository_name}.zip"
+          title="${repository_name} ${RELEASE_TAG}"
+
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release edit "$RELEASE_TAG" --title "$title" --notes-file RELEASE.md
+            gh release upload "$RELEASE_TAG" "$archive" --clobber
+          else
+            gh release create "$RELEASE_TAG" "$archive" \
+              --title "$title" \
+              --notes-file RELEASE.md \
+              --verify-tag
+          fi
