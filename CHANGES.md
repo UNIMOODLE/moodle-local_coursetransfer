@@ -154,18 +154,16 @@ upgraded (see "Mixed versions").
 
 ### ⚠️ Breaking changes
 
-- **The services used between platforms are no longer callable from the
-  browser (AJAX)**, and calling them with a web service token will require the
-  new capability `local/coursetransfer:webservice`. This covers every
-  `origin_*` and `target_*` function, `site_origin_test`, `site_target_test` and
+- **The services used between platforms are only callable with a web service
+  token, not from the browser (AJAX)**, and the token user needs the new
+  capability `local/coursetransfer:webservice`. This covers every `origin_*` and
+  `target_*` function, `site_origin_test`, `site_target_test` and
   `get_category_idnumber`. Only the plugin's service user role
   (`local_coursetransfer_ws`) gets the capability: the upgrade assigns it to the
-  existing role and makes the role assignable at system level. **In 2.2 a token
-  user without the capability is still accepted**, with a deprecation warning in
-  the log and in the platform diagnosis; **2.3 will reject it**. If you see the
-  warning (typically the service user or its role was recreated or edited by
-  hand), open the plugin's **Summary** screen and click **Repair**, or assign the
-  capability to the role yourself.
+  existing role and makes the role assignable at system level. If the service
+  user or its role was recreated or edited by hand, open the plugin's
+  **Summary** screen and click **Repair**, or assign the capability to the role
+  yourself.
 - **Registering, editing, removing and testing platforms requires
   `moodle/site:config`.**
 - **A platform URL must be `http(s)://host[:port][/path]`**: query strings,
@@ -180,11 +178,11 @@ upgraded (see "Mixed versions").
   possible, at the administrator's own risk: the token is then sent to a peer
   whose identity is not checked.
 - **`ignorecurlsecurity` is off by default on new installations.** Upgraded
-  sites keep their current value, which was `1` by default: review it. While on,
+  sites keep their current value: review it. While on,
   Moodle's `curlsecurityblockedhosts` does not apply to the calls between
   platforms; the safer setup is to leave it off and allow only the paired hosts.
-- **The equivalent user no longer sees hidden courses or categories they could
-  not back up by hand.** Lists and details on the origin only include courses
+- **The equivalent user only sees the courses and categories they could back
+  up by hand.** Lists and details on the origin only include courses
   where the user has `moodle/backup:backupcourse` (and
   `moodle/course:viewhiddencourses` for a hidden course), and categories visible
   to the user where they have that capability. A detail of something else is
@@ -310,10 +308,9 @@ upgraded (see "Mixed versions").
 
 ### Changed
 
-- The service user's email moves from `coursetransfer@test.xxx` (a real TLD) to
-  `local_coursetransfer_ws@example.invalid`, and `emailstop` is set: Moodle no
-  longer sends it email (backup reports, notifications). Only the account the
-  plugin created is changed on upgrade.
+- The service user's email is `local_coursetransfer_ws@example.invalid` and
+  `emailstop` is set, so Moodle sends it no email (backup reports,
+  notifications). Only the account the plugin created is changed on upgrade.
 - Capabilities declare their risks (`riskbitmask`), so they show up in the
   permission overview.
 - The download no longer has a total timeout (large backups): it is aborted only
@@ -321,10 +318,10 @@ upgraded (see "Mixed versions").
   same `ignorecurlsecurity` policy as the web service calls.
 - The **Repair** action of the Summary screen asks for confirmation and needs a
   session key.
-- The platforms page never sends the stored token to the browser: leave the
-  token field empty when editing to keep it (only for the same host).
-- Errors shown when testing a platform are bounded: the body of the remote
-  answer is no longer displayed.
+- When editing a platform, leave the token field empty to keep the stored one
+  (only for the same host).
+- Errors shown when testing a platform are short and do not include the body
+  of the remote answer.
 - `get_category_idnumber` rejects patterns longer than 255 characters, invalid
   ones or too costly to evaluate (backtracking limit), with an explicit error.
 
@@ -333,9 +330,8 @@ upgraded (see "Mixed versions").
 - Stricter access control on the services used between platforms and on the
   management of paired platforms. **Upgrade every site that has the plugin
   installed, origin or target.**
-- The token shared between platforms is handled more strictly: it is no longer
-  part of URLs, stored data or logs, and it is only sent to registered platforms
-  over verified TLS.
+- The token shared between platforms is only sent to registered platforms over
+  verified TLS, and it is kept out of URLs, stored data and logs.
 - Stricter validation of the data received from peer platforms.
 
 ### Deprecated
@@ -345,10 +341,7 @@ upgraded (see "Mixed versions").
   `restore_wizard_remove_submit`). They are no longer callable from AJAX, still
   work as web service functions for external callers, and will be removed in the
   next version.
-- **Token users without `local/coursetransfer:webservice`** calling the peer
-  services: accepted in 2.2 with a deprecation warning, rejected in 2.3.
-- **Formats of 2.1 kept for one version**: download tasks queued by 2.1 (token in
-  the URL), backup tasks with the old custom data and recycle bin purge tasks
+- **Formats of 2.1 kept for one version**: download tasks queued by 2.1, backup tasks with the old custom data and recycle bin purge tasks
   without a removal time are still read and completed. They will no longer be
   read in the next version.
 
@@ -364,8 +357,6 @@ upgraded (see "Mixed versions").
 - Review `ignorecurlsecurity` (see breaking changes) and the certificates of your
   peers: test the connection of each platform; a certificate problem is reported
   there.
-- Look for deprecation warnings about `local/coursetransfer:webservice` in the
-  log or in the platform diagnosis, and fix the service role before 2.3.
 - Cron must run on **both** platforms: backups, downloads, restores, removals,
   recycle bin purges and backup cleanups are scheduled or adhoc tasks.
 - Upgrade steps: `2026111900` (capability for the service role),
@@ -446,7 +437,7 @@ normalises data already stored.
   `coursetransfer_sites::get_by_host()` used the default length of
   `sql_compare_text()`, so on the database engines that cast the column two
   platforms sharing that prefix (for example the same campus for two academic
-  years) resolved to the same row — returning the wrong site and its token.
+  years) resolved to the same row — returning the wrong site.
   Both lookups now compare 255 characters.
 
 - **Host stored differently from how it is looked up:** `siteurl` was written
