@@ -129,7 +129,7 @@ programatutako atazen bidez.
 ## 🛡️ Datuen galeraren aurkako babesa
 
 Plataformen arteko zerbitzuak beste gunearen **zerbitzu-erabiltzailearen
-tokenarekin** bakarrik dei daitezke (`local/coursetransfer:webservice` gaitasuna; 2.2an gaitasunik gabeko token-erabiltzailea onartzen da oraindik, zaharkitze-abisu batekin, eta 2.3k baztertuko du),
+tokenarekin** bakarrik dei daitezke (`local/coursetransfer:webservice` gaitasuna),
 inoiz ez nabigatzailetik, eta beste gunearen **TLS ziurtagiria** egiaztatzen dute.
 Ondoren, baimenak erabiltzaile baliokidearen gainean egiaztatzen dira: jatorriak
 erabiltzaile horrek eskuz kopia lezakeena bakarrik zerrendatzen eta kopiatzen du.

@@ -124,7 +124,7 @@ pantalla **Plataformes** del connector (amb prova de connexió).
 ## 🛡️ Protecció contra la pèrdua de dades
 
 Els serveis entre plataformes només es poden cridar amb el **testimoni de l'usuari
-de servei** de l'altre lloc (capacitat `local/coursetransfer:webservice`; a la 2.2 un usuari de testimoni sense aquesta capacitat encara s'accepta amb un avís de deprecació, la 2.3 el rebutjarà), mai des
+de servei** de l'altre lloc (capacitat `local/coursetransfer:webservice`), mai des
 del navegador, i verifiquen el **certificat TLS** de l'altre lloc. Els permisos
 es comproven després sobre l'usuari equivalent: l'origen només llista i copia el
 que aquest usuari podria copiar a mà. Només els administradors

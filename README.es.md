@@ -122,7 +122,7 @@ pantalla **Plataformas** del plugin (con test de conexión).
 ## 🛡️ Protección contra pérdida de datos
 
 Los servicios entre plataformas solo se pueden llamar con el **token del usuario
-de servicio** del otro sitio (capacidad `local/coursetransfer:webservice`; en 2.2 un usuario de token sin ella aún se acepta con un aviso de deprecación, 2.3 lo rechazará), nunca
+de servicio** del otro sitio (capacidad `local/coursetransfer:webservice`), nunca
 desde el navegador, y verifican el **certificado TLS** del otro sitio. Los
 permisos se comprueban después sobre el usuario equivalente: el origen solo lista
 y copia lo que ese usuario podría copiar a mano. Solo los administradores

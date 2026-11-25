@@ -74,7 +74,7 @@ restore) runs in the background via scheduled tasks.
 - The user is resolved by equivalence across platforms (by `username`, `email`
   or `idnumber`, configurable).
 - The services used between platforms can only be called with the other
-  site's **service user token** (capability `local/coursetransfer:webservice`; in 2.2 a token user without it is still accepted with a deprecation warning, 2.3 will reject it),
+  site's **service user token** (capability `local/coursetransfer:webservice`),
   never from the browser. Permissions are then checked on the equivalent user:
   the origin only lists and backs up what that user could back up by hand.
 - Calls between platforms verify the **TLS certificate** of the other site.

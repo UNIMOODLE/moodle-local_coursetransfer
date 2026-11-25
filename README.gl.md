@@ -123,7 +123,7 @@ pantalla **Plataformas** do complemento (con proba de conexión).
 ## 🛡️ Protección contra a perda de datos
 
 Os servizos entre plataformas só se poden chamar co **testemuño do usuario de
-servizo** do outro sitio (capacidade `local/coursetransfer:webservice`; na 2.2 un usuario de testemuño sen ela aínda se acepta cun aviso de deprecación, a 2.3 rexeitarao), nunca
+servizo** do outro sitio (capacidade `local/coursetransfer:webservice`), nunca
 desde o navegador, e verifican o **certificado TLS** do outro sitio. Os permisos
 compróbanse despois sobre o usuario equivalente: a orixe só lista e copia o que
 ese usuario podería copiar á man. Só os administradores (`moodle/site:config`)
