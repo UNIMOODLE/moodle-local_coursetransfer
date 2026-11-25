@@ -522,7 +522,12 @@ define([
             if (!this.state.siteid) {
                 return;
             }
-            this.region('rows').empty().append($('<div>').addClass('ct-selempty').text('…'));
+            var $rows = this.region('rows');
+            if (!$rows.children().length) {
+                $rows.append($('<div>').addClass('ct-selempty').text('…'));
+            }
+            // What is shown stays, dimmed, while the origin answers.
+            Feedback.searchBusy(this.$root, $rows, this.state.search, this.state.sitename);
             // Only the answer to the last search is painted: an older one may arrive later (LCT-120).
             this.listseq = (this.listseq || 0) + 1;
             var seq = this.listseq;
@@ -539,6 +544,7 @@ define([
                 if (seq !== self.listseq) {
                     return resp;
                 }
+                Feedback.searchDone(self.$root, $rows);
                 if (!resp || !resp.success) {
                     // An origin error is not "no results": say what failed.
                     self.listFailed(resp);
@@ -551,6 +557,7 @@ define([
                 return self.renderRows();
             }).catch(function(ex) {
                 if (seq === self.listseq) {
+                    Feedback.searchDone(self.$root, $rows);
                     self.listFailed(ex);
                 }
             });

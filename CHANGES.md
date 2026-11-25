@@ -2,7 +2,7 @@
 
 All notable changes to this plugin are documented here.
 
-## 2.2.3 — 2026-11-25 (`2026112401`)
+## 2.2.3 — 2026-11-25 (`2026112402`)
 
 Maintenance release. Supported: Moodle 4.5, 5.1 and 5.3. The protocol does not change: the
 category search of the origin is a new optional parameter, and an older origin is searched as
@@ -19,6 +19,9 @@ before (this site filters its whole list).
 
 - The category search of the restore and remove wizards filters by name or path; it used to
   return the same list whatever was typed.
+- The searches of the wizards show that they are searching («Searching <platform>…», with a
+  spinner, and the current list dimmed) and no longer paint a late answer over the current one;
+  the search box no longer shows a coloured ring when focused.
 - The detail of a request marks only the activities that were selected in the wizard.
 - Seen from the origin, the log no longer shows as destination a local course that has
   nothing to do with the request, and the detail names the other platform as the destination.

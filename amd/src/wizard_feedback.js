@@ -55,7 +55,7 @@ define([
     var KEYS = [
         'platforms_hint_12001', 'platforms_hint_12002', 'platforms_hint_12003', 'platforms_hint_18001',
         'retry', 'rw_done_gotolog', 'rw_load_error', 'rw_load_error_hint',
-        'rw_submit_error', 'rw_submit_partial'
+        'rw_submit_error', 'rw_submit_partial', 'rw_loading', 'rw_searching'
     ];
 
     var cache = null;
@@ -325,11 +325,57 @@ define([
         $input.attr('min', localValue(now)).attr('max', localValue(now + SCHEDULE_MAX_DAYS * DAYMS));
     }
 
+    /**
+     * Show that a listing is being loaded or searched: a spinner line under the search box and the rows already
+     * shown dimmed, so it is clear the list below is about to change (LCT-120).
+     *
+     * @param {jQuery} $root Wizard root.
+     * @param {jQuery} $rows Rows container.
+     * @param {String} query Text searched ('' for a plain load).
+     * @param {String} site Platform being asked.
+     */
+    function searchBusy($root, $rows, query, site) {
+        var $status = $root.find('[data-region="search-status"]').first();
+        if (!$status.length) {
+            $status = $('<div>').addClass('ct-searchstatus')
+                .attr({'data-region': 'search-status', 'role': 'status', 'aria-live': 'polite'});
+            $root.find('.ct-search').first().after($status);
+        }
+        $rows.addClass('ct-rows--busy').attr('aria-busy', 'true');
+        strings().then(function(s) {
+            if (!$rows.hasClass('ct-rows--busy')) {
+                // The answer arrived first.
+                return null;
+            }
+            var text = query ? (s.rw_searching || '…').replace('{$a}', site || '') : (s.rw_loading || '…');
+            $status.empty().append(
+                $('<i>').addClass('fa fa-spinner fa-spin').attr('aria-hidden', 'true'),
+                $('<span>').text(text)
+            ).prop('hidden', false);
+            return null;
+        }).catch(function() {
+            return null;
+        });
+    }
+
+    /**
+     * The listing has its answer: remove the spinner line and the dimming.
+     *
+     * @param {jQuery} $root Wizard root.
+     * @param {jQuery} $rows Rows container.
+     */
+    function searchDone($root, $rows) {
+        $rows.removeClass('ct-rows--busy').attr('aria-busy', 'false');
+        $root.find('[data-region="search-status"]').prop('hidden', true).empty();
+    }
+
     return {
         launched: launched,
         outcome: outcome,
         scheduleBounds: scheduleBounds,
         scheduleCheck: scheduleCheck,
+        searchBusy: searchBusy,
+        searchDone: searchDone,
         showLoadError: showLoadError,
         showSubmitFailure: showSubmitFailure
     };

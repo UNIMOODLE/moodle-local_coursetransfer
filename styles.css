@@ -291,8 +291,55 @@
     color: var(--text-subtle);
 }
 
+.local-coursetransfer .ct-search {
+    transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+}
+
+/* Focus: a darker border on a white field, instead of a coloured ring around the box. */
 .local-coursetransfer .ct-search:focus-within {
-    box-shadow: 0 0 0 3px var(--focus-ring);
+    border-color: var(--neutral-500);
+    background: var(--neutral-0);
+}
+
+/* The box shows the focus (border above), so the field inside does not draw its own ring. Some themes (Fresk)
+   give every focused field a 2px outline with !important: it has to be beaten the same way, only here. */
+.local-coursetransfer .ct-search input:focus,
+.local-coursetransfer .ct-search input:focus-visible {
+    /* stylelint-disable-next-line declaration-no-important -- beats the !important focus outline of the theme */
+    outline: none !important;
+    box-shadow: none;
+}
+
+/* "Searching…" line under the search box while the origin answers; the rows already shown stay, dimmed. */
+.local-coursetransfer .ct-searchstatus {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: -6px 0 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.local-coursetransfer .ct-searchstatus[hidden] {
+    display: none;
+}
+
+.local-coursetransfer .ct-rows--busy {
+    opacity: 0.5;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.local-coursetransfer .ct-target-dd--busy .ct-target-result {
+    opacity: 0.5;
+}
+
+.local-coursetransfer .ct-target-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text-muted);
 }
 
 /* ---- Alerts ---- */

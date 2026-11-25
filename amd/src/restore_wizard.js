@@ -90,7 +90,8 @@ define([
         'rw_removeorigin_confirm_cat', 'rw_review_removeorigin_field_cat', 'rw_review_dest_cat',
         'platforms_role_origin', 'platforms_role_target',
         // Category subtree preview + self-pairing label.
-        'rw_loading', 'rcc_tree_title', 'rcc_tree_empty', 'rcc_tree_error', 'platforms_this_site'
+        'rw_loading', 'rcc_tree_title', 'rcc_tree_empty', 'rcc_tree_error', 'platforms_this_site',
+        'rw_dest_searching'
     ];
 
     var Wizard = {
@@ -748,9 +749,9 @@ define([
             if (!this.state.siteid || !this.state.type) {
                 return;
             }
-            var $rows = this.region('rows').empty();
-            $rows.append($('<div>').addClass('ct-selempty').attr('data-region', 'rows-loading')
-                .text((self.S.rw_pageinfo && '…') || '…'));
+            var $rows = this.region('rows');
+            // What is shown stays, dimmed, while the origin answers; the first load keeps its placeholder.
+            Feedback.searchBusy(this.$root, $rows, this.state.search, this.state.sitename);
             // Only the answer to the last search is painted: an older one may arrive later (LCT-120).
             this.listseq = (this.listseq || 0) + 1;
             var seq = this.listseq;
@@ -768,6 +769,7 @@ define([
                 if (seq !== self.listseq) {
                     return resp;
                 }
+                Feedback.searchDone(self.$root, $rows);
                 if (!resp || !resp.success) {
                     // An origin error is not "no results": say what failed.
                     self.listFailed(resp);
@@ -780,6 +782,7 @@ define([
                 return self.renderRows();
             }).catch(function(ex) {
                 if (seq === self.listseq) {
+                    Feedback.searchDone(self.$root, $rows);
                     self.listFailed(ex);
                 }
             });
@@ -1765,9 +1768,19 @@ define([
                 var rect = $input[0].getBoundingClientRect();
                 $dd.css({top: (rect.bottom + 4) + 'px', left: rect.left + 'px', width: rect.width + 'px'});
             }
+            // While a search is on its way, say so above the results shown until now (LCT-120).
+            $dd.toggleClass('ct-target-dd--busy', !!d.loading);
+            if (d.loading) {
+                $dd.append($('<div>').addClass('ct-target-loading').attr('role', 'status').append(
+                    $('<i>').addClass('fa fa-spinner fa-spin').attr('aria-hidden', 'true'),
+                    $('<span>').text(self.S.rw_dest_searching || '…')
+                ));
+            }
             if (!d.results.length) {
-                $dd.append($('<div>').addClass('ct-target-empty')
-                    .text(self.S.rw_dest_no_results || 'No results.'));
+                if (!d.loading) {
+                    $dd.append($('<div>').addClass('ct-target-empty')
+                        .text(self.S.rw_dest_no_results || 'No results.'));
+                }
                 return;
             }
             d.results.forEach(function(r) {
@@ -1822,6 +1835,8 @@ define([
             // Only the answer to the last search is painted: an older one may arrive later (LCT-120).
             d.searchseq = (d.searchseq || 0) + 1;
             var seq = d.searchseq;
+            d.loading = true;
+            self.renderResults(id);
             Ajax.call([{
                 methodname: 'local_coursetransfer_dest_search_course_name',
                 args: {text: text}
@@ -1829,6 +1844,7 @@ define([
                 if (seq !== d.searchseq) {
                     return resp;
                 }
+                d.loading = false;
                 d.results = (resp && resp.data) ? resp.data : [];
                 d.open = true;
                 self.renderResults(id);
@@ -1837,6 +1853,7 @@ define([
                 if (seq !== d.searchseq) {
                     return;
                 }
+                d.loading = false;
                 d.results = [];
                 self.renderResults(id);
             });
