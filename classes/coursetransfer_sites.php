@@ -193,16 +193,21 @@ class coursetransfer_sites {
         }
         $status = 1;
         $errors = [];
+        $warnings = [];
         foreach ($tested as $type => $row) {
             $platform->lasttest = max((int)$platform->lasttest, (int)$row->lasttest);
+            $label = get_string('platforms_role_' . $type, 'local_coursetransfer') . ' — ' . $row->lasttesterror;
             if ((int)$row->lastteststatus !== 1) {
                 $status = 0;
-                $errors[] = get_string('platforms_role_' . $type, 'local_coursetransfer')
-                        . ' — ' . $row->lasttesterror;
+                $errors[] = $label;
+            } else if (trim((string)$row->lasttesterror) !== '') {
+                $warnings[] = $label;
             }
         }
         $platform->lastteststatus = $status;
-        $platform->lasttesterror = $errors ? implode(' | ', $errors) : null;
+        // While every role works, the text holds the warnings of the successful tests.
+        $texts = $status ? $warnings : $errors;
+        $platform->lasttesterror = $texts ? implode(' | ', $texts) : null;
     }
 
     /**
@@ -220,7 +225,8 @@ class coursetransfer_sites {
         $object->id = $id;
         $object->lasttest = time();
         $object->lastteststatus = $ok ? 1 : 0;
-        $object->lasttesterror = $ok ? null : $error;
+        // On success the text is a warning (a deprecated way the pair still works with).
+        $object->lasttesterror = ($ok && $error === '') ? null : $error;
         $DB->update_record(self::TABLE_PREX . $type, $object);
     }
 

@@ -131,11 +131,14 @@ function local_coursetransfer_extend_settings_navigation(navigation_node $naviga
 function local_coursetransfer_extend_navigation_category_settings(navigation_node $navigation, context_coursecat $context) {
     global $PAGE;
 
-    $categoryid = $context->instanceid;
+    // Core builds this menu for any visitor of a page in a category context, e.g. a student on the
+    // self enrolment page of a visible course in a hidden category: only who may use the page gets the
+    // link, and the category is not loaded (doing so threw cannotviewcategory and broke that page, #63).
+    if (!has_capability('local/coursetransfer:origin_restore_category', $context)) {
+        return;
+    }
 
-    $category = core_course_category::get($categoryid, MUST_EXIST);
-
-    $url = new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $category->id]);
+    $url = new moodle_url('/local/coursetransfer/origin_restore_category.php', ['id' => $context->instanceid]);
     $pluginname = 'local_coursetransfer';
     $label = get_string('origin_restore_category', 'local_coursetransfer');
 
@@ -176,7 +179,9 @@ function local_coursetransfer_pluginfile($course, $cm, $context, $filearea, $arg
         return false;
     }
 
-    // Require authentication.
+    // Require authentication. The service user blocked by the site policies gets an error that says
+    // to press Repair on this site, instead of the generic 'sitepolicynotagreed' (LCT-074).
+    \local_coursetransfer\coursetransfer::require_site_policies_agreed();
     require_login($course, true);
 
     // Capability check.

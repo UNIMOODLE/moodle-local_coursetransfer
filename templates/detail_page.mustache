@@ -85,6 +85,12 @@
     <div class="ct-alert {{#stalled}}ct-alert--warning{{/stalled}}{{^stalled}}ct-alert--info{{/stalled}} ct-mt">
         <i class="fa {{#stalled}}fa-exclamation-triangle{{/stalled}}{{^stalled}}fa-hourglass-half{{/stalled}} ct-alert-icon" aria-hidden="true"></i>
         <p>{{ agetext }}{{#stalled}} · {{#str}} exec_stalled, local_coursetransfer {{/str}}{{/stalled}}</p>
+        {{#canretrystalled}}
+        <a class="ct-btn ct-btn--danger ct-btn--sm" href="{{ retryurl }}">
+            <i class="fa fa-refresh" aria-hidden="true"></i>
+            {{#str}} exec_retry, local_coursetransfer {{/str}}
+        </a>
+        {{/canretrystalled}}
     </div>
     {{/inprogress}}
 
@@ -155,6 +161,18 @@
             </div>
             {{/haserror}}
 
+            {{#iskept}}
+            <div class="ct-card ct-detail-error ct-detail-error--kept">
+                <div class="ct-detail-error-head">
+                    <i class="fa fa-shield" aria-hidden="true"></i>
+                    <span>{{ kepttitle }}</span>
+                </div>
+                <p class="ct-error-title">{{ keptcause }}</p>
+                <p class="ct-error-body">{{ keptaction }}</p>
+                {{#keptcode}}<div class="ct-detail-error-foot"><span class="ct-text-muted">{{#str}} exec_code, local_coursetransfer {{/str}} {{ keptcode }}</span></div>{{/keptcode}}
+            </div>
+            {{/iskept}}
+
             {{#hassections}}
             <div class="ct-card ct-fieldgroup">
                 <div class="ct-card-eyebrow">{{#str}} exec_content, local_coursetransfer {{/str}}</div>
@@ -162,13 +180,13 @@
                     {{#sections}}
                     <div class="ct-sectree-section">
                         <div class="ct-sectree-head">
-                            <span class="ct-sectree-check {{#on}}ct-sectree-check--on{{/on}}">{{#on}}<i class="fa fa-check" aria-hidden="true"></i>{{/on}}</span>
-                            <span class="ct-sectree-name {{^on}}ct-text-muted{{/on}}">{{ name }}</span>
+                            <span class="ct-sectree-check {{#on}}ct-sectree-check--on{{/on}}{{#partial}}ct-sectree-check--on{{/partial}}">{{#on}}<i class="fa fa-check" aria-hidden="true"></i>{{/on}}{{#partial}}<i class="fa fa-minus" aria-hidden="true"></i>{{/partial}}</span>
+                            <span class="ct-sectree-name {{^on}}{{^partial}}ct-text-muted{{/partial}}{{/on}}">{{ name }}</span>
                         </div>
                         {{#activities}}
                         <div class="ct-sectree-act">
-                            <span class="ct-sectree-actdot"><i class="fa fa-check" aria-hidden="true"></i></span>
-                            <span class="ct-sectree-actname">{{ name }}</span>
+                            <span class="ct-sectree-actdot">{{#on}}<i class="fa fa-check" aria-hidden="true"></i>{{/on}}</span>
+                            <span class="ct-sectree-actname {{^on}}ct-text-muted{{/on}}">{{ name }}</span>
                             {{#type}}<span class="ct-sectree-acttype">{{ type }}</span>{{/type}}
                         </div>
                         {{/activities}}

@@ -59,6 +59,9 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class detail_page implements renderable, templatable {
+    /** @var int Seconds a due task may wait for the cron before the detail calls it overdue. */
+    const OVERDUE_AFTER = 5 * MINSECS;
+
     /** @var stdClass Request record */
     protected stdClass $record;
 
@@ -140,7 +143,7 @@ class detail_page implements renderable, templatable {
                 : rtrim($r->siteurl, '/') . '/course/view.php?id=' . (int)$r->target_course_id;
         }
 
-        $data->timeline = $this->build_timeline($shortname, $r);
+        $data->timeline = $this->build_timeline($shortname, $r, $isrestore && !$dirin);
         $data->groups = $this->build_groups($r, $type, $dirin);
 
         // Pending scheduled (deferred) execution: highlight it so the user sees
@@ -165,8 +168,20 @@ class detail_page implements renderable, templatable {
             }
             $data->erraction = get_string('platform_error_action', 'local_coursetransfer');
             $data->errcode = $r->error_code;
-            $data->canretry = $type === coursetransfer_request::TYPE_COURSE;
+            $data->canretry = $type === coursetransfer_request::TYPE_COURSE
+                && has_capability('local/coursetransfer:manage_requests', \context_system::instance());
             $data->retryurl = (new moodle_url('/local/coursetransfer/retry.php', ['id' => $r->id]))->out(false);
+        }
+
+        // Completed, but the origin was kept on purpose: say so, why and what to do (B1).
+        $keptaction = coursetransfer_request::origin_kept_action($r);
+        $data->iskept = $keptaction !== null;
+        if ($data->iskept) {
+            $data->keptcause = trim((string)$r->error_message) !== '' ? (string)$r->error_message
+                : get_string('exec_err_nomessage', 'local_coursetransfer');
+            $data->kepttitle = get_string($keptaction[0], 'local_coursetransfer');
+            $data->keptaction = get_string($keptaction[1], 'local_coursetransfer');
+            $data->keptcode = $r->error_code;
         }
 
         // Request content (sections + activities).
@@ -198,6 +213,10 @@ class detail_page implements renderable, templatable {
                 'idle' => format_time($idle),
             ]);
             $data->stalled = $idle > HOURSECS;
+            // Stopped for long enough: offer Retry as for a request in error (#45).
+            $data->canretrystalled = $data->stalled && coursetransfer::can_retry($r)
+                && has_capability('local/coursetransfer:manage_requests', \context_system::instance());
+            $data->retryurl = (new moodle_url('/local/coursetransfer/retry.php', ['id' => $r->id]))->out(false);
         }
 
         // Cross-site correlation: the ids needed to find the same operation on the
@@ -206,10 +225,12 @@ class detail_page implements renderable, templatable {
         $targetid = $iscategory ? (int)($r->target_category_id ?? 0) : (int)($r->target_course_id ?? 0);
         $sitelogs = $r->siteurl ? rtrim($r->siteurl, '/') . '/local/coursetransfer/logs.php' : '';
         $selfurl = (new moodle_url('/local/coursetransfer/log.php', ['id' => (int)$r->id]))->out(false);
+        $sitekey = ($dirin === $isrestore) ? 'exec_corr_site' : 'exec_corr_site_target';
         $data->corr = [
             (object)['label' => get_string('exec_corr_request', 'local_coursetransfer'),
                     'value' => '#' . (int)$r->id, 'url' => $selfurl],
-            (object)['label' => get_string('exec_corr_site', 'local_coursetransfer'),
+            // The other platform is the origin when this site restores or deletes on it (LCT-123).
+            (object)['label' => get_string($sitekey, 'local_coursetransfer'),
                     'value' => $r->siteurl, 'url' => $sitelogs],
             (object)['label' => get_string('exec_corr_origin', 'local_coursetransfer'),
                     'value' => $originid, 'url' => $data->originurl],
@@ -244,14 +265,16 @@ class detail_page implements renderable, templatable {
      *
      * @param string $shortname current status shortname
      * @param stdClass $r
+     * @param bool $remotedest Whether the destination is the other platform (this site is the origin).
      * @return stdClass[]
      * @throws coding_exception
      */
-    protected function build_timeline(string $shortname, stdClass $r): array {
+    protected function build_timeline(string $shortname, stdClass $r, bool $remotedest = false): array {
         $steps = ['created', 'accepted', 'backup', 'download', 'restore', 'completed'];
-        // Index of the step the request has reached.
+        // Index of the step the request has reached. Accepted means the origin is making the backup; in_backup
+        // arrives with the origin's callback, when the copy is ready and its download queued (LCT-127).
         $stepindex = [
-            'not_started' => 1, 'in_progress' => 1, 'in_backup' => 2,
+            'not_started' => 1, 'in_progress' => 2, 'in_backup' => 3,
             'download' => 3, 'downloaded' => 3, 'restore' => 4, 'completed' => 5, 'incompleted' => 4,
         ];
         $iserror = $shortname === 'error';
@@ -264,7 +287,9 @@ class detail_page implements renderable, templatable {
             $done = $completed || !$iserror && $i < $curidx;
             $current = !$iserror && $i === $curidx && !$completed;
             $item = new stdClass();
-            $item->label = get_string('exec_step_' . $step, 'local_coursetransfer');
+            // Seen from the origin, the download happens on the other platform (LCT-123).
+            $key = ($step === 'download' && $remotedest) ? 'download_remote' : $step;
+            $item->label = get_string('exec_step_' . $key, 'local_coursetransfer');
             $item->done = $done && !$current;
             $item->current = $current;
             $item->pending = !$done && !$current;
@@ -295,6 +320,7 @@ class detail_page implements renderable, templatable {
      */
     protected function build_groups(stdClass $r, int $type, bool $dirin): array {
         $dash = '—';
+        $isrestore = in_array($type, [coursetransfer_request::TYPE_COURSE, coursetransfer_request::TYPE_CATEGORY], true);
         $bool = function ($value) {
             if ($value === null || $value === '') {
                 return get_string('no');
@@ -389,7 +415,7 @@ class detail_page implements renderable, templatable {
             $this->group(get_string('exec_g_remote', 'local_coursetransfer'), $remote),
             $this->group($coursetitle, $origincourse),
             $this->group($cattitle, $origincat),
-            $this->group(get_string('exec_g_dest', 'local_coursetransfer'), $dest),
+            $this->group(get_string($isrestore && !$dirin ? 'exec_g_dest_remote' : 'exec_g_dest', 'local_coursetransfer'), $dest),
             $this->group(get_string('exec_g_config', 'local_coursetransfer'), $config),
             $this->group(get_string('exec_g_backup', 'local_coursetransfer'), $backup),
         ];
@@ -410,17 +436,32 @@ class detail_page implements renderable, templatable {
         foreach ($decoded as $section) {
             $item = new stdClass();
             $item->name = $section->sectionname ?? ($section->name ?? '');
-            $item->on = !empty($section->selected);
             $item->activities = [];
+            $anyon = false;
+            $allon = true;
             $acts = $section->activities ?? [];
             if (is_array($acts)) {
                 foreach ($acts as $act) {
+                    // Only the activities ticked in the wizard were transferred (LCT-121).
+                    $on = !empty($act->selected);
+                    $anyon = $anyon || $on;
+                    $allon = $allon && $on;
+                    // The wizard stores modname; older requests may carry modulename or type.
+                    $type = (string)($act->modname ?? ($act->modulename ?? ($act->type ?? '')));
+                    if ($type !== '' && get_string_manager()->string_exists('modulename', 'mod_' . $type)) {
+                        $type = get_string('modulename', 'mod_' . $type);
+                    }
                     $item->activities[] = (object)[
                         'name' => $act->name ?? '',
-                        'type' => $act->modulename ?? ($act->type ?? ''),
+                        'type' => $type,
+                        'on' => $on,
                     ];
                 }
             }
+            // The wizard marks a section as selected as soon as one of its activities is: it is partial when only
+            // some of them are, and whole when all of them are (or it has none).
+            $item->partial = $anyon && !$allon;
+            $item->on = !empty($section->selected) && !$item->partial;
             $sections[] = $item;
         }
         return $sections;
@@ -437,13 +478,16 @@ class detail_page implements renderable, templatable {
         $tasks = [];
         foreach (coursetransfer_request::get_related_adhoc_tasks($requestid) as $task) {
             $shortclass = ltrim(strrchr($task->classname, '\\'), '\\') ?: $task->classname;
+            // The same translated name as in the task lists and logs (LCT-124).
+            $name = class_exists($task->classname) ? (new $task->classname())->get_name() : $shortclass;
             $tasks[] = (object)[
-                'classname' => $shortclass,
+                'classname' => $name,
                 'faildelay' => (int)$task->faildelay,
                 // Diagnostics: a task retrying after failure, or one already due but
                 // still queued (a sign the cron may be stalled).
                 'failing' => (int)$task->faildelay > 0,
-                'due' => !empty($task->nextruntime) && (int)$task->nextruntime <= $now,
+                // A task just queued is due at once: only one waiting longer than a few cron runs is overdue.
+                'due' => !empty($task->nextruntime) && (int)$task->nextruntime <= $now - self::OVERDUE_AFTER,
                 'nextrun' => $task->nextruntime ? userdate($task->nextruntime) : '-',
                 'timecreated' => !empty($task->timecreated) ? userdate($task->timecreated) : '-',
             ];

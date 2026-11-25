@@ -35,7 +35,6 @@
 namespace local_coursetransfer\external\backend;
 
 use core_course_category;
-use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
 use core_external\external_single_structure;
@@ -57,7 +56,7 @@ require_once($CFG->dirroot . '/group/lib.php');
  *
  * @package local_coursetransfer\external\backend
  */
-class origin_category_external extends external_api {
+class origin_category_external extends backend_api {
     /**
      * Origin get categories parameters.
      *
@@ -70,6 +69,8 @@ class origin_category_external extends external_api {
                 'value' => new external_value(PARAM_TEXT, 'Value'),
                 'page' => new external_value(PARAM_INT, 'Page number been requested (starts with page 0)', VALUE_DEFAULT, 0),
                 'perpage' => new external_value(PARAM_INT, 'Items per page to  (starts with page 0)', VALUE_DEFAULT, 0),
+                // Optional since 2.2.3: an older target never sends it (LCT-128).
+                'search' => new external_value(PARAM_TEXT, 'Text to find in the category name or path', VALUE_DEFAULT, ''),
             ]
         );
     }
@@ -81,12 +82,19 @@ class origin_category_external extends external_api {
      * @param string $value
      * @param int $page
      * @param int $perpage
+     * @param string $search Text to find in the category name or path (LCT-128).
      *
      * @return array
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function origin_get_categories(string $field, string $value, int $page = 0, int $perpage = 0): array {
+    public static function origin_get_categories(
+        string $field,
+        string $value,
+        int $page = 0,
+        int $perpage = 0,
+        string $search = ''
+    ): array {
         $params = self::validate_parameters(
             self::origin_get_categories_parameters(),
             [
@@ -94,12 +102,15 @@ class origin_category_external extends external_api {
                 'value' => $value,
                 'page' => $page,
                 'perpage' => $perpage,
+                'search' => $search,
             ]
         );
+        self::validate_service_user();
         $field = $params['field'];
         $value = $params['value'];
         $perpage = $params['perpage'] ?? 0;
         $page = $perpage == 0 ? 0 : $params['page'] ?? 0;
+        $search = trim((string)$params['search']);
 
         $success = true;
         $errors = [];
@@ -110,8 +121,8 @@ class origin_category_external extends external_api {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $user = $authres['data'];
-                $categories = coursetransfer::get_categories_user($user, $page, $perpage);
-                $totalcategories = coursetransfer::count_categories_user();
+                $categories = coursetransfer::get_categories_user($user, $page, $perpage, $search);
+                $totalcategories = coursetransfer::count_categories_user($user, $search);
                 foreach ($categories as $category) {
                     $item = new stdClass();
                     $item->id = $category->id;
@@ -167,8 +178,8 @@ class origin_category_external extends external_api {
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
                     ],
-                    PARAM_TEXT,
-                    'Errors'
+                    'Errors',
+                    VALUE_OPTIONAL
                 )),
                 'paging' => new external_single_structure([
                     'totalcount' => new external_value(PARAM_INT, 'Total number of courses', VALUE_OPTIONAL),
@@ -186,8 +197,8 @@ class origin_category_external extends external_api {
                         'totalsubcategories' => new external_value(PARAM_INT, 'Total subcategories', VALUE_OPTIONAL),
                         'totalcourseschild' => new external_value(PARAM_INT, 'Total courses all subcategory', VALUE_OPTIONAL),
                     ],
-                    PARAM_TEXT,
-                    'Data'
+                    'Data',
+                    VALUE_OPTIONAL
                 )),
             ]
         );
@@ -226,6 +237,7 @@ class origin_category_external extends external_api {
                 'categoryid' => $categoryid,
             ]
         );
+        self::validate_service_user();
         $field = $params['field'];
         $value = $params['value'];
         $categoryid = $params['categoryid'] ?? 0;
@@ -244,9 +256,12 @@ class origin_category_external extends external_api {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $category = core_course_category::get($categoryid);
+                if (!coursetransfer::can_backup_category($category, $authres['data'])) {
+                    throw new moodle_exception('nopermissions', 'error', '', 'moodle/backup:backupcourse');
+                }
                 $categoryparent = core_course_category::get($category->parent);
                 $courses = [];
-                $subcategories = coursetransfer::get_subcategories($category);
+                $subcategories = coursetransfer::get_subcategories($category, $authres['data']);
                 array_unshift($subcategories, $category);
                 foreach ($subcategories as $sub) {
                     foreach ($sub->get_courses() as $c) {
@@ -272,7 +287,7 @@ class origin_category_external extends external_api {
                         'parentid' => $category->parent,
                         'parentname' => $parentname,
                         'courses' => $courses,
-                ];
+                ] + self::count_hidden($category, count($subcategories) - 1, count($courses));
                 $success = true;
             } else {
                 $success = false;
@@ -282,7 +297,8 @@ class origin_category_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '23001',
+                    // 23002/24002: the named user may not back up this category (LCT-010).
+                    'code' => $e->errorcode === 'nopermissions' ? '23002' : '23001',
                     'msg' => $e->getMessage(),
                 ];
         }
@@ -308,8 +324,8 @@ class origin_category_external extends external_api {
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
                     ],
-                    PARAM_TEXT,
-                    'Errors'
+                    'Errors',
+                    VALUE_OPTIONAL
                 )),
                 'data' => new external_single_structure(
                     [
@@ -318,6 +334,16 @@ class origin_category_external extends external_api {
                         'idnumber' => new external_value(PARAM_TEXT, 'idNumber', VALUE_OPTIONAL),
                         'parentid' => new external_value(PARAM_INT, 'Category Parent ID', VALUE_OPTIONAL),
                         'parentname' => new external_value(PARAM_TEXT, 'Category ParentName', VALUE_OPTIONAL),
+                        'hiddencategories' => new external_value(
+                            PARAM_INT,
+                            'Subcategories in the tree not listed (not visible to the user)',
+                            VALUE_OPTIONAL
+                        ),
+                        'hiddencourses' => new external_value(
+                            PARAM_INT,
+                            'Courses in the tree not listed (not visible to the user)',
+                            VALUE_OPTIONAL
+                        ),
                         'courses' => new external_multiple_structure(
                             new external_single_structure(
                                 [
@@ -374,25 +400,26 @@ class origin_category_external extends external_api {
                 'categoryid' => $categoryid,
             ]
         );
+        self::validate_service_user();
         $field = $params['field'];
         $value = $params['value'];
         $categoryid = $params['categoryid'] ?? 0;
 
         $errors = [];
-        $data = [
-            'id' => 0,
-            'name' => '',
-            'idnumber' => 0,
-            'parentid' => 0,
-            'parentname' => '',
-            'courses' => [],
-        ];
+        // The service declares data as a JSON string (PARAM_RAW): on failure it stays an empty
+        // string, so the caller gets success = false and the errors instead of an invalid response.
+        $data = '';
 
         try {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $category = core_course_category::get($categoryid);
-                $data = json_encode(self::get_courses_and_categories($category));
+                if (!coursetransfer::can_backup_category($category, $authres['data'])) {
+                    throw new moodle_exception('nopermissions', 'error', '', 'moodle/backup:backupcourse');
+                }
+                $tree = self::get_courses_and_categories($category);
+                [$ncategories, $ncourses] = self::count_tree($tree);
+                $data = json_encode($tree + self::count_hidden($category, $ncategories, $ncourses));
                 $success = true;
             } else {
                 $success = false;
@@ -402,7 +429,8 @@ class origin_category_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '24001',
+                    // 23002/24002: the named user may not back up this category (LCT-010).
+                    'code' => $e->errorcode === 'nopermissions' ? '24002' : '24001',
                     'msg' => $e->getMessage(),
                 ];
         }
@@ -433,6 +461,52 @@ class origin_category_external extends external_api {
                 'data' => new external_value(PARAM_RAW, 'Courses JSON', VALUE_OPTIONAL),
             ]
         );
+    }
+
+    /**
+     * How many subcategories and courses of a category tree a listing left out.
+     *
+     * A recursive removal of the category takes them too, so the target must know it did not copy them.
+     *
+     * @param core_course_category $category Root of the tree.
+     * @param int $listedcategories Subcategories listed (root excluded).
+     * @param int $listedcourses Courses listed.
+     * @return array ['hiddencategories' => int, 'hiddencourses' => int]
+     */
+    protected static function count_hidden(core_course_category $category, int $listedcategories, int $listedcourses): array {
+        global $DB;
+        $subids = $DB->get_fieldset_select(
+            'course_categories',
+            'id',
+            $DB->sql_like('path', ':path'),
+            ['path' => $category->path . '/%']
+        );
+        [$insql, $params] = $DB->get_in_or_equal(array_merge([(int)$category->id], $subids), SQL_PARAMS_NAMED, 'cat');
+        $courses = $DB->count_records_select('course', "category $insql", $params);
+        return [
+            'hiddencategories' => max(0, count($subids) - $listedcategories),
+            'hiddencourses' => max(0, $courses - $listedcourses),
+        ];
+    }
+
+    /**
+     * Subcategories (root excluded) and courses of a tree built by get_courses_and_categories().
+     *
+     * @param array $tree
+     * @return int[] [categories, courses]
+     */
+    protected static function count_tree(array $tree): array {
+        $categories = 0;
+        $courses = 0;
+        $pending = [$tree];
+        while ($node = array_pop($pending)) {
+            $courses += count($node['courses'] ?? []);
+            foreach ($node['categories'] ?? [] as $child) {
+                $categories++;
+                $pending[] = $child;
+            }
+        }
+        return [$categories, $courses];
     }
 
     /**

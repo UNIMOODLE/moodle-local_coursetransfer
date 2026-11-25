@@ -41,8 +41,9 @@ define([
     'jquery',
     'core/ajax',
     'core/str',
-    'local_coursetransfer/category_tree'
-], function($, Ajax, Str, CategoryTree) {
+    'local_coursetransfer/category_tree',
+    'local_coursetransfer/wizard_feedback'
+], function($, Ajax, Str, CategoryTree, Feedback) {
     "use strict";
 
     var PERPAGE = 5;
@@ -51,7 +52,7 @@ define([
 
     var STRINGKEYS = [
         'rw_loading', 'rw_cancel', 'rw_back', 'rw_next', 'rw_run',
-        'rw_noresults', 'rw_pageinfo', 'rw_step_of', 'rw_submit_error',
+        'rw_noresults', 'rw_pageinfo', 'rw_step_of',
         'rw_results', 'rw_results_note', 'rw_categories_pl', 'rw_kind_category',
         'rw_lbl_idnumber', 'rw_lbl_subcats', 'rw_col_import',
         'rw_cat_root', 'rw_cat_insub', 'rw_cat_breakdown',
@@ -85,6 +86,7 @@ define([
             this.targetcatname = this.$root.attr('data-catname') || '';
             this.localsitename = this.$root.attr('data-localsite') || '';
             this.caturl = this.$root.attr('data-caturl') || '#';
+            this.logurl = this.$root.attr('data-logurl') || '#';
             this.perpage = parseInt(this.$root.attr('data-pagesize'), 10) || PERPAGE;
             this.S = {};
             this.sites = [];
@@ -109,6 +111,12 @@ define([
          * Reset in-memory state.
          */
         resetState: function() {
+            // Submit guard: '' | 'sending' (request in flight) | 'locked'
+            // (partial or unconfirmed result: running again could duplicate).
+            // A request in flight is never forgotten, not even by "cancel".
+            if (this.submitstate !== 'sending') {
+                this.submitstate = '';
+            }
             this.state = {
                 view: 'landing',
                 step: 0,
@@ -217,13 +225,18 @@ define([
             $root.on('click', '[data-action="toggle-schedule"]', function() {
                 self.state.scheduleon = !self.state.scheduleon;
                 $(this).attr('aria-checked', self.state.scheduleon ? 'true' : 'false');
-                self.region('schedule-date').prop('hidden', !self.state.scheduleon);
-                if (!self.state.scheduleon) {
+                var $date = self.region('schedule-date').prop('hidden', !self.state.scheduleon);
+                if (self.state.scheduleon) {
+                    Feedback.scheduleBounds($date);
+                    self.state.scheduledate = $date.val() || '';
+                } else {
                     self.state.scheduledate = '';
                 }
+                self.refreshFooter();
             });
             $root.on('change input', '[data-action="schedule-date"]', function() {
                 self.state.scheduledate = $(this).val() || '';
+                self.refreshFooter();
             });
 
             this.showView('landing');
@@ -256,6 +269,7 @@ define([
          */
         start: function() {
             this.resetState();
+            this.region('submit-error').prop('hidden', true).empty();
             this.showView('wizard');
             this.goStep(0);
             if (!this.sites.length) {
@@ -324,7 +338,8 @@ define([
         refreshFooter: function() {
             var step = this.state.step;
             var self = this;
-            this.$root.find('[data-action="back"]').prop('disabled', step === 0);
+            this.$root.find('[data-action="back"]').prop('disabled', step === 0 || this.submitstate === 'sending');
+            this.renderScheduleWarn();
 
             var $primary = this.$root.find('[data-action="primary"]');
             var islast = step === TOTALSTEPS - 1;
@@ -353,6 +368,9 @@ define([
          */
         canProceed: function() {
             var s = this.state;
+            if (this.submitstate) {
+                return false;
+            }
             if (s.step === 0) {
                 return !!s.siteid;
             }
@@ -361,9 +379,23 @@ define([
             }
             if (s.step === 2) {
                 // Destructive "delete origin category" needs its confirmation.
-                return !(s.removeorigin && !s.removeoriginconfirm);
+                if (s.removeorigin && !s.removeoriginconfirm) {
+                    return false;
+                }
+                // "Schedule" on needs a valid date (never sent as "now").
+                return Feedback.scheduleCheck(s.scheduleon, s.scheduledate).valid;
             }
             return true;
+        },
+
+        /**
+         * Show the "invalid date" warning when "schedule" is on without a
+         * valid future date.
+         */
+        renderScheduleWarn: function() {
+            var s = this.state;
+            var bad = s.scheduleon && !Feedback.scheduleCheck(true, s.scheduledate).valid;
+            this.region('schedule-warn').prop('hidden', !bad);
         },
 
         /**
@@ -396,15 +428,18 @@ define([
          */
         loadSites: function() {
             var self = this;
+            this.region('sites').empty().append(
+                $('<div>').addClass('ct-selempty').text(this.S.rw_loading || '…'));
             Ajax.call([{
                 methodname: 'local_coursetransfer_restore_wizard_get_sites',
                 args: {}
             }])[0].then(function(resp) {
                 self.sites = resp.sites || [];
                 return self.renderSites();
-            }).catch(function() {
-                self.region('sites').empty().append(
-                    $('<div>').addClass('ct-selempty').text(self.S.rw_submit_error || 'Error'));
+            }).catch(function(ex) {
+                Feedback.showLoadError(self.region('sites'), ex, function() {
+                    self.loadSites();
+                });
             });
         },
 
@@ -487,7 +522,15 @@ define([
             if (!this.state.siteid) {
                 return;
             }
-            this.region('rows').empty().append($('<div>').addClass('ct-selempty').text('…'));
+            var $rows = this.region('rows');
+            if (!$rows.children().length) {
+                $rows.append($('<div>').addClass('ct-selempty').text('…'));
+            }
+            // What is shown stays, dimmed, while the origin answers.
+            Feedback.searchBusy(this.$root, $rows, this.state.search, this.state.sitename);
+            // Only the answer to the last search is painted: an older one may arrive later (LCT-120).
+            this.listseq = (this.listseq || 0) + 1;
+            var seq = this.listseq;
             Ajax.call([{
                 methodname: 'local_coursetransfer_restore_wizard_list_origin',
                 args: {
@@ -498,14 +541,41 @@ define([
                     query: this.state.search
                 }
             }])[0].then(function(resp) {
+                if (seq !== self.listseq) {
+                    return resp;
+                }
+                Feedback.searchDone(self.$root, $rows);
+                if (!resp || !resp.success) {
+                    // An origin error is not "no results": say what failed.
+                    self.listFailed(resp);
+                    return resp;
+                }
                 self.items = resp.items || [];
                 self.state.total = resp.total || 0;
                 self.state.pages = resp.pages || 1;
                 self.state.page = resp.page || 0;
                 return self.renderRows();
-            }).catch(function() {
-                self.region('rows').empty().append(
-                    $('<div>').addClass('ct-selempty').text(self.S.rw_submit_error || 'Error'));
+            }).catch(function(ex) {
+                if (seq === self.listseq) {
+                    Feedback.searchDone(self.$root, $rows);
+                    self.listFailed(ex);
+                }
+            });
+        },
+
+        /**
+         * Show a listing failure (code, hint, retry) instead of an empty list.
+         *
+         * @param {Object} failure WS response or exception.
+         */
+        listFailed: function(failure) {
+            var self = this;
+            this.items = [];
+            this.state.total = 0;
+            this.state.pages = 1;
+            this.renderRows();
+            Feedback.showLoadError(this.region('rows'), failure, function() {
+                self.loadList();
             });
         },
 
@@ -841,11 +911,22 @@ define([
         submit: function() {
             var self = this;
             var s = this.state;
-            var $primary = this.$root.find('[data-action="primary"]');
-            $primary.prop('disabled', true);
-            this.region('submit-error').prop('hidden', true);
+            if (this.submitstate) {
+                return;
+            }
+            // The date may have expired while on the review: back to the step
+            // where it is set, with its warning (never sent as "now").
+            var sched = Feedback.scheduleCheck(s.scheduleon, s.scheduledate);
+            if (!sched.valid) {
+                this.goStep(2);
+                return;
+            }
+            this.submitstate = 'sending';
+            this.region('submit-error').prop('hidden', true).empty();
+            this.refreshFooter();
 
-            var schedule = (s.scheduleon && s.scheduledate) ? (Date.parse(s.scheduledate) || 0) : 0;
+            // The WS expects an epoch in milliseconds (0 = now).
+            var schedule = sched.ts;
 
             Ajax.call([{
                 methodname: 'local_coursetransfer_restore_wizard_submit_category',
@@ -858,30 +939,35 @@ define([
                     schedule: schedule
                 }
             }])[0].then(function(resp) {
-                if (resp && resp.success) {
+                var kind = Feedback.outcome(resp);
+                if (kind === 'done') {
+                    self.submitstate = '';
                     self.showView('done');
                 } else {
-                    self.submitError(resp);
+                    self.submitFailed(resp, kind);
                 }
                 return resp;
-            }).catch(function() {
-                self.submitError(null);
+            }).catch(function(ex) {
+                // No answer (timeout, 504, session): the request may exist.
+                self.submitFailed(ex, 'unconfirmed');
             });
         },
 
         /**
-         * Report a submit failure inline on the review step.
+         * Report a submit that did not fully succeed on the review step. Only a
+         * plain failure (nothing created) lets the user run it again.
          *
-         * @param {Object|null} resp
+         * @param {Object|null} failure WS response or exception.
+         * @param {String} kind failed|partial|unconfirmed
          */
-        submitError: function(resp) {
-            var msg = this.S.rw_submit_error || 'Error';
-            if (resp && resp.errors && resp.errors.length && resp.errors[0].msg) {
-                msg = resp.errors[0].msg;
+        submitFailed: function(failure, kind) {
+            var url = this.logurl;
+            if (failure && failure.data && failure.data.nexturl && failure.data.nexturl !== '#') {
+                url = failure.data.nexturl;
             }
-            this.region('submit-error').prop('hidden', false);
-            this.region('submit-error-text').text(msg);
-            this.$root.find('[data-action="primary"]').prop('disabled', false);
+            this.submitstate = (kind === 'failed') ? '' : 'locked';
+            Feedback.showSubmitFailure(this.region('submit-error'), failure, kind, url);
+            this.refreshFooter();
         }
     };
 

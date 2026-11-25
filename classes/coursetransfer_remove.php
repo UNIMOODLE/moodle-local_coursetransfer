@@ -51,8 +51,94 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class coursetransfer_remove {
-    /** @var int Cleanup bin task nextruntim plus */
-    const CLEANUP_BIN_TASK_NEXTRUNTIME_PLUS = 240;
+    /** @var int Default days a removed course stays in the recycle bin before the plugin purges it. */
+    const RECYCLEBIN_RETENTION_DAYS = 30;
+
+    /**
+     * Seconds a removed course stays in the recycle bin before the plugin purges it (at least one day).
+     *
+     * @return int
+     */
+    public static function get_recyclebin_retention(): int {
+        $days = get_config('local_coursetransfer', 'recyclebinretentiondays');
+        $days = ($days === false || $days === '') ? self::RECYCLEBIN_RETENTION_DAYS : (int)$days;
+        return max(1, $days) * DAYSECS;
+    }
+
+    /**
+     * Whether a course of this (origin) site has a removal asked by a target still pending, itself or a parent category.
+     *
+     * @param int $courseid
+     * @return bool
+     */
+    public static function has_pending_removal(int $courseid): bool {
+        global $DB;
+        $catids = [0];
+        $categoryid = $DB->get_field('course', 'category', ['id' => $courseid]);
+        $path = $categoryid ? $DB->get_field('course_categories', 'path', ['id' => $categoryid]) : '';
+        foreach (explode('/', (string)$path) as $id) {
+            if ((int)$id > 0) {
+                $catids[] = (int)$id;
+            }
+        }
+        [$insql, $params] = $DB->get_in_or_equal($catids, SQL_PARAMS_NAMED, 'cat');
+        [$stsql, $stparams] = $DB->get_in_or_equal(
+            [coursetransfer_request::STATUS_COMPLETED, coursetransfer_request::STATUS_ERROR],
+            SQL_PARAMS_NAMED,
+            'st',
+            false
+        );
+        return $DB->record_exists_select(
+            coursetransfer_request::TABLE,
+            "direction = :dir AND status $stsql
+             AND ((type = :tcourse AND origin_course_id = :course) OR (type = :tcat AND origin_category_id $insql))",
+            $params + $stparams + [
+                'dir' => coursetransfer_request::DIRECTION_RESPONSE,
+                'tcourse' => coursetransfer_request::TYPE_REMOVE_COURSE,
+                'course' => $courseid,
+                'tcat' => coursetransfer_request::TYPE_REMOVE_CATEGORY,
+            ]
+        );
+    }
+
+    /**
+     * Move the backups served from these courses to the system context before removing them.
+     *
+     * Deleting a course deletes every file of its context: moved, they last the protection period of
+     * cleanup_backup_files_task, counted from now (the removal).
+     *
+     * @param int[] $courseids
+     * @return int Files moved.
+     */
+    public static function preserve_served_backups(array $courseids): int {
+        $fs = get_file_storage();
+        $sysid = \context_system::instance()->id;
+        $moved = 0;
+        foreach ($courseids as $courseid) {
+            $context = \context_course::instance((int)$courseid, IGNORE_MISSING);
+            if (!$context) {
+                continue;
+            }
+            foreach ($fs->get_area_files($context->id, 'local_coursetransfer', 'backup', false, 'id', false) as $file) {
+                $record = ['contextid' => $sysid, 'timemodified' => time()];
+                if (
+                    !$fs->file_exists(
+                        $sysid,
+                        'local_coursetransfer',
+                        'backup',
+                        $file->get_itemid(),
+                        $file->get_filepath(),
+                        $file->get_filename()
+                    )
+                ) {
+                    $fs->create_file_from_storedfile($record, $file);
+                }
+                $file->delete();
+                $moved++;
+            }
+        }
+        return $moved;
+    }
 
     /**
      * Create task remove course.
@@ -75,7 +161,7 @@ class coursetransfer_remove {
     ): bool {
         $resasynctask = new remove_course_task();
         $payload = [
-                'targetsiteid' => $destsite->id,
+                'targetsiteid' => (int)$destsite->id,
                 'courseid' => $courseid,
                 'requestoriginid' => $requestoriginid,
                 'requestdestid' => $requestdestid,
@@ -109,7 +195,7 @@ class coursetransfer_remove {
     ): bool {
         $resasynctask = new remove_category_task();
         $payload = [
-                'targetsiteid' => $destsite->id,
+                'targetsiteid' => (int)$destsite->id,
                 'catid' => $catid,
                 'requestoriginid' => $requestoriginid,
                 'requestdestid' => $requestdestid,
@@ -123,35 +209,43 @@ class coursetransfer_remove {
     }
 
     /**
-     * Create cleanup course bin task.
+     * Queue the purge of a removed course from the recycle bins, once the retention has passed.
      *
-     * @param stdClass $course
+     * @param stdClass $course The removed course (id, shortname, category).
+     * @param int|null $timeremoved When it was removed (now by default).
      * @return bool
      */
-    public static function create_cleanup_course_bin_task(stdClass $course): bool {
+    public static function create_cleanup_course_bin_task(stdClass $course, ?int $timeremoved = null): bool {
+        $timeremoved = $timeremoved ?? time();
         $resasynctask = new cleanup_course_bin_task();
         $payload = [
-                'courseid' => $course->id,
+                'courseid' => (int)$course->id,
                 'shortname' => $course->shortname,
+                'categoryid' => isset($course->category) ? (int)$course->category : null,
+                'timeremoved' => $timeremoved,
         ];
         $resasynctask->set_custom_data($payload);
-        $resasynctask->set_next_run_time(time() + self::CLEANUP_BIN_TASK_NEXTRUNTIME_PLUS);
-        return manager::queue_adhoc_task($resasynctask);
+        // Until then the course can still be restored from the recycle bin by hand.
+        $resasynctask->set_next_run_time($timeremoved + self::get_recyclebin_retention());
+        return (bool)manager::queue_adhoc_task($resasynctask);
     }
 
     /**
-     * Create cleanup category bin task.
+     * Queue the purge of a removed category from the recycle bin, once the retention has passed.
      *
      * @param int $catid
+     * @param int|null $timeremoved When it was removed (now by default).
      * @return bool
      */
-    public static function create_cleanup_category_bin_task(int $catid): bool {
+    public static function create_cleanup_category_bin_task(int $catid, ?int $timeremoved = null): bool {
+        $timeremoved = $timeremoved ?? time();
         $resasynctask = new cleanup_category_bin_task();
         $payload = [
                 'categoryid' => $catid,
+                'timeremoved' => $timeremoved,
         ];
         $resasynctask->set_custom_data($payload);
-        $resasynctask->set_next_run_time(time() + self::CLEANUP_BIN_TASK_NEXTRUNTIME_PLUS);
-        return manager::queue_adhoc_task($resasynctask);
+        $resasynctask->set_next_run_time($timeremoved + self::get_recyclebin_retention());
+        return (bool)manager::queue_adhoc_task($resasynctask);
     }
 }

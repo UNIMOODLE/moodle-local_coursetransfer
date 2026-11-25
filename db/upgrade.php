@@ -238,5 +238,63 @@ function xmldb_local_coursetransfer_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026090900, 'local', 'coursetransfer');
     }
 
+    if ($oldversion < 2026111900) {
+        // Peer-only services now require local/coursetransfer:webservice (TIPCOUTRAN-10, H8). Give
+        // it to the existing service user role, or peers could no longer call this site. The
+        // capabilities are created here because Moodle only does it after this function.
+        update_capabilities('local_coursetransfer');
+        $roleid = $DB->get_field('role', 'id', ['shortname' => 'local_coursetransfer_ws']);
+        if ($roleid) {
+            assign_capability('local/coursetransfer:webservice', CAP_ALLOW, $roleid, context_system::instance(), true);
+            set_role_contextlevels($roleid, array_unique(array_merge(get_role_contextlevels($roleid), [CONTEXT_SYSTEM])));
+        }
+        upgrade_plugin_savepoint(true, 2026111900, 'local', 'coursetransfer');
+    }
+
+    if ($oldversion < 2026111901) {
+        // Manifest of the origin course, checked against the restored course before removing the origin.
+        $table = new xmldb_table('local_coursetransfer_request');
+        $field = new xmldb_field('origin_manifest', XMLDB_TYPE_TEXT, null, null, null, null, null, 'origin_category_tree');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        upgrade_plugin_savepoint(true, 2026111901, 'local', 'coursetransfer');
+    }
+
+    if ($oldversion < 2026111902) {
+        // The service user was created with an address on a real TLD (.xxx): move it to a reserved
+        // one and stop all email to it. Only the account this plugin created is touched.
+        $wsuser = $DB->get_record('user', ['username' => 'local_coursetransfer_ws', 'deleted' => 0]);
+        if ($wsuser && $wsuser->email === 'coursetransfer@test.xxx') {
+            $DB->update_record('user', (object) [
+                'id' => $wsuser->id,
+                'email' => 'local_coursetransfer_ws@example.invalid',
+                'emailstop' => 1,
+                'timemodified' => time(),
+            ]);
+        } else if ($wsuser) {
+            $DB->set_field('user', 'emailstop', 1, ['id' => $wsuser->id]);
+        }
+        upgrade_plugin_savepoint(true, 2026111902, 'local', 'coursetransfer');
+    }
+
+    if ($oldversion < 2026112001) {
+        // 2.1 stored the origin's token in fileurl (?token=...): remove it from existing rows (LCT-011).
+        // Only that parameter of that column changes; the download task no longer needs it.
+        require_once(__DIR__ . '/upgradelib.php');
+        local_coursetransfer_strip_legacy_tokens();
+        upgrade_plugin_savepoint(true, 2026112001, 'local', 'coursetransfer');
+    }
+
+    if ($oldversion < 2026112002) {
+        // A new site policy version, or policies created after installing, leave the service user blocked
+        // ('sitepolicynotagreed' on the peers) until Repair: accept them now (LCT-074). And let its role see
+        // hidden categories, which sites upgraded from 1.x lacked (LCT-068).
+        require_once(__DIR__ . '/upgradelib.php');
+        local_coursetransfer_accept_ws_site_policies();
+        local_coursetransfer_allow_hidden_categories();
+        upgrade_plugin_savepoint(true, 2026112002, 'local', 'coursetransfer');
+    }
+
     return true;
 }

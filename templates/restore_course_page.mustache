@@ -40,7 +40,7 @@
         data-courseid="{{ courseid }}"
         data-canmerge="{{#canmerge}}1{{/canmerge}}{{^canmerge}}0{{/canmerge}}"
         data-canreplace="{{#canreplace}}1{{/canreplace}}{{^canreplace}}0{{/canreplace}}"
-        data-courseurl="{{ courseurl }}" data-pagesize="{{ pagesize }}">
+        data-courseurl="{{ courseurl }}" data-logurl="{{ logurl }}" data-pagesize="{{ pagesize }}">
 
     <div class="ct-hero">
         {{> local_coursetransfer/components/page_header }}
@@ -213,6 +213,7 @@
                 </div>
 
                 {{! Include users and groups. }}
+                {{#canincludeusers}}
                 <div class="ct-switchrow ct-mt">
                     <div class="ct-switchrow-body">
                         <span class="ct-rolecard-title">{{#str}} rw_users, local_coursetransfer {{/str}}</span>
@@ -220,6 +221,7 @@
                     </div>
                     <button type="button" class="ct-switch" data-action="toggle-users" role="switch" aria-checked="false"></button>
                 </div>
+                {{/canincludeusers}}
 
                 <div class="ct-alert ct-alert--success ct-mt" data-region="mode-safe" hidden>
                     <i class="fa fa-check-circle ct-alert-icon" aria-hidden="true"></i>
@@ -250,10 +252,8 @@
                     <i class="fa fa-clock-o ct-alert-icon" aria-hidden="true"></i>
                     <p>{{#str}} rct_async, local_coursetransfer {{/str}}</p>
                 </div>
-                <div class="ct-alert ct-alert--danger ct-mt" data-region="submit-error" hidden>
-                    <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
-                    <p data-region="submit-error-text"></p>
-                </div>
+                {{! Filled by local_coursetransfer/wizard_feedback when a submit does not fully succeed. }}
+                <div class="ct-mt" data-region="submit-error" aria-live="polite" hidden></div>
             </div>
 
         </div>

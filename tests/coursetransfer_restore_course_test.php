@@ -180,8 +180,16 @@ final class coursetransfer_restore_course_test extends advanced_testcase {
      */
     protected function setup_config() {
         global $CFG;
+        // Registering sites requires moodle/site:config (TIPCOUTRAN-10).
+        $this->setAdminUser();
         $token = coursetransfer::postinstall();
         $this->user = core_user::get_user_by_username(user::USERNAME_WS);
+        // The restore removes only the enrolments its requester may remove (core enrol_course_delete()).
+        // Case 3 asks to remove them: the requester is entitled, as a manager doing it by hand would be.
+        // Before, a second (duplicate) restore of the same request hid this (LCT-035).
+        global $DB;
+        $roleid = $DB->get_field('role', 'id', ['shortname' => user::USERNAME_WS], MUST_EXIST);
+        assign_capability('enrol/manual:unenrol', CAP_ALLOW, $roleid, \context_system::instance()->id, true);
         $ressiteorigin = sites_external::site_add('origin', $CFG->wwwroot, $token);
         $ressitetarget = sites_external::site_add('target', $CFG->wwwroot, $token);
         if ($ressiteorigin['success']) {
@@ -434,7 +442,8 @@ final class coursetransfer_restore_course_test extends advanced_testcase {
         // 1. Test New Course. Without Users.
         $this->validate_course_equals($this->targetnewcourse1, $this->origincourse);
         $this->review_modules($this->targetnewcourse1);
-        $this->review_enrols($this->targetnewcourse1, 0, 0, []);
+        // Without users the groups (empty) are still restored: they are course content (LCT-063).
+        $this->review_enrols($this->targetnewcourse1, 0, 2, []);
         // 2. Test in Target Course. With Users and Groups.
         // targetcourse2 already had 1 group (group4) before the restore, so after
         // restoring the origin's 2 groups the total is 3.
@@ -445,7 +454,8 @@ final class coursetransfer_restore_course_test extends advanced_testcase {
         // 3. Test in Target Course. Without Users. Delete Content and Users and Groups.
         $this->validate_course_not_equals($this->targetcourse3, $this->origincourse);
         $this->validate_request_completed($requesttarget3);
-        $this->review_enrols($this->targetcourse3, 0, 0, []);
+        // Its groups were removed; the origin's groups (empty, no users) arrive as course content (LCT-063).
+        $this->review_enrols($this->targetcourse3, 0, 2, []);
         $this->review_modules3($this->targetcourse3);
         // 5. Test in Target Course.
         $this->validate_course_not_equals($this->targetcourse5, $this->origincourse2);
@@ -473,7 +483,15 @@ final class coursetransfer_restore_course_test extends advanced_testcase {
             $value,
             $requesttarget->id,
             $file->get_filesize(),
-            $file->get_filepath()
+            // The callback only accepts a web service file URL of the origin, as the origin builds it.
+            \moodle_url::make_webservice_pluginfile_url(
+                $file->get_contextid(),
+                $file->get_component(),
+                $file->get_filearea(),
+                $file->get_itemid(),
+                $file->get_filepath(),
+                $file->get_filename()
+            )->out(false)
         );
         return $file;
     }

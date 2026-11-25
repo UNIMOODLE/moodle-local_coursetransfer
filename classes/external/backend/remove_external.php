@@ -39,7 +39,6 @@ use context_course;
 use context_system;
 use core_course_category;
 use dml_exception;
-use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
 use core_external\external_single_structure;
@@ -61,7 +60,7 @@ require_once($CFG->dirroot . '/webservice/lib.php');
  *
  * @package local_coursetransfer\external\backend
  */
-class remove_external extends external_api {
+class remove_external extends backend_api {
     /**
      * Origin remove course parameters.
      *
@@ -112,6 +111,7 @@ class remove_external extends external_api {
                 'nextruntime' => $nextruntime,
             ]
         );
+        self::validate_service_user();
 
         $field = $params['field'];
         $value = $params['value'];
@@ -148,9 +148,10 @@ class remove_external extends external_api {
                         $requestorigin->origin_course_shortname = $course->shortname;
                         $requestorigin->origin_course_idnumber = $course->idnumber;
                         $requestorigin->origin_category_id = $course->category;
-                        $cat = core_course_category::get($course->category);
-                        $requestorigin->origin_category_idnumber = $cat->idnumber;
-                        $requestorigin->origin_category_name = $cat->name;
+                        // Informative only, whether or not the service user sees hidden categories (LCT-068).
+                        $cat = core_course_category::get($course->category, IGNORE_MISSING, true);
+                        $requestorigin->origin_category_idnumber = $cat ? $cat->idnumber : null;
+                        $requestorigin->origin_category_name = $cat ? $cat->name : null;
 
                         $requestorigin->origin_schedule_datetime = $nextruntime === 0 ? null : $nextruntime;
 
@@ -167,8 +168,8 @@ class remove_external extends external_api {
                         $data->course_shortname = $course->shortname;
                         $data->course_idnumber = $course->idnumber;
                         $data->course_category_id = $requestorigin->origin_category_id;
-                        $data->course_category_name = $requestorigin->origin_category_name;
-                        $data->course_category_idnumber = $requestorigin->origin_category_idnumber;
+                        $data->course_category_name = (string)$requestorigin->origin_category_name;
+                        $data->course_category_idnumber = (string)$requestorigin->origin_category_idnumber;
 
                         $resremove = coursetransfer_remove::create_task_remove_course(
                             $requestoriginid,
@@ -241,8 +242,8 @@ class remove_external extends external_api {
                                 'code' => new external_value(PARAM_TEXT, 'Code'),
                                 'msg' => new external_value(PARAM_TEXT, 'Message'),
                         ],
-                    PARAM_TEXT,
-                    'Errors'
+                    'Errors',
+                    VALUE_OPTIONAL
                 )),
                 'data' => new external_single_structure(
                     [
@@ -255,8 +256,8 @@ class remove_external extends external_api {
                         'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
                         'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
                     ],
-                    PARAM_TEXT,
-                    'Data'
+                    'Data',
+                    VALUE_OPTIONAL
                 ),
                 ]
         );
@@ -312,6 +313,7 @@ class remove_external extends external_api {
                 'nextruntime' => $nextruntime,
             ]
         );
+        self::validate_service_user();
 
         $field = $params['field'];
         $value = $params['value'];
@@ -326,7 +328,8 @@ class remove_external extends external_api {
         $data->request_origin_id = null;
 
         try {
-            $category = \core_course_category::get($catid);
+            // Hidden categories too: the requester's category:manage is checked below (LCT-068).
+            $category = \core_course_category::get($catid, MUST_EXIST, true);
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $verifytarget = coursetransfer::verify_target_site($targetsite);
@@ -434,8 +437,8 @@ class remove_external extends external_api {
                                         'code' => new external_value(PARAM_TEXT, 'Code'),
                                         'msg' => new external_value(PARAM_TEXT, 'Message'),
                                 ],
-                            PARAM_TEXT,
-                            'Errors'
+                            'Errors',
+                            VALUE_OPTIONAL
                         )),
                         'data' => new external_single_structure(
                             [
@@ -445,8 +448,8 @@ class remove_external extends external_api {
                                 'course_category_name' => new external_value(PARAM_RAW, 'Category Name', VALUE_OPTIONAL),
                                 'course_category_idnumber' => new external_value(PARAM_RAW, 'Category ID Number', VALUE_OPTIONAL),
                             ],
-                            PARAM_TEXT,
-                            'Data'
+                            'Data',
+                            VALUE_OPTIONAL
                         ),
                 ]
         );

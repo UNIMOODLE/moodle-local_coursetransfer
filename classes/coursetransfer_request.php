@@ -101,6 +101,42 @@ class coursetransfer_request {
     /** @var int Status Completed */
     const STATUS_COMPLETED = 100;
 
+    /** @var int Code kept on a completed restore whose plan reported missing data: the origin is not removed. */
+    const CODE_RESTORE_WITH_ISSUES = 10410;
+
+    /** @var int Code kept on a completed restore when the chained origin removal was skipped or failed. */
+    const CODE_ORIGIN_NOT_REMOVED = 10411;
+
+    /** @var int Code kept on a completed restore whose course does not match the origin manifest. */
+    const CODE_MANIFEST_MISMATCH = 10412;
+
+    /**
+     * The string with what to do about a completed request whose origin was kept, or null (B1).
+     *
+     * A completed restore asked to remove its origin may have kept it on purpose (incomplete restore, manifest
+     * mismatch, removal skipped): shown as a plain "completed", the origin looked removed when it was not.
+     *
+     * @param stdClass $request
+     * @return string[]|null Identifiers of the title and the action strings.
+     */
+    public static function origin_kept_action(stdClass $request): ?array {
+        if ((int)$request->status !== self::STATUS_COMPLETED) {
+            return null;
+        }
+        $actions = [
+            self::CODE_RESTORE_WITH_ISSUES => 'exec_kept_action_issues',
+            self::CODE_ORIGIN_NOT_REMOVED => 'exec_kept_action_notremoved',
+            self::CODE_MANIFEST_MISMATCH => 'exec_kept_action_manifest',
+        ];
+        $action = $actions[(int)($request->error_code ?? 0)] ?? null;
+        if ($action === null) {
+            return null;
+        }
+        // Without a removal asked for, nothing was kept: the restore just has warnings.
+        $title = empty($request->origin_remove_course) ? 'exec_issues_title' : 'exec_kept_title';
+        return [$title, $action];
+    }
+
     /**
      * Get.
      *
@@ -239,7 +275,7 @@ class coursetransfer_request {
      *
      * Single source of truth used both by the tracking page and by the retry
      * anti-duplicate check. Filters with LIKE and then confirms the exact
-     * requestid via json_decode (so 12 does not match 123).
+     * request id via get_task_request_id() (so 12 does not match 123).
      *
      * @param int $requestid
      * @return array task_adhoc records keyed by id.
@@ -247,20 +283,47 @@ class coursetransfer_request {
      */
     public static function get_related_adhoc_tasks(int $requestid): array {
         global $DB;
+        // Ids taken from a database record are strings, so customdata may hold "12" or 12.
+        $likes = [];
+        $params = ['component' => 'local_coursetransfer'];
+        foreach (['requestid', 'requestoriginid'] as $i => $key) {
+            foreach (['%"' . $key . '":' . $requestid . '%', '%"' . $key . '":"' . $requestid . '"%'] as $j => $needle) {
+                $likes[] = $DB->sql_like('customdata', ':n' . $i . $j);
+                $params['n' . $i . $j] = $needle;
+            }
+        }
         $candidates = $DB->get_records_select(
             'task_adhoc',
-            'component = :component AND ' . $DB->sql_like('customdata', ':needle'),
-            ['component' => 'local_coursetransfer', 'needle' => '%"requestid":' . $requestid . '%'],
+            'component = :component AND (' . implode(' OR ', $likes) . ')',
+            $params,
             'nextruntime ASC'
         );
         $tasks = [];
         foreach ($candidates as $task) {
-            $data = json_decode($task->customdata);
-            if (isset($data->requestid) && (int)$data->requestid === $requestid) {
+            if (self::get_task_request_id($task) === $requestid) {
                 $tasks[$task->id] = $task;
             }
         }
         return $tasks;
+    }
+
+    /**
+     * Local request id of a task_adhoc record of this plugin (0 if it has none).
+     *
+     * The backup task of 2.1 stores the target's id in requestid and the local one in requestoriginid.
+     *
+     * @param stdClass $task task_adhoc record.
+     * @return int
+     */
+    public static function get_task_request_id(stdClass $task): int {
+        $data = empty($task->customdata) ? null : json_decode($task->customdata);
+        if (!is_object($data)) {
+            return 0;
+        }
+        if (isset($data->requestoriginid) && !isset($data->remoterequestid)) {
+            return (int) $data->requestoriginid;
+        }
+        return isset($data->requestid) ? (int) $data->requestid : 0;
     }
 
     /**
@@ -401,7 +464,9 @@ class coursetransfer_request {
     /**
      * Unified executions page: one slice of the request log across all
      * types and directions, newest first. Includes the LOCAL target
-     * course fullname when it exists (targetcoursename).
+     * course fullname when it exists (targetcoursename): only for the
+     * requests made from this site, as in the others target_course_id is
+     * a course of the other platform (LCT-123).
      *
      * @param array $filters see get_executions_filter_sql()
      * @param int $page zero-based page
@@ -414,9 +479,10 @@ class coursetransfer_request {
         [$where, $params] = self::get_executions_filter_sql($filters);
         $sql = 'SELECT r.*, c.fullname AS targetcoursename
                   FROM {' . self::TABLE . '} r
-             LEFT JOIN {course} c ON c.id = r.target_course_id
+             LEFT JOIN {course} c ON c.id = r.target_course_id AND r.direction = :ctdirlocal
                  WHERE ' . $where . '
               ORDER BY r.timemodified DESC, r.id DESC';
+        $params['ctdirlocal'] = self::DIRECTION_REQUEST;
         return $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
     }
 
@@ -432,8 +498,9 @@ class coursetransfer_request {
         [$where, $params] = self::get_executions_filter_sql($filters);
         $sql = 'SELECT COUNT(1)
                   FROM {' . self::TABLE . '} r
-             LEFT JOIN {course} c ON c.id = r.target_course_id
+             LEFT JOIN {course} c ON c.id = r.target_course_id AND r.direction = :ctdirlocal
                  WHERE ' . $where;
+        $params['ctdirlocal'] = self::DIRECTION_REQUEST;
         return (int)$DB->count_records_sql($sql, $params);
     }
 
@@ -451,9 +518,10 @@ class coursetransfer_request {
         [$insql, $params] = $DB->get_in_or_equal($active, SQL_PARAMS_NAMED, 'ac');
         $sql = 'SELECT r.*, c.fullname AS targetcoursename
                   FROM {' . self::TABLE . '} r
-             LEFT JOIN {course} c ON c.id = r.target_course_id
+             LEFT JOIN {course} c ON c.id = r.target_course_id AND r.direction = :ctdirlocal
                  WHERE r.status ' . $insql . '
               ORDER BY r.timemodified DESC, r.id DESC';
+        $params['ctdirlocal'] = self::DIRECTION_REQUEST;
         return $DB->get_records_sql($sql, $params, 0, $limit);
     }
 
@@ -508,32 +576,275 @@ class coursetransfer_request {
     }
 
     /**
-     * Update status request category.
+     * Update the status of a category request from its course requests.
+     *
+     * Completed only when every expected course (snapshot in origin_category_tree) has a completed request and no
+     * course failed to be created; completednow is true only for the call that made it completed.
      *
      * @param int $requestid
-     * @return stdClass
+     * @return stdClass|null The category request with completednow and childissues, or null if it does not exist.
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function update_status_request_cat(int $requestid): stdClass {
+    public static function update_status_request_cat(int $requestid): ?stdClass {
         global $DB;
 
-        $reqcat = $DB->get_record(self::TABLE, ['id' => $requestid]);
-        $courses = $DB->get_records(
-            self::TABLE,
-            ['request_category_id' => $requestid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_REQUEST]
-        );
+        // Two courses finishing at once must not both see the category completed (double removal).
+        $lock = \core\lock\lock_config::get_lock_factory('local_coursetransfer')->get_lock('reqcat_' . $requestid, 60);
+        if (!$lock) {
+            // The caller queues the evaluation again (restore_course_task::refresh_category()).
+            throw new moodle_exception('error_locktimeout', 'local_coursetransfer', '', $requestid);
+        }
+        try {
+            $reqcat = $DB->get_record(self::TABLE, ['id' => $requestid]);
+            if (!$reqcat) {
+                return null;
+            }
+            $courses = $DB->get_records(
+                self::TABLE,
+                ['request_category_id' => $requestid, 'type' => self::TYPE_COURSE, 'direction' => self::DIRECTION_REQUEST]
+            );
+            $reqcat->completednow = false;
+            $reqcat->childissues = 0;
+            $reqcat->childunverified = 0;
+            // A removal of the origin needs every course checked against its manifest, and clean.
+            $verify = !empty($reqcat->origin_remove_category) && restore_manifest::enabled();
+            foreach ($courses as $course) {
+                if (in_array((int)$course->error_code, [self::CODE_RESTORE_WITH_ISSUES, self::CODE_MANIFEST_MISMATCH], true)) {
+                    $reqcat->childissues++;
+                } else if ($verify) {
+                    $manifest = json_decode((string)($course->origin_manifest ?? ''), true) ?: [];
+                    if (empty($manifest['verified']) || !empty($manifest['issues'])) {
+                        $reqcat->childunverified++;
+                    }
+                }
+            }
+            if ((int)$reqcat->status === self::STATUS_COMPLETED) {
+                return $reqcat;
+            }
 
-        $completed = 1;
-        foreach ($courses as $course) {
-            if ($course->status < self::STATUS_COMPLETED) {
-                $completed = 0;
-                break;
+            $completed = empty($reqcat->error_code) && count($courses) > 0;
+            foreach ($courses as $course) {
+                if ((int)$course->status !== self::STATUS_COMPLETED) {
+                    $completed = false;
+                    break;
+                }
+            }
+            $expected = self::count_expected_courses($reqcat);
+            if ($expected !== null && count($courses) < $expected) {
+                $completed = false;
+            }
+
+            $status = $completed ? self::STATUS_COMPLETED : self::STATUS_INCOMPLETED;
+            if ((int)$reqcat->status !== $status) {
+                self::update_fields($requestid, ['status' => $status]);
+                $reqcat->status = $status;
+            }
+            $reqcat->completednow = $completed;
+            return $reqcat;
+        } finally {
+            $lock->release();
+        }
+    }
+
+    /**
+     * Number of courses a category request has to copy, from its snapshot of the origin category.
+     *
+     * @param stdClass $reqcat
+     * @return int|null Null when there is no snapshot (requests created by 2.1 without the tree).
+     */
+    public static function count_expected_courses(stdClass $reqcat): ?int {
+        $tree = empty($reqcat->origin_category_tree) ? null : json_decode((string)$reqcat->origin_category_tree);
+        if (!is_object($tree) || !isset($tree->courses)) {
+            return null;
+        }
+        // Iterative: a crafted tree must not exhaust the stack.
+        $count = 0;
+        $pending = [$tree];
+        while ($node = array_pop($pending)) {
+            $count += is_array($node->courses ?? null) ? count($node->courses) : 0;
+            foreach ((is_array($node->categories ?? null) ? $node->categories : []) as $child) {
+                if (is_object($child)) {
+                    $pending[] = $child;
+                }
             }
         }
-        $reqcat->status = $completed === 1 ? self::STATUS_COMPLETED : self::STATUS_INCOMPLETED;
-        self::insert_or_update($reqcat, $requestid);
-        return $reqcat;
+        return $count;
+    }
+
+    /**
+     * Origin course ids of the snapshot of a category request.
+     *
+     * @param stdClass $reqcat
+     * @return int[]|null Null when there is no snapshot.
+     */
+    public static function snapshot_course_ids(stdClass $reqcat): ?array {
+        $tree = empty($reqcat->origin_category_tree) ? null : json_decode((string)$reqcat->origin_category_tree);
+        if (!is_object($tree) || !isset($tree->courses)) {
+            return null;
+        }
+        $ids = [];
+        $pending = [$tree];
+        while ($node = array_pop($pending)) {
+            foreach ((is_array($node->courses ?? null) ? $node->courses : []) as $course) {
+                $ids[] = (int)(is_object($course) ? ($course->id ?? 0) : ($course['id'] ?? 0));
+            }
+            foreach ((is_array($node->categories ?? null) ? $node->categories : []) as $child) {
+                if (is_object($child)) {
+                    $pending[] = $child;
+                }
+            }
+        }
+        return $ids;
+    }
+
+    /**
+     * What an origin category detail (or its snapshot) says the named user could not see, as text.
+     *
+     * @param mixed $detail Data of origin_get_category_detail(_tree), or the stored snapshot.
+     * @return string Empty when nothing was hidden (or the origin does not report it: 2.1).
+     */
+    public static function hidden_text($detail): string {
+        if (!is_object($detail)) {
+            return '';
+        }
+        $parts = [];
+        if (!empty($detail->hiddencategories)) {
+            $parts[] = (int)$detail->hiddencategories . ' subcategory(ies)';
+        }
+        if (!empty($detail->hiddencourses)) {
+            $parts[] = (int)$detail->hiddencourses . ' course(s)';
+        }
+        return implode(' and ', $parts);
+    }
+
+    /**
+     * Whether a request can be deleted from the history now, in any status (LCT-126).
+     *
+     * @param stdClass $request
+     * @return bool
+     */
+    public static function can_delete(stdClass $request): bool {
+        return self::delete_blocker($request) === null;
+    }
+
+    /**
+     * Why a request cannot be deleted right now, or null when it can.
+     *
+     * Its queued tasks are not a reason: each of them ends without doing anything when its request is gone, and
+     * the cron removes it (LCT-036). Only two things wait: a task of the request running at this moment, which
+     * would go on writing after the request is gone, and a safety copy still kept, which the cleanup would
+     * purge as orphaned.
+     *
+     * @param stdClass $request
+     * @return array|null ['code' => error code, 'msg' => message], or null.
+     */
+    public static function delete_blocker(stdClass $request): ?array {
+        foreach (self::get_related_adhoc_tasks((int)$request->id) as $task) {
+            if (!empty($task->timestarted)) {
+                $name = class_exists($task->classname) ? (new $task->classname())->get_name() : $task->classname;
+                return ['code' => '30703', 'msg' => get_string('exec_delete_running', 'local_coursetransfer', $name)];
+            }
+        }
+        $copykept = !get_file_storage()->is_area_empty(
+            \context_system::instance()->id,
+            'local_coursetransfer',
+            'safetycopy',
+            (int)$request->id
+        );
+        if ($copykept) {
+            return ['code' => '30704', 'msg' => get_string('exec_delete_safetycopy', 'local_coursetransfer')];
+        }
+        return null;
+    }
+
+    /**
+     * Delete a request from the history of this site, in any status (LCT-126).
+     *
+     * Nothing else is deleted: no course on any platform, no queued task (it ends by itself). A course of a category
+     * restore that is still running leaves its category marked as failed, so the category is never taken as
+     * complete without it, and the origin category is never removed because of it.
+     *
+     * @param stdClass $request
+     * @param stdClass $user Who deletes it, for the category note.
+     */
+    public static function delete(stdClass $request, stdClass $user): void {
+        global $DB;
+        if (!empty($request->request_category_id)) {
+            $reqcat = self::get((int)$request->request_category_id);
+            if ($reqcat && (int)$reqcat->status !== self::STATUS_COMPLETED && empty($reqcat->error_code)) {
+                self::mark_category_failed((int)$reqcat->id, [[
+                    'code' => '11003',
+                    'msg' => 'Course request ' . (int)$request->id . ' deleted by ' . $user->username,
+                ]]);
+            }
+        }
+        $DB->delete_records(self::TABLE, ['id' => (int)$request->id]);
+    }
+
+    /**
+     * Whether a request keeps a safety copy of its backup.
+     *
+     * @param stdClass $request
+     * @return bool
+     */
+    public static function keeps_safety_copy(stdClass $request): bool {
+        $manifest = json_decode((string)($request->origin_manifest ?? ''), true);
+        if (!empty($manifest['keepsafetycopy'])) {
+            return true;
+        }
+        if (!empty($request->request_category_id)) {
+            $reqcat = self::get((int)$request->request_category_id);
+            return $reqcat && self::keeps_safety_copy($reqcat);
+        }
+        return false;
+    }
+
+    /**
+     * Record on a category request that some of its courses could not be created.
+     *
+     * It never completes afterwards, so it never triggers the removal of the origin category.
+     *
+     * @param int $requestid Category request id.
+     * @param array $errors Errors as arrays or objects with code and msg.
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function mark_category_failed(int $requestid, array $errors): void {
+        global $DB;
+        $first = (object)(reset($errors) ?: ['code' => '11001', 'msg' => '']);
+        $msgs = [];
+        foreach ($errors as $error) {
+            $error = (object)$error;
+            $msgs[] = ($error->code ?? '') . ': ' . ($error->msg ?? '');
+        }
+        $haschildren = $DB->record_exists(self::TABLE, ['request_category_id' => $requestid]);
+        self::update_fields($requestid, [
+            'status' => $haschildren ? self::STATUS_INCOMPLETED : self::STATUS_ERROR,
+            'error_code' => is_numeric($first->code ?? null) ? (int)$first->code : 11001,
+            'error_message' => implode(' | ', $msgs),
+        ]);
+    }
+
+    /**
+     * Update some fields of a request, leaving the rest of the row as it is in the database.
+     *
+     * Long tasks hold a copy of the row: saving it whole would overwrite progress and concurrent changes.
+     *
+     * @param int $id
+     * @param array $fields column => value
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function update_fields(int $id, array $fields): void {
+        global $DB;
+        if (array_key_exists('status', $fields) && !array_key_exists($fields['status'], coursetransfer::STATUS)) {
+            throw new moodle_exception('STATUS IS NOT VALID');
+        }
+        $record = (object)$fields;
+        $record->id = $id;
+        $record->timemodified = time();
+        $DB->update_record(self::TABLE, $record);
     }
 
     /**
@@ -633,6 +944,7 @@ class coursetransfer_request {
         $object->origin_backup_size_estimated = 0;
         $object->origin_schedule_datetime = $configuration->nextruntime;
         $object->target_target = $configuration->targettarget;
+        $object->origin_manifest = $configuration->keepsafetycopy ? json_encode(['keepsafetycopy' => true]) : null;
         $object->status = self::STATUS_NOT_STARTED;
         $object->userid = $userid;
         $object->id = self::insert_or_update($object);
@@ -666,7 +978,9 @@ class coursetransfer_request {
     ): stdClass {
         global $USER;
         $user = is_null($user) ? $USER : $user;
-        $origincat = core_course_category::get($origincourse->category, MUST_EXIST);
+        // Category data is informative and the requester's permission is checked by the caller: resolve it
+        // even if the service user does not see hidden categories, and do not fail without it (LCT-068).
+        $origincat = core_course_category::get($origincourse->category, IGNORE_MISSING, true);
 
         $object = new stdClass();
         $object->type = self::TYPE_COURSE;
@@ -677,9 +991,10 @@ class coursetransfer_request {
         $object->origin_course_id = $origincourse->id;
         $object->origin_course_fullname = $origincourse->fullname;
         $object->origin_course_shortname = $origincourse->shortname;
+        $object->origin_course_idnumber = $origincourse->idnumber;
         $object->origin_category_id = $origincourse->category;
-        $object->origin_category_idnumber = $origincourse->idnumber;
-        $object->origin_category_name = $origincat->name;
+        $object->origin_category_idnumber = $origincat ? $origincat->idnumber : null;
+        $object->origin_category_name = $origincat ? $origincat->name : null;
         $object->origin_enrolusers = $configuration->originenrolusers;
         $object->origin_remove_course = $configuration->originremovecourse;
         $object->origin_remove_category = null;
@@ -742,6 +1057,7 @@ class coursetransfer_request {
         $object->origin_remove_category = $configuration->originremovecategory;
         $object->origin_schedule_datetime = $configuration->nextruntime;
         $object->target_target = $configuration->targettarget;
+        $object->origin_manifest = $configuration->keepsafetycopy ? json_encode(['keepsafetycopy' => true]) : null;
         $object->status = self::STATUS_NOT_STARTED;
         $object->userid = $userid;
         $object->id = self::insert_or_update($object);

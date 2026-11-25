@@ -6,8 +6,8 @@
 <h1 align="center">Course Transfer</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.1.0-informational" alt="Versión">
-  <a href="https://moodle.org"><img src="https://img.shields.io/badge/Moodle-4.5%20--%205.1-orange?logo=moodle" alt="Moodle"></a>
+  <img src="https://img.shields.io/badge/version-2.2.3-informational" alt="Versión">
+  <a href="https://moodle.org"><img src="https://img.shields.io/badge/Moodle-4.5%20--%205.3-orange?logo=moodle" alt="Moodle"></a>
   <img src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php&logoColor=white" alt="PHP">
   <img src="https://img.shields.io/badge/License-GPL--3.0-green" alt="Licenza">
   <a href="https://unimoodle.github.io/"><img src="https://img.shields.io/badge/project%20by-UNIMOODLE-194866" alt="Proxecto de UNIMOODLE"></a>
@@ -77,9 +77,11 @@ descarga e restauración) execútase en segundo plano mediante tarefas programad
 
 | Requisito | Versión |
 |---|---|
-| Moodle | 4.5+ (probado ata 5.1) |
+| Moodle | 4.5, 5.1 ou 5.3 |
 | PHP | 8.1+ |
 | Configuración | Servizos web **REST** habilitados e un **usuario de servizo** (o complemento axuda a crealo desde *Resumo*) |
+| Cron | En marcha nas **dúas** plataformas: copias, descargas, restauracións, borrados e limpezas son tarefas |
+| TLS | Certificado válido en cada plataforma emparellada: rexéitanse os autoasinados e as cadeas incompletas mentres `sslverifypeer` estea activado |
 | Outros complementos | Non require |
 
 ## 🚀 Instalación
@@ -104,15 +106,58 @@ En **Administración do sitio › Complementos › Locais › Course Transfer**
 |---|---|
 | **Tamaño máximo do curso a restaurar** (`target_restore_course_max_size`) | Límite en MB da copia (`.mbz`) a restaurar; se se supera, a descarga falla e queda reflectido no rexistro. |
 | **Tempo de espera da petición** (`request_timeout`) | Segundos de espera das chamadas entre plataformas. |
-| **Ignorar a seguranza de cURL** (`ignorecurlsecurity`) | Permite operar contra sitios con certificados internos ou non verificables (usar con coidado). |
+| **Permitir conexións a hosts internos** (`ignorecurlsecurity`) | Desactivado por defecto. Mentres estea activo, os hosts e portos bloqueados de Moodle (`curlsecurityblockedhosts`) non se aplican ás chamadas entre plataformas. Mellor deixalo desactivado e permitir nesa lista só os hosts emparellados. Non desactiva a comprobación do certificado. |
+| **Verificar o certificado das plataformas emparelladas** (`sslverifypeer`) | Activado por defecto. Desactivalo envía o testemuño a pares cuxa identidade non se comproba: só baixo responsabilidade do administrador. A proba de conexión explica cando non se pode verificar un certificado. |
 | **Resultados por páxina** (`pagesize`) | Número de resultados por páxina nos buscadores dos asistentes. |
 | **Limpeza de tarefas adhoc fallidas** (`clean_adhoc_faildelay`) | Antigüidade a partir da cal se limpan as tarefas fallidas (`0` = desactivado). |
 | **Baleirar a papeleira tras borrar un curso** (`remove_course_cleanup`) | Elimina definitivamente o curso borrado en remoto. |
 | **Baleirar a papeleira tras borrar unha categoría** (`remove_cat_cleanup`) | Elimina definitivamente a categoría borrada en remoto. |
-| **Campo de busca de usuario** (`origin_field_search_user`) | Campo polo que se emparella o usuario equivalente entre plataformas (`username` / `email` / `idnumber`). |
+| **Campo de busca de usuario** (`origin_field_search_user`) | Campo polo que se emparella o usuario equivalente entre plataformas (`username` / `email` / ID de usuario / `idnumber`). Ao cambialo repárase a integración. |
+| **Comprobar o curso restaurado antes de borrar a orixe** (`verifymanifest`) | Activado por defecto. Ver *Protección contra a perda de datos*. |
+| **Días no lixo antes do borrado definitivo** (`recyclebinretentiondays`) | 30 por defecto, mínimo 1. Ver *Protección contra a perda de datos*. |
+| **Días que se conservan as copias transferidas** (`backup_files_retention`) | 7 por defecto, mínimo 1. As copias servidas como orixe e as copias de seguridade gardadas como destino bórranse eses días despois de rematar a súa transferencia. |
 
 As **plataformas emparelladas** non se configuran aquí: xestiónanse desde a
 pantalla **Plataformas** do complemento (con proba de conexión).
+
+## 🛡️ Protección contra a perda de datos
+
+Os servizos entre plataformas só se poden chamar co **testemuño do usuario de
+servizo** do outro sitio (capacidade `local/coursetransfer:webservice`), nunca
+desde o navegador, e verifican o **certificado TLS** do outro sitio. Os permisos
+compróbanse despois sobre o usuario equivalente: a orixe só lista e copia o que
+ese usuario podería copiar á man. Só os administradores (`moodle/site:config`)
+dan de alta plataformas, e o URL é un URL base sen máis,
+`http(s)://host[:porto][/ruta]`, igual ao `wwwroot` do outro sitio.
+
+Borrar a orixe tras unha restauración (de curso ou de categoría) é a única
+operación que pode perder un curso. Aplícanse estas salvagardas:
+
+| Salvagarda | Que protexe | Como se configura |
+|---|---|---|
+| **Restauración completa** | A orixe consérvase se o plan de restauración informa de módulos ou ficheiros que faltan (erro `10410`). Unha categoría só se borra se todos os seus cursos se restauraron sen incidencias, quen o pide vía todas as súas subcategorías na orixe e a categoría da orixe non ten cursos novos desde que comezou a restauración. | Sempre activa |
+| **Comprobación do manifesto** | Antes de borrar un curso da orixe compáranse co curso restaurado as súas seccións e actividades por módulo (pedidas á orixe) e, con usuarios, os matriculados (lidos da copia). Se falta algo, a orixe consérvase e o rexistro di que (`10412`). | `verifymanifest` (activada) |
+| **Permisos de quen o pide** | O borrado faise como o usuario que o pediu, nos dous sitios: `local/coursetransfer:origin_remove_course` / `_category` aquí, e `moodle/course:delete` / `moodle/category:manage` máis a mesma capacidade na orixe. | Roles |
+| **Copia de seguridade previa** | Antes dunha restauración que pode borrar a orixe, o destino garda unha copia do backup. | `backup_files_retention` (nunca se purga antes de que a súa orixe estea borrada máis a retención do lixo; consérvase se a restauración quedou incompleta) |
+| **Lixo** | Con *Borrado definitivo do curso* activado, un curso borrado a petición doutra plataforma queda no lixo os días configurados antes de baleirarse, e pódese restaurar á man. Precisa o lixo de categorías de `tool_recyclebin`; borrar unha categoría enteira sempre baleira o seu lixo (núcleo de Moodle). Se o lixo do núcleo caduca antes (7 días por defecto), o axuste e o diagnóstico de *Resumo* avísano. | `recyclebinretentiondays` (30) |
+| **Auditoría** | Cada borrado pedido a outra plataforma ou feito para ela, e cada decisión de borrar ou conservar a orixe tras unha restauración, queda como evento (*Administración do sitio › Informes › Rexistros*). | Sempre activa |
+
+Cando a orixe se conserva, a petición segue amosando a restauración como
+completada, co motivo no seu detalle; unha vez revisado, a orixe pódese borrar co
+asistente *Borrar contido remoto*.
+
+## 🔐 Permisos
+
+| Capacidade | Por defecto | Permite |
+|---|---|---|
+| `local/coursetransfer:origin_restore` | — | Restaurar cursos ou categorías remotos (nivel sitio) |
+| `local/coursetransfer:origin_restore_course` / `_category` | Xestor, profesor editor / Xestor | Usar o asistente de restauración desde un curso / unha categoría |
+| `local/coursetransfer:origin_restore_course_users` | Xestor | Incluír usuarios e os seus datos na copia |
+| `local/coursetransfer:origin_remove_course` / `_category` | Xestor | Borrar cursos / categorías na orixe |
+| `local/coursetransfer:target_restore_*` | Xestor, profesor editor | Borrar contido, matrículas ou grupos do curso destino, ou fusionar nel |
+| `local/coursetransfer:view_logs` | Xestor | Ver o rexistro de execucións |
+| `local/coursetransfer:manage_requests` | Xestor (clonada de `view_logs`) | Borrar rexistros e reintentar unha restauración |
+| `local/coursetransfer:webservice` | Só o rol do usuario de servizo | Chamar aos servizos que usan as plataformas emparelladas |
 
 ## 🖥️ Uso por liña de ordes (opcional)
 

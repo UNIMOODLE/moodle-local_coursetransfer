@@ -41,8 +41,9 @@ define([
     'core/ajax',
     'core/str',
     'core/form-autocomplete',
-    'local_coursetransfer/category_tree'
-], function($, Ajax, Str, AutoComplete, CategoryTree) {
+    'local_coursetransfer/category_tree',
+    'local_coursetransfer/wizard_feedback'
+], function($, Ajax, Str, AutoComplete, CategoryTree, Feedback) {
     "use strict";
 
     var PERPAGE = 10;
@@ -53,7 +54,7 @@ define([
     var STRINGKEYS = [
         'rw_selected', 'rw_selected_none', 'rw_step_of', 'rw_next', 'rw_run',
         'rw_pageinfo', 'rw_noresults', 'rw_done_desc', 'rw_users_on', 'rw_users_off',
-        'rw_submit_error', 'rw_review_selected', 'rw_review_from', 'rw_review_to',
+        'rw_review_selected', 'rw_review_from', 'rw_review_to',
         'rw_review_ifexists', 'rw_review_users', 'rw_mode_merge', 'rw_mode_replace',
         'rw_kind_course', 'rw_kind_category', 'rw_more',
         'rw_results', 'rw_courses_pl', 'rw_categories_pl',
@@ -72,7 +73,7 @@ define([
         'rw_tag_merge', 'rw_bd_new', 'rw_bd_existing', 'rw_bd_replace',
         'rw_recommended', 'rw_destructive',
         'rw_review_new_in', 'rw_review_over', 'rw_review_removeorigin',
-        'rw_tag_unconfigured', 'rw_dest_unconfigured',
+        'rw_tag_unconfigured', 'rw_dest_unconfigured', 'rw_dest_dup_replace',
         'rw_review_platform', 'rw_review_removeorigin_field',
         'rw_review_schedule_field', 'rw_review_sched_now', 'rw_review_sched_at',
         'rw_yes', 'rw_no',
@@ -89,7 +90,8 @@ define([
         'rw_removeorigin_confirm_cat', 'rw_review_removeorigin_field_cat', 'rw_review_dest_cat',
         'platforms_role_origin', 'platforms_role_target',
         // Category subtree preview + self-pairing label.
-        'rw_loading', 'rcc_tree_title', 'rcc_tree_empty', 'rcc_tree_error', 'platforms_this_site'
+        'rw_loading', 'rcc_tree_title', 'rcc_tree_empty', 'rcc_tree_error', 'platforms_this_site',
+        'rw_dest_searching'
     ];
 
     var Wizard = {
@@ -136,6 +138,12 @@ define([
          * Reset the in-memory state.
          */
         resetState: function() {
+            // Submit guard: '' | 'sending' (request in flight) | 'locked'
+            // (partial or unconfirmed result: running again could duplicate).
+            // A request in flight is never forgotten, not even by "cancel".
+            if (this.submitstate !== 'sending') {
+                this.submitstate = '';
+            }
             this.state = {
                 view: 'landing',
                 step: 0,
@@ -284,8 +292,14 @@ define([
                 var id = self.cidOf($(this));
                 if (self.state.dest[id]) {
                     self.state.dest[id].open = true;
-                    // Load the first courses so the user sees they can search.
-                    self.doTargetSearch(id);
+                    // Load the first courses so the user sees they can search; not over a search already typed,
+                    // whose results would be replaced by an unfiltered list (LCT-120).
+                    if (!(self.state.dest[id].search || '').trim()) {
+                        self.doTargetSearch(id);
+                    } else {
+                        // Show again the results of the text already typed, without asking for them again.
+                        self.renderResults(id);
+                    }
                 }
             });
             $root.on('focusout', '[data-action="target-search"]', function() {
@@ -343,13 +357,18 @@ define([
             $root.on('click', '[data-action="toggle-schedule"]', function() {
                 self.state.scheduleon = !self.state.scheduleon;
                 $(this).attr('aria-checked', self.state.scheduleon ? 'true' : 'false');
-                self.region('schedule-date').prop('hidden', !self.state.scheduleon);
-                if (!self.state.scheduleon) {
+                var $date = self.region('schedule-date').prop('hidden', !self.state.scheduleon);
+                if (self.state.scheduleon) {
+                    Feedback.scheduleBounds($date);
+                    self.state.scheduledate = $date.val() || '';
+                } else {
                     self.state.scheduledate = '';
                 }
+                self.refreshFooter();
             });
             $root.on('change input', '[data-action="schedule-date"]', function() {
                 self.state.scheduledate = $(this).val() || '';
+                self.refreshFooter();
             });
             // Expand / collapse a course destination card.
             $root.on('click', '[data-action="toggle-card"]', function() {
@@ -414,6 +433,7 @@ define([
          */
         start: function() {
             this.resetState();
+            this.region('submit-error').prop('hidden', true).empty();
             this.state.view = 'wizard';
             this.showView('wizard');
             this.goStep(0);
@@ -485,7 +505,8 @@ define([
             var step = this.state.step;
             var self = this;
 
-            this.$root.find('[data-action="back"]').prop('disabled', step === 0);
+            this.$root.find('[data-action="back"]').prop('disabled', step === 0 || this.submitstate === 'sending');
+            this.renderScheduleWarn();
 
             var $primary = this.$root.find('[data-action="primary"]');
             var islast = step === TOTALSTEPS - 1;
@@ -515,6 +536,9 @@ define([
          */
         canProceed: function() {
             var s = this.state;
+            if (this.submitstate) {
+                return false;
+            }
             if (s.step === 0) {
                 return !!s.siteid && !!s.type;
             }
@@ -526,9 +550,18 @@ define([
                 if (s.removeorigin && !s.removeoriginconfirm) {
                     return false;
                 }
+                // "Schedule" on needs a valid date (never sent as "now").
+                if (!Feedback.scheduleCheck(s.scheduleon, s.scheduledate).valid) {
+                    return false;
+                }
                 // Category type keeps the single-target behaviour and is always ready.
                 if (s.type !== 'course') {
                     return true;
+                }
+                // The same existing course twice with "replace": the second
+                // restore would delete what the first one brought.
+                if (Object.keys(this.dupReplaceIds()).length) {
+                    return false;
                 }
                 var self = this;
                 return this.selectedIds().every(function(id) {
@@ -549,6 +582,16 @@ define([
                 });
             }
             return true;
+        },
+
+        /**
+         * Show the "invalid date" warning when "schedule" is on without a
+         * valid future date.
+         */
+        renderScheduleWarn: function() {
+            var s = this.state;
+            var bad = s.scheduleon && !Feedback.scheduleCheck(true, s.scheduledate).valid;
+            this.region('schedule-warn').prop('hidden', !bad);
         },
 
         /**
@@ -581,15 +624,18 @@ define([
          */
         loadSites: function() {
             var self = this;
+            this.region('sites').empty().append(
+                $('<div>').addClass('ct-selempty').text(this.S.rw_loading || '…'));
             Ajax.call([{
                 methodname: 'local_coursetransfer_restore_wizard_get_sites',
                 args: {}
             }])[0].then(function(resp) {
                 self.sites = resp.sites || [];
                 return self.renderSites();
-            }).catch(function() {
-                self.region('sites').empty().append(
-                    $('<div>').addClass('ct-selempty').text(self.S.rw_submit_error || 'Error'));
+            }).catch(function(ex) {
+                Feedback.showLoadError(self.region('sites'), ex, function() {
+                    self.loadSites();
+                });
             });
         },
 
@@ -703,9 +749,12 @@ define([
             if (!this.state.siteid || !this.state.type) {
                 return;
             }
-            var $rows = this.region('rows').empty();
-            $rows.append($('<div>').addClass('ct-selempty').attr('data-region', 'rows-loading')
-                .text((self.S.rw_pageinfo && '…') || '…'));
+            var $rows = this.region('rows');
+            // What is shown stays, dimmed, while the origin answers; the first load keeps its placeholder.
+            Feedback.searchBusy(this.$root, $rows, this.state.search, this.state.sitename);
+            // Only the answer to the last search is painted: an older one may arrive later (LCT-120).
+            this.listseq = (this.listseq || 0) + 1;
+            var seq = this.listseq;
 
             Ajax.call([{
                 methodname: 'local_coursetransfer_restore_wizard_list_origin',
@@ -717,14 +766,41 @@ define([
                     query: this.state.search
                 }
             }])[0].then(function(resp) {
+                if (seq !== self.listseq) {
+                    return resp;
+                }
+                Feedback.searchDone(self.$root, $rows);
+                if (!resp || !resp.success) {
+                    // An origin error is not "no results": say what failed.
+                    self.listFailed(resp);
+                    return resp;
+                }
                 self.items = resp.items || [];
                 self.state.total = resp.total || 0;
                 self.state.pages = resp.pages || 1;
                 self.state.page = resp.page || 0;
                 return self.renderRows();
-            }).catch(function() {
-                self.region('rows').empty().append(
-                    $('<div>').addClass('ct-selempty').text(self.S.rw_submit_error || 'Error'));
+            }).catch(function(ex) {
+                if (seq === self.listseq) {
+                    Feedback.searchDone(self.$root, $rows);
+                    self.listFailed(ex);
+                }
+            });
+        },
+
+        /**
+         * Show a listing failure (code, hint, retry) instead of an empty list.
+         *
+         * @param {Object} failure WS response or exception.
+         */
+        listFailed: function(failure) {
+            var self = this;
+            this.items = [];
+            this.state.total = 0;
+            this.state.pages = 1;
+            this.renderRows();
+            Feedback.showLoadError(this.region('rows'), failure, function() {
+                self.loadList();
             });
         },
 
@@ -1318,6 +1394,57 @@ define([
         },
 
         /**
+         * Origin courses whose existing destination course is also chosen by
+         * another card while one of them replaces it.
+         *
+         * @return {Object} Set of origin ids (string keys).
+         */
+        dupReplaceIds: function() {
+            var self = this;
+            var bytarget = {};
+            this.selectedIds().forEach(function(id) {
+                var d = self.state.dest[id];
+                if (!d || d.mode !== 'existing' || !d.targetid) {
+                    return;
+                }
+                bytarget[d.targetid] = bytarget[d.targetid] || [];
+                bytarget[d.targetid].push(String(id));
+            });
+            var dup = {};
+            Object.keys(bytarget).forEach(function(tid) {
+                var ids = bytarget[tid];
+                var replace = ids.some(function(id) {
+                    return self.state.dest[id].exmode === 'replace';
+                });
+                if (ids.length > 1 && replace) {
+                    ids.forEach(function(id) {
+                        dup[id] = true;
+                    });
+                }
+            });
+            return dup;
+        },
+
+        /**
+         * Rebuild the cards whose "duplicate replace target" state changed
+         * after another card was edited.
+         */
+        syncDupCards: function() {
+            var self = this;
+            var dup = this.dupReplaceIds();
+            var stale = [];
+            this.$root.find('.ct-destcard').each(function() {
+                var id = $(this).attr('data-cid');
+                if ($(this).hasClass('ct-destcard--dup') !== !!dup[id]) {
+                    stale.push(id);
+                }
+            });
+            stale.forEach(function(id) {
+                self.replaceCard(id);
+            });
+        },
+
+        /**
          * Work out the status tag of a destination card.
          *
          * @param {Boolean} ready Whether the card is fully configured.
@@ -1375,6 +1502,10 @@ define([
 
             var $card = $('<div>').addClass(this.cardClasses(ready, isExisting, isReplace, expanded))
                 .attr('data-cid', id);
+            var dup = !!this.dupReplaceIds()[id];
+            if (dup) {
+                $card.removeClass('ct-destcard--danger').addClass('ct-destcard--warn ct-destcard--dup');
+            }
 
             // Header (click to expand/collapse).
             var $head = $('<div>').addClass('ct-destcard-head')
@@ -1395,6 +1526,14 @@ define([
             $head.append($('<i>').addClass('fa fa-chevron-' + (expanded ? 'up' : 'down') + ' ct-destcard-chevron')
                 .attr('aria-hidden', 'true'));
             $card.append($head);
+
+            // Visible even collapsed: this card blocks the step.
+            if (dup) {
+                var $dup = $('<div>').addClass('ct-pick-warn ct-destcard-dupwarn').attr('role', 'alert');
+                $dup.append($('<i>').addClass('fa fa-exclamation-triangle').attr('aria-hidden', 'true'));
+                $dup.append(document.createTextNode(' ' + (this.S.rw_dest_dup_replace || '')));
+                $card.append($dup);
+            }
 
             // Body (only when expanded).
             if (expanded) {
@@ -1629,9 +1768,19 @@ define([
                 var rect = $input[0].getBoundingClientRect();
                 $dd.css({top: (rect.bottom + 4) + 'px', left: rect.left + 'px', width: rect.width + 'px'});
             }
+            // While a search is on its way, say so above the results shown until now (LCT-120).
+            $dd.toggleClass('ct-target-dd--busy', !!d.loading);
+            if (d.loading) {
+                $dd.append($('<div>').addClass('ct-target-loading').attr('role', 'status').append(
+                    $('<i>').addClass('fa fa-spinner fa-spin').attr('aria-hidden', 'true'),
+                    $('<span>').text(self.S.rw_dest_searching || '…')
+                ));
+            }
             if (!d.results.length) {
-                $dd.append($('<div>').addClass('ct-target-empty')
-                    .text(self.S.rw_dest_no_results || 'No results.'));
+                if (!d.loading) {
+                    $dd.append($('<div>').addClass('ct-target-empty')
+                        .text(self.S.rw_dest_no_results || 'No results.'));
+                }
                 return;
             }
             d.results.forEach(function(r) {
@@ -1683,15 +1832,28 @@ define([
             // Empty text is allowed: the WS returns the first courses so the
             // user sees a starting list and understands they can search.
             var text = (d.search || '').trim();
+            // Only the answer to the last search is painted: an older one may arrive later (LCT-120).
+            d.searchseq = (d.searchseq || 0) + 1;
+            var seq = d.searchseq;
+            d.loading = true;
+            self.renderResults(id);
             Ajax.call([{
                 methodname: 'local_coursetransfer_dest_search_course_name',
                 args: {text: text}
             }])[0].then(function(resp) {
+                if (seq !== d.searchseq) {
+                    return resp;
+                }
+                d.loading = false;
                 d.results = (resp && resp.data) ? resp.data : [];
                 d.open = true;
                 self.renderResults(id);
                 return resp;
             }).catch(function() {
+                if (seq !== d.searchseq) {
+                    return;
+                }
+                d.loading = false;
                 d.results = [];
                 self.renderResults(id);
             });
@@ -1709,6 +1871,7 @@ define([
             }
             this.state.dest[id].mode = mode;
             this.replaceCard(id);
+            this.syncDupCards();
             this.renderBreakdown();
             this.refreshFooter();
         },
@@ -1746,6 +1909,7 @@ define([
             d.open = false;
             d.results = [];
             this.replaceCard(id);
+            this.syncDupCards();
             this.renderBreakdown();
             this.refreshFooter();
         },
@@ -1771,6 +1935,7 @@ define([
             d.delenrol = false;
             d.delgroups = false;
             this.replaceCard(id);
+            this.syncDupCards();
             this.renderBreakdown();
             this.refreshFooter();
         },
@@ -1793,6 +1958,7 @@ define([
                 d.delgroups = false;
             }
             this.replaceCard(id);
+            this.syncDupCards();
             this.renderBreakdown();
             this.refreshFooter();
         },
@@ -2170,8 +2336,19 @@ define([
         submit: function() {
             var self = this;
             var s = this.state;
-            var $primary = this.$root.find('[data-action="primary"]');
-            $primary.prop('disabled', true);
+            if (this.submitstate) {
+                return;
+            }
+            // The date may have expired while on the review: back to the step
+            // where it is set, with its warning (never sent as "now").
+            var sched = Feedback.scheduleCheck(s.scheduleon, s.scheduledate);
+            if (!sched.valid) {
+                this.goStep(2);
+                return;
+            }
+            this.submitstate = 'sending';
+            this.region('submit-error').prop('hidden', true).empty();
+            this.refreshFooter();
 
             // Build the per-course destination config from the step-2 cards.
             var destcat = s.destcat;
@@ -2196,7 +2373,7 @@ define([
             }
 
             // Deferred execution: the WS expects an epoch in milliseconds (0 = now).
-            var schedule = (s.scheduleon && s.scheduledate) ? (Date.parse(s.scheduledate) || 0) : 0;
+            var schedule = sched.ts;
 
             Ajax.call([{
                 methodname: 'local_coursetransfer_restore_wizard_submit',
@@ -2212,33 +2389,38 @@ define([
                     schedule: schedule
                 }
             }])[0].then(function(resp) {
-                if (resp && resp.success) {
+                var kind = Feedback.outcome(resp);
+                if (kind === 'done') {
+                    self.submitstate = '';
                     if (resp.data && resp.data.nexturl && resp.data.nexturl !== '#') {
                         self.region('done-log').attr('href', resp.data.nexturl);
                     }
                     self.showView('done');
                 } else {
-                    self.submitError(resp);
+                    self.submitFailed(resp, kind);
                 }
                 return resp;
-            }).catch(function() {
-                self.submitError(null);
+            }).catch(function(ex) {
+                // No answer (timeout, 504, session): requests may exist.
+                self.submitFailed(ex, 'unconfirmed');
             });
         },
 
         /**
-         * Report a submit failure inline on the review step.
+         * Report a submit that did not fully succeed on the review step. Only a
+         * plain failure (nothing created) lets the user run it again.
          *
-         * @param {Object|null} resp
+         * @param {Object|null} failure WS response or exception.
+         * @param {String} kind failed|partial|unconfirmed
          */
-        submitError: function(resp) {
-            var msg = this.S.rw_submit_error || 'Error';
-            if (resp && resp.errors && resp.errors.length && resp.errors[0].msg) {
-                msg = resp.errors[0].msg;
+        submitFailed: function(failure, kind) {
+            var url = this.logurl;
+            if (failure && failure.data && failure.data.nexturl && failure.data.nexturl !== '#') {
+                url = failure.data.nexturl;
             }
-            var $danger = this.region('review-danger').prop('hidden', false);
-            $danger.find('p').text(msg);
-            this.$root.find('[data-action="primary"]').prop('disabled', false);
+            this.submitstate = (kind === 'failed') ? '' : 'locked';
+            Feedback.showSubmitFailure(this.region('submit-error'), failure, kind, url);
+            this.refreshFooter();
         }
     };
 

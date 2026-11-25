@@ -34,7 +34,6 @@
 
 namespace local_coursetransfer\task;
 
-
 use coding_exception;
 use dml_exception;
 use local_coursetransfer\coursetransfer_request;
@@ -85,21 +84,25 @@ class clean_adhoc_failed_task extends \core\task\scheduled_task {
             return;
         }
 
+        // Core caps faildelay at one day, so ">" never matched the default of one day (N1). A task with no
+        // attempts left never runs again; one running now (timestarted) is left alone.
         $tasksdb = $DB->get_records_select(
             'task_adhoc',
-            'component = ? AND faildelay > ?',
-            ['local_coursetransfer', $faildelay]
+            'component = :component AND timestarted IS NULL AND (faildelay >= :faildelay OR attemptsavailable = 0)',
+            ['component' => 'local_coursetransfer', 'faildelay' => $faildelay]
         );
         if (count($tasksdb) > 0) {
             foreach ($tasksdb as $taskdb) {
+                // Never the customdata: it may hold a token (2.1 download tasks).
+                $desc = $taskdb->id . ' (' . $taskdb->classname . ', request ' .
+                    coursetransfer_request::get_task_request_id($taskdb) . ')';
                 try {
                     // Mark the linked request as errored so it is not left orphaned (LCT-015).
                     $this->fail_request($taskdb);
                     $DB->delete_records('task_adhoc', ['id' => $taskdb->id]);
-                    $this->log("Adhoc tasks remove" . json_encode($taskdb, JSON_PRETTY_PRINT));
-                } catch (moodle_exception $e) {
-                    $this->log("Adhoc tasks remove - ERROR" . json_encode($taskdb, JSON_PRETTY_PRINT) .
-                            ' - Msg: ' . $e->getMessage());
+                    $this->log('Adhoc task removed: ' . $desc);
+                } catch (\Throwable $e) {
+                    $this->log('Adhoc task remove - ERROR: ' . $desc . ' - Msg: ' . $e->getMessage());
                 }
             }
         } else {
@@ -118,11 +121,8 @@ class clean_adhoc_failed_task extends \core\task\scheduled_task {
      */
     private function fail_request(stdClass $taskdb): void {
         global $DB;
-        if (empty($taskdb->customdata)) {
-            return;
-        }
-        $data = json_decode($taskdb->customdata);
-        $requestid = isset($data->requestid) ? (int)$data->requestid : 0;
+        // The local request: backup tasks of 2.1 also carry the target's id in requestid (N4).
+        $requestid = coursetransfer_request::get_task_request_id($taskdb);
         if ($requestid <= 0) {
             return;
         }
@@ -130,10 +130,11 @@ class clean_adhoc_failed_task extends \core\task\scheduled_task {
         if (!$request || (int)$request->status === coursetransfer_request::STATUS_COMPLETED) {
             return;
         }
-        $request->status = coursetransfer_request::STATUS_ERROR;
-        $request->error_message = 'Adhoc task removed after repeated failures (clean_adhoc_failed_task); '
-                . 'check cron execution and CLI memory/time limits.';
-        coursetransfer_request::insert_or_update($request, $request->id);
+        coursetransfer_request::update_fields($requestid, [
+            'status' => coursetransfer_request::STATUS_ERROR,
+            'error_message' => 'Adhoc task removed after repeated failures (clean_adhoc_failed_task); '
+                . 'check cron execution and CLI memory/time limits.',
+        ]);
         $this->log("Request {$requestid} marked as ERROR (orphaned adhoc task removed)");
     }
 }

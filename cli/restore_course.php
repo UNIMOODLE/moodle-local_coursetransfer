@@ -43,6 +43,10 @@ global $CFG;
 require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
+// Run as the admin, as core admin CLI scripts do: without a user, category lookups and
+// capability checks fail on sites with forcelogin (the default for new sites from 5.3).
+\core\session\manager::set_user(get_admin());
+
 $usage = 'Restore a course from a remote (origin) platform into this site.
 
 The origin platform must be registered as a paired "origin" site (with its
@@ -160,11 +164,16 @@ if (!in_array($targettarget, [backup::TARGET_NEW_COURSE, backup::TARGET_EXISTING
 // Fail fast if the service user is missing (before creating anything).
 $user = \local_coursetransfer\cli_helper::require_ws_user();
 
-// Track whether THIS run created the target course, so the error handling only
-// ever deletes a course we created (never a pre-existing target = data loss).
-$creatednew = false;
+if (empty($targetcourseid) && $targettarget !== backup::TARGET_NEW_COURSE) {
+    cli_error(get_string('target_course_id_is_required', 'local_coursetransfer'), 2);
+} else if (!empty($targetcourseid) && $targettarget === backup::TARGET_NEW_COURSE) {
+    cli_error(get_string('target_course_id_isnot_correct', 'local_coursetransfer'), 2);
+}
 
-if (empty($targetcourseid) && ($targettarget === backup::TARGET_NEW_COURSE)) {
+// The category of a new course is resolved now, but the course is created only once every option is valid:
+// an invalid option used to leave an empty course behind (LCT-102).
+$category = null;
+if (empty($targetcourseid)) {
     if ($targetcategoryid !== null) {
         try {
             $category = core_course_category::get($targetcategoryid);
@@ -174,17 +183,6 @@ if (empty($targetcourseid) && ($targettarget === backup::TARGET_NEW_COURSE)) {
     } else {
         $category = core_course_category::get_default();
     }
-    // Create new course.
-    $targetcourseid = \local_coursetransfer\factory\course::create(
-        $category,
-        'Remote Restoring in process...',
-        'IN-PROGRESS-' . time()
-    );
-    $creatednew = true;
-} else if (empty($targetcourseid) && $targettarget !== backup::TARGET_NEW_COURSE) {
-    cli_error(get_string('target_course_id_is_required', 'local_coursetransfer'), 2);
-} else if (!empty($targetcourseid) && $targettarget === backup::TARGET_NEW_COURSE) {
-    cli_error(get_string('target_course_id_isnot_correct', 'local_coursetransfer'), 2);
 }
 
 if (!in_array((int)$originenrolusers, [0, 1])) {
@@ -210,6 +208,18 @@ if ($targettarget === backup::TARGET_EXISTING_ADDING && $targetremovegroups === 
 
 if ($targettarget === backup::TARGET_EXISTING_ADDING && $targetremoveenrols === 1) {
     cli_error(get_string('in_target_adding_not_remove_enrols', 'local_coursetransfer'), 2);
+}
+
+// Track whether THIS run created the target course, so the error handling only
+// ever deletes a course we created (never a pre-existing target = data loss).
+$creatednew = false;
+if ($category) {
+    $targetcourseid = \local_coursetransfer\factory\course::create(
+        $category,
+        'Remote Restoring in process...',
+        'IN-PROGRESS-' . time()
+    );
+    $creatednew = true;
 }
 
 $errors = [];

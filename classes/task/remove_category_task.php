@@ -38,7 +38,10 @@ use local_coursetransfer\api\request;
 use local_coursetransfer\coursetransfer_remove;
 use local_coursetransfer\coursetransfer_request;
 use local_coursetransfer\coursetransfer_sites;
-use moodle_exception;
+use local_coursetransfer\event\remote_removal_executed;
+use local_coursetransfer\event\remote_removal_rejected;
+use stdClass;
+use Throwable;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -60,69 +63,150 @@ class remove_category_task extends \core\task\adhoc_task {
     use \core\task\logging_trait;
 
     /**
+     * Name shown in the task lists and logs, in the language of the site (LCT-124).
+     *
+     * @return string
+     */
+    public function get_name(): string {
+        return get_string('task_remove_category', 'local_coursetransfer');
+    }
+
+    /**
      * Execute.
      *
      */
     public function execute(): void {
+        global $DB;
+        $this->log_start("Remove Category Remote Starting...");
 
+        $data = $this->get_custom_data();
+        $requestoriginid = (int)($data->requestoriginid ?? 0);
+        $requestdestid = (int)($data->requestdestid ?? 0);
+        $catid = (int)($data->catid ?? 0);
+
+        $requestorigin = coursetransfer_request::get($requestoriginid);
+        if (!$requestorigin) {
+            // Without its request nothing would record what was removed (LCT-036).
+            $this->log_finish('Request ' . $requestoriginid . ' not found: nothing removed.');
+            return;
+        }
+        if ((int)$requestorigin->status === coursetransfer_request::STATUS_COMPLETED) {
+            $this->log_finish('Request ' . $requestoriginid . ' already completed.');
+            return;
+        }
+
+        $user = \core_user::get_user((int)($data->userid ?? 0));
+        $request = null;
         try {
-            $this->log_start("Remove Category Remote Starting...");
+            $site = coursetransfer_sites::get('target', (int)($data->targetsiteid ?? 0));
+            $request = $site ? new request($site) : null;
 
-            $targetsiteid = $this->get_custom_data()->targetsiteid;
-            $catid = $this->get_custom_data()->catid;
-            $requestoriginid = $this->get_custom_data()->requestoriginid;
-            $requestdestid = $this->get_custom_data()->requestdestid;
-            $userid = $this->get_custom_data()->userid;
+            $category = \core_course_category::get($catid, MUST_EXIST, true);
+            // The removal runs as the cron: check it on the user who asked for it.
+            if (
+                !$user || !has_capability('moodle/category:manage', $category->get_context(), $user)
+                    || !has_capability('local/coursetransfer:origin_remove_category', \context_system::instance(), $user)
+            ) {
+                $this->fail($requestorigin, $request, $user, $requestdestid, '19002', 'USER HAS NOT CAPABILITY');
+                return;
+            }
 
-            $user = \core_user::get_user($userid);
-            $site = coursetransfer_sites::get('target', $targetsiteid);
-            $request = new request($site);
+            // The served backups of its courses would go with their contexts: they must outlive the removal.
+            $courseids = $DB->get_fieldset_sql(
+                'SELECT c.id FROM {course} c JOIN {course_categories} cc ON cc.id = c.category
+                  WHERE cc.id = :id OR ' . $DB->sql_like('cc.path', ':path'),
+                ['id' => $catid, 'path' => $category->path . '/%']
+            );
+            coursetransfer_remove::preserve_served_backups($courseids);
+            \core_course_external::delete_categories([['id' => $catid, 'recursive' => 1]]);
 
-            $requestorigin = coursetransfer_request::get($requestoriginid);
-            try {
-                $categories = [
-                        ['id' => $catid, 'recursive' => 1],
-                ];
-                \core_course_external::delete_categories($categories);
+            coursetransfer_request::update_fields($requestoriginid, ['status' => coursetransfer_request::STATUS_COMPLETED]);
+            $this->audit(remote_removal_executed::class, $requestorigin, 'removed');
 
-                $requestorigin->status = coursetransfer_request::STATUS_COMPLETED;
-                coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
+            coursetransfer_remove::create_cleanup_category_bin_task($catid);
 
-                coursetransfer_remove::create_cleanup_category_bin_task($catid);
-
-                $res = $request->target_remove_course_completed($requestdestid, $user);
-
-                if (!$res->success) {
-                    $requestorigin->status = coursetransfer_request::STATUS_ERROR;
-                    $requestorigin->error_code = $res->errors[0]->code;
-                    $requestorigin->error_message = $res->errors[0]->msg;
-                    coursetransfer_request::insert_or_update($requestorigin, $requestorigin->id);
-                    mtrace('Remove Course Remote in Completed Callback ERROR: ' . $res->errors[0]->msg);
-                    $this->log(json_encode($res));
-                    coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
+            if ($request) {
+                // The category is removed whatever the target answers: a failed notice is a note on a completed
+                // request, never an error that would say the removal did not happen (C3).
+                try {
+                    $res = $request->target_remove_course_completed($requestdestid, $user);
+                    $why = $res->success ? '' : ($res->errors[0]->code ?? '') . ' ' . ($res->errors[0]->msg ?? '');
+                } catch (Throwable $e) {
+                    $res = null;
+                    $why = $e->getMessage();
                 }
-            } catch (moodle_exception $e) {
-                mtrace('Remove Category Remote ERROR: ' . $e->getMessage());
-                $requestorigin->status = coursetransfer_request::STATUS_ERROR;
-                $requestorigin->error_code = '19001';
-                $requestorigin->error_message = $e->getMessage();
-                coursetransfer_request::insert_or_update($requestorigin, $requestoriginid);
-                $res = $request->target_remove_course_error(
-                    $user,
-                    $requestdestid,
-                    $requestorigin->error_message,
-                    $requestorigin->error_code
-                );
+                if ($why !== '') {
+                    coursetransfer_request::update_fields($requestoriginid, [
+                        'error_code' => '15010',
+                        'error_message' => 'Removed; the target was not told: ' . trim($why),
+                    ]);
+                    mtrace('Remove Category Remote: removed, but the completed callback failed: ' . trim($why));
+                    $this->log(json_encode($res));
+                }
+            }
+        } catch (Throwable $e) {
+            // Leave the request in a final state and tell the target (LCT-015).
+            $this->fail($requestorigin, $request, $user, $requestdestid, '19001', $e->getMessage());
+        } finally {
+            $this->log_finish("Remove Category Remote Finishing...");
+        }
+    }
+
+    /**
+     * Mark the request as failed and tell the target.
+     *
+     * @param stdClass $requestorigin
+     * @param request|null $request
+     * @param stdClass|false $user
+     * @param int $requestdestid
+     * @param string $code
+     * @param string $message
+     */
+    protected function fail(
+        stdClass $requestorigin,
+        ?request $request,
+        $user,
+        int $requestdestid,
+        string $code,
+        string $message
+    ): void {
+        mtrace('Remove Category Remote ERROR: ' . $message);
+        $this->audit(remote_removal_rejected::class, $requestorigin, $code . ' ' . $message);
+        try {
+            coursetransfer_request::update_fields((int)$requestorigin->id, [
+                'status' => coursetransfer_request::STATUS_ERROR,
+                'error_code' => $code,
+                'error_message' => $message,
+            ]);
+            if ($request && $user) {
+                $res = $request->target_remove_course_error($user, $requestdestid, $message, $code);
                 if (!$res->success) {
                     mtrace('Remove Course Remote in Error Callback ERROR: ' . $res->errors[0]->msg);
                     $this->log(json_encode($res));
                 }
             }
-        } catch (moodle_exception $e) {
-            mtrace('Remove Category Remote ERROR: ' . $e->getMessage());
-            $this->log($e->getMessage());
+        } catch (Throwable $e) {
+            $this->log('Remove Category Remote ERROR: ' . $e->getMessage());
         }
+    }
 
-        $this->log_finish("Remove Category Remote Finishing...");
+    /**
+     * Audit what was done with a removal asked by another platform.
+     *
+     * @param string $event Event class.
+     * @param stdClass $requestorigin
+     * @param string $result
+     */
+    protected function audit(string $event, stdClass $requestorigin, string $result): void {
+        try {
+            $event::fire((int)$requestorigin->id, (int)($this->get_custom_data()->userid ?? 0), [
+                'kind' => 'category',
+                'id' => (int)($this->get_custom_data()->catid ?? 0),
+                'site' => (string)$requestorigin->siteurl,
+                'result' => $result,
+            ]);
+        } catch (Throwable $e) {
+            $this->log('Audit event not triggered: ' . $e->getMessage());
+        }
     }
 }

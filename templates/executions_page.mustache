@@ -110,6 +110,12 @@
             <div class="ct-alert ct-alert--warning ct-mt">
                 <i class="fa fa-exclamation-triangle ct-alert-icon" aria-hidden="true"></i>
                 <p>{{#str}} exec_stuck, local_coursetransfer, {{ since }} {{/str}}</p>
+                {{#canretry}}
+                <a class="ct-error-action" href="{{ retryurl }}">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                    {{#str}} exec_retry, local_coursetransfer {{/str}}
+                </a>
+                {{/canretry}}
             </div>
             {{/stuck}}
         </div>
@@ -226,9 +232,11 @@
                     <a class="ct-iconbtn ct-iconbtn--xs" href="{{ detailurl }}" target="_blank" rel="noopener" title="{{#str}} exec_detail, local_coursetransfer {{/str}}" aria-label="{{#str}} exec_detail, local_coursetransfer {{/str}}">
                         <i class="fa fa-chevron-right" aria-hidden="true"></i>
                     </a>
+                    {{#candelete}}
                     <button type="button" class="ct-iconbtn ct-iconbtn--xs ct-iconbtn--danger" data-action="delete-log" data-id="{{ id }}" title="{{#str}} exec_delete, local_coursetransfer {{/str}}" aria-label="{{#str}} exec_delete, local_coursetransfer {{/str}}">
                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                     </button>
+                    {{/candelete}}
                 </span>
             </div>
             {{#iserror}}
@@ -250,6 +258,19 @@
                 </div>
             </div>
             {{/iserror}}
+            {{#iskept}}
+            <div class="ct-log-error ct-log-error--kept">
+                <button type="button" class="ct-log-error-toggle" data-action="toggle-error" aria-expanded="false">
+                    <i class="fa fa-shield" aria-hidden="true"></i>
+                    <span>{{ kepttitle }}</span>
+                    <i class="fa fa-chevron-down" aria-hidden="true" data-region="chevron"></i>
+                </button>
+                <div class="ct-log-error-body" data-region="error-body" hidden>
+                    <p class="ct-error-title">{{ keptcause }}</p>
+                    <p class="ct-error-body">{{ keptaction }}</p>
+                </div>
+            </div>
+            {{/iskept}}
         </div>
         {{/rows}}
         {{#norows}}

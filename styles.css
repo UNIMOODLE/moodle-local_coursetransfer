@@ -291,8 +291,55 @@
     color: var(--text-subtle);
 }
 
+.local-coursetransfer .ct-search {
+    transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+}
+
+/* Focus: a darker border on a white field, instead of a coloured ring around the box. */
 .local-coursetransfer .ct-search:focus-within {
-    box-shadow: 0 0 0 3px var(--focus-ring);
+    border-color: var(--neutral-500);
+    background: var(--neutral-0);
+}
+
+/* The box shows the focus (border above), so the field inside does not draw its own ring. Some themes (Fresk)
+   give every focused field a 2px outline with !important: it has to be beaten the same way, only here. */
+.local-coursetransfer .ct-search input:focus,
+.local-coursetransfer .ct-search input:focus-visible {
+    /* stylelint-disable-next-line declaration-no-important -- beats the !important focus outline of the theme */
+    outline: none !important;
+    box-shadow: none;
+}
+
+/* "Searching…" line under the search box while the origin answers; the rows already shown stay, dimmed. */
+.local-coursetransfer .ct-searchstatus {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: -6px 0 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.local-coursetransfer .ct-searchstatus[hidden] {
+    display: none;
+}
+
+.local-coursetransfer .ct-rows--busy {
+    opacity: 0.5;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.local-coursetransfer .ct-target-dd--busy .ct-target-result {
+    opacity: 0.5;
+}
+
+.local-coursetransfer .ct-target-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text-muted);
 }
 
 /* ---- Alerts ---- */
@@ -538,6 +585,27 @@
 .local-coursetransfer .ct-error-block .ct-error-action:hover {
     text-decoration: underline;
     color: var(--danger-500);
+}
+
+.local-coursetransfer .ct-error-block .ct-error-content {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+}
+
+.local-coursetransfer .ct-error-block .ct-error-list {
+    margin: 0 0 8px;
+    padding-left: 18px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--neutral-700);
+    overflow-wrap: anywhere;
+}
+
+.local-coursetransfer .ct-error-block .ct-error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 /* ---- Utilities ---- */
@@ -1832,6 +1900,12 @@
     transition: transform var(--dur-fast) var(--ease-standard);
 }
 
+.local-coursetransfer .ct-log-error--kept .ct-log-error-toggle,
+.local-coursetransfer .ct-log-error--kept .ct-log-error-body {
+    background: var(--warning-50);
+    color: var(--warning-700);
+}
+
 .local-coursetransfer .ct-log-error-body {
     background: var(--danger-50);
     border-radius: 0 0 var(--radius-sm) var(--radius-sm);
@@ -2550,7 +2624,18 @@
     color: var(--text-body);
 }
 
+.local-coursetransfer .ct-sectree-name.ct-text-muted,
+.local-coursetransfer .ct-sectree-actname.ct-text-muted {
+    /* After the tree rules, which set their own colour with the same specificity (LCT-121). */
+    color: var(--text-muted);
+}
+
 .local-coursetransfer .ct-sectree-acttype {
+    /* A long translated type («Área de texto y medios») wraps instead of squeezing the name. */
+    flex: 0 1 auto;
+    max-width: 45%;
+    overflow-wrap: anywhere;
+    text-align: right;
     font-size: 10.5px;
     font-weight: 600;
     color: var(--text-muted);
@@ -3599,6 +3684,11 @@
 
 .local-coursetransfer .ct-destcard--danger {
     border-color: var(--magenta-border);
+}
+
+/* Same existing target chosen twice with "replace": blocks the step. */
+.local-coursetransfer .ct-destcard-dupwarn {
+    padding: 0 16px 10px;
 }
 
 .local-coursetransfer .ct-destcard-head {
@@ -5443,4 +5533,9 @@ div.local_coursetransfer div[data-region="stepbystep"] ul.stepbystep li.line {
     margin-bottom: 10px;
     margin-top: 5px;
     color: orange;
+}
+
+.local-coursetransfer .ct-detail-error--kept {
+    background: var(--warning-50);
+    border-color: var(--warning-700);
 }

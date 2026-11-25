@@ -39,7 +39,6 @@ use dml_exception;
 use local_coursetransfer\factory\user;
 use stdClass;
 
-
 /**
  * Shared helpers for the plugin CLI scripts.
  *
@@ -125,5 +124,15 @@ class cli_helper {
             cli_error(get_string('cli_ws_user_missing', 'local_coursetransfer'), self::EXIT_RUNTIME);
         }
         return $wsuser;
+    }
+
+    /**
+     * Hide the web service token of a URL before printing it (TIPCOUTRAN-10, H4).
+     *
+     * @param string $text
+     * @return string
+     */
+    public static function mask_token(string $text): string {
+        return preg_replace('/([?&](?:ws)?token=)[^&#\s]+/i', '$1***', $text);
     }
 }

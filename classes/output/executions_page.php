@@ -69,6 +69,9 @@ class executions_page implements renderable, templatable {
     /** @var int Total rows matching the filters */
     protected int $total;
 
+    /** @var bool Whether the user may delete requests from the history */
+    protected bool $candelete;
+
     /** @var array Current filters (raw values from the page) */
     protected array $filters;
 
@@ -114,6 +117,7 @@ class executions_page implements renderable, templatable {
         $this->tab = $tab;
         $this->page = $page;
         $this->perpage = $perpage;
+        $this->candelete = has_capability('local/coursetransfer:manage_requests', \context_system::instance());
     }
 
     /**
@@ -131,6 +135,8 @@ class executions_page implements renderable, templatable {
         $data->exporturl = (new moodle_url('/local/coursetransfer/export.php'))->out(false);
         $data->back = (new moodle_url('/admin/settings.php', ['section' => 'local_coursetransfer']))->out(false);
         $data->summary = (new moodle_url('/local/coursetransfer/index.php'))->out(false);
+        // Deleting a log writes: it needs manage_requests, not view_logs.
+        $data->candelete = $this->candelete;
 
         $data->active = [];
         foreach ($this->active as $request) {
@@ -168,12 +174,13 @@ class executions_page implements renderable, templatable {
     protected function export_active(stdClass $request): stdClass {
         $item = $this->export_common($request);
 
-        // Five phases: accepted, backup, download, restore, completed.
+        // Five phases: accepted, backup, download, restore, completed. Once accepted, the origin is making the
+        // backup; the backup status only comes with its callback, when the copy is ready to download (LCT-127).
         $status = (int)$request->status;
         $phasemap = [
             coursetransfer_request::STATUS_NOT_STARTED => 0,
-            coursetransfer_request::STATUS_IN_PROGRESS => 0,
-            coursetransfer_request::STATUS_BACKUP => 1,
+            coursetransfer_request::STATUS_IN_PROGRESS => 1,
+            coursetransfer_request::STATUS_BACKUP => 2,
             coursetransfer_request::STATUS_DOWNLOAD => 2,
             coursetransfer_request::STATUS_DOWNLOADED => 2,
             coursetransfer_request::STATUS_RESTORE => 3,
@@ -226,6 +233,10 @@ class executions_page implements renderable, templatable {
         $age = time() - (int)$request->timemodified;
         $item->stuck = $age > (self::STUCK_MINUTES * 60);
         $item->since = format_time($age);
+        // A course request stopped for long enough can be relaunched from here too (#45).
+        $item->canretry = $item->stuck && coursetransfer::can_retry($request)
+            && has_capability('local/coursetransfer:manage_requests', \context_system::instance());
+        $item->retryurl = (new moodle_url('/local/coursetransfer/retry.php', ['id' => $request->id]))->out(false);
         return $item;
     }
 
@@ -241,6 +252,8 @@ class executions_page implements renderable, templatable {
         $item->size = empty($request->origin_backup_size) ? '—' : display_size((int)$request->origin_backup_size);
         $isincomplete = (int)$request->status === coursetransfer_request::STATUS_INCOMPLETED;
         $item->iserror = (int)$request->status === coursetransfer_request::STATUS_ERROR || $isincomplete;
+        // Any request can be deleted; the server says when it has to wait (a task running now, a kept copy).
+        $item->candelete = $this->candelete;
         if ($item->iserror) {
             $item->errcause = trim(($request->error_code ? $request->error_code . ': ' : '')
                     . (string)$request->error_message);
@@ -258,11 +271,22 @@ class executions_page implements renderable, templatable {
                 'local_coursetransfer'
             );
             // Retry is only implemented for course restores (LCT-023).
-            $item->canretry = (int)$request->type === coursetransfer_request::TYPE_COURSE;
+            $item->canretry = (int)$request->type === coursetransfer_request::TYPE_COURSE
+                && has_capability('local/coursetransfer:manage_requests', \context_system::instance());
             $item->retryurl = (new moodle_url(
                 '/local/coursetransfer/retry.php',
                 ['id' => $request->id]
             ))->out(false);
+        }
+        // Completed, but the origin was kept on purpose: say so, why and what to do (B1).
+        $keptaction = coursetransfer_request::origin_kept_action($request);
+        $item->iskept = $keptaction !== null;
+        if ($item->iskept) {
+            $item->keptcause = trim((string)$request->error_message) !== '' ? (string)$request->error_message
+                : get_string('exec_err_nomessage', 'local_coursetransfer');
+            $item->kepttitle = get_string($keptaction[0], 'local_coursetransfer');
+            $item->keptaction = get_string($keptaction[1], 'local_coursetransfer');
+            $item->keptcode = $request->error_code;
         }
         return $item;
     }

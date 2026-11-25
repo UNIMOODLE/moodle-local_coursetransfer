@@ -43,7 +43,8 @@ $confirm = optional_param('confirm', 0, PARAM_INT);
 
 require_login();
 $context = context_system::instance();
-require_capability('local/coursetransfer:view_logs', $context);
+// Retrying re-runs a restore: a write, beyond view_logs.
+require_capability('local/coursetransfer:manage_requests', $context);
 
 $PAGE->set_context($context);
 $PAGE->set_url(new moodle_url('/local/coursetransfer/retry.php', ['id' => $id]));
@@ -68,11 +69,13 @@ $returnurl = new moodle_url(
     ['type' => $request->type, 'direction' => $request->direction]
 );
 
-// Confirmation step.
+// Confirmation step. A request not in error is only relaunched when it has stopped moving (#45).
+$stalled = !in_array((int)$request->status, [coursetransfer_request::STATUS_ERROR,
+        coursetransfer_request::STATUS_INCOMPLETED], true);
 if (!$confirm) {
     echo $OUTPUT->header();
     echo $OUTPUT->confirm(
-        get_string('retry_confirm', 'local_coursetransfer', $id),
+        get_string($stalled ? 'retry_confirm_stalled' : 'retry_confirm', 'local_coursetransfer', $id),
         new moodle_url('/local/coursetransfer/retry.php', ['id' => $id, 'confirm' => 1, 'sesskey' => sesskey()]),
         $returnurl
     );
@@ -82,7 +85,12 @@ if (!$confirm) {
 
 require_sesskey();
 
-$res = coursetransfer::restore_retry($request);
+try {
+    $res = coursetransfer::restore_retry($request);
+} catch (Throwable $e) {
+    // E.g. the platform is no longer registered: say so instead of a raw error page (B4).
+    $res = ['success' => false, 'errors' => [['code' => '10027', 'msg' => $e->getMessage()]]];
+}
 
 if (!empty($res['success'])) {
     redirect($returnurl, get_string('retry_ok', 'local_coursetransfer'), null, notification::NOTIFY_SUCCESS);

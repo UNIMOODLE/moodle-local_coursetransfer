@@ -35,7 +35,10 @@
 namespace local_coursetransfer\output;
 
 use dml_exception;
+use local_coursetransfer\coursetransfer;
+use local_coursetransfer\coursetransfer_remove;
 use local_coursetransfer\coursetransfer_sites;
+use local_coursetransfer\external\backend\backend_api;
 use local_coursetransfer\factory\user;
 use moodle_exception;
 use moodle_url;
@@ -54,6 +57,9 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class index_page implements renderable, templatable {
+    /** @var int Timeout in seconds above which the summary suggests lowering it (LCT-119). */
+    const TIMEOUT_WARN = 120;
+
     /**
      * constructor.
      *
@@ -112,7 +118,8 @@ class index_page implements renderable, templatable {
             '/admin/settings.php',
             ['section' => 'local_coursetransfer']
         ))->out(false);
-        $data->url_postinstall = (new moodle_url('/local/coursetransfer/postinstall.php'))->out(false);
+        // Repair runs on a sesskey-protected URL (LCT-030).
+        $data->url_postinstall = (new moodle_url('/local/coursetransfer/postinstall.php', ['sesskey' => sesskey()]))->out(false);
         $data->url_platforms = (new moodle_url('/local/coursetransfer/sites.php'))->out(false);
         $data->url_logs = (new moodle_url('/local/coursetransfer/logs.php'))->out(false);
 
@@ -155,7 +162,24 @@ class index_page implements renderable, templatable {
             $sysctx = \context_system::instance();
             $capsok = has_capability('webservice/rest:use', $sysctx, $user)
                     && has_capability('moodle/backup:backupcourse', $sysctx, $user)
-                    && has_capability('moodle/restore:restorecourse', $sysctx, $user);
+                    && has_capability('moodle/restore:restorecourse', $sysctx, $user)
+                    && has_capability('local/coursetransfer:webservice', $sysctx, $user);
+        }
+
+        // Site policies accepted by the service user: a new policy version resets the acceptance of every
+        // user and other platforms then fail with 'sitepolicynotagreed' (LCT-074).
+        $policystate = 'error';
+        $policystatus = get_string('idx_check_user_ko', 'local_coursetransfer');
+        if ($user) {
+            if (coursetransfer::site_policies_block($user)) {
+                $policystatus = get_string('idx_check_policies_ko', 'local_coursetransfer');
+            } else if (coursetransfer::pending_site_policies((int)$user->id)) {
+                $policystate = 'warn';
+                $policystatus = get_string('idx_check_policies_pending', 'local_coursetransfer');
+            } else {
+                $policystate = 'ok';
+                $policystatus = get_string('idx_check_policies_ok', 'local_coursetransfer');
+            }
         }
 
         // Cron recency: deferred/async restores and deletions run through cron.
@@ -171,7 +195,34 @@ class index_page implements renderable, templatable {
         $cronago = $lastcron > 0 ? format_time(time() - $lastcron) : '';
 
         $repair = get_string('idx_fix', 'local_coursetransfer');
+        [$binstate, $binstatus] = $this->recyclebin_status();
+
+        // Peers still calling with a user without the capability (accepted in 2.2 only, Decision 4).
+        $legacy = backend_api::get_legacy_use();
+        $legacystatus = get_string('idx_check_legacyws_ok', 'local_coursetransfer');
+        if ($legacy) {
+            $legacyuser = \core_user::get_user((int)$legacy['userid']);
+            $legacystatus = get_string('idx_check_legacyws_ko', 'local_coursetransfer', (object)[
+                'user' => $legacyuser ? fullname($legacyuser) . ' (' . $legacyuser->username . ')' : '#' . $legacy['userid'],
+                'time' => userdate((int)$legacy['time'], get_string('strftimedatetimeshort', 'langconfig')),
+            ]);
+        }
         $urltasks = (new moodle_url('/admin/tool/task/scheduledtasks.php'))->out(false);
+
+        // Connection settings worth reviewing (LCT-119): every call to a platform that does not answer, also "Test
+        // connection" and the tasks, waits the whole timeout.
+        $timeout = (int)get_config('local_coursetransfer', 'request_timeout') ?: \local_coursetransfer\api\request::TIMEOUT;
+        $timeoutok = $timeout <= self::TIMEOUT_WARN;
+        $ignorecurl = (bool)get_config('local_coursetransfer', 'ignorecurlsecurity');
+        $connstatus = get_string($timeoutok ? 'idx_check_conn_ok' : 'idx_check_conn_timeout', 'local_coursetransfer', $timeout);
+        if ($ignorecurl) {
+            $connstatus .= ' ' . get_string('idx_check_conn_ignorecurl', 'local_coursetransfer');
+        }
+
+        // The plugin local_read_only drops in silence what a non-admin writes from the web, web services
+        // included: the callbacks of the other platforms would answer OK and change nothing (LCT-125).
+        // The service user lookup gives false when the user is missing.
+        $readonly = $this->readonly_status($user ?: null);
 
         $data->checks = [
             $this->check(
@@ -240,7 +291,50 @@ class index_page implements renderable, templatable {
                 get_string('platforms_link', 'local_coursetransfer'),
                 $data->url_platforms
             ),
+            $this->check(
+                'fa-recycle',
+                get_string('idx_check_recyclebin', 'local_coursetransfer'),
+                $binstate,
+                $binstatus,
+                $binstate === 'ok' ? '' : get_string('config', 'local_coursetransfer'),
+                $binstate === 'ok' ? '' : (new moodle_url('/admin/settings.php', ['section' => 'tool_recyclebin']))->out(false)
+            ),
+            $this->check(
+                'fa-exchange',
+                get_string('idx_check_legacyws', 'local_coursetransfer'),
+                $legacy ? 'warn' : 'ok',
+                $legacystatus,
+                $legacy ? $repair : '',
+                $legacy ? $data->url_postinstall : ''
+            ),
+            $this->check(
+                'fa-file-text-o',
+                get_string('idx_check_policies', 'local_coursetransfer'),
+                $policystate,
+                $policystatus,
+                $policystate === 'ok' ? '' : $repair,
+                $policystate === 'ok' ? '' : $data->url_postinstall
+            ),
+            $this->check(
+                'fa-hourglass-half',
+                get_string('idx_check_conn', 'local_coursetransfer'),
+                $timeoutok ? 'ok' : 'warn',
+                $connstatus,
+                $timeoutok && !$ignorecurl ? '' : get_string('config', 'local_coursetransfer'),
+                $timeoutok && !$ignorecurl ? '' : $data->url_config
+            ),
         ];
+        if ($readonly) {
+            [$rostate, $rostatus] = $readonly;
+            $data->checks[] = $this->check(
+                'fa-lock',
+                get_string('idx_check_readonly', 'local_coursetransfer'),
+                $rostate,
+                $rostatus,
+                $rostate === 'ok' ? '' : get_string('idx_check_readonly_fix', 'local_coursetransfer'),
+                $rostate === 'ok' ? '' : (new moodle_url('/admin/roles/admins.php'))->out(false)
+            );
+        }
 
         // Quick links.
         $data->pluginlinks = [
@@ -291,6 +385,55 @@ class index_page implements renderable, templatable {
         ];
 
         return $data;
+    }
+
+    /**
+     * Whether local_read_only would drop what the other platforms write here, when that plugin is installed.
+     *
+     * It replaces $DB and, on the web, drops without error the writes of anyone but a site admin, web services
+     * included; cron and site admins are exempt (moodle/third-party/local_read_only in the Tresipunt rules).
+     *
+     * @param stdClass|null $user Service user of this site.
+     * @return array|null [state ok|error, status text], or null when the plugin is not installed.
+     */
+    protected function readonly_status(?stdClass $user): ?array {
+        if (!\core_plugin_manager::instance()->get_plugin_info('local_read_only')) {
+            return null;
+        }
+        // Its activation setting defaults to on: unset means on.
+        $mode = get_config('local_read_only', 'enable_readonly');
+        if ($mode !== false && empty($mode)) {
+            return ['ok', get_string('idx_check_readonly_off', 'local_coursetransfer')];
+        }
+        if ($user && is_siteadmin($user)) {
+            return ['ok', get_string('idx_check_readonly_admin', 'local_coursetransfer', $user->username)];
+        }
+        return ['error', get_string('idx_check_readonly_ko', 'local_coursetransfer', user::USERNAME_WS)];
+    }
+
+    /**
+     * State of the recycle bin that keeps the courses removed at the request of another platform.
+     *
+     * Those courses go to the category recycle bin of tool_recyclebin, which empties it on its own
+     * (categorybinexpiry): recyclebinretentiondays never keeps them longer.
+     *
+     * @return array [state ok|warn, status text]
+     */
+    protected function recyclebin_status(): array {
+        $retention = coursetransfer_remove::get_recyclebin_retention();
+        $days = (int)round($retention / DAYSECS);
+        $enabled = get_config('tool_recyclebin', 'categorybinenable');
+        if ($enabled !== false && !(bool)$enabled) {
+            return ['warn', get_string('idx_check_recyclebin_off', 'local_coursetransfer', $days)];
+        }
+        $expiry = (int)get_config('tool_recyclebin', 'categorybinexpiry');
+        if ($expiry > 0 && $expiry < $retention) {
+            return ['warn', get_string('idx_check_recyclebin_short', 'local_coursetransfer', (object)[
+                'core' => round($expiry / DAYSECS, 1),
+                'plugin' => $days,
+            ])];
+        }
+        return ['ok', get_string('idx_check_recyclebin_ok', 'local_coursetransfer', $days)];
     }
 
     /**

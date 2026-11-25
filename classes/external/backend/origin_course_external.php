@@ -35,7 +35,6 @@
 namespace local_coursetransfer\external\backend;
 
 use core_course_category;
-use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
 use core_external\external_single_structure;
@@ -57,7 +56,7 @@ require_once($CFG->dirroot . '/group/lib.php');
  *
  * @package local_coursetransfer\external\backend
  */
-class origin_course_external extends external_api {
+class origin_course_external extends backend_api {
     /**
      * Origin get courses parameters.
      *
@@ -103,6 +102,7 @@ class origin_course_external extends external_api {
                 'search' => $search,
             ]
         );
+        self::validate_service_user();
         $field = $params['field'];
         $value = $params['value'];
         $perpage = $params['perpage'] ?? 0;
@@ -233,6 +233,7 @@ class origin_course_external extends external_api {
                 'courseid' => $courseid,
             ]
         );
+        self::validate_service_user();
 
         $field = $params['field'];
         $value = $params['value'];
@@ -254,6 +255,9 @@ class origin_course_external extends external_api {
             $authres = coursetransfer::auth_user($field, $value);
             if ($authres['success']) {
                 $course = get_course($courseid);
+                if (!coursetransfer::can_backup_course($course, $authres['data'])) {
+                    throw new moodle_exception('nopermissions', 'error', '', 'moodle/backup:backupcourse');
+                }
                 // Defensive: a category not visible to the WS user must not break the detail.
                 $category = core_course_category::get($course->category, IGNORE_MISSING);
                 $data = [
@@ -275,7 +279,8 @@ class origin_course_external extends external_api {
             $success = false;
             $errors[] =
                 [
-                    'code' => '22001',
+                    // 22002: the named user may not back up this course (LCT-010).
+                    'code' => $e->errorcode === 'nopermissions' ? '22002' : '22001',
                     'msg' => $e->getMessage(),
                 ];
         }
@@ -301,8 +306,8 @@ class origin_course_external extends external_api {
                         'code' => new external_value(PARAM_INT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
                     ],
-                    PARAM_TEXT,
-                    'Errors'
+                    'Errors',
+                    VALUE_OPTIONAL
                 )),
                 'data' => new external_single_structure(
                     [
@@ -373,6 +378,7 @@ class origin_course_external extends external_api {
                 'courseids' => $courseids,
             ]
         );
+        self::validate_service_user();
         $field = $params['field'];
         $value = $params['value'];
         $courseids = $params['courseids'];
@@ -399,8 +405,9 @@ class origin_course_external extends external_api {
                     $item->idnumber = $course->idnumber;
                     $item->categoryid = $course->category;
                     $item->backupsizeestimated = coursetransfer::get_backup_size_estimated($course->id);
-                    $category = core_course_category::get($item->categoryid);
-                    $item->categoryname = $category->name;
+                    // Informative only, whether or not the service user sees hidden categories (LCT-068).
+                    $category = core_course_category::get($item->categoryid, IGNORE_MISSING, true);
+                    $item->categoryname = $category ? $category->name : '';
                     $data[] = $item;
                 }
                 $perpage = 0;

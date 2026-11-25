@@ -34,9 +34,7 @@
 
 namespace local_coursetransfer\external\backend;
 
-use context_course;
 use core_course_category;
-use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
 use core_external\external_single_structure;
@@ -60,7 +58,7 @@ require_once($CFG->dirroot . '/group/lib.php');
  *
  * @package local_coursetransfer\external\backend
  */
-class origin_course_backup_external extends external_api {
+class origin_course_backup_external extends backend_api {
     /**
      * Origin Backup course parameters.
      *
@@ -167,6 +165,7 @@ class origin_course_backup_external extends external_api {
                 'sections' => $sections,
             ]
         );
+        self::validate_service_user();
 
         $field = $params['field'];
         $value = $params['value'];
@@ -190,7 +189,8 @@ class origin_course_backup_external extends external_api {
                 $verifytarget = coursetransfer::verify_target_site($targetsite);
                 $user = $authres['data'];
                 if ($verifytarget['success']) {
-                    if (has_capability('moodle/backup:backupcourse', context_course::instance($course->id), $user)) {
+                    // Same rule as listing the course: capability, active enrolment (or access) and visibility (#60).
+                    if (coursetransfer::can_backup_course($course, $user)) {
                         $nextruntime = empty($configuration['nextruntime']) ? null : $configuration['nextruntime'];
                         $config = new configuration_course(
                             $configuration['target_target'],
@@ -300,8 +300,8 @@ class origin_course_backup_external extends external_api {
                         'code' => new external_value(PARAM_TEXT, 'Code'),
                         'msg' => new external_value(PARAM_TEXT, 'Message'),
                     ],
-                    PARAM_TEXT,
-                    'Errors'
+                    'Errors',
+                    VALUE_OPTIONAL
                 )),
                 'data' => new external_single_structure(
                     [
@@ -319,8 +319,8 @@ class origin_course_backup_external extends external_api {
                             VALUE_OPTIONAL
                         ),
                     ],
-                    PARAM_TEXT,
-                    'Data'
+                    'Data',
+                    VALUE_OPTIONAL
                 ),
             ]
         );

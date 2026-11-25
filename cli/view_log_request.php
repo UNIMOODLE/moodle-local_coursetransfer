@@ -32,6 +32,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_coursetransfer\cli_helper;
 use local_coursetransfer\coursetransfer;
 use local_coursetransfer\coursetransfer_request;
 
@@ -137,7 +138,8 @@ try {
                 cli_writeln($key . ': ' . get_string('status_' .
                                 coursetransfer::STATUS[$item]['shortname'], 'local_coursetransfer'));
             } else {
-                cli_writeln($key . ': ' . $item);
+                // The fileurl column carries the origin's token: never print it.
+                cli_writeln($key . ': ' . cli_helper::mask_token((string) $item));
             }
         }
     } else {

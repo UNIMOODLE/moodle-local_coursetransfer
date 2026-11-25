@@ -75,6 +75,9 @@ class request {
     /** @var string Error code: request was redirected (3xx) — URL/scheme mismatch. */
     const ERROR_REDIRECT = '12006';
 
+    /** @var int[] cURL errors of the TLS certificate check (51, 58, 60, 77, 82, 83, 90, 91). */
+    const TLS_ERRNOS = [51, 58, 60, 77, 82, 83, 90, 91];
+
     /** @var string Host */
     public string $host;
 
@@ -83,6 +86,31 @@ class request {
 
     /** @var int Timeout */
     public int $timeout;
+
+    /**
+     * cURL options of the TLS check of the peer, as the sslverifypeer setting says (on by default).
+     *
+     * @return array
+     */
+    public static function ssl_options(): array {
+        $verify = get_config('local_coursetransfer', 'sslverifypeer');
+        $verify = $verify === false || $verify === '' || (bool)$verify;
+        return ['CURLOPT_SSL_VERIFYPEER' => $verify ? 1 : 0, 'CURLOPT_SSL_VERIFYHOST' => $verify ? 2 : 0];
+    }
+
+    /**
+     * Text of a transport error: a failed certificate check says what to do about it.
+     *
+     * @param int $errno cURL error number.
+     * @param string $msg cURL error message.
+     * @param string $host Peer host.
+     * @return string
+     */
+    public static function transport_error(int $errno, string $msg, string $host): string {
+        $a = (object)['msg' => $msg !== '' ? $msg : 'cURL', 'errno' => $errno, 'host' => $host];
+        $key = in_array($errno, self::TLS_ERRNOS, true) ? 'error_ws_tls' : 'error_ws_curl';
+        return get_string($key, 'local_coursetransfer', $a);
+    }
 
     /**
      * request constructor.
@@ -146,11 +174,17 @@ class request {
      * @param stdClass|null $user
      * @param int|null $page
      * @param int|null $perpage
+     * @param string $search Sent only when not empty: an origin older than 2.2.3 rejects it (LCT-128).
      * @return response
      * @throws dml_exception
      */
-    public function origin_get_categories(?stdClass $user = null, ?int $page = null, ?int $perpage = null): response {
-        $params = $this->get_request_params($user, $page, $perpage);
+    public function origin_get_categories(
+        ?stdClass $user = null,
+        ?int $page = null,
+        ?int $perpage = null,
+        string $search = ''
+    ): response {
+        $params = $this->get_request_params($user, $page, $perpage, $search);
         return $this->req('local_coursetransfer_origin_get_categories', $params);
     }
 
@@ -449,10 +483,11 @@ class request {
             // blocks internal/loopback/private hosts common in site-to-site setups.
             $ignoresecurity = (bool) get_config('local_coursetransfer', 'ignorecurlsecurity');
             $curl = new \curl(['ignoresecurity' => $ignoresecurity]);
+            // Moodle's curl starts with SSL_VERIFYPEER off: the token must only reach a verified peer (sslverifypeer).
             $raw = $curl->post($this->host . '/webservice/rest/server.php', $params, [
                 'CURLOPT_TIMEOUT' => $this->timeout,
                 'CURLOPT_CONNECTTIMEOUT' => $this->timeout,
-            ]);
+            ] + self::ssl_options());
             $info = is_array($curl->info) ? $curl->info : [];
             $cerror = $curl->error;
             $cerrno = $curl->errno;
@@ -469,11 +504,7 @@ class request {
             $this->log_request($wsname, $info, $cerror, $cerrno, $raw);
             return $this->error_response(
                 self::ERROR_CURL,
-                $wsname . ': ' . get_string(
-                    'error_ws_curl',
-                    'local_coursetransfer',
-                    (object)['msg' => $cerror !== '' ? $cerror : 'cURL', 'errno' => $cerrno]
-                )
+                $wsname . ': ' . self::transport_error((int)$cerrno, (string)$cerror, $this->host)
             );
         }
 
@@ -523,12 +554,14 @@ class request {
 
         // Expected envelope from the remote plugin: { success, errors, data, paging }.
         if (isset($response->success) && isset($response->errors)) {
-            return new response(
+            $result = new response(
                 $response->success,
                 $response->data ?? null,
                 $response->errors,
                 $response->paging ?? null
             );
+            $result->deprecations = is_array($response->deprecations ?? null) ? $response->deprecations : null;
+            return $result;
         }
 
         // Anything else (Moodle exception envelope, HTML error page, ...).
