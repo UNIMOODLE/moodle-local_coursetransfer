@@ -1,4 +1,8 @@
-# Release 2.2.2
+# Release 2.2.3
+
+2.2.3 adds to 2.2.2 what came up in pre-production tests between real platforms: the category search of the origin filters by name or path, the searches of the wizards show their progress, the request detail shows the selected activities and the phases as they happen from both sides, any request can be deleted from the history (also one in progress, whose pending tasks then end without doing anything), and the integration status checks the connection settings and, when `local_read_only` is installed, its read-only mode. It supports Moodle 4.5, 5.1 and 5.3 and keeps the protocol between platforms. The notes of 2.2.2 and 2.2.1 below still apply.
+
+## 2.2.2
 
 2.2.2 adds two data-safety fixes to 2.2.1: the origin is not removed when user data was asked for and the backup arrived without it, and a check that could not be made (origin unreachable) no longer holds a removal for good. The notes of 2.2.1 below still apply.
 
